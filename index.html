@@ -46,6 +46,14 @@
       border-bottom: 6px solid var(--dourado);
     }
 
+    .logo-ebd {
+      width: 130px;
+      max-width: 45%;
+      height: auto;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.25));
+    }
+
     header h1 {
       margin: 0;
       font-size: 2.3rem;
@@ -453,6 +461,11 @@
         padding: 32px 16px;
       }
 
+      .logo-ebd {
+        width: 110px;
+        max-width: 55%;
+      }
+
       header h1 {
         font-size: 1.7rem;
       }
@@ -499,6 +512,12 @@
 <body>
 
   <header>
+    <img
+      src="https://i.imgur.com/e7ZOeSz.png"
+      alt="Logo da EBD"
+      class="logo-ebd"
+    />
+
     <h1>Escala da EBD</h1>
     <p>Escola Bíblica Dominical — até 28 de junho de 2026</p>
   </header>
@@ -1118,15 +1137,11 @@
     }
 
     async function enviarAlteracao(payload) {
-      if (APPS_SCRIPT_URL === "COLE_AQUI_A_URL_DO_APPS_SCRIPT") {
-        throw new Error("O Google Apps Script ainda não foi configurado.");
-      }
-
       const resposta = await fetch(APPS_SCRIPT_URL, {
         method: "POST",
         mode: "no-cors",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "text/plain;charset=utf-8"
         },
         body: JSON.stringify(payload)
       });
@@ -1178,7 +1193,7 @@
 
         mostrarStatus(
           "success",
-          "Alteração enviada com sucesso. A tabela desta página já foi atualizada visualmente."
+          "Alteração enviada com sucesso. A planilha oficial foi atualizada."
         );
 
         btnConfirmar.textContent = "Confirmado";
@@ -1203,7 +1218,7 @@
       } catch (error) {
         mostrarStatus(
           "error",
-          "Ainda falta configurar o Google Apps Script para salvar automaticamente na planilha."
+          "Não foi possível enviar a alteração. Verifique a conexão ou o Apps Script."
         );
 
         btnConfirmar.disabled = false;

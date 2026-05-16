@@ -21,6 +21,9 @@
       --dourado: #c59b35;
       --vermelho-claro: #fff3f3;
       --vermelho: #b42318;
+      --amarelo-claro: #fff8e1;
+      --amarelo: #b7791f;
+      --sombra: rgba(31, 78, 121, 0.12);
     }
 
     * {
@@ -67,7 +70,7 @@
       border-radius: 18px;
       padding: 24px;
       margin-bottom: 24px;
-      box-shadow: 0 8px 20px rgba(31, 78, 121, 0.08);
+      box-shadow: 0 8px 20px var(--sombra);
     }
 
     .intro {
@@ -110,10 +113,16 @@
     .button-area {
       text-align: center;
       margin-top: 28px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
     }
 
     .btn {
       display: inline-block;
+      border: none;
+      cursor: pointer;
       background: var(--verde);
       color: var(--branco);
       text-decoration: none;
@@ -130,8 +139,18 @@
       transform: translateY(-2px);
     }
 
+    .btn-secondary {
+      background: var(--azul);
+      box-shadow: 0 8px 18px rgba(31, 78, 121, 0.25);
+    }
+
+    .btn-secondary:hover {
+      background: var(--azul-escuro);
+    }
+
     .note {
-      margin-top: 12px;
+      width: 100%;
+      margin-top: 4px;
       font-size: 0.92rem;
       color: #5d6d7e;
     }
@@ -144,12 +163,12 @@
     }
 
     .warning {
-      background: var(--vermelho-claro);
-      border-left: 6px solid var(--vermelho);
+      background: var(--amarelo-claro);
+      border-left: 6px solid var(--amarelo);
     }
 
     .warning h2 {
-      color: var(--vermelho);
+      color: var(--amarelo);
       margin-top: 0;
     }
 
@@ -267,6 +286,168 @@
       background: #ffffff;
     }
 
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 24, 38, 0.62);
+      z-index: 999;
+      padding: 18px;
+      overflow-y: auto;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 620px;
+      background: var(--branco);
+      border-radius: 20px;
+      box-shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
+      overflow: hidden;
+      animation: modalEntrada 0.2s ease;
+    }
+
+    @keyframes modalEntrada {
+      from {
+        transform: translateY(18px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, var(--azul), var(--azul-escuro));
+      color: var(--branco);
+      padding: 20px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.35rem;
+    }
+
+    .close-btn {
+      border: none;
+      background: rgba(255, 255, 255, 0.18);
+      color: var(--branco);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      font-size: 1.4rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .close-btn:hover {
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    .modal-body {
+      padding: 22px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      color: var(--azul-escuro);
+      margin-bottom: 6px;
+    }
+
+    .form-group select,
+    .form-group input {
+      width: 100%;
+      padding: 13px 12px;
+      border: 1px solid var(--borda);
+      border-radius: 12px;
+      font-size: 1rem;
+      background: #ffffff;
+      color: var(--texto);
+    }
+
+    .form-group select:focus,
+    .form-group input:focus {
+      outline: 3px solid rgba(31, 78, 121, 0.18);
+      border-color: var(--azul);
+    }
+
+    .preview-box {
+      background: var(--azul-claro);
+      border: 1px solid #cfe2f3;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin: 14px 0 18px;
+      font-size: 0.96rem;
+    }
+
+    .preview-box strong {
+      color: var(--azul-escuro);
+    }
+
+    .status {
+      display: none;
+      margin-top: 14px;
+      padding: 13px 14px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 0.95rem;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status.success {
+      background: var(--verde-claro);
+      color: var(--verde-escuro);
+      border: 1px solid #bfe3c1;
+    }
+
+    .status.error {
+      background: var(--vermelho-claro);
+      color: var(--vermelho);
+      border: 1px solid #f2c0bb;
+    }
+
+    .modal-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+
+    .btn-cancel {
+      background: #6b7280;
+      box-shadow: none;
+    }
+
+    .btn-cancel:hover {
+      background: #4b5563;
+    }
+
+    .btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     @media (max-width: 700px) {
       header {
         padding: 32px 16px;
@@ -291,6 +472,26 @@
         padding: 10px 8px;
         font-size: 0.88rem;
       }
+
+      .modal-overlay.active {
+        align-items: flex-start;
+      }
+
+      .modal {
+        margin-top: 18px;
+      }
+
+      .modal-header {
+        padding: 18px;
+      }
+
+      .modal-body {
+        padding: 18px;
+      }
+
+      .modal-actions {
+        justify-content: stretch;
+      }
     }
   </style>
 </head>
@@ -313,12 +514,11 @@
 
       <p>
         Confira abaixo sua data na escala da EBD. Caso precise mudar o dia de dar aula,
-        clique no botão e altere diretamente na escala online.
+        clique no botão e escolha seu nome, sua data atual e a nova data desejada.
       </p>
 
       <p>
-        Para alterar corretamente, coloque seu nome na nova data escolhida e coloque
-        o nome do outro professor no seu antigo dia.
+        O sistema fará a troca entre os dois professores da mesma classe.
       </p>
 
       <div class="info-box">
@@ -339,17 +539,21 @@
       </div>
 
       <div class="button-area">
+        <button class="btn" type="button" onclick="abrirModal()">
+          Alterar meu dia
+        </button>
+
         <a
-          class="btn"
+          class="btn btn-secondary"
           href="https://docs.google.com/spreadsheets/d/1qei2p9Z61M5yOVxRPPDReguHQ7I9far3Hnr_LL-hZHc/edit?usp=sharing"
           target="_blank"
           rel="noopener noreferrer"
         >
-          Alterar meu dia na escala
+          Abrir planilha
         </a>
 
         <div class="note">
-          O botão acima abre a planilha oficial editável.
+          Use o botão “Alterar meu dia” para fazer a troca de forma guiada.
         </div>
       </div>
     </section>
@@ -358,9 +562,9 @@
       <h2>Atenção ao alterar sua data</h2>
 
       <p>
-        Ao escolher uma nova data, substitua seu nome pelo nome do professor que já estava naquele dia.
-        Depois, coloque o seu nome na nova data escolhida. Assim a escala continua organizada
-        e nenhuma classe fica sem professor.
+        Escolha a classe correta. A troca será feita dentro da mesma classe:
+        seu nome vai para a nova data escolhida, e o professor que estava nessa nova data
+        vai para o seu antigo dia.
       </p>
     </section>
 
@@ -368,12 +572,11 @@
       <h2 class="section-title">Escala de Aulas</h2>
 
       <p class="small-text" style="text-align: center;">
-        Esta tabela serve para visualização rápida. Para alterar oficialmente, use o botão
-        “Alterar meu dia na escala”.
+        Esta tabela serve para visualização rápida. As alterações oficiais serão feitas na planilha.
       </p>
 
       <div class="table-wrap">
-        <table>
+        <table id="tabelaEscala">
           <thead>
             <tr>
               <th>Data</th>
@@ -391,86 +594,86 @@
           <tbody>
             <tr>
               <td class="date">17/05/2026</td>
-              <td>Rosilene</td>
-              <td>Oseas Junior</td>
-              <td>Maria Tereza</td>
-              <td>Noeme</td>
-              <td>Emanuela</td>
-              <td>Pb Elias</td>
-              <td>Pastora</td>
-              <td class="super">Ronan</td>
+              <td data-classe="Crianças">Rosilene</td>
+              <td data-classe="Pré-Adolescentes">Oseas Junior</td>
+              <td data-classe="Adolescentes">Maria Tereza</td>
+              <td data-classe="Discipulado">Noeme</td>
+              <td data-classe="Jovens">Emanuela</td>
+              <td data-classe="Irmãos">Pb Elias</td>
+              <td data-classe="Irmãs">Pastora</td>
+              <td data-classe="Suporte" class="super">Ronan</td>
             </tr>
 
             <tr>
               <td class="date">24/05/2026</td>
-              <td>Alessandra</td>
-              <td>Igor</td>
-              <td>Fernanda</td>
-              <td>Suely</td>
-              <td>Lucas</td>
-              <td>Pb Felipe</td>
-              <td>Samella</td>
-              <td class="super">Ronan</td>
+              <td data-classe="Crianças">Alessandra</td>
+              <td data-classe="Pré-Adolescentes">Igor</td>
+              <td data-classe="Adolescentes">Fernanda</td>
+              <td data-classe="Discipulado">Suely</td>
+              <td data-classe="Jovens">Lucas</td>
+              <td data-classe="Irmãos">Pb Felipe</td>
+              <td data-classe="Irmãs">Samella</td>
+              <td data-classe="Suporte" class="super">Ronan</td>
             </tr>
 
             <tr>
               <td class="date">31/05/2026</td>
-              <td>Edivania</td>
-              <td>Oseas Junior</td>
-              <td>Graziele</td>
-              <td>Noeme</td>
-              <td>Ronan</td>
-              <td>Pb Claudinei</td>
-              <td>Ana Cardoso</td>
-              <td class="super">Ronan</td>
+              <td data-classe="Crianças">Edivania</td>
+              <td data-classe="Pré-Adolescentes">Oseas Junior</td>
+              <td data-classe="Adolescentes">Graziele</td>
+              <td data-classe="Discipulado">Noeme</td>
+              <td data-classe="Jovens">Ronan</td>
+              <td data-classe="Irmãos">Pb Claudinei</td>
+              <td data-classe="Irmãs">Ana Cardoso</td>
+              <td data-classe="Suporte" class="super">Ronan</td>
             </tr>
 
             <tr>
               <td class="date">07/06/2026</td>
-              <td>Rosângela</td>
-              <td>Igor</td>
-              <td>Maria Tereza</td>
-              <td>Suely</td>
-              <td>Emanuela</td>
-              <td>Pb Adriano</td>
-              <td>Pastora</td>
-              <td class="super">Ronan</td>
+              <td data-classe="Crianças">Rosângela</td>
+              <td data-classe="Pré-Adolescentes">Igor</td>
+              <td data-classe="Adolescentes">Maria Tereza</td>
+              <td data-classe="Discipulado">Suely</td>
+              <td data-classe="Jovens">Emanuela</td>
+              <td data-classe="Irmãos">Pb Adriano</td>
+              <td data-classe="Irmãs">Pastora</td>
+              <td data-classe="Suporte" class="super">Ronan</td>
             </tr>
 
             <tr>
               <td class="date">14/06/2026</td>
-              <td>Rita</td>
-              <td>Oseas Junior</td>
-              <td>Fernanda</td>
-              <td>Noeme</td>
-              <td>Lucas</td>
-              <td>Dc João Paulo</td>
-              <td>Samella</td>
-              <td class="super">Ronan</td>
+              <td data-classe="Crianças">Rita</td>
+              <td data-classe="Pré-Adolescentes">Oseas Junior</td>
+              <td data-classe="Adolescentes">Fernanda</td>
+              <td data-classe="Discipulado">Noeme</td>
+              <td data-classe="Jovens">Lucas</td>
+              <td data-classe="Irmãos">Dc João Paulo</td>
+              <td data-classe="Irmãs">Samella</td>
+              <td data-classe="Suporte" class="super">Ronan</td>
             </tr>
 
             <tr>
               <td class="date">21/06/2026</td>
-              <td>Thaís</td>
-              <td>Igor</td>
-              <td>Graziele</td>
-              <td>Suely</td>
-              <td>Ronan</td>
-              <td>Pb Elias</td>
-              <td>Ana Cardoso</td>
-              <td class="super">Ronan</td>
+              <td data-classe="Crianças">Thaís</td>
+              <td data-classe="Pré-Adolescentes">Igor</td>
+              <td data-classe="Adolescentes">Graziele</td>
+              <td data-classe="Discipulado">Suely</td>
+              <td data-classe="Jovens">Ronan</td>
+              <td data-classe="Irmãos">Pb Elias</td>
+              <td data-classe="Irmãs">Ana Cardoso</td>
+              <td data-classe="Suporte" class="super">Ronan</td>
             </tr>
 
             <tr>
               <td class="date">28/06/2026</td>
-              <td>Vitória</td>
-              <td>Oseas Junior</td>
-              <td>Maria Tereza</td>
-              <td>Noeme</td>
-              <td>Emanuela</td>
-              <td>Pb Felipe</td>
-              <td>Pastora</td>
-              <td class="super">Ronan</td>
+              <td data-classe="Crianças">Vitória</td>
+              <td data-classe="Pré-Adolescentes">Oseas Junior</td>
+              <td data-classe="Adolescentes">Maria Tereza</td>
+              <td data-classe="Discipulado">Noeme</td>
+              <td data-classe="Jovens">Emanuela</td>
+              <td data-classe="Irmãos">Pb Felipe</td>
+              <td data-classe="Irmãs">Pastora</td>
+              <td data-classe="Suporte" class="super">Ronan</td>
             </tr>
           </tbody>
         </table>
@@ -481,13 +684,13 @@
       <h2>Como alterar seu dia de aula</h2>
 
       <ol>
-        <li>Confira seu nome e a data em que você está escalado.</li>
-        <li>Clique no botão <strong>Alterar meu dia na escala</strong>.</li>
-        <li>Na planilha, encontre sua data atual.</li>
-        <li>Escolha a nova data em que deseja dar aula.</li>
-        <li>Coloque seu nome na nova data escolhida.</li>
-        <li>Coloque o nome do outro professor no seu antigo dia.</li>
-        <li>Confira se as duas datas ficaram corretas antes de sair da planilha.</li>
+        <li>Clique no botão <strong>Alterar meu dia</strong>.</li>
+        <li>Escolha a classe em que você vai dar aula.</li>
+        <li>Escolha seu nome.</li>
+        <li>Escolha a data em que você está escalado atualmente.</li>
+        <li>Escolha a nova data desejada.</li>
+        <li>Confira o resumo da troca.</li>
+        <li>Clique em <strong>Confirmar alteração</strong>.</li>
       </ol>
     </section>
 
@@ -579,6 +782,447 @@
       Escala EBD — Superintendente: Ronan | Suporte: Ronan
     </p>
   </footer>
+
+  <div class="modal-overlay" id="modalAlteracao">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Alterar meu dia de aula</h2>
+        <button class="close-btn" type="button" onclick="fecharModal()" aria-label="Fechar">
+          ×
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form id="formAlteracao">
+          <div class="form-group">
+            <label for="classe">Classe</label>
+            <select id="classe" required>
+              <option value="">Selecione a classe</option>
+              <option value="Crianças">Crianças</option>
+              <option value="Pré-Adolescentes">Pré-Adolescentes</option>
+              <option value="Adolescentes">Adolescentes</option>
+              <option value="Discipulado">Discipulado</option>
+              <option value="Jovens">Jovens</option>
+              <option value="Irmãos">Irmãos</option>
+              <option value="Irmãs">Irmãs</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="professor">Seu nome</label>
+            <select id="professor" required disabled>
+              <option value="">Selecione primeiro a classe</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="dataAtual">Sua data atual</label>
+            <select id="dataAtual" required disabled>
+              <option value="">Selecione primeiro seu nome</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="novaData">Nova data desejada</label>
+            <select id="novaData" required disabled>
+              <option value="">Selecione primeiro sua data atual</option>
+            </select>
+          </div>
+
+          <div class="preview-box" id="resumoTroca">
+            <strong>Resumo:</strong>
+            escolha os campos acima para visualizar a troca.
+          </div>
+
+          <div class="modal-actions">
+            <button class="btn btn-cancel" type="button" onclick="fecharModal()">
+              Cancelar
+            </button>
+
+            <button class="btn" type="submit" id="btnConfirmar">
+              Confirmar alteração
+            </button>
+          </div>
+
+          <div class="status" id="statusMensagem"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const APPS_SCRIPT_URL = "COLE_AQUI_A_URL_DO_APPS_SCRIPT";
+
+    const escala = {
+      "Crianças": [
+        { data: "17/05/2026", professor: "Rosilene" },
+        { data: "24/05/2026", professor: "Alessandra" },
+        { data: "31/05/2026", professor: "Edivania" },
+        { data: "07/06/2026", professor: "Rosângela" },
+        { data: "14/06/2026", professor: "Rita" },
+        { data: "21/06/2026", professor: "Thaís" },
+        { data: "28/06/2026", professor: "Vitória" }
+      ],
+      "Pré-Adolescentes": [
+        { data: "17/05/2026", professor: "Oseas Junior" },
+        { data: "24/05/2026", professor: "Igor" },
+        { data: "31/05/2026", professor: "Oseas Junior" },
+        { data: "07/06/2026", professor: "Igor" },
+        { data: "14/06/2026", professor: "Oseas Junior" },
+        { data: "21/06/2026", professor: "Igor" },
+        { data: "28/06/2026", professor: "Oseas Junior" }
+      ],
+      "Adolescentes": [
+        { data: "17/05/2026", professor: "Maria Tereza" },
+        { data: "24/05/2026", professor: "Fernanda" },
+        { data: "31/05/2026", professor: "Graziele" },
+        { data: "07/06/2026", professor: "Maria Tereza" },
+        { data: "14/06/2026", professor: "Fernanda" },
+        { data: "21/06/2026", professor: "Graziele" },
+        { data: "28/06/2026", professor: "Maria Tereza" }
+      ],
+      "Discipulado": [
+        { data: "17/05/2026", professor: "Noeme" },
+        { data: "24/05/2026", professor: "Suely" },
+        { data: "31/05/2026", professor: "Noeme" },
+        { data: "07/06/2026", professor: "Suely" },
+        { data: "14/06/2026", professor: "Noeme" },
+        { data: "21/06/2026", professor: "Suely" },
+        { data: "28/06/2026", professor: "Noeme" }
+      ],
+      "Jovens": [
+        { data: "17/05/2026", professor: "Emanuela" },
+        { data: "24/05/2026", professor: "Lucas" },
+        { data: "31/05/2026", professor: "Ronan" },
+        { data: "07/06/2026", professor: "Emanuela" },
+        { data: "14/06/2026", professor: "Lucas" },
+        { data: "21/06/2026", professor: "Ronan" },
+        { data: "28/06/2026", professor: "Emanuela" }
+      ],
+      "Irmãos": [
+        { data: "17/05/2026", professor: "Pb Elias" },
+        { data: "24/05/2026", professor: "Pb Felipe" },
+        { data: "31/05/2026", professor: "Pb Claudinei" },
+        { data: "07/06/2026", professor: "Pb Adriano" },
+        { data: "14/06/2026", professor: "Dc João Paulo" },
+        { data: "21/06/2026", professor: "Pb Elias" },
+        { data: "28/06/2026", professor: "Pb Felipe" }
+      ],
+      "Irmãs": [
+        { data: "17/05/2026", professor: "Pastora" },
+        { data: "24/05/2026", professor: "Samella" },
+        { data: "31/05/2026", professor: "Ana Cardoso" },
+        { data: "07/06/2026", professor: "Pastora" },
+        { data: "14/06/2026", professor: "Samella" },
+        { data: "21/06/2026", professor: "Ana Cardoso" },
+        { data: "28/06/2026", professor: "Pastora" }
+      ]
+    };
+
+    const professoresPorClasse = {
+      "Crianças": ["Rosilene", "Alessandra", "Edivania", "Rosângela", "Rita", "Thaís", "Vitória", "Larissa"],
+      "Pré-Adolescentes": ["Oseas Junior", "Igor"],
+      "Adolescentes": ["Maria Tereza", "Fernanda", "Graziele"],
+      "Discipulado": ["Noeme", "Suely"],
+      "Jovens": ["Emanuela", "Lucas", "Ronan"],
+      "Irmãos": ["Pb Elias", "Pb Felipe", "Pb Claudinei", "Pb Adriano", "Dc João Paulo"],
+      "Irmãs": ["Pastora", "Samella", "Ana Cardoso"]
+    };
+
+    const modal = document.getElementById("modalAlteracao");
+    const form = document.getElementById("formAlteracao");
+    const classeSelect = document.getElementById("classe");
+    const professorSelect = document.getElementById("professor");
+    const dataAtualSelect = document.getElementById("dataAtual");
+    const novaDataSelect = document.getElementById("novaData");
+    const resumoTroca = document.getElementById("resumoTroca");
+    const statusMensagem = document.getElementById("statusMensagem");
+    const btnConfirmar = document.getElementById("btnConfirmar");
+
+    function abrirModal() {
+      modal.classList.add("active");
+      limparStatus();
+      atualizarResumo();
+    }
+
+    function fecharModal() {
+      modal.classList.remove("active");
+    }
+
+    function limparSelect(select, textoInicial) {
+      select.innerHTML = "";
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = textoInicial;
+      select.appendChild(option);
+    }
+
+    function preencherSelect(select, opcoes) {
+      opcoes.forEach((opcao) => {
+        const option = document.createElement("option");
+        option.value = opcao.value;
+        option.textContent = opcao.label;
+        select.appendChild(option);
+      });
+    }
+
+    function limparStatus() {
+      statusMensagem.className = "status";
+      statusMensagem.textContent = "";
+    }
+
+    function mostrarStatus(tipo, mensagem) {
+      statusMensagem.className = "status show " + tipo;
+      statusMensagem.textContent = mensagem;
+    }
+
+    function encontrarProfessorNaData(classe, data) {
+      const item = escala[classe].find((linha) => linha.data === data);
+      return item ? item.professor : "";
+    }
+
+    function carregarProfessores() {
+      const classe = classeSelect.value;
+
+      limparSelect(professorSelect, "Selecione seu nome");
+      limparSelect(dataAtualSelect, "Selecione primeiro seu nome");
+      limparSelect(novaDataSelect, "Selecione primeiro sua data atual");
+
+      professorSelect.disabled = true;
+      dataAtualSelect.disabled = true;
+      novaDataSelect.disabled = true;
+
+      if (!classe) {
+        atualizarResumo();
+        return;
+      }
+
+      const professores = professoresPorClasse[classe].map((nome) => ({
+        value: nome,
+        label: nome
+      }));
+
+      preencherSelect(professorSelect, professores);
+      professorSelect.disabled = false;
+      atualizarResumo();
+    }
+
+    function carregarDatasAtuais() {
+      const classe = classeSelect.value;
+      const professor = professorSelect.value;
+
+      limparSelect(dataAtualSelect, "Selecione sua data atual");
+      limparSelect(novaDataSelect, "Selecione primeiro sua data atual");
+
+      dataAtualSelect.disabled = true;
+      novaDataSelect.disabled = true;
+
+      if (!classe || !professor) {
+        atualizarResumo();
+        return;
+      }
+
+      const datasDoProfessor = escala[classe]
+        .filter((linha) => linha.professor === professor)
+        .map((linha) => ({
+          value: linha.data,
+          label: linha.data + " — " + linha.professor
+        }));
+
+      if (datasDoProfessor.length === 0) {
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "Nome não encontrado na escala atual";
+        dataAtualSelect.appendChild(option);
+        atualizarResumo();
+        return;
+      }
+
+      preencherSelect(dataAtualSelect, datasDoProfessor);
+      dataAtualSelect.disabled = false;
+      atualizarResumo();
+    }
+
+    function carregarNovasDatas() {
+      const classe = classeSelect.value;
+      const dataAtual = dataAtualSelect.value;
+
+      limparSelect(novaDataSelect, "Selecione a nova data desejada");
+      novaDataSelect.disabled = true;
+
+      if (!classe || !dataAtual) {
+        atualizarResumo();
+        return;
+      }
+
+      const novasDatas = escala[classe]
+        .filter((linha) => linha.data !== dataAtual)
+        .map((linha) => ({
+          value: linha.data,
+          label: linha.data + " — " + linha.professor
+        }));
+
+      preencherSelect(novaDataSelect, novasDatas);
+      novaDataSelect.disabled = false;
+      atualizarResumo();
+    }
+
+    function atualizarResumo() {
+      const classe = classeSelect.value;
+      const professor = professorSelect.value;
+      const dataAtual = dataAtualSelect.value;
+      const novaData = novaDataSelect.value;
+
+      if (!classe || !professor || !dataAtual || !novaData) {
+        resumoTroca.innerHTML = "<strong>Resumo:</strong> escolha os campos acima para visualizar a troca.";
+        return;
+      }
+
+      const professorNaNovaData = encontrarProfessorNaData(classe, novaData);
+
+      resumoTroca.innerHTML =
+        "<strong>Resumo da alteração:</strong><br>" +
+        professor + " sairá do dia <strong>" + dataAtual + "</strong> e irá para o dia <strong>" + novaData + "</strong>.<br>" +
+        professorNaNovaData + " sairá do dia <strong>" + novaData + "</strong> e irá para o dia <strong>" + dataAtual + "</strong>.";
+    }
+
+    function atualizarTabelaVisual(classe, professor, dataAtual, novaData) {
+      const professorNaNovaData = encontrarProfessorNaData(classe, novaData);
+
+      escala[classe] = escala[classe].map((linha) => {
+        if (linha.data === dataAtual) {
+          return { data: linha.data, professor: professorNaNovaData };
+        }
+
+        if (linha.data === novaData) {
+          return { data: linha.data, professor: professor };
+        }
+
+        return linha;
+      });
+
+      const celulas = document.querySelectorAll("[data-classe='" + classe + "']");
+
+      celulas.forEach((celula) => {
+        const linha = celula.parentElement;
+        const dataLinha = linha.querySelector(".date").textContent.trim();
+
+        if (dataLinha === dataAtual) {
+          celula.textContent = professorNaNovaData;
+        }
+
+        if (dataLinha === novaData) {
+          celula.textContent = professor;
+        }
+      });
+    }
+
+    async function enviarAlteracao(payload) {
+      if (APPS_SCRIPT_URL === "COLE_AQUI_A_URL_DO_APPS_SCRIPT") {
+        throw new Error("O Google Apps Script ainda não foi configurado.");
+      }
+
+      const resposta = await fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      return resposta;
+    }
+
+    classeSelect.addEventListener("change", carregarProfessores);
+    professorSelect.addEventListener("change", carregarDatasAtuais);
+    dataAtualSelect.addEventListener("change", carregarNovasDatas);
+    novaDataSelect.addEventListener("change", atualizarResumo);
+
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+      limparStatus();
+
+      const classe = classeSelect.value;
+      const professor = professorSelect.value;
+      const dataAtual = dataAtualSelect.value;
+      const novaData = novaDataSelect.value;
+      const professorNaNovaData = encontrarProfessorNaData(classe, novaData);
+
+      if (!classe || !professor || !dataAtual || !novaData) {
+        mostrarStatus("error", "Preencha todos os campos antes de confirmar.");
+        return;
+      }
+
+      if (dataAtual === novaData) {
+        mostrarStatus("error", "Escolha uma nova data diferente da data atual.");
+        return;
+      }
+
+      const payload = {
+        classe: classe,
+        professor: professor,
+        dataAtual: dataAtual,
+        novaData: novaData,
+        professorNaNovaData: professorNaNovaData,
+        origem: "Site Escala EBD"
+      };
+
+      btnConfirmar.disabled = true;
+      btnConfirmar.textContent = "Enviando...";
+
+      try {
+        await enviarAlteracao(payload);
+
+        atualizarTabelaVisual(classe, professor, dataAtual, novaData);
+
+        mostrarStatus(
+          "success",
+          "Alteração enviada com sucesso. A tabela desta página já foi atualizada visualmente."
+        );
+
+        btnConfirmar.textContent = "Confirmado";
+
+        setTimeout(() => {
+          fecharModal();
+          btnConfirmar.disabled = false;
+          btnConfirmar.textContent = "Confirmar alteração";
+          form.reset();
+
+          limparSelect(professorSelect, "Selecione primeiro a classe");
+          limparSelect(dataAtualSelect, "Selecione primeiro seu nome");
+          limparSelect(novaDataSelect, "Selecione primeiro sua data atual");
+
+          professorSelect.disabled = true;
+          dataAtualSelect.disabled = true;
+          novaDataSelect.disabled = true;
+
+          atualizarResumo();
+          limparStatus();
+        }, 1800);
+      } catch (error) {
+        mostrarStatus(
+          "error",
+          "Ainda falta configurar o Google Apps Script para salvar automaticamente na planilha."
+        );
+
+        btnConfirmar.disabled = false;
+        btnConfirmar.textContent = "Confirmar alteração";
+      }
+    });
+
+    modal.addEventListener("click", function (event) {
+      if (event.target === modal) {
+        fecharModal();
+      }
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        fecharModal();
+      }
+    });
+  </script>
 
 </body>
 </html>

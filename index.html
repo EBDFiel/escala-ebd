@@ -8,22 +8,24 @@
 
   <style>
     :root {
-      --azul: #1f4e79;
-      --azul-escuro: #163a5c;
+      --azul: #163a5c;
+      --azul-medio: #1f4e79;
       --azul-claro: #eaf3fb;
+      --azul-suave: #f4f9fd;
       --verde: #2e7d32;
       --verde-escuro: #256628;
       --verde-claro: #e9f6ea;
-      --cinza: #f4f6f8;
+      --dourado: #c59b35;
+      --dourado-claro: #f8edc7;
       --texto: #243447;
+      --texto-suave: #5d6d7e;
       --branco: #ffffff;
       --borda: #d9e2ec;
-      --dourado: #c59b35;
-      --vermelho-claro: #fff3f3;
-      --vermelho: #b42318;
       --amarelo-claro: #fff8e1;
       --amarelo: #b7791f;
-      --sombra: rgba(31, 78, 121, 0.12);
+      --vermelho-claro: #fff3f3;
+      --vermelho: #b42318;
+      --sombra: rgba(22, 58, 92, 0.13);
     }
 
     * {
@@ -33,17 +35,52 @@
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: linear-gradient(135deg, #eef6ff 0%, #ffffff 45%, #f7fbf7 100%);
+      background:
+        radial-gradient(circle at top left, rgba(197, 155, 53, 0.12), transparent 28%),
+        linear-gradient(135deg, #eef6ff 0%, #ffffff 45%, #f7fbf7 100%);
       color: var(--texto);
       line-height: 1.6;
     }
 
     header {
-      background: linear-gradient(135deg, var(--azul), var(--azul-escuro));
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, rgba(22, 58, 92, 0.96), rgba(31, 78, 121, 0.96)),
+        radial-gradient(circle at top right, rgba(197, 155, 53, 0.28), transparent 34%);
       color: var(--branco);
-      padding: 42px 20px;
+      padding: 38px 20px 44px;
       text-align: center;
       border-bottom: 6px solid var(--dourado);
+    }
+
+    header::before {
+      content: "";
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 50%;
+      top: -140px;
+      left: -80px;
+    }
+
+    header::after {
+      content: "";
+      position: absolute;
+      width: 360px;
+      height: 360px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 50%;
+      right: -160px;
+      bottom: -210px;
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 2;
+      max-width: 760px;
+      margin: 0 auto;
     }
 
     .logo-box {
@@ -55,7 +92,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+      border: 4px solid rgba(197, 155, 53, 0.45);
     }
 
     .logo-ebd {
@@ -67,8 +105,9 @@
 
     header h1 {
       margin: 0;
-      font-size: 2.3rem;
+      font-size: 2.45rem;
       letter-spacing: 0.5px;
+      font-weight: 800;
     }
 
     header p {
@@ -77,113 +116,125 @@
       opacity: 0.95;
     }
 
+    .header-badge {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.13);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      font-size: 0.92rem;
+      color: #ffffff;
+    }
+
     main {
       max-width: 1180px;
       margin: 0 auto;
-      padding: 24px 16px 50px;
+      padding: 28px 16px 54px;
     }
 
     .card {
-      background: var(--branco);
+      background: rgba(255, 255, 255, 0.96);
       border: 1px solid var(--borda);
-      border-radius: 18px;
-      padding: 24px;
+      border-radius: 22px;
+      padding: 26px;
       margin-bottom: 24px;
-      box-shadow: 0 8px 20px var(--sombra);
+      box-shadow: 0 12px 28px var(--sombra);
     }
 
     .intro {
       text-align: center;
+      margin-top: -6px;
     }
 
     .intro h2 {
       color: var(--azul);
-      margin-top: 0;
-      font-size: 1.6rem;
+      margin: 0 0 12px;
+      font-size: 1.65rem;
     }
 
     .intro p {
-      max-width: 800px;
+      max-width: 780px;
       margin: 10px auto;
       font-size: 1rem;
-    }
-
-    .info-box {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
-      margin-top: 22px;
-    }
-
-    .info-item {
-      background: var(--azul-claro);
-      border-left: 5px solid var(--azul);
-      padding: 14px 16px;
-      border-radius: 12px;
-      text-align: left;
-    }
-
-    .info-item strong {
-      display: block;
-      color: var(--azul-escuro);
-      margin-bottom: 4px;
     }
 
     .button-area {
       text-align: center;
       margin-top: 28px;
       display: flex;
-      flex-wrap: wrap;
       justify-content: center;
-      gap: 12px;
     }
 
     .btn {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       border: none;
       cursor: pointer;
-      background: var(--verde);
+      background: linear-gradient(135deg, var(--verde), var(--verde-escuro));
       color: var(--branco);
       text-decoration: none;
-      padding: 15px 30px;
+      padding: 17px 36px;
       border-radius: 999px;
-      font-size: 1.05rem;
+      font-size: 1.08rem;
       font-weight: bold;
-      box-shadow: 0 8px 18px rgba(46, 125, 50, 0.25);
+      box-shadow: 0 12px 24px rgba(46, 125, 50, 0.28);
       transition: 0.2s ease;
     }
 
     .btn:hover {
-      background: var(--verde-escuro);
       transform: translateY(-2px);
+      box-shadow: 0 16px 30px rgba(46, 125, 50, 0.34);
     }
 
-    .btn-secondary {
-      background: var(--azul);
-      box-shadow: 0 8px 18px rgba(31, 78, 121, 0.25);
-    }
-
-    .btn-secondary:hover {
-      background: var(--azul-escuro);
+    .btn::before {
+      content: "✏️";
+      font-size: 1.05rem;
     }
 
     .note {
-      width: 100%;
-      margin-top: 4px;
+      margin-top: 12px;
+      font-size: 0.93rem;
+      color: var(--texto-suave);
+    }
+
+    .info-box {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .info-item {
+      background: linear-gradient(180deg, #ffffff, var(--azul-suave));
+      border: 1px solid #cfe2f3;
+      border-top: 4px solid var(--dourado);
+      padding: 16px;
+      border-radius: 16px;
+      text-align: left;
+    }
+
+    .info-item strong {
+      display: block;
+      color: var(--azul);
+      margin-bottom: 4px;
       font-size: 0.92rem;
-      color: #5d6d7e;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
     }
 
     h2.section-title {
       color: var(--azul);
       margin: 0 0 16px;
       text-align: center;
-      font-size: 1.5rem;
+      font-size: 1.55rem;
     }
 
     .warning {
-      background: var(--amarelo-claro);
-      border-left: 6px solid var(--amarelo);
+      background: linear-gradient(180deg, #ffffff, var(--amarelo-claro));
+      border-left: 6px solid var(--dourado);
     }
 
     .warning h2 {
@@ -197,25 +248,27 @@
 
     .table-wrap {
       overflow-x: auto;
-      border-radius: 14px;
+      border-radius: 18px;
       border: 1px solid var(--borda);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5);
     }
 
     table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       min-width: 980px;
       background: var(--branco);
     }
 
     thead {
-      background: var(--azul);
+      background: linear-gradient(135deg, var(--azul), var(--azul-medio));
       color: var(--branco);
     }
 
     th,
     td {
-      padding: 13px 12px;
+      padding: 14px 12px;
       border-bottom: 1px solid var(--borda);
       text-align: center;
       vertical-align: middle;
@@ -225,6 +278,15 @@
     th {
       font-weight: bold;
       white-space: nowrap;
+      letter-spacing: 0.2px;
+    }
+
+    th:first-child {
+      border-top-left-radius: 18px;
+    }
+
+    th:last-child {
+      border-top-right-radius: 18px;
     }
 
     tbody tr:nth-child(even) {
@@ -235,10 +297,15 @@
       background: var(--verde-claro);
     }
 
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
     .date {
       font-weight: bold;
-      color: var(--azul-escuro);
+      color: var(--azul);
       white-space: nowrap;
+      background: #f4f9fd;
     }
 
     .super {
@@ -253,17 +320,18 @@
     }
 
     .class-card {
-      background: #fbfdff;
+      background: linear-gradient(180deg, #ffffff, #fbfdff);
       border: 1px solid var(--borda);
-      border-radius: 14px;
-      padding: 16px;
+      border-radius: 16px;
+      padding: 17px;
+      box-shadow: 0 6px 14px rgba(22, 58, 92, 0.06);
     }
 
     .class-card h3 {
       margin: 0 0 10px;
       color: var(--azul);
-      font-size: 1.1rem;
-      border-bottom: 2px solid var(--azul-claro);
+      font-size: 1.08rem;
+      border-bottom: 2px solid var(--dourado-claro);
       padding-bottom: 8px;
     }
 
@@ -277,7 +345,7 @@
     }
 
     .instructions {
-      background: var(--verde-claro);
+      background: linear-gradient(180deg, #ffffff, var(--verde-claro));
       border-left: 6px solid var(--verde);
     }
 
@@ -293,7 +361,7 @@
 
     .small-text {
       font-size: 0.93rem;
-      color: #5d6d7e;
+      color: var(--texto-suave);
     }
 
     footer {
@@ -325,7 +393,7 @@
       width: 100%;
       max-width: 620px;
       background: var(--branco);
-      border-radius: 20px;
+      border-radius: 22px;
       box-shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
       overflow: hidden;
       animation: modalEntrada 0.2s ease;
@@ -343,13 +411,14 @@
     }
 
     .modal-header {
-      background: linear-gradient(135deg, var(--azul), var(--azul-escuro));
+      background: linear-gradient(135deg, var(--azul), var(--azul-medio));
       color: var(--branco);
       padding: 20px 22px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 12px;
+      border-bottom: 4px solid var(--dourado);
     }
 
     .modal-header h2 {
@@ -385,7 +454,7 @@
     .form-group label {
       display: block;
       font-weight: bold;
-      color: var(--azul-escuro);
+      color: var(--azul);
       margin-bottom: 6px;
     }
 
@@ -403,7 +472,7 @@
     .form-group select:focus,
     .form-group input:focus {
       outline: 3px solid rgba(31, 78, 121, 0.18);
-      border-color: var(--azul);
+      border-color: var(--azul-medio);
     }
 
     .preview-box {
@@ -416,7 +485,7 @@
     }
 
     .preview-box strong {
-      color: var(--azul-escuro);
+      color: var(--azul);
     }
 
     .status {
@@ -457,6 +526,10 @@
       box-shadow: none;
     }
 
+    .btn-cancel::before {
+      content: "";
+    }
+
     .btn-cancel:hover {
       background: #4b5563;
     }
@@ -469,7 +542,7 @@
 
     @media (max-width: 700px) {
       header {
-        padding: 32px 16px;
+        padding: 30px 16px 36px;
       }
 
       .logo-box {
@@ -483,22 +556,31 @@
       }
 
       header h1 {
-        font-size: 1.7rem;
+        font-size: 1.85rem;
+      }
+
+      header p {
+        font-size: 0.98rem;
       }
 
       .card {
-        padding: 18px;
-        border-radius: 14px;
+        padding: 20px;
+        border-radius: 18px;
+      }
+
+      .intro h2,
+      h2.section-title {
+        font-size: 1.45rem;
       }
 
       .btn {
         width: 100%;
-        padding: 15px 18px;
+        padding: 16px 18px;
       }
 
       th,
       td {
-        padding: 10px 8px;
+        padding: 11px 8px;
         font-size: 0.88rem;
       }
 
@@ -528,35 +610,44 @@
 <body>
 
   <header>
-    <div class="logo-box">
-      <img
-        src="https://i.imgur.com/e7ZOeSz.png"
-        alt="Logo da EBD"
-        class="logo-ebd"
-      />
-    </div>
+    <div class="header-content">
+      <div class="logo-box">
+        <img
+          src="https://i.imgur.com/e7ZOeSz.png"
+          alt="Logo da EBD"
+          class="logo-ebd"
+        />
+      </div>
 
-    <h1>Escala da EBD</h1>
-    <p>Escola Bíblica Dominical — até 28 de junho de 2026</p>
+      <h1>Escala da EBD</h1>
+      <p>Escola Bíblica Dominical — até 28 de junho de 2026</p>
+      <div class="header-badge">Superintendente: Ronan</div>
+    </div>
   </header>
 
   <main>
 
     <section class="card intro">
-      <h2>Conferência da Escala</h2>
+      <h2>Confira sua data</h2>
 
       <p>
-        Paz do Senhor, professores!
-      </p>
-
-      <p>
-        Confira abaixo sua data na escala da EBD. Caso precise mudar o dia de dar aula,
-        clique no botão e escolha seu nome, sua data atual e a nova data desejada.
+        Paz do Senhor, professores! Confira abaixo sua data na escala da EBD.
+        Caso precise mudar o dia de dar aula, clique no botão e faça a alteração de forma guiada.
       </p>
 
       <p>
         O sistema fará a troca entre os dois professores da mesma classe.
       </p>
+
+      <div class="button-area">
+        <button class="btn" type="button" onclick="abrirModal()">
+          Alterar meu dia
+        </button>
+      </div>
+
+      <div class="note">
+        Escolha sua classe, seu nome, sua data atual e a nova data desejada.
+      </div>
 
       <div class="info-box">
         <div class="info-item">
@@ -572,25 +663,6 @@
         <div class="info-item">
           <strong>Período da escala</strong>
           Até 28/06/2026
-        </div>
-      </div>
-
-      <div class="button-area">
-        <button class="btn" type="button" onclick="abrirModal()">
-          Alterar meu dia
-        </button>
-
-        <a
-          class="btn btn-secondary"
-          href="https://docs.google.com/spreadsheets/d/1qei2p9Z61M5yOVxRPPDReguHQ7I9far3Hnr_LL-hZHc/edit?usp=sharing"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Abrir planilha
-        </a>
-
-        <div class="note">
-          Use o botão “Alterar meu dia” para fazer a troca de forma guiada.
         </div>
       </div>
     </section>
@@ -609,7 +681,7 @@
       <h2 class="section-title">Escala de Aulas</h2>
 
       <p class="small-text" style="text-align: center;">
-        Esta tabela serve para visualização rápida. As alterações oficiais serão feitas na planilha.
+        Esta tabela serve para visualização rápida. As alterações oficiais serão feitas automaticamente na planilha.
       </p>
 
       <div class="table-wrap">

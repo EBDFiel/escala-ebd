@@ -314,6 +314,10 @@
       color: var(--verde);
     }
 
+    .mobile-row-action {
+      display: none;
+    }
+
     .class-section {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -654,6 +658,34 @@
         content: "";
       }
 
+      .mobile-row-action {
+        display: block;
+        padding: 14px;
+        background: #ffffff;
+        border-bottom: 1px solid var(--borda);
+      }
+
+      .mobile-row-action::before {
+        content: "";
+      }
+
+      .mobile-date-btn {
+        width: 100%;
+        border: none;
+        cursor: pointer;
+        background: linear-gradient(135deg, var(--verde), var(--verde-escuro));
+        color: #ffffff;
+        padding: 13px 16px;
+        border-radius: 999px;
+        font-size: 0.98rem;
+        font-weight: bold;
+        box-shadow: 0 8px 18px rgba(46, 125, 50, 0.22);
+      }
+
+      .mobile-date-btn::before {
+        content: "✏️ ";
+      }
+
       tbody tr:last-child td {
         border-bottom: 1px solid var(--borda);
       }
@@ -710,8 +742,7 @@
 
       <p>
         Paz do Senhor, professores! Confira abaixo sua data na escala da EBD.
-        Caso precise mudar o dia de dar aula, use o botão “Alterar meu dia”
-        logo abaixo da escala.
+        Caso precise mudar o dia de dar aula, use o botão “Alterar meu dia”.
       </p>
 
       <p>
@@ -762,6 +793,9 @@
           <tbody>
             <tr>
               <td class="date" data-label="Data">17/05/2026</td>
+              <td class="mobile-row-action">
+                <button class="mobile-date-btn" type="button" onclick="abrirModal()">Alterar meu dia</button>
+              </td>
               <td data-label="Crianças" data-classe="Crianças">Rosilene</td>
               <td data-label="Pré-Adolescentes" data-classe="Pré-Adolescentes">Oseas Junior</td>
               <td data-label="Adolescentes" data-classe="Adolescentes">Maria Tereza</td>
@@ -774,6 +808,9 @@
 
             <tr>
               <td class="date" data-label="Data">24/05/2026</td>
+              <td class="mobile-row-action">
+                <button class="mobile-date-btn" type="button" onclick="abrirModal()">Alterar meu dia</button>
+              </td>
               <td data-label="Crianças" data-classe="Crianças">Alessandra</td>
               <td data-label="Pré-Adolescentes" data-classe="Pré-Adolescentes">Igor</td>
               <td data-label="Adolescentes" data-classe="Adolescentes">Fernanda</td>
@@ -786,6 +823,9 @@
 
             <tr>
               <td class="date" data-label="Data">31/05/2026</td>
+              <td class="mobile-row-action">
+                <button class="mobile-date-btn" type="button" onclick="abrirModal()">Alterar meu dia</button>
+              </td>
               <td data-label="Crianças" data-classe="Crianças">Edivania</td>
               <td data-label="Pré-Adolescentes" data-classe="Pré-Adolescentes">Oseas Junior</td>
               <td data-label="Adolescentes" data-classe="Adolescentes">Graziele</td>
@@ -798,6 +838,9 @@
 
             <tr>
               <td class="date" data-label="Data">07/06/2026</td>
+              <td class="mobile-row-action">
+                <button class="mobile-date-btn" type="button" onclick="abrirModal()">Alterar meu dia</button>
+              </td>
               <td data-label="Crianças" data-classe="Crianças">Rosângela</td>
               <td data-label="Pré-Adolescentes" data-classe="Pré-Adolescentes">Igor</td>
               <td data-label="Adolescentes" data-classe="Adolescentes">Maria Tereza</td>
@@ -810,6 +853,9 @@
 
             <tr>
               <td class="date" data-label="Data">14/06/2026</td>
+              <td class="mobile-row-action">
+                <button class="mobile-date-btn" type="button" onclick="abrirModal()">Alterar meu dia</button>
+              </td>
               <td data-label="Crianças" data-classe="Crianças">Rita</td>
               <td data-label="Pré-Adolescentes" data-classe="Pré-Adolescentes">Oseas Junior</td>
               <td data-label="Adolescentes" data-classe="Adolescentes">Fernanda</td>
@@ -822,6 +868,9 @@
 
             <tr>
               <td class="date" data-label="Data">21/06/2026</td>
+              <td class="mobile-row-action">
+                <button class="mobile-date-btn" type="button" onclick="abrirModal()">Alterar meu dia</button>
+              </td>
               <td data-label="Crianças" data-classe="Crianças">Thaís</td>
               <td data-label="Pré-Adolescentes" data-classe="Pré-Adolescentes">Igor</td>
               <td data-label="Adolescentes" data-classe="Adolescentes">Graziele</td>
@@ -834,6 +883,9 @@
 
             <tr>
               <td class="date" data-label="Data">28/06/2026</td>
+              <td class="mobile-row-action">
+                <button class="mobile-date-btn" type="button" onclick="abrirModal()">Alterar meu dia</button>
+              </td>
               <td data-label="Crianças" data-classe="Crianças">Vitória</td>
               <td data-label="Pré-Adolescentes" data-classe="Pré-Adolescentes">Oseas Junior</td>
               <td data-label="Adolescentes" data-classe="Adolescentes">Maria Tereza</td>
@@ -854,7 +906,7 @@
       </div>
 
       <div class="note">
-        Após conferir a escala, clique no botão acima para alterar seu dia de aula.
+        Após conferir a escala, clique em “Alterar meu dia” para fazer a alteração.
       </div>
     </section>
 

@@ -198,6 +198,7 @@
       margin-top: 12px;
       font-size: 0.93rem;
       color: var(--texto-suave);
+      text-align: center;
     }
 
     .info-box {
@@ -578,10 +579,87 @@
         padding: 16px 18px;
       }
 
-      th,
+      .table-wrap {
+        overflow-x: visible;
+        border: none;
+        box-shadow: none;
+        border-radius: 0;
+      }
+
+      table {
+        min-width: 0;
+        width: 100%;
+        border-collapse: collapse;
+        background: transparent;
+      }
+
+      thead {
+        display: none;
+      }
+
+      table,
+      tbody,
+      tr,
       td {
-        padding: 11px 8px;
-        font-size: 0.88rem;
+        display: block;
+        width: 100%;
+      }
+
+      tbody tr {
+        background: #ffffff;
+        margin-bottom: 16px;
+        border: 1px solid var(--borda);
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 10px 22px rgba(22, 58, 92, 0.09);
+      }
+
+      tbody tr:nth-child(even) {
+        background: #ffffff;
+      }
+
+      tbody tr:hover {
+        background: #ffffff;
+      }
+
+      td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        text-align: right;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--borda);
+        font-size: 0.95rem;
+      }
+
+      td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: var(--azul);
+        text-align: left;
+      }
+
+      td.date {
+        display: block;
+        text-align: center;
+        background: linear-gradient(135deg, var(--azul), var(--azul-medio));
+        color: #ffffff;
+        font-size: 1.08rem;
+        padding: 14px;
+        border-bottom: 4px solid var(--dourado);
+      }
+
+      td.date::before {
+        content: "";
+      }
+
+      tbody tr:last-child td {
+        border-bottom: 1px solid var(--borda);
+      }
+
+      tbody tr td:last-child {
+        border-bottom: none;
       }
 
       .modal-overlay.active {
@@ -632,22 +710,13 @@
 
       <p>
         Paz do Senhor, professores! Confira abaixo sua data na escala da EBD.
-        Caso precise mudar o dia de dar aula, clique no botão e faça a alteração de forma guiada.
+        Caso precise mudar o dia de dar aula, use o botão “Alterar meu dia”
+        logo abaixo da escala.
       </p>
 
       <p>
         O sistema fará a troca entre os dois professores da mesma classe.
       </p>
-
-      <div class="button-area">
-        <button class="btn" type="button" onclick="abrirModal()">
-          Alterar meu dia
-        </button>
-      </div>
-
-      <div class="note">
-        Escolha sua classe, seu nome, sua data atual e a nova data desejada.
-      </div>
 
       <div class="info-box">
         <div class="info-item">
@@ -667,21 +736,11 @@
       </div>
     </section>
 
-    <section class="card warning">
-      <h2>Atenção ao alterar sua data</h2>
-
-      <p>
-        Escolha a classe correta. A troca será feita dentro da mesma classe:
-        seu nome vai para a nova data escolhida, e o professor que estava nessa nova data
-        vai para o seu antigo dia.
-      </p>
-    </section>
-
     <section class="card">
       <h2 class="section-title">Escala de Aulas</h2>
 
       <p class="small-text" style="text-align: center;">
-        Esta tabela serve para visualização rápida. As alterações oficiais serão feitas automaticamente na planilha.
+        Confira sua data abaixo. No celular, cada domingo aparece em formato de cartão.
       </p>
 
       <div class="table-wrap">
@@ -702,91 +761,111 @@
 
           <tbody>
             <tr>
-              <td class="date">17/05/2026</td>
-              <td data-classe="Crianças">Rosilene</td>
-              <td data-classe="Pré-Adolescentes">Oseas Junior</td>
-              <td data-classe="Adolescentes">Maria Tereza</td>
-              <td data-classe="Discipulado">Noeme</td>
-              <td data-classe="Jovens">Emanuela</td>
-              <td data-classe="Irmãos">Pb Elias</td>
-              <td data-classe="Irmãs">Pastora</td>
-              <td data-classe="Suporte" class="super">Ronan</td>
+              <td class="date" data-label="Data">17/05/2026</td>
+              <td data-label="Crianças" data-classe="Crianças">Rosilene</td>
+              <td data-label="Pré-Adolescentes" data-classe="Pré-Adolescentes">Oseas Junior</td>
+              <td data-label="Adolescentes" data-classe="Adolescentes">Maria Tereza</td>
+              <td data-label="Discipulado" data-classe="Discipulado">Noeme</td>
+              <td data-label="Jovens" data-classe="Jovens">Emanuela</td>
+              <td data-label="Irmãos" data-classe="Irmãos">Pb Elias</td>
+              <td data-label="Irmãs" data-classe="Irmãs">Pastora</td>
+              <td data-label="Suporte" data-classe="Suporte" class="super">Ronan</td>
             </tr>
 
             <tr>
-              <td class="date">24/05/2026</td>
-              <td data-classe="Crianças">Alessandra</td>
-              <td data-classe="Pré-Adolescentes">Igor</td>
-              <td data-classe="Adolescentes">Fernanda</td>
-              <td data-classe="Discipulado">Suely</td>
-              <td data-classe="Jovens">Lucas</td>
-              <td data-classe="Irmãos">Pb Felipe</td>
-              <td data-classe="Irmãs">Samella</td>
-              <td data-classe="Suporte" class="super">Ronan</td>
+              <td class="date" data-label="Data">24/05/2026</td>
+              <td data-label="Crianças" data-classe="Crianças">Alessandra</td>
+              <td data-label="Pré-Adolescentes" data-classe="Pré-Adolescentes">Igor</td>
+              <td data-label="Adolescentes" data-classe="Adolescentes">Fernanda</td>
+              <td data-label="Discipulado" data-classe="Discipulado">Suely</td>
+              <td data-label="Jovens" data-classe="Jovens">Lucas</td>
+              <td data-label="Irmãos" data-classe="Irmãos">Pb Felipe</td>
+              <td data-label="Irmãs" data-classe="Irmãs">Samella</td>
+              <td data-label="Suporte" data-classe="Suporte" class="super">Ronan</td>
             </tr>
 
             <tr>
-              <td class="date">31/05/2026</td>
-              <td data-classe="Crianças">Edivania</td>
-              <td data-classe="Pré-Adolescentes">Oseas Junior</td>
-              <td data-classe="Adolescentes">Graziele</td>
-              <td data-classe="Discipulado">Noeme</td>
-              <td data-classe="Jovens">Ronan</td>
-              <td data-classe="Irmãos">Pb Claudinei</td>
-              <td data-classe="Irmãs">Ana Cardoso</td>
-              <td data-classe="Suporte" class="super">Ronan</td>
+              <td class="date" data-label="Data">31/05/2026</td>
+              <td data-label="Crianças" data-classe="Crianças">Edivania</td>
+              <td data-label="Pré-Adolescentes" data-classe="Pré-Adolescentes">Oseas Junior</td>
+              <td data-label="Adolescentes" data-classe="Adolescentes">Graziele</td>
+              <td data-label="Discipulado" data-classe="Discipulado">Noeme</td>
+              <td data-label="Jovens" data-classe="Jovens">Ronan</td>
+              <td data-label="Irmãos" data-classe="Irmãos">Pb Claudinei</td>
+              <td data-label="Irmãs" data-classe="Irmãs">Ana Cardoso</td>
+              <td data-label="Suporte" data-classe="Suporte" class="super">Ronan</td>
             </tr>
 
             <tr>
-              <td class="date">07/06/2026</td>
-              <td data-classe="Crianças">Rosângela</td>
-              <td data-classe="Pré-Adolescentes">Igor</td>
-              <td data-classe="Adolescentes">Maria Tereza</td>
-              <td data-classe="Discipulado">Suely</td>
-              <td data-classe="Jovens">Emanuela</td>
-              <td data-classe="Irmãos">Pb Adriano</td>
-              <td data-classe="Irmãs">Pastora</td>
-              <td data-classe="Suporte" class="super">Ronan</td>
+              <td class="date" data-label="Data">07/06/2026</td>
+              <td data-label="Crianças" data-classe="Crianças">Rosângela</td>
+              <td data-label="Pré-Adolescentes" data-classe="Pré-Adolescentes">Igor</td>
+              <td data-label="Adolescentes" data-classe="Adolescentes">Maria Tereza</td>
+              <td data-label="Discipulado" data-classe="Discipulado">Suely</td>
+              <td data-label="Jovens" data-classe="Jovens">Emanuela</td>
+              <td data-label="Irmãos" data-classe="Irmãos">Pb Adriano</td>
+              <td data-label="Irmãs" data-classe="Irmãs">Pastora</td>
+              <td data-label="Suporte" data-classe="Suporte" class="super">Ronan</td>
             </tr>
 
             <tr>
-              <td class="date">14/06/2026</td>
-              <td data-classe="Crianças">Rita</td>
-              <td data-classe="Pré-Adolescentes">Oseas Junior</td>
-              <td data-classe="Adolescentes">Fernanda</td>
-              <td data-classe="Discipulado">Noeme</td>
-              <td data-classe="Jovens">Lucas</td>
-              <td data-classe="Irmãos">Dc João Paulo</td>
-              <td data-classe="Irmãs">Samella</td>
-              <td data-classe="Suporte" class="super">Ronan</td>
+              <td class="date" data-label="Data">14/06/2026</td>
+              <td data-label="Crianças" data-classe="Crianças">Rita</td>
+              <td data-label="Pré-Adolescentes" data-classe="Pré-Adolescentes">Oseas Junior</td>
+              <td data-label="Adolescentes" data-classe="Adolescentes">Fernanda</td>
+              <td data-label="Discipulado" data-classe="Discipulado">Noeme</td>
+              <td data-label="Jovens" data-classe="Jovens">Lucas</td>
+              <td data-label="Irmãos" data-classe="Irmãos">Dc João Paulo</td>
+              <td data-label="Irmãs" data-classe="Irmãs">Samella</td>
+              <td data-label="Suporte" data-classe="Suporte" class="super">Ronan</td>
             </tr>
 
             <tr>
-              <td class="date">21/06/2026</td>
-              <td data-classe="Crianças">Thaís</td>
-              <td data-classe="Pré-Adolescentes">Igor</td>
-              <td data-classe="Adolescentes">Graziele</td>
-              <td data-classe="Discipulado">Suely</td>
-              <td data-classe="Jovens">Ronan</td>
-              <td data-classe="Irmãos">Pb Elias</td>
-              <td data-classe="Irmãs">Ana Cardoso</td>
-              <td data-classe="Suporte" class="super">Ronan</td>
+              <td class="date" data-label="Data">21/06/2026</td>
+              <td data-label="Crianças" data-classe="Crianças">Thaís</td>
+              <td data-label="Pré-Adolescentes" data-classe="Pré-Adolescentes">Igor</td>
+              <td data-label="Adolescentes" data-classe="Adolescentes">Graziele</td>
+              <td data-label="Discipulado" data-classe="Discipulado">Suely</td>
+              <td data-label="Jovens" data-classe="Jovens">Ronan</td>
+              <td data-label="Irmãos" data-classe="Irmãos">Pb Elias</td>
+              <td data-label="Irmãs" data-classe="Irmãs">Ana Cardoso</td>
+              <td data-label="Suporte" data-classe="Suporte" class="super">Ronan</td>
             </tr>
 
             <tr>
-              <td class="date">28/06/2026</td>
-              <td data-classe="Crianças">Vitória</td>
-              <td data-classe="Pré-Adolescentes">Oseas Junior</td>
-              <td data-classe="Adolescentes">Maria Tereza</td>
-              <td data-classe="Discipulado">Noeme</td>
-              <td data-classe="Jovens">Emanuela</td>
-              <td data-classe="Irmãos">Pb Felipe</td>
-              <td data-classe="Irmãs">Pastora</td>
-              <td data-classe="Suporte" class="super">Ronan</td>
+              <td class="date" data-label="Data">28/06/2026</td>
+              <td data-label="Crianças" data-classe="Crianças">Vitória</td>
+              <td data-label="Pré-Adolescentes" data-classe="Pré-Adolescentes">Oseas Junior</td>
+              <td data-label="Adolescentes" data-classe="Adolescentes">Maria Tereza</td>
+              <td data-label="Discipulado" data-classe="Discipulado">Noeme</td>
+              <td data-label="Jovens" data-classe="Jovens">Emanuela</td>
+              <td data-label="Irmãos" data-classe="Irmãos">Pb Felipe</td>
+              <td data-label="Irmãs" data-classe="Irmãs">Pastora</td>
+              <td data-label="Suporte" data-classe="Suporte" class="super">Ronan</td>
             </tr>
           </tbody>
         </table>
       </div>
+
+      <div class="button-area">
+        <button class="btn" type="button" onclick="abrirModal()">
+          Alterar meu dia
+        </button>
+      </div>
+
+      <div class="note">
+        Após conferir a escala, clique no botão acima para alterar seu dia de aula.
+      </div>
+    </section>
+
+    <section class="card warning">
+      <h2>Atenção ao alterar sua data</h2>
+
+      <p>
+        Escolha a classe correta. A troca será feita dentro da mesma classe:
+        seu nome vai para a nova data escolhida, e o professor que estava nessa nova data
+        vai para o seu antigo dia.
+      </p>
     </section>
 
     <section class="card instructions">

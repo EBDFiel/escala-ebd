@@ -14,7 +14,6 @@
       --verde: #2e7d32;
       --verde-escuro: #256628;
       --verde-claro: #e9f6ea;
-      --cinza: #f4f6f8;
       --texto: #243447;
       --branco: #ffffff;
       --borda: #d9e2ec;
@@ -166,10 +165,9 @@
     }
 
     .btn-card {
-      width: auto;
       padding: 8px 16px;
       font-size: 0.88rem;
-      margin-top: 10px;
+      margin-top: 12px;
     }
 
     .btn-cancel {
@@ -409,6 +407,7 @@
         transform: translateY(18px);
         opacity: 0;
       }
+
       to {
         transform: translateY(0);
         opacity: 1;
@@ -462,8 +461,7 @@
       margin-bottom: 6px;
     }
 
-    .form-group select,
-    .form-group input {
+    .form-group select {
       width: 100%;
       padding: 13px 12px;
       border: 1px solid var(--borda);
@@ -473,8 +471,7 @@
       color: var(--texto);
     }
 
-    .form-group select:focus,
-    .form-group input:focus {
+    .form-group select:focus {
       outline: 3px solid rgba(31, 78, 121, 0.18);
       border-color: var(--azul);
     }
@@ -548,21 +545,17 @@
         border-radius: 14px;
       }
 
-      .button-area .btn {
-        width: auto;
-      }
-
-      .btn-small {
-        padding: 8px 18px;
-        font-size: 0.88rem;
-      }
-
       .table-wrap {
         display: none;
       }
 
       .mobile-cards {
         display: block;
+      }
+
+      .btn-small {
+        padding: 8px 18px;
+        font-size: 0.88rem;
       }
 
       .modal-overlay.active {
@@ -608,9 +601,7 @@
     <section class="card intro">
       <h2>Conferência da Escala</h2>
 
-      <p>
-        Paz do Senhor, professores!
-      </p>
+      <p>Paz do Senhor, professores!</p>
 
       <p>
         Confira abaixo sua data na escala da EBD. Caso precise mudar o dia de dar aula,
@@ -663,8 +654,8 @@
       <h2 class="section-title">Escala de Aulas</h2>
 
       <p class="small-text" style="text-align: center;">
-        Esta escala é carregada diretamente da planilha. Se houver alteração pelo celular,
-        ela também aparecerá no computador ao abrir ou atualizar a página.
+        Esta escala tenta carregar os dados atualizados da planilha. Se houver falha na conexão,
+        será exibida a escala inicial salva no site.
       </p>
 
       <div class="loading-box" id="loadingBox">
@@ -686,14 +677,11 @@
               <th>Suporte</th>
             </tr>
           </thead>
-
-          <tbody>
-          </tbody>
+          <tbody></tbody>
         </table>
       </div>
 
-      <div class="mobile-cards" id="cardsEscala">
-      </div>
+      <div class="mobile-cards" id="cardsEscala"></div>
     </section>
 
     <section class="card instructions">
@@ -879,8 +867,87 @@
       "Irmãs"
     ];
 
-    let linhasEscala = [];
+    const escalaReserva = [
+      {
+        "Data": "17/05/2026",
+        "Crianças": "Rosilene",
+        "Pré-Adolescentes": "Oseas Junior",
+        "Adolescentes": "Maria Tereza",
+        "Discipulado": "Noeme",
+        "Jovens": "Emanuela",
+        "Irmãos": "Pb Elias",
+        "Irmãs": "Pastora",
+        "Suporte": "Ronan"
+      },
+      {
+        "Data": "24/05/2026",
+        "Crianças": "Alessandra",
+        "Pré-Adolescentes": "Igor",
+        "Adolescentes": "Fernanda",
+        "Discipulado": "Suely",
+        "Jovens": "Lucas",
+        "Irmãos": "Pb Felipe",
+        "Irmãs": "Samella",
+        "Suporte": "Ronan"
+      },
+      {
+        "Data": "31/05/2026",
+        "Crianças": "Edivania",
+        "Pré-Adolescentes": "Oseas Junior",
+        "Adolescentes": "Graziele",
+        "Discipulado": "Noeme",
+        "Jovens": "Ronan",
+        "Irmãos": "Pb Claudinei",
+        "Irmãs": "Ana Cardoso",
+        "Suporte": "Ronan"
+      },
+      {
+        "Data": "07/06/2026",
+        "Crianças": "Rosângela",
+        "Pré-Adolescentes": "Igor",
+        "Adolescentes": "Maria Tereza",
+        "Discipulado": "Suely",
+        "Jovens": "Emanuela",
+        "Irmãos": "Pb Adriano",
+        "Irmãs": "Pastora",
+        "Suporte": "Ronan"
+      },
+      {
+        "Data": "14/06/2026",
+        "Crianças": "Rita",
+        "Pré-Adolescentes": "Oseas Junior",
+        "Adolescentes": "Fernanda",
+        "Discipulado": "Noeme",
+        "Jovens": "Lucas",
+        "Irmãos": "Dc João Paulo",
+        "Irmãs": "Samella",
+        "Suporte": "Ronan"
+      },
+      {
+        "Data": "21/06/2026",
+        "Crianças": "Thaís",
+        "Pré-Adolescentes": "Igor",
+        "Adolescentes": "Graziele",
+        "Discipulado": "Suely",
+        "Jovens": "Ronan",
+        "Irmãos": "Pb Elias",
+        "Irmãs": "Ana Cardoso",
+        "Suporte": "Ronan"
+      },
+      {
+        "Data": "28/06/2026",
+        "Crianças": "Vitória",
+        "Pré-Adolescentes": "Oseas Junior",
+        "Adolescentes": "Maria Tereza",
+        "Discipulado": "Noeme",
+        "Jovens": "Emanuela",
+        "Irmãos": "Pb Felipe",
+        "Irmãs": "Pastora",
+        "Suporte": "Ronan"
+      }
+    ];
 
+    let linhasEscala = [];
     let escala = {
       "Crianças": [],
       "Pré-Adolescentes": [],
@@ -912,15 +979,183 @@
     const btnConfirmar = document.getElementById("btnConfirmar");
     const loadingBox = document.getElementById("loadingBox");
 
-    function abrirModal(classePreSelecionada) {
+    function normalizarLinha(linha) {
+      return {
+        "Data": linha["Data"] || linha["data"] || "",
+        "Crianças": linha["Crianças"] || "",
+        "Pré-Adolescentes": linha["Pré-Adolescentes"] || "",
+        "Adolescentes": linha["Adolescentes"] || "",
+        "Discipulado": linha["Discipulado"] || "",
+        "Jovens": linha["Jovens"] || "",
+        "Irmãos": linha["Irmãos"] || "",
+        "Irmãs": linha["Irmãs"] || "",
+        "Suporte": linha["Suporte"] || "Ronan"
+      };
+    }
+
+    function atualizarEscalaLocal(linhas) {
+      linhasEscala = linhas.map(normalizarLinha);
+
+      classesEscala.forEach((classe) => {
+        escala[classe] = linhasEscala.map((linha) => ({
+          data: linha.Data,
+          professor: linha[classe] || ""
+        }));
+      });
+    }
+
+    function renderizarTabela(linhas) {
+      const tbody = document.querySelector("#tabelaEscala tbody");
+      tbody.innerHTML = "";
+
+      linhas.forEach((linhaOriginal) => {
+        const linha = normalizarLinha(linhaOriginal);
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+          <td class="date">${linha.Data}</td>
+          <td data-classe="Crianças">${linha["Crianças"]}</td>
+          <td data-classe="Pré-Adolescentes">${linha["Pré-Adolescentes"]}</td>
+          <td data-classe="Adolescentes">${linha["Adolescentes"]}</td>
+          <td data-classe="Discipulado">${linha["Discipulado"]}</td>
+          <td data-classe="Jovens">${linha["Jovens"]}</td>
+          <td data-classe="Irmãos">${linha["Irmãos"]}</td>
+          <td data-classe="Irmãs">${linha["Irmãs"]}</td>
+          <td class="super" data-classe="Suporte">${linha["Suporte"]}</td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderizarCards(linhas) {
+      const cardsEscala = document.getElementById("cardsEscala");
+      cardsEscala.innerHTML = "";
+
+      linhas.forEach((linhaOriginal) => {
+        const linha = normalizarLinha(linhaOriginal);
+        const card = document.createElement("div");
+        card.className = "schedule-card";
+
+        card.innerHTML = `
+          <h3>${linha.Data}</h3>
+
+          <div class="schedule-item">
+            <strong>Crianças</strong>
+            <span>${linha["Crianças"]}</span>
+          </div>
+
+          <div class="schedule-item">
+            <strong>Pré-Adolescentes</strong>
+            <span>${linha["Pré-Adolescentes"]}</span>
+          </div>
+
+          <div class="schedule-item">
+            <strong>Adolescentes</strong>
+            <span>${linha["Adolescentes"]}</span>
+          </div>
+
+          <div class="schedule-item">
+            <strong>Discipulado</strong>
+            <span>${linha["Discipulado"]}</span>
+          </div>
+
+          <div class="schedule-item">
+            <strong>Jovens</strong>
+            <span>${linha["Jovens"]}</span>
+          </div>
+
+          <div class="schedule-item">
+            <strong>Irmãos</strong>
+            <span>${linha["Irmãos"]}</span>
+          </div>
+
+          <div class="schedule-item">
+            <strong>Irmãs</strong>
+            <span>${linha["Irmãs"]}</span>
+          </div>
+
+          <div class="schedule-item">
+            <strong>Suporte</strong>
+            <span>${linha["Suporte"]}</span>
+          </div>
+
+          <button class="btn btn-card" type="button" onclick="abrirModal()">
+            Alterar meu dia
+          </button>
+        `;
+
+        cardsEscala.appendChild(card);
+      });
+    }
+
+    function renderizarEscala(linhas) {
+      atualizarEscalaLocal(linhas);
+      renderizarTabela(linhas);
+      renderizarCards(linhas);
+    }
+
+    function chamarAppsScript(parametros) {
+      return new Promise((resolve, reject) => {
+        const callbackName = "callbackEscalaEBD_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+        const script = document.createElement("script");
+        const query = new URLSearchParams(parametros);
+
+        query.append("callback", callbackName);
+        query.append("t", Date.now());
+
+        window[callbackName] = function (resposta) {
+          delete window[callbackName];
+          script.remove();
+          resolve(resposta);
+        };
+
+        script.onerror = function () {
+          delete window[callbackName];
+          script.remove();
+          reject(new Error("Não foi possível conectar ao Apps Script."));
+        };
+
+        script.src = APPS_SCRIPT_URL + "?" + query.toString();
+        document.body.appendChild(script);
+      });
+    }
+
+    async function carregarEscalaDaPlanilha() {
+      loadingBox.textContent = "Carregando escala atualizada...";
+      loadingBox.classList.add("show");
+
+      renderizarEscala(escalaReserva);
+
+      try {
+        const dados = await chamarAppsScript({
+          acao: "listar"
+        });
+
+        if (!dados || !dados.sucesso) {
+          throw new Error((dados && dados.mensagem) || "Não foi possível carregar a escala.");
+        }
+
+        if (!dados.escala || dados.escala.length === 0) {
+          throw new Error("A planilha retornou sem dados.");
+        }
+
+        renderizarEscala(dados.escala);
+        loadingBox.textContent = "Escala atualizada pela planilha.";
+
+      } catch (erro) {
+        console.error("Erro ao carregar escala:", erro);
+        loadingBox.textContent = "Mostrando escala inicial. Verifique o Apps Script se as alterações não aparecerem.";
+      } finally {
+        setTimeout(() => {
+          loadingBox.classList.remove("show");
+        }, 2500);
+      }
+    }
+
+    function abrirModal() {
       modal.classList.add("active");
       limparStatus();
-
-      if (classePreSelecionada) {
-        classeSelect.value = classePreSelecionada;
-        carregarProfessores();
-      }
-
       atualizarResumo();
     }
 
@@ -955,14 +1190,6 @@
       statusMensagem.textContent = mensagem;
     }
 
-    function mostrarCarregando(mostrar) {
-      if (mostrar) {
-        loadingBox.classList.add("show");
-      } else {
-        loadingBox.classList.remove("show");
-      }
-    }
-
     function encontrarProfessorNaData(classe, data) {
       if (!escala[classe]) {
         return "";
@@ -970,130 +1197,6 @@
 
       const item = escala[classe].find((linha) => linha.data === data);
       return item ? item.professor : "";
-    }
-
-    function atualizarEscalaLocal(linhas) {
-      linhasEscala = linhas;
-
-      classesEscala.forEach((classe) => {
-        escala[classe] = linhas.map((linha) => ({
-          data: linha.Data,
-          professor: linha[classe] || ""
-        }));
-      });
-    }
-
-    function renderizarTabela(linhas) {
-      const tbody = document.querySelector("#tabelaEscala tbody");
-      tbody.innerHTML = "";
-
-      linhas.forEach((linha) => {
-        const tr = document.createElement("tr");
-
-        tr.innerHTML = `
-          <td class="date">${linha.Data || ""}</td>
-          <td data-classe="Crianças">${linha["Crianças"] || ""}</td>
-          <td data-classe="Pré-Adolescentes">${linha["Pré-Adolescentes"] || ""}</td>
-          <td data-classe="Adolescentes">${linha["Adolescentes"] || ""}</td>
-          <td data-classe="Discipulado">${linha["Discipulado"] || ""}</td>
-          <td data-classe="Jovens">${linha["Jovens"] || ""}</td>
-          <td data-classe="Irmãos">${linha["Irmãos"] || ""}</td>
-          <td data-classe="Irmãs">${linha["Irmãs"] || ""}</td>
-          <td class="super" data-classe="Suporte">${linha["Suporte"] || "Ronan"}</td>
-        `;
-
-        tbody.appendChild(tr);
-      });
-    }
-
-    function renderizarCards(linhas) {
-      const cardsEscala = document.getElementById("cardsEscala");
-      cardsEscala.innerHTML = "";
-
-      linhas.forEach((linha) => {
-        const card = document.createElement("div");
-        card.className = "schedule-card";
-
-        card.innerHTML = `
-          <h3>${linha.Data || ""}</h3>
-
-          <div class="schedule-item">
-            <strong>Crianças</strong>
-            <span>${linha["Crianças"] || ""}</span>
-          </div>
-
-          <div class="schedule-item">
-            <strong>Pré-Adolescentes</strong>
-            <span>${linha["Pré-Adolescentes"] || ""}</span>
-          </div>
-
-          <div class="schedule-item">
-            <strong>Adolescentes</strong>
-            <span>${linha["Adolescentes"] || ""}</span>
-          </div>
-
-          <div class="schedule-item">
-            <strong>Discipulado</strong>
-            <span>${linha["Discipulado"] || ""}</span>
-          </div>
-
-          <div class="schedule-item">
-            <strong>Jovens</strong>
-            <span>${linha["Jovens"] || ""}</span>
-          </div>
-
-          <div class="schedule-item">
-            <strong>Irmãos</strong>
-            <span>${linha["Irmãos"] || ""}</span>
-          </div>
-
-          <div class="schedule-item">
-            <strong>Irmãs</strong>
-            <span>${linha["Irmãs"] || ""}</span>
-          </div>
-
-          <div class="schedule-item">
-            <strong>Suporte</strong>
-            <span>${linha["Suporte"] || "Ronan"}</span>
-          </div>
-
-          <button class="btn btn-card" type="button" onclick="abrirModal()">
-            Alterar meu dia
-          </button>
-        `;
-
-        cardsEscala.appendChild(card);
-      });
-    }
-
-    async function carregarEscalaDaPlanilha() {
-      mostrarCarregando(true);
-
-      try {
-        const url = APPS_SCRIPT_URL + "?acao=listar&t=" + new Date().getTime();
-        const resposta = await fetch(url);
-        const dados = await resposta.json();
-
-        if (!dados.sucesso) {
-          throw new Error(dados.mensagem || "Não foi possível carregar a escala.");
-        }
-
-        atualizarEscalaLocal(dados.escala);
-        renderizarTabela(dados.escala);
-        renderizarCards(dados.escala);
-
-      } catch (erro) {
-        console.error("Erro ao carregar escala:", erro);
-
-        loadingBox.textContent = "Não foi possível carregar a escala atualizada. Verifique o Apps Script.";
-        loadingBox.classList.add("show");
-
-      } finally {
-        setTimeout(() => {
-          mostrarCarregando(false);
-          loadingBox.textContent = "Carregando escala atualizada...";
-        }, 700);
-      }
     }
 
     function carregarProfessores() {
@@ -1211,22 +1314,17 @@
     }
 
     async function enviarAlteracao(payload) {
-      const parametros = new URLSearchParams();
+      const dados = await chamarAppsScript({
+        acao: "trocar",
+        classe: payload.classe,
+        professor: payload.professor,
+        dataAtual: payload.dataAtual,
+        novaData: payload.novaData,
+        origem: payload.origem
+      });
 
-      parametros.append("acao", "trocar");
-      parametros.append("classe", payload.classe);
-      parametros.append("professor", payload.professor);
-      parametros.append("dataAtual", payload.dataAtual);
-      parametros.append("novaData", payload.novaData);
-      parametros.append("origem", payload.origem);
-
-      const url = APPS_SCRIPT_URL + "?" + parametros.toString() + "&t=" + new Date().getTime();
-
-      const resposta = await fetch(url);
-      const dados = await resposta.json();
-
-      if (!dados.sucesso) {
-        throw new Error(dados.mensagem || "Erro ao salvar alteração.");
+      if (!dados || !dados.sucesso) {
+        throw new Error((dados && dados.mensagem) || "Erro ao salvar alteração.");
       }
 
       return dados;
@@ -1245,7 +1343,6 @@
       const professor = professorSelect.value;
       const dataAtual = dataAtualSelect.value;
       const novaData = novaDataSelect.value;
-      const professorNaNovaData = encontrarProfessorNaData(classe, novaData);
 
       if (!classe || !professor || !dataAtual || !novaData) {
         mostrarStatus("error", "Preencha todos os campos antes de confirmar.");
@@ -1262,7 +1359,6 @@
         professor: professor,
         dataAtual: dataAtual,
         novaData: novaData,
-        professorNaNovaData: professorNaNovaData,
         origem: "Site Escala EBD"
       };
 

@@ -6,18 +6,24 @@
 
   <title>Escala de Professores — EBD</title>
 
-  <link rel="icon" type="image/png" href="logoebd.png" />
-  <link rel="apple-touch-icon" href="logoebd.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=2" />
+  <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=2" />
+  <link rel="icon" type="image/png" sizes="512x512" href="logoebd.png?v=2" />
+  <link rel="apple-touch-icon" sizes="180x180" href="logoebd.png?v=2" />
 
   <meta property="og:title" content="Escala de Professores — EBD" />
   <meta property="og:description" content="Escola Bíblica Dominical — 2º Trimestre 2026" />
-  <meta property="og:image" content="logoebd.png" />
+  <meta property="og:image" content="https://ebdfiel.github.io/escala/logoebd.png?v=2" />
+  <meta property="og:image:secure_url" content="https://ebdfiel.github.io/escala/logoebd.png?v=2" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
   <meta property="og:type" content="website" />
 
-  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Escala de Professores — EBD" />
   <meta name="twitter:description" content="Escola Bíblica Dominical — 2º Trimestre 2026" />
-  <meta name="twitter:image" content="logoebd.png" />
+  <meta name="twitter:image" content="https://ebdfiel.github.io/escala/logoebd.png?v=2" />
 
   <style>
     :root {
@@ -1576,14 +1582,14 @@
 
         tr.innerHTML = `
           <td class="date">${linha.Data}</td>
-          <td data-classe="Crianças">${linha["Crianças"]}</td>
-          <td data-classe="Pré-Adolescentes">${linha["Pré-Adolescentes"]}</td>
-          <td data-classe="Adolescentes">${linha["Adolescentes"]}</td>
-          <td data-classe="Discipulado">${linha["Discipulado"]}</td>
-          <td data-classe="Jovens">${linha["Jovens"]}</td>
-          <td data-classe="Irmãos">${linha["Irmãos"]}</td>
-          <td data-classe="Irmãs">${linha["Irmãs"]}</td>
-          <td class="super" data-classe="Suporte">${linha["Suporte"]}</td>
+          <td>${linha["Crianças"]}</td>
+          <td>${linha["Pré-Adolescentes"]}</td>
+          <td>${linha["Adolescentes"]}</td>
+          <td>${linha["Discipulado"]}</td>
+          <td>${linha["Jovens"]}</td>
+          <td>${linha["Irmãos"]}</td>
+          <td>${linha["Irmãs"]}</td>
+          <td class="super">${linha["Suporte"]}</td>
         `;
 
         tbody.appendChild(tr);
@@ -1603,45 +1609,14 @@
         card.innerHTML = `
           <h3>📅 ${linha.Data}</h3>
 
-          <div class="schedule-item">
-            <strong>👧 Crianças</strong>
-            <span>${linha["Crianças"]}</span>
-          </div>
-
-          <div class="schedule-item">
-            <strong>🙋 Pré-Adolescentes</strong>
-            <span>${linha["Pré-Adolescentes"]}</span>
-          </div>
-
-          <div class="schedule-item">
-            <strong>🌱 Adolescentes</strong>
-            <span>${linha["Adolescentes"]}</span>
-          </div>
-
-          <div class="schedule-item">
-            <strong>📖 Discipulado</strong>
-            <span>${linha["Discipulado"]}</span>
-          </div>
-
-          <div class="schedule-item">
-            <strong>🔥 Jovens</strong>
-            <span>${linha["Jovens"]}</span>
-          </div>
-
-          <div class="schedule-item">
-            <strong>👔 Irmãos</strong>
-            <span>${linha["Irmãos"]}</span>
-          </div>
-
-          <div class="schedule-item">
-            <strong>🌸 Irmãs</strong>
-            <span>${linha["Irmãs"]}</span>
-          </div>
-
-          <div class="schedule-item">
-            <strong>🤝 Suporte</strong>
-            <span>${linha["Suporte"]}</span>
-          </div>
+          <div class="schedule-item"><strong>👧 Crianças</strong><span>${linha["Crianças"]}</span></div>
+          <div class="schedule-item"><strong>🙋 Pré-Adolescentes</strong><span>${linha["Pré-Adolescentes"]}</span></div>
+          <div class="schedule-item"><strong>🌱 Adolescentes</strong><span>${linha["Adolescentes"]}</span></div>
+          <div class="schedule-item"><strong>📖 Discipulado</strong><span>${linha["Discipulado"]}</span></div>
+          <div class="schedule-item"><strong>🔥 Jovens</strong><span>${linha["Jovens"]}</span></div>
+          <div class="schedule-item"><strong>👔 Irmãos</strong><span>${linha["Irmãos"]}</span></div>
+          <div class="schedule-item"><strong>🌸 Irmãs</strong><span>${linha["Irmãs"]}</span></div>
+          <div class="schedule-item"><strong>🤝 Suporte</strong><span>${linha["Suporte"]}</span></div>
 
           <button class="btn btn-card" type="button" onclick="abrirModal()">
             Alterar meu dia
@@ -1691,9 +1666,7 @@
       renderizarEscala(escalaReserva);
 
       try {
-        const dados = await chamarAppsScript({
-          acao: "listar"
-        });
+        const dados = await chamarAppsScript({ acao: "listar" });
 
         if (!dados || !dados.sucesso) {
           throw new Error((dados && dados.mensagem) || "Não foi possível carregar a escala.");
@@ -1718,9 +1691,7 @@
 
     async function carregarHistoricoAlteracoes() {
       try {
-        const dados = await chamarAppsScript({
-          acao: "historico"
-        });
+        const dados = await chamarAppsScript({ acao: "historico" });
 
         if (!dados || !dados.sucesso || !dados.historico || dados.historico.length === 0) {
           historicoAlteracoes.innerHTML = `

@@ -6,6 +6,9 @@
 
   <title>Escala de Professores — EBD</title>
 
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#082f49" />
+
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=3" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=3" />
   <link rel="icon" type="image/png" sizes="512x512" href="logoebd.png?v=3" />
@@ -2014,6 +2017,18 @@
       await carregarEscalaDaPlanilha();
       await carregarHistoricoAlteracoes();
     });
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("./service-worker.js")
+          .then(function () {
+            console.log("Aplicativo EBD instalado como PWA.");
+          })
+          .catch(function (erro) {
+            console.error("Erro ao registrar Service Worker:", erro);
+          });
+      });
+    }
   </script>
 
 </body>

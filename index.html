@@ -9,25 +9,27 @@
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
 
-  <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=5" />
-  <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=5" />
-  <link rel="icon" type="image/png" sizes="512x512" href="logoebd.png?v=5" />
-  <link rel="apple-touch-icon" sizes="180x180" href="logoebd.png?v=5" />
+  <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=7" />
+  <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=7" />
+  <link rel="icon" type="image/png" sizes="512x512" href="logoebd.png?v=7" />
+  <link rel="apple-touch-icon" sizes="180x180" href="logoebd.png?v=7" />
 
   <meta property="og:title" content="Escala de Professores — EBD" />
   <meta property="og:description" content="Escola Bíblica Dominical — 2º Trimestre 2026" />
-  <meta property="og:image" content="https://ebdfiel.github.io/escala-ebd/logoebd.png?v=5" />
-  <meta property="og:image:secure_url" content="https://ebdfiel.github.io/escala-ebd/logoebd.png?v=5" />
+  <meta property="og:image" content="https://ebdfiel.github.io/escala-ebd/preview-whatsapp.png" />
+  <meta property="og:image:secure_url" content="https://ebdfiel.github.io/escala-ebd/preview-whatsapp.png" />
   <meta property="og:image:type" content="image/png" />
-  <meta property="og:image:width" content="512" />
-  <meta property="og:image:height" content="512" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
   <meta property="og:url" content="https://ebdfiel.github.io/escala-ebd/" />
   <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Escala EBD" />
+  <meta property="og:locale" content="pt_BR" />
 
-  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Escala de Professores — EBD" />
   <meta name="twitter:description" content="Escola Bíblica Dominical — 2º Trimestre 2026" />
-  <meta name="twitter:image" content="https://ebdfiel.github.io/escala-ebd/logoebd.png?v=5" />
+  <meta name="twitter:image" content="https://ebdfiel.github.io/escala-ebd/preview-whatsapp.png" />
 
   <style>
     :root {
@@ -47,10 +49,8 @@
       --vermelho: #b42318;
       --amarelo-claro: #fff8e1;
       --amarelo: #b7791f;
-      --rosa-claro: #fff0f6;
       --roxo-claro: #f3edff;
       --sombra: rgba(31, 78, 121, 0.12);
-      --sombra-forte: rgba(16, 47, 77, 0.28);
     }
 
     * {
@@ -64,13 +64,13 @@
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
+      color: var(--texto);
+      line-height: 1.6;
+      overflow-x: hidden;
       background:
         radial-gradient(circle at top left, rgba(197, 155, 53, 0.14), transparent 32%),
         radial-gradient(circle at top right, rgba(31, 78, 121, 0.12), transparent 30%),
         linear-gradient(135deg, #eef6ff 0%, #ffffff 45%, #f7fbf7 100%);
-      color: var(--texto);
-      line-height: 1.6;
-      overflow-x: hidden;
     }
 
     body::before {
@@ -357,18 +357,6 @@
       box-shadow: 0 10px 22px rgba(31, 78, 121, 0.12);
     }
 
-    .info-item::after {
-      content: "";
-      position: absolute;
-      right: -28px;
-      bottom: -28px;
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.28);
-      pointer-events: none;
-    }
-
     .info-item strong {
       position: relative;
       z-index: 2;
@@ -377,13 +365,6 @@
       margin-bottom: 4px;
       font-size: 1.02rem;
       font-weight: 800;
-      text-shadow: none;
-    }
-
-    .info-item span,
-    .info-item strong {
-      position: relative;
-      z-index: 2;
     }
 
     .info-emoji {
@@ -471,10 +452,6 @@
       animation: none;
     }
 
-    .btn-cancel:hover {
-      background: linear-gradient(135deg, #4b5563, #374151);
-    }
-
     .btn:disabled {
       opacity: 0.7;
       cursor: not-allowed;
@@ -553,10 +530,6 @@
       white-space: nowrap;
     }
 
-    tbody tr {
-      transition: background 0.2s ease, transform 0.2s ease;
-    }
-
     tbody tr:nth-child(even) {
       background: #f8fbfd;
     }
@@ -605,11 +578,6 @@
 
     .schedule-card:nth-child(4n + 4) {
       background: linear-gradient(135deg, #f3edff, #ffffff);
-    }
-
-    .schedule-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 26px rgba(31, 78, 121, 0.14);
     }
 
     .schedule-card h3 {
@@ -665,11 +633,6 @@
 
     .class-card:nth-child(4n + 4) {
       background: linear-gradient(135deg, #fff0f6, #ffffff);
-    }
-
-    .class-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 22px rgba(31, 78, 121, 0.12);
     }
 
     .class-card h3 {

@@ -1,11 +1,11 @@
-const CACHE_NAME = "escala-ebd-v1";
+const CACHE_NAME = "escala-ebd-v2";
 
 const ARQUIVOS_CACHE = [
   "./",
   "./index.html",
   "./manifest.json",
   "./logoebd.png",
-  "./Logo%20Horizontal%20Branca@300x.png"
+  "./Logotipo%20Horizontal%20Branca@300x.png"
 ];
 
 self.addEventListener("install", function (event) {

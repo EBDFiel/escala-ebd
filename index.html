@@ -218,6 +218,45 @@
       backdrop-filter: blur(6px);
     }
 
+    .header-verse {
+      max-width: 820px;
+      margin: 22px auto 0;
+      padding: 18px 22px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+      animation: fadeUp 1s ease both;
+    }
+
+    .header-verse .verse-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      margin-bottom: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.18);
+      font-size: 1.35rem;
+    }
+
+    .header-verse p {
+      margin: 0 auto 8px;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #ffffff;
+      max-width: 760px;
+    }
+
+    .header-verse strong {
+      display: block;
+      color: var(--dourado-claro);
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+    }
+
     main {
       max-width: 1180px;
       margin: 0 auto;
@@ -344,15 +383,6 @@
       border-left-color: #7c3aed;
     }
 
-    .button-area {
-      text-align: center;
-      margin-top: 24px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 12px;
-    }
-
     .btn {
       display: inline-block;
       border: none;
@@ -373,12 +403,6 @@
       transform: translateY(-2px) scale(1.02);
       filter: brightness(1.03);
       box-shadow: 0 12px 24px rgba(46, 125, 50, 0.35);
-    }
-
-    .btn-small {
-      padding: 9px 20px;
-      font-size: 0.9rem;
-      box-shadow: 0 6px 14px rgba(46, 125, 50, 0.22);
     }
 
     .btn-card {
@@ -403,13 +427,6 @@
       cursor: not-allowed;
       transform: none;
       animation: none;
-    }
-
-    .note {
-      width: 100%;
-      margin-top: 4px;
-      font-size: 0.92rem;
-      color: #5d6d7e;
     }
 
     h2.section-title {
@@ -639,6 +656,76 @@
       color: #5d6d7e;
     }
 
+    .success-celebration {
+      text-align: center;
+      padding: 18px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #e9f6ea, #ffffff);
+      border: 1px solid #bfe3c1;
+      box-shadow: 0 12px 28px rgba(46, 125, 50, 0.16);
+    }
+
+    .success-celebration .success-icon {
+      font-size: 2.4rem;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .success-celebration strong {
+      display: block;
+      color: var(--verde-escuro);
+      font-size: 1.08rem;
+      margin-bottom: 6px;
+    }
+
+    .success-celebration span {
+      display: block;
+      color: #375a3a;
+      font-size: 0.95rem;
+    }
+
+    .history-section {
+      background: linear-gradient(135deg, #f3edff, #ffffff);
+      border-left: 6px solid #7c3aed;
+    }
+
+    .history-section h2 {
+      color: #5b21b6;
+      margin-top: 0;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .history-item {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: #ffffff;
+      border: 1px solid rgba(124, 58, 237, 0.16);
+      box-shadow: 0 6px 16px rgba(31, 78, 121, 0.08);
+    }
+
+    .history-item strong {
+      color: var(--azul-escuro);
+    }
+
+    .history-meta {
+      font-size: 0.86rem;
+      color: #6b7280;
+      margin-bottom: 5px;
+    }
+
+    .history-empty {
+      padding: 16px;
+      border-radius: 16px;
+      background: #ffffff;
+      color: #6b7280;
+      border: 1px dashed rgba(124, 58, 237, 0.28);
+      text-align: center;
+    }
+
     footer {
       text-align: center;
       padding: 26px 16px;
@@ -646,6 +733,29 @@
       font-size: 0.9rem;
       border-top: 1px solid var(--borda);
       background: #ffffff;
+    }
+
+    .leadership-footer {
+      max-width: 1180px;
+      margin: 0 auto 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+    }
+
+    .leadership-card {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #eaf3fb, #ffffff);
+      border: 1px solid var(--borda);
+      text-align: center;
+      box-shadow: 0 6px 16px rgba(31, 78, 121, 0.08);
+    }
+
+    .leadership-card strong {
+      display: block;
+      color: var(--azul-escuro);
+      margin-bottom: 4px;
     }
 
     .modal-overlay {
@@ -814,6 +924,20 @@
         padding: 6px 14px;
       }
 
+      .header-verse {
+        margin-top: 18px;
+        padding: 15px 16px;
+        border-radius: 18px;
+      }
+
+      .header-verse p {
+        font-size: 0.92rem;
+      }
+
+      .header-verse strong {
+        font-size: 0.88rem;
+      }
+
       main {
         padding: 22px 12px 42px;
       }
@@ -829,11 +953,6 @@
 
       .mobile-cards {
         display: block;
-      }
-
-      .btn-small {
-        padding: 8px 18px;
-        font-size: 0.88rem;
       }
 
       .modal-overlay.active {
@@ -884,7 +1003,17 @@
 
       <p class="header-subtitle">Escola Bíblica Dominical</p>
       <h1 class="header-title">Escala de Professores</h1>
-      <p class="header-note">📅 Até 28 de junho de 2026</p>
+      <p class="header-note">📅 2º Trimestre 2026</p>
+
+      <div class="header-verse">
+        <span class="verse-icon">📖</span>
+        <p>
+          “Portanto, meus amados irmãos, sede firmes e constantes,
+          sempre abundantes na obra do Senhor, sabendo que o vosso trabalho
+          não é vão no Senhor.”
+        </p>
+        <strong>1 Coríntios 15:58</strong>
+      </div>
     </div>
   </header>
 
@@ -906,21 +1035,21 @@
 
       <div class="info-box">
         <div class="info-item info-blue">
+          <span class="info-emoji">⛪</span>
+          <strong>Pastor Presidente</strong>
+          Oseas Valadares
+        </div>
+
+        <div class="info-item info-green">
           <span class="info-emoji">👥</span>
           <strong>Superintendentes</strong>
           Coop. Ronan e Pb Elias
         </div>
 
-        <div class="info-item info-green">
-          <span class="info-emoji">🤝</span>
-          <strong>Suporte</strong>
-          Ronan
-        </div>
-
         <div class="info-item info-gold">
           <span class="info-emoji">📅</span>
           <strong>Período da escala</strong>
-          Até 28/06/2026
+          2º Trimestre 2026
         </div>
       </div>
 
@@ -1065,11 +1194,42 @@
       </div>
     </section>
 
+    <section class="card history-section">
+      <h2>📝 Histórico de Alterações</h2>
+
+      <p class="small-text">
+        Aqui aparecem as últimas alterações realizadas na escala.
+      </p>
+
+      <div class="history-list" id="historicoAlteracoes">
+        <div class="history-empty">
+          Nenhuma alteração registrada ainda.
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <footer>
+    <div class="leadership-footer">
+      <div class="leadership-card">
+        <strong>⛪ Pastor Presidente</strong>
+        Oseas Valadares
+      </div>
+
+      <div class="leadership-card">
+        <strong>👥 Superintendentes</strong>
+        Coop. Ronan e Pb Elias
+      </div>
+
+      <div class="leadership-card">
+        <strong>🤝 Suporte</strong>
+        Ronan
+      </div>
+    </div>
+
     <p>
-      📚 Escala EBD — Superintendentes: Coop. Ronan e Pb Elias | Suporte: Ronan
+      📚 Escala EBD — Escola Bíblica Dominical | 2º Trimestre 2026
     </p>
   </footer>
 
@@ -1265,6 +1425,7 @@
     const statusMensagem = document.getElementById("statusMensagem");
     const btnConfirmar = document.getElementById("btnConfirmar");
     const loadingBox = document.getElementById("loadingBox");
+    const historicoAlteracoes = document.getElementById("historicoAlteracoes");
 
     function normalizarLinha(linha) {
       return {
@@ -1441,6 +1602,53 @@
       }
     }
 
+    async function carregarHistoricoAlteracoes() {
+      try {
+        const dados = await chamarAppsScript({
+          acao: "historico"
+        });
+
+        if (!dados || !dados.sucesso || !dados.historico || dados.historico.length === 0) {
+          historicoAlteracoes.innerHTML = `
+            <div class="history-empty">
+              Nenhuma alteração registrada ainda.
+            </div>
+          `;
+          return;
+        }
+
+        historicoAlteracoes.innerHTML = "";
+
+        dados.historico.forEach((item) => {
+          const div = document.createElement("div");
+          div.className = "history-item";
+
+          div.innerHTML = `
+            <div class="history-meta">🕒 ${item.dataHora || ""} | 📚 ${item.classe || ""}</div>
+            <div>
+              <strong>${item.professorSolicitante || ""}</strong>
+              trocou de <strong>${item.dataAntiga || ""}</strong>
+              para <strong>${item.novaData || ""}</strong>.
+            </div>
+            <div>
+              🔁 ${item.professorTrocado || ""} ficou na data ${item.dataAntiga || ""}.
+            </div>
+          `;
+
+          historicoAlteracoes.appendChild(div);
+        });
+
+      } catch (erro) {
+        console.error("Erro ao carregar histórico:", erro);
+
+        historicoAlteracoes.innerHTML = `
+          <div class="history-empty">
+            Não foi possível carregar o histórico agora.
+          </div>
+        `;
+      }
+    }
+
     function abrirModal() {
       modal.classList.add("active");
       limparStatus();
@@ -1475,7 +1683,18 @@
 
     function mostrarStatus(tipo, mensagem) {
       statusMensagem.className = "status show " + tipo;
-      statusMensagem.textContent = mensagem;
+
+      if (tipo === "success") {
+        statusMensagem.innerHTML = `
+          <div class="success-celebration">
+            <span class="success-icon">✅🙌</span>
+            <strong>Alteração confirmada com sucesso!</strong>
+            <span>${mensagem}</span>
+          </div>
+        `;
+      } else {
+        statusMensagem.textContent = mensagem;
+      }
     }
 
     function encontrarProfessorNaData(classe, data) {
@@ -1656,10 +1875,11 @@
       try {
         await enviarAlteracao(payload);
         await carregarEscalaDaPlanilha();
+        await carregarHistoricoAlteracoes();
 
         mostrarStatus(
           "success",
-          "Alteração realizada com sucesso. A escala foi atualizada pela planilha."
+          "A troca foi salva na planilha e registrada no histórico de alterações."
         );
 
         btnConfirmar.textContent = "Confirmado";
@@ -1680,7 +1900,7 @@
 
           atualizarResumo();
           limparStatus();
-        }, 1800);
+        }, 2200);
 
       } catch (error) {
         mostrarStatus(
@@ -1705,7 +1925,10 @@
       }
     });
 
-    document.addEventListener("DOMContentLoaded", carregarEscalaDaPlanilha);
+    document.addEventListener("DOMContentLoaded", async function () {
+      await carregarEscalaDaPlanilha();
+      await carregarHistoricoAlteracoes();
+    });
   </script>
 
 </body>

@@ -9,24 +9,24 @@
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
 
-  <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=8" />
-  <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=8" />
-  <link rel="icon" type="image/png" sizes="512x512" href="logoebd.png?v=8" />
-  <link rel="apple-touch-icon" sizes="180x180" href="logoebd.png?v=8" />
+  <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=9" />
+  <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=9" />
+  <link rel="icon" type="image/png" sizes="512x512" href="logoebd.png?v=9" />
+  <link rel="apple-touch-icon" sizes="180x180" href="logoebd.png?v=9" />
 
   <meta property="og:title" content="Escala de Professores — EBD" />
   <meta property="og:description" content="Escola Bíblica Dominical — 2º Trimestre 2026" />
   <meta property="og:image" content="https://ebdfiel.github.io/escala-ebd/preview-whatsapp.jpg" />
   <meta property="og:image:secure_url" content="https://ebdfiel.github.io/escala-ebd/preview-whatsapp.jpg" />
   <meta property="og:image:type" content="image/jpeg" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
   <meta property="og:url" content="https://ebdfiel.github.io/escala-ebd/" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Escala EBD" />
   <meta property="og:locale" content="pt_BR" />
 
-  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Escala de Professores — EBD" />
   <meta name="twitter:description" content="Escola Bíblica Dominical — 2º Trimestre 2026" />
   <meta name="twitter:image" content="https://ebdfiel.github.io/escala-ebd/preview-whatsapp.jpg" />
@@ -49,8 +49,10 @@
       --vermelho: #b42318;
       --amarelo-claro: #fff8e1;
       --amarelo: #b7791f;
+      --rosa-claro: #fff0f6;
       --roxo-claro: #f3edff;
       --sombra: rgba(31, 78, 121, 0.12);
+      --sombra-forte: rgba(16, 47, 77, 0.28);
     }
 
     * {
@@ -64,13 +66,13 @@
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      color: var(--texto);
-      line-height: 1.6;
-      overflow-x: hidden;
       background:
         radial-gradient(circle at top left, rgba(197, 155, 53, 0.14), transparent 32%),
         radial-gradient(circle at top right, rgba(31, 78, 121, 0.12), transparent 30%),
         linear-gradient(135deg, #eef6ff 0%, #ffffff 45%, #f7fbf7 100%);
+      color: var(--texto);
+      line-height: 1.6;
+      overflow-x: hidden;
     }
 
     body::before {
@@ -357,6 +359,18 @@
       box-shadow: 0 10px 22px rgba(31, 78, 121, 0.12);
     }
 
+    .info-item::after {
+      content: "";
+      position: absolute;
+      right: -28px;
+      bottom: -28px;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.28);
+      pointer-events: none;
+    }
+
     .info-item strong {
       position: relative;
       z-index: 2;
@@ -365,6 +379,7 @@
       margin-bottom: 4px;
       font-size: 1.02rem;
       font-weight: 800;
+      text-shadow: none;
     }
 
     .info-emoji {
@@ -452,6 +467,10 @@
       animation: none;
     }
 
+    .btn-cancel:hover {
+      background: linear-gradient(135deg, #4b5563, #374151);
+    }
+
     .btn:disabled {
       opacity: 0.7;
       cursor: not-allowed;
@@ -507,7 +526,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 980px;
+      min-width: 1080px;
       background: var(--branco);
     }
 
@@ -580,6 +599,11 @@
       background: linear-gradient(135deg, #f3edff, #ffffff);
     }
 
+    .schedule-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 26px rgba(31, 78, 121, 0.14);
+    }
+
     .schedule-card h3 {
       margin: 0 0 12px;
       color: var(--azul);
@@ -633,6 +657,11 @@
 
     .class-card:nth-child(4n + 4) {
       background: linear-gradient(135deg, #fff0f6, #ffffff);
+    }
+
+    .class-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 22px rgba(31, 78, 121, 0.12);
     }
 
     .class-card h3 {
@@ -1168,7 +1197,8 @@
           <thead>
             <tr>
               <th>📅 Data</th>
-              <th>👧 Crianças</th>
+              <th>👶 Crianças<br>1 a 5 anos</th>
+              <th>👧 Crianças<br>6 a 10 anos</th>
               <th>🙋 Pré-Adolescentes</th>
               <th>🌱 Adolescentes</th>
               <th>📖 Discipulado</th>
@@ -1205,12 +1235,18 @@
 
       <div class="class-section">
         <div class="class-card">
-          <h3>👧 Crianças</h3>
+          <h3>👶 Crianças 1 a 5 anos</h3>
           <ul>
             <li>Rosilene</li>
             <li>Alessandra</li>
             <li>Edivania</li>
             <li>Rosângela</li>
+          </ul>
+        </div>
+
+        <div class="class-card">
+          <h3>👧 Crianças 6 a 10 anos</h3>
+          <ul>
             <li>Rita</li>
             <li>Thaís</li>
             <li>Vitória</li>
@@ -1335,7 +1371,8 @@
             <label for="classe">📚 Classe</label>
             <select id="classe" required>
               <option value="">Selecione a classe</option>
-              <option value="Crianças">Crianças</option>
+              <option value="Crianças 1 a 5 anos">Crianças 1 a 5 anos</option>
+              <option value="Crianças 6 a 10 anos">Crianças 6 a 10 anos</option>
               <option value="Pré-Adolescentes">Pré-Adolescentes</option>
               <option value="Adolescentes">Adolescentes</option>
               <option value="Discipulado">Discipulado</option>
@@ -1391,7 +1428,8 @@
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec";
 
     const classesEscala = [
-      "Crianças",
+      "Crianças 1 a 5 anos",
+      "Crianças 6 a 10 anos",
       "Pré-Adolescentes",
       "Adolescentes",
       "Discipulado",
@@ -1403,7 +1441,8 @@
     const escalaReserva = [
       {
         "Data": "17/05/2026",
-        "Crianças": "Rosilene",
+        "Crianças 1 a 5 anos": "Rosilene",
+        "Crianças 6 a 10 anos": "Rita",
         "Pré-Adolescentes": "Oseas Junior",
         "Adolescentes": "Maria Tereza",
         "Discipulado": "Noeme",
@@ -1414,7 +1453,8 @@
       },
       {
         "Data": "24/05/2026",
-        "Crianças": "Alessandra",
+        "Crianças 1 a 5 anos": "Alessandra",
+        "Crianças 6 a 10 anos": "Thaís",
         "Pré-Adolescentes": "Igor",
         "Adolescentes": "Fernanda",
         "Discipulado": "Suely",
@@ -1425,7 +1465,8 @@
       },
       {
         "Data": "31/05/2026",
-        "Crianças": "Edivania",
+        "Crianças 1 a 5 anos": "Edivania",
+        "Crianças 6 a 10 anos": "Vitória",
         "Pré-Adolescentes": "Oseas Junior",
         "Adolescentes": "Graziele",
         "Discipulado": "Noeme",
@@ -1436,7 +1477,8 @@
       },
       {
         "Data": "07/06/2026",
-        "Crianças": "Rosângela",
+        "Crianças 1 a 5 anos": "Rosângela",
+        "Crianças 6 a 10 anos": "Larissa",
         "Pré-Adolescentes": "Igor",
         "Adolescentes": "Maria Tereza",
         "Discipulado": "Suely",
@@ -1447,7 +1489,8 @@
       },
       {
         "Data": "14/06/2026",
-        "Crianças": "Rita",
+        "Crianças 1 a 5 anos": "Rosilene",
+        "Crianças 6 a 10 anos": "Rita",
         "Pré-Adolescentes": "Oseas Junior",
         "Adolescentes": "Fernanda",
         "Discipulado": "Noeme",
@@ -1458,7 +1501,8 @@
       },
       {
         "Data": "21/06/2026",
-        "Crianças": "Thaís",
+        "Crianças 1 a 5 anos": "Alessandra",
+        "Crianças 6 a 10 anos": "Thaís",
         "Pré-Adolescentes": "Igor",
         "Adolescentes": "Graziele",
         "Discipulado": "Suely",
@@ -1469,7 +1513,8 @@
       },
       {
         "Data": "28/06/2026",
-        "Crianças": "Vitória",
+        "Crianças 1 a 5 anos": "Edivania",
+        "Crianças 6 a 10 anos": "Vitória",
         "Pré-Adolescentes": "Oseas Junior",
         "Adolescentes": "Maria Tereza",
         "Discipulado": "Noeme",
@@ -1481,9 +1526,12 @@
     ];
 
     let linhasEscala = [];
+    let ultimaVersaoEscala = "";
+    let formularioAberto = false;
 
     let escala = {
-      "Crianças": [],
+      "Crianças 1 a 5 anos": [],
+      "Crianças 6 a 10 anos": [],
       "Pré-Adolescentes": [],
       "Adolescentes": [],
       "Discipulado": [],
@@ -1493,7 +1541,8 @@
     };
 
     const professoresPorClasse = {
-      "Crianças": ["Rosilene", "Alessandra", "Edivania", "Rosângela", "Rita", "Thaís", "Vitória", "Larissa"],
+      "Crianças 1 a 5 anos": ["Rosilene", "Alessandra", "Edivania", "Rosângela"],
+      "Crianças 6 a 10 anos": ["Rita", "Thaís", "Vitória", "Larissa"],
       "Pré-Adolescentes": ["Oseas Junior", "Igor"],
       "Adolescentes": ["Maria Tereza", "Fernanda", "Graziele"],
       "Discipulado": ["Noeme", "Suely"],
@@ -1517,7 +1566,8 @@
     function normalizarLinha(linha) {
       return {
         "Data": linha["Data"] || linha["data"] || "",
-        "Crianças": linha["Crianças"] || "",
+        "Crianças 1 a 5 anos": linha["Crianças 1 a 5 anos"] || "",
+        "Crianças 6 a 10 anos": linha["Crianças 6 a 10 anos"] || "",
         "Pré-Adolescentes": linha["Pré-Adolescentes"] || "",
         "Adolescentes": linha["Adolescentes"] || "",
         "Discipulado": linha["Discipulado"] || "",
@@ -1549,7 +1599,8 @@
 
         tr.innerHTML = `
           <td class="date">${linha.Data}</td>
-          <td>${linha["Crianças"]}</td>
+          <td>${linha["Crianças 1 a 5 anos"]}</td>
+          <td>${linha["Crianças 6 a 10 anos"]}</td>
           <td>${linha["Pré-Adolescentes"]}</td>
           <td>${linha["Adolescentes"]}</td>
           <td>${linha["Discipulado"]}</td>
@@ -1576,7 +1627,8 @@
         card.innerHTML = `
           <h3>📅 ${linha.Data}</h3>
 
-          <div class="schedule-item"><strong>👧 Crianças</strong><span>${linha["Crianças"]}</span></div>
+          <div class="schedule-item"><strong>👶 Crianças 1 a 5</strong><span>${linha["Crianças 1 a 5 anos"]}</span></div>
+          <div class="schedule-item"><strong>👧 Crianças 6 a 10</strong><span>${linha["Crianças 6 a 10 anos"]}</span></div>
           <div class="schedule-item"><strong>🙋 Pré-Adolescentes</strong><span>${linha["Pré-Adolescentes"]}</span></div>
           <div class="schedule-item"><strong>🌱 Adolescentes</strong><span>${linha["Adolescentes"]}</span></div>
           <div class="schedule-item"><strong>📖 Discipulado</strong><span>${linha["Discipulado"]}</span></div>
@@ -1626,11 +1678,15 @@
       });
     }
 
-    async function carregarEscalaDaPlanilha() {
-      loadingBox.textContent = "🔄 Carregando escala atualizada...";
-      loadingBox.classList.add("show");
+    async function carregarEscalaDaPlanilha(modoSilencioso = false) {
+      if (!modoSilencioso) {
+        loadingBox.textContent = "🔄 Carregando escala atualizada...";
+        loadingBox.classList.add("show");
+      }
 
-      renderizarEscala(escalaReserva);
+      if (linhasEscala.length === 0) {
+        renderizarEscala(escalaReserva);
+      }
 
       try {
         const dados = await chamarAppsScript({ acao: "listar" });
@@ -1644,19 +1700,27 @@
         }
 
         renderizarEscala(dados.escala);
-        loadingBox.textContent = "✅ Escala atualizada pela planilha.";
+
+        if (!modoSilencioso) {
+          loadingBox.textContent = "✅ Escala atualizada pela planilha.";
+        }
 
       } catch (erro) {
         console.error("Erro ao carregar escala:", erro);
-        loadingBox.textContent = "📌 Mostrando escala inicial.";
+
+        if (!modoSilencioso) {
+          loadingBox.textContent = "📌 Mostrando escala inicial.";
+        }
       } finally {
-        setTimeout(() => {
-          loadingBox.classList.remove("show");
-        }, 2200);
+        if (!modoSilencioso) {
+          setTimeout(() => {
+            loadingBox.classList.remove("show");
+          }, 2200);
+        }
       }
     }
 
-    async function carregarHistoricoAlteracoes() {
+    async function carregarHistoricoAlteracoes(modoSilencioso = false) {
       try {
         const dados = await chamarAppsScript({ acao: "historico" });
 
@@ -1693,21 +1757,63 @@
       } catch (erro) {
         console.error("Erro ao carregar histórico:", erro);
 
-        historicoAlteracoes.innerHTML = `
-          <div class="history-empty">
-            Não foi possível carregar o histórico agora.
-          </div>
-        `;
+        if (!modoSilencioso) {
+          historicoAlteracoes.innerHTML = `
+            <div class="history-empty">
+              Não foi possível carregar o histórico agora.
+            </div>
+          `;
+        }
+      }
+    }
+
+    async function obterVersaoAtual() {
+      try {
+        const dados = await chamarAppsScript({ acao: "versao" });
+
+        if (dados && dados.sucesso && dados.versao) {
+          return dados.versao;
+        }
+
+        return "";
+      } catch (erro) {
+        console.error("Erro ao obter versão:", erro);
+        return "";
+      }
+    }
+
+    async function verificarAlteracaoNaPlanilha() {
+      if (formularioAberto) {
+        return;
+      }
+
+      const versaoAtual = await obterVersaoAtual();
+
+      if (!versaoAtual) {
+        return;
+      }
+
+      if (!ultimaVersaoEscala) {
+        ultimaVersaoEscala = versaoAtual;
+        return;
+      }
+
+      if (versaoAtual !== ultimaVersaoEscala) {
+        ultimaVersaoEscala = versaoAtual;
+        await carregarEscalaDaPlanilha(true);
+        await carregarHistoricoAlteracoes(true);
       }
     }
 
     function abrirModal() {
+      formularioAberto = true;
       modal.classList.add("active");
       limparStatus();
       atualizarResumo();
     }
 
     function fecharModal() {
+      formularioAberto = false;
       modal.classList.remove("active");
     }
 
@@ -1929,6 +2035,8 @@
         await carregarEscalaDaPlanilha();
         await carregarHistoricoAlteracoes();
 
+        ultimaVersaoEscala = await obterVersaoAtual();
+
         mostrarStatus(
           "success",
           "A troca foi salva na planilha e registrada no histórico de alterações."
@@ -1980,6 +2088,18 @@
     document.addEventListener("DOMContentLoaded", async function () {
       await carregarEscalaDaPlanilha();
       await carregarHistoricoAlteracoes();
+
+      ultimaVersaoEscala = await obterVersaoAtual();
+
+      setInterval(async function () {
+        await verificarAlteracaoNaPlanilha();
+      }, 60000);
+    });
+
+    document.addEventListener("visibilitychange", async function () {
+      if (!document.hidden) {
+        await verificarAlteracaoNaPlanilha();
+      }
     });
 
     if ("serviceWorker" in navigator) {

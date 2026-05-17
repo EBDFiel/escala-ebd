@@ -6,6 +6,19 @@
 
   <title>Escala de Professores — EBD</title>
 
+  <link rel="icon" type="image/png" href="logoebd.png" />
+  <link rel="apple-touch-icon" href="logoebd.png" />
+
+  <meta property="og:title" content="Escala de Professores — EBD" />
+  <meta property="og:description" content="Escola Bíblica Dominical — 2º Trimestre 2026" />
+  <meta property="og:image" content="logoebd.png" />
+  <meta property="og:type" content="website" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Escala de Professores — EBD" />
+  <meta name="twitter:description" content="Escola Bíblica Dominical — 2º Trimestre 2026" />
+  <meta name="twitter:image" content="logoebd.png" />
+
   <style>
     :root {
       --azul: #1f4e79;
@@ -324,6 +337,8 @@
       padding: 16px;
       border-radius: 16px;
       text-align: left;
+      color: #1f2937;
+      font-weight: 700;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
@@ -335,19 +350,30 @@
     .info-item::after {
       content: "";
       position: absolute;
-      right: -24px;
-      bottom: -24px;
-      width: 76px;
-      height: 76px;
+      right: -28px;
+      bottom: -28px;
+      width: 72px;
+      height: 72px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.58);
+      background: rgba(255, 255, 255, 0.28);
+      pointer-events: none;
     }
 
     .info-item strong {
+      position: relative;
+      z-index: 2;
       display: block;
-      color: var(--azul-escuro);
+      color: #102f4d;
       margin-bottom: 4px;
       font-size: 1.02rem;
+      font-weight: 800;
+      text-shadow: none;
+    }
+
+    .info-item span,
+    .info-item strong {
+      position: relative;
+      z-index: 2;
     }
 
     .info-emoji {
@@ -364,23 +390,35 @@
     }
 
     .info-blue {
-      background: linear-gradient(135deg, #eaf3fb, #ffffff);
+      background: linear-gradient(135deg, #d9ecfb, #ffffff);
       border-left-color: #1f4e79;
     }
 
     .info-green {
-      background: linear-gradient(135deg, #e9f6ea, #ffffff);
+      background: linear-gradient(135deg, #dff3e1, #ffffff);
       border-left-color: #2e7d32;
     }
 
     .info-gold {
-      background: linear-gradient(135deg, #fff8e1, #ffffff);
+      background: linear-gradient(135deg, #fff1bf, #ffffff);
       border-left-color: #c59b35;
     }
 
-    .info-purple {
-      background: linear-gradient(135deg, #f3edff, #ffffff);
-      border-left-color: #7c3aed;
+    .scale-action {
+      text-align: center;
+      margin: 0 auto 18px;
+      padding: 16px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #e9f6ea, #ffffff);
+      border: 1px solid rgba(46, 125, 50, 0.20);
+      box-shadow: 0 8px 20px rgba(46, 125, 50, 0.10);
+    }
+
+    .scale-action p {
+      margin: 0 0 12px;
+      color: #256628;
+      font-weight: 700;
+      font-size: 0.96rem;
     }
 
     .btn {
@@ -403,6 +441,11 @@
       transform: translateY(-2px) scale(1.02);
       filter: brightness(1.03);
       box-shadow: 0 12px 24px rgba(46, 125, 50, 0.35);
+    }
+
+    .btn-desktop {
+      padding: 11px 24px;
+      font-size: 0.95rem;
     }
 
     .btn-card {
@@ -962,17 +1005,22 @@
       }
 
       .info-item {
-        padding: 12px;
+        padding: 12px 9px;
         border-radius: 14px;
         min-height: auto;
         text-align: center;
         border-left-width: 4px;
         font-size: 0.88rem;
+        color: #1f2937;
+        font-weight: 700;
       }
 
       .info-item strong {
-        font-size: 0.9rem;
-        margin-bottom: 3px;
+        font-size: 0.88rem;
+        margin-bottom: 4px;
+        color: #102f4d;
+        font-weight: 800;
+        line-height: 1.25;
       }
 
       .info-emoji {
@@ -991,6 +1039,19 @@
         padding: 13px 14px;
         font-size: 0.9rem;
         line-height: 1.5;
+      }
+
+      .scale-action {
+        padding: 13px 14px;
+        margin-bottom: 16px;
+      }
+
+      .scale-action p {
+        font-size: 0.9rem;
+      }
+
+      .btn-desktop {
+        display: none;
       }
 
       .table-wrap {
@@ -1117,6 +1178,13 @@
 
     <section class="card">
       <h2 class="section-title">📚 Escala de Aulas</h2>
+
+      <div class="scale-action">
+        <p>Precisa trocar sua data? Clique abaixo e faça a alteração de forma guiada.</p>
+        <button class="btn btn-desktop" type="button" onclick="abrirModal()">
+          🔄 Alterar meu dia
+        </button>
+      </div>
 
       <div class="loading-box" id="loadingBox">
         🔄 Carregando escala atualizada...

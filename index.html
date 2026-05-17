@@ -270,9 +270,23 @@
     .header-verse p {
       margin: 0 auto 8px;
       font-size: 1rem;
-      line-height: 1.6;
+      line-height: 1.8;
       color: #ffffff;
       max-width: 760px;
+    }
+
+    .tema-ano {
+      display: inline-block;
+      padding: 3px 10px;
+      margin: 0 2px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(243, 211, 122, 0.28), rgba(255, 255, 255, 0.12));
+      color: #ffe28a;
+      font-weight: 900;
+      text-shadow: 0 0 10px rgba(255, 226, 138, 0.28);
+      border: 1px solid rgba(255, 226, 138, 0.35);
+      box-shadow: 0 4px 14px rgba(243, 211, 122, 0.14);
+      white-space: nowrap;
     }
 
     .header-verse strong {
@@ -979,6 +993,10 @@
         font-size: 0.92rem;
       }
 
+      .tema-ano {
+        white-space: normal;
+      }
+
       .header-verse strong {
         font-size: 0.88rem;
       }
@@ -1117,7 +1135,8 @@
       <div class="header-verse">
         <span class="verse-icon">📖</span>
         <p>
-          “Portanto, meus amados irmãos, sede firmes e constantes,
+          “Portanto, meus amados irmãos,
+          <span class="tema-ano">sede firmes e constantes</span>,
           sempre abundantes na obra do Senhor, sabendo que o vosso trabalho
           não é vão no Senhor.”
         </p>

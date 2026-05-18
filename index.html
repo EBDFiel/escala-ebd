@@ -9,10 +9,10 @@
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
 
-  <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=9" />
-  <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=9" />
-  <link rel="icon" type="image/png" sizes="512x512" href="logoebd.png?v=9" />
-  <link rel="apple-touch-icon" sizes="180x180" href="logoebd.png?v=9" />
+  <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
+  <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
+  <link rel="icon" type="image/png" sizes="512x512" href="logoebd.png?v=10" />
+  <link rel="apple-touch-icon" sizes="180x180" href="logoebd.png?v=10" />
 
   <meta property="og:title" content="Escala de Professores — EBD" />
   <meta property="og:description" content="Escola Bíblica Dominical — 2º Trimestre 2026" />
@@ -226,8 +226,22 @@
       font-weight: 900;
       letter-spacing: 1px;
       text-transform: uppercase;
-      color: #ffffff;
-      text-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+      color: var(--dourado-claro);
+      text-shadow:
+        0 2px 0 rgba(16, 47, 77, 0.55),
+        0 0 18px rgba(243, 211, 122, 0.42),
+        0 8px 22px rgba(0, 0, 0, 0.28);
+    }
+
+    .header-title span {
+      display: inline-block;
+      padding: 4px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid rgba(243, 211, 122, 0.38);
+      box-shadow:
+        0 0 0 3px rgba(255, 255, 255, 0.05),
+        0 0 22px rgba(243, 211, 122, 0.22);
     }
 
     .header-note {
@@ -276,30 +290,24 @@
     }
 
     .tema-ano {
-  display: inline-block;
-  padding: 4px 12px;
-  margin: 0 3px;
-  border-radius: 12px;
-
-  background: rgba(255, 255, 255, 0.92);
-  color: #1f4e79;
-
-  font-weight: 900;
-  letter-spacing: 0.2px;
-
-  text-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.95),
-    0 2px 6px rgba(255, 255, 255, 0.65);
-
-  border: 1px solid rgba(255, 255, 255, 0.95);
-
-  box-shadow:
-    0 0 0 3px rgba(255, 255, 255, 0.16),
-    0 0 18px rgba(255, 255, 255, 0.75),
-    0 6px 18px rgba(0, 0, 0, 0.18);
-
-  white-space: nowrap;
-}
+      display: inline-block;
+      padding: 4px 12px;
+      margin: 0 3px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.92);
+      color: #1f4e79;
+      font-weight: 900;
+      letter-spacing: 0.2px;
+      text-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.95),
+        0 2px 6px rgba(255, 255, 255, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow:
+        0 0 0 3px rgba(255, 255, 255, 0.16),
+        0 0 18px rgba(255, 255, 255, 0.75),
+        0 6px 18px rgba(0, 0, 0, 0.18);
+      white-space: nowrap;
+    }
 
     .header-verse strong {
       display: block;
@@ -419,6 +427,20 @@
       background: #ffffff;
       font-size: 1.35rem;
       box-shadow: 0 6px 14px rgba(31, 78, 121, 0.14);
+    }
+
+    .pastor-icon {
+      padding: 0;
+    }
+
+    .pastor-icon svg {
+      width: 27px;
+      height: 27px;
+      fill: none;
+      stroke: #1f4e79;
+      stroke-width: 2.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     .info-blue {
@@ -990,6 +1012,10 @@
         line-height: 1.2;
       }
 
+      .header-title span {
+        padding: 3px 12px;
+      }
+
       .header-note {
         font-size: 0.9rem;
         padding: 6px 14px;
@@ -1060,6 +1086,11 @@
         height: 34px;
         font-size: 1.05rem;
         margin-bottom: 6px;
+      }
+
+      .pastor-icon svg {
+        width: 22px;
+        height: 22px;
       }
 
       .info-item:nth-child(3) {
@@ -1141,14 +1172,14 @@
       </div>
 
       <p class="header-subtitle">Escola Bíblica Dominical</p>
-      <h1 class="header-title">Escala de Professores</h1>
+      <h1 class="header-title"><span>Escala de Professores</span></h1>
       <p class="header-note">📅 2º Trimestre 2026</p>
 
       <div class="header-verse">
         <span class="verse-icon">📖</span>
         <p>
           “Portanto, meus amados irmãos,
-          <span class="tema-ano">Sede Firmes e Constantes</span>,
+          <span class="tema-ano">sede firmes e constantes</span>,
           sempre abundantes na obra do Senhor, sabendo que o vosso trabalho
           não é vão no Senhor.”
         </p>
@@ -1175,7 +1206,18 @@
 
       <div class="info-box">
         <div class="info-item info-blue">
-          <span class="info-emoji">⛪</span>
+          <span class="info-emoji pastor-icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="32" cy="18" r="9"></circle>
+              <path d="M19 53c0-9 6-16 13-16s13 7 13 16"></path>
+              <path d="M25 34h14l3 8-10 7-10-7z"></path>
+              <path d="M27 18c2-5 8-6 12-2"></path>
+              <path d="M29 40h6v13"></path>
+              <path d="M39 39h10v12H39z"></path>
+              <line x1="41" y1="45" x2="47" y2="45"></line>
+              <line x1="44" y1="42" x2="44" y2="48"></line>
+            </svg>
+          </span>
           <strong>Pastor Presidente</strong>
           Oseas Valadares
         </div>

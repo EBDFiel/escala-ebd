@@ -429,18 +429,15 @@
       box-shadow: 0 6px 14px rgba(31, 78, 121, 0.14);
     }
 
-    .pastor-icon {
+    .pastor-photo {
       padding: 0;
+      overflow: hidden;
     }
 
-    .pastor-icon svg {
-      width: 27px;
-      height: 27px;
-      fill: none;
-      stroke: #1f4e79;
-      stroke-width: 2.6;
-      stroke-linecap: round;
-      stroke-linejoin: round;
+    .pastor-photo svg {
+      width: 32px;
+      height: 32px;
+      display: block;
     }
 
     .info-blue {
@@ -1088,9 +1085,9 @@
         margin-bottom: 6px;
       }
 
-      .pastor-icon svg {
-        width: 22px;
-        height: 22px;
+      .pastor-photo svg {
+        width: 26px;
+        height: 26px;
       }
 
       .info-item:nth-child(3) {
@@ -1206,16 +1203,17 @@
 
       <div class="info-box">
         <div class="info-item info-blue">
-          <span class="info-emoji pastor-icon" aria-hidden="true">
+          <span class="info-emoji pastor-photo" aria-hidden="true">
             <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="32" cy="18" r="9"></circle>
-              <path d="M19 53c0-9 6-16 13-16s13 7 13 16"></path>
-              <path d="M25 34h14l3 8-10 7-10-7z"></path>
-              <path d="M27 18c2-5 8-6 12-2"></path>
-              <path d="M29 40h6v13"></path>
-              <path d="M39 39h10v12H39z"></path>
-              <line x1="41" y1="45" x2="47" y2="45"></line>
-              <line x1="44" y1="42" x2="44" y2="48"></line>
+              <circle cx="32" cy="19" r="10" fill="#f2c29b"></circle>
+              <path d="M22 19c0-7 4-12 10-12s10 5 10 12v2c-2-2-5-4-10-4s-8 2-10 4z" fill="#243447"></path>
+              <rect x="28.5" y="27" width="7" height="7" rx="2" fill="#e6b089"></rect>
+              <path d="M18 55c1-10 7-18 14-18s13 8 14 18H18z" fill="#1f4e79"></path>
+              <path d="M25 37h14l5 18H20z" fill="#ffffff"></path>
+              <path d="M25 37l7 6 7-6 3 5-10 8-10-8z" fill="#dfe7ef"></path>
+              <path d="M29 39h6l-1.7 5 3.2 10H27.5l3.2-10z" fill="#b42318"></path>
+              <path d="M18 55c1-10 7-18 14-18l-8 18z" fill="#163a5c"></path>
+              <path d="M46 55c-1-10-7-18-14-18l8 18z" fill="#163a5c"></path>
             </svg>
           </span>
           <strong>Pastor Presidente</strong>

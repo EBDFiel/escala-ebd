@@ -135,7 +135,17 @@
       backdrop-filter: blur(4px);
     }
 
-    .status.show { display: flex; align-items: center; gap: 0.6rem; }
+    .status.show {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      animation: statusPulseEBD 0.25s ease-out;
+    }
+
+    @keyframes statusPulseEBD {
+      from { transform: translateY(-4px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
     .status.success { background: var(--success-bg); color: #1b5e20; border-left: 5px solid var(--success); }
     .status.error { background: var(--danger-bg); color: #b71c1c; border-left: 5px solid var(--danger); }
     .status.info { background: var(--accent-gold-light); color: #7a5800; border-left: 5px solid var(--accent-gold); }
@@ -679,7 +689,16 @@
   const modeloPadrao = `<div style="font-family:system-ui; background:#fef9e6; border-radius:2rem; padding:1.4rem;"><div style="background:#0b2b3f; color:white; padding:1rem; border-radius:1.5rem;"><h3>Conteúdo da lição</h3></div><div style="padding:1rem;"><p>Adicione aqui o conteúdo da aula...</p></div></div>`;
   let escalaCache = [], classesCache = [], professoresCache = [];
 
-  function mostrarStatus(tipo, msg) { let s = document.getElementById("status"); s.className = `status show ${tipo}`; s.innerHTML = `<span>${tipo === 'success' ? '✓' : tipo==='error' ? '⚠️' : 'ℹ️'}</span> ${msg}`; setTimeout(() => s.classList.remove('show'), 4000); }
+  function mostrarStatus(tipo, msg) {
+    let s = document.getElementById("status");
+    s.className = `status show ${tipo}`;
+    s.innerHTML = `<span>${tipo === 'success' ? '✅' : tipo === 'error' ? '⚠️' : 'ℹ️'}</span> ${msg}`;
+
+    clearTimeout(window.statusTimerEBD);
+    window.statusTimerEBD = setTimeout(() => {
+      s.classList.remove('show');
+    }, 5000);
+  }
   function obterSenhaSessao() { return sessionStorage.getItem("senhaAdminEBD") || ""; }
   function salvarSenhaSessao(v) { sessionStorage.setItem("senhaAdminEBD", v); }
   function limparSenhaSessao() { sessionStorage.removeItem("senhaAdminEBD"); }
@@ -692,7 +711,18 @@
   async function carregarTudo() { await carregarLicoes(); await carregarEscala(); await carregarProfessores(); await carregarHistorico(); }
   async function carregarLicoes() { try { let d = await chamarAppsScript({ acao: "licoes" }); if(d.sucesso) { document.getElementById("adultos").value = d.licoes?.adultos || modeloPadrao; document.getElementById("jovens").value = d.licoes?.jovens || modeloPadrao; atualizarEditoresVisuais(); mostrarStatus("success","Lições carregadas."); } else throw new Error("erro"); } catch(e) { mostrarStatus("error","Erro lições"); } }
   function atualizarEditoresVisuais() { let a=document.getElementById("editorVisualAdultos"), j=document.getElementById("editorVisualJovens"); if(a) a.innerHTML = document.getElementById("adultos").value || "<p>Sem lição</p>"; if(j) j.innerHTML = document.getElementById("jovens").value || "<p>Sem lição</p>"; }
-  function sincronizarVisual(campo) { if(campo==="adultos") { let val=document.getElementById("adultos").value; document.getElementById("editorVisualAdultos").innerHTML=val; } else { let val=document.getElementById("jovens").value; document.getElementById("editorVisualJovens").innerHTML=val; } mostrarStatus("info","Visual atualizado"); }
+  function sincronizarVisual(campo) {
+    if (campo === "adultos") {
+      let val = document.getElementById("adultos").value;
+      document.getElementById("editorVisualAdultos").innerHTML = val || "<p>Sem lição</p>";
+      mostrarStatus("success", "Jovens e Adultos atualizado com sucesso.");
+      return;
+    }
+
+    let val = document.getElementById("jovens").value;
+    document.getElementById("editorVisualJovens").innerHTML = val || "<p>Sem lição</p>";
+    mostrarStatus("success", "Adolescentes atualizado com sucesso.");
+  }
   function alternarHtml(campo) {
     const isAdultos = campo === "adultos";
 
@@ -709,11 +739,11 @@
     if (vaiAbrir) {
       textarea.value = editor.innerHTML.trim();
       wrap.classList.add("show");
-      mostrarStatus("info", "Editor HTML avançado aberto.");
+      mostrarStatus("success", "Editor HTML avançado aberto com sucesso.");
     } else {
       editor.innerHTML = textarea.value.trim() || "<p>Sem lição</p>";
       wrap.classList.remove("show");
-      mostrarStatus("info", "Visual atualizado a partir do HTML.");
+      mostrarStatus("success", "Visual sincronizado com sucesso.");
     }
   }
 
@@ -760,13 +790,13 @@
     form.action = APPS_SCRIPT_URL;
     form.submit();
 
-    mostrarStatus("info", "Enviando lições para salvar...");
+    mostrarStatus("info", "Salvando lições... aguarde a confirmação.");
   }
 
   window.addEventListener("message", (e) => {
     if (e.data?.origem === "appsScriptSalvarLicoes") {
       if (e.data.sucesso) {
-        mostrarStatus("success", e.data.mensagem || "Lições salvas com sucesso.");
+        mostrarStatus("success", e.data.mensagem || "Lições salvas e atualizadas com sucesso.");
       } else {
         mostrarStatus("error", e.data.mensagem || "Erro ao salvar lições.");
       }

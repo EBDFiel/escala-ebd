@@ -9,7 +9,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_VERSAO_LICOES_2026_05_19_DEBUG" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_COM_QUIZ_2026_05_19" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -1339,6 +1339,118 @@
       }
     }
 
+
+    .quiz-zone {
+      margin-top: 22px;
+      padding: 18px;
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at top left, rgba(250, 204, 21, 0.22), transparent 32%),
+        linear-gradient(135deg, #eef4ff, #ffffff 48%, #fff7ed);
+      border: 1px solid rgba(31, 78, 121, 0.16);
+      box-shadow: 0 12px 28px rgba(31, 78, 121, 0.12);
+      text-align: center;
+    }
+
+    .quiz-zone h3 {
+      margin: 0 0 6px;
+      color: var(--azul-escuro);
+      font-size: 1.25rem;
+    }
+
+    .quiz-zone p {
+      margin: 0 0 16px;
+      color: #5d6d7e;
+      font-weight: 700;
+    }
+
+    .quiz-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(190px, 260px));
+      gap: 14px;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    .quiz-btn {
+      position: relative;
+      overflow: hidden;
+      min-height: 58px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 18px;
+      border-radius: 999px;
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 950;
+      box-shadow: 0 12px 26px rgba(124, 58, 237, 0.28);
+      transform: translateZ(0);
+      animation: quizPulse 2.4s ease-in-out infinite;
+    }
+
+    .quiz-btn::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 55%;
+      left: -70%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.32), transparent);
+      animation: quizShine 3.2s ease-in-out infinite;
+    }
+
+    .quiz-btn span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .quiz-btn.adultos {
+      background: linear-gradient(135deg, #1f4e79, #163a5c);
+    }
+
+    .quiz-btn.jovens {
+      background: linear-gradient(135deg, #7c3aed, #db2777);
+    }
+
+    .quiz-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      filter: brightness(1.05);
+    }
+
+    .quiz-btn.disabled {
+      pointer-events: none;
+      opacity: 0.55;
+      animation: none;
+    }
+
+    @keyframes quizPulse {
+      0%, 100% {
+        box-shadow: 0 12px 26px rgba(124, 58, 237, 0.24);
+      }
+
+      50% {
+        box-shadow: 0 18px 38px rgba(219, 39, 119, 0.32);
+      }
+    }
+
+    @keyframes quizShine {
+      0% { left: -70%; }
+      55% { left: 120%; }
+      100% { left: 120%; }
+    }
+
+    @media (max-width: 700px) {
+      .quiz-buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .quiz-btn {
+        width: 100%;
+      }
+    }
+
     footer {
       text-align: center;
       padding: 26px 16px;
@@ -1956,6 +2068,21 @@
           </button>
         </article>
       </div>
+
+      <div class="quiz-zone">
+        <h3>Quiz da Lição da Semana 🧠✨</h3>
+        <p>Ao clicar, você será encaminhado para a página externa do quiz.</p>
+
+        <div class="quiz-buttons">
+          <a id="quizAdultos" class="quiz-btn adultos" href="https://ebdfiel.github.io/Quizzes-ClaseAdultos-2026/trimestre-02/licao-07/" target="_blank" rel="noopener">
+            <span>Quiz Jovens e Adultos 🎯</span>
+          </a>
+
+          <a id="quizJovens" class="quiz-btn jovens" href="https://ebdfiel.github.io/Quizzes-ConectarJovens-/trimestre-02/licao-07/index.html" target="_blank" rel="noopener">
+            <span>Quiz Adolescentes 🚀</span>
+          </a>
+        </div>
+      </div>
     </section>
 
     <section class="card instructions">
@@ -2395,6 +2522,11 @@
 `
     };
 
+    let quizLinks = {
+      adultos: "https://ebdfiel.github.io/Quizzes-ClaseAdultos-2026/trimestre-02/licao-07/",
+      jovens: "https://ebdfiel.github.io/Quizzes-ConectarJovens-/trimestre-02/licao-07/index.html"
+    };
+
     let linhasEscala = [];
     let ultimaVersaoEscala = "";
     let formularioAberto = false;
@@ -2759,6 +2891,64 @@
       }
     }
 
+
+    function atualizarBotoesQuiz() {
+      const quizAdultos = document.getElementById("quizAdultos");
+      const quizJovens = document.getElementById("quizJovens");
+
+      if (quizAdultos) {
+        if (quizLinks.adultos) {
+          quizAdultos.href = quizLinks.adultos;
+          quizAdultos.classList.remove("disabled");
+          quizAdultos.title = "Abrir quiz de Jovens e Adultos em outra página";
+        } else {
+          quizAdultos.href = "#";
+          quizAdultos.classList.add("disabled");
+          quizAdultos.title = "Quiz de Jovens e Adultos ainda não cadastrado";
+        }
+      }
+
+      if (quizJovens) {
+        if (quizLinks.jovens) {
+          quizJovens.href = quizLinks.jovens;
+          quizJovens.classList.remove("disabled");
+          quizJovens.title = "Abrir quiz de Adolescentes em outra página";
+        } else {
+          quizJovens.href = "#";
+          quizJovens.classList.add("disabled");
+          quizJovens.title = "Quiz de Adolescentes ainda não cadastrado";
+        }
+      }
+    }
+
+    async function carregarQuizzesDaPlanilha(modoSilencioso = false) {
+      try {
+        const dados = await chamarAppsScript({
+          acao: "quizzes",
+          cache: "nao",
+          _nocache: Date.now()
+        });
+
+        if (!dados || !dados.sucesso || !dados.quizzes) {
+          if (!modoSilencioso) {
+            console.warn("Quizzes não retornaram no formato esperado:", dados);
+          }
+          atualizarBotoesQuiz();
+          return false;
+        }
+
+        quizLinks.adultos = dados.quizzes.adultos || "";
+        quizLinks.jovens = dados.quizzes.jovens || "";
+
+        atualizarBotoesQuiz();
+        return true;
+      } catch (erro) {
+        console.error("Erro ao carregar quizzes:", erro);
+        atualizarBotoesQuiz();
+        return false;
+      }
+    }
+
     async function carregarLicoesDaPlanilha(modoSilencioso = false, forcarAtualizacao = false) {
       try {
         if (forcarAtualizacao) {
@@ -2881,6 +3071,8 @@
         ultimaVersaoEscala = versaoAtual;
         await carregarEscalaDaPlanilha(true);
         await carregarLicoesDaPlanilha();
+        await carregarQuizzesDaPlanilha(true);
+      await carregarQuizzesDaPlanilha();
       }
     }
 

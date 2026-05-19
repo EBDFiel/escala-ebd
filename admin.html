@@ -233,7 +233,7 @@
 
     .dashboard-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 14px;
       margin-bottom: 18px;
     }
@@ -679,6 +679,10 @@
           <span>Escala</span>
           <strong>Controle completo</strong>
         </div>
+        <div class="metric-card">
+          <span>Professores</span>
+          <strong>Cadastro e substituição</strong>
+        </div>
       </div>
 
       <div class="panel-shell">
@@ -686,6 +690,7 @@
           <div class="sidebar-title">Menu do painel</div>
           <button id="abaLicoesBtn" class="nav-btn active" type="button" onclick="abrirPainel('licoes')">📚 Lições</button>
           <button id="abaEscalaBtn" class="nav-btn" type="button" onclick="abrirPainel('escala')">📅 Escala</button>
+          <button id="abaProfessoresBtn" class="nav-btn" type="button" onclick="abrirPainel('professores')">👥 Professores</button>
           <button id="abaHistoricoBtn" class="nav-btn" type="button" onclick="abrirPainel('historico')">📝 Histórico</button>
         </aside>
 
@@ -874,6 +879,201 @@
             </div>
           </div>
 
+
+          <div id="painelProfessores" class="admin-panel card">
+            <div class="section-title">
+              <div>
+                <h2>Gerenciar professores</h2>
+                <p>Cadastre, edite, inative, substitua professores e mude professores de classe.</p>
+              </div>
+              <button class="secondary" type="button" onclick="carregarProfessores()">Atualizar professores</button>
+            </div>
+
+            <div class="subcard">
+              <div class="subcard-header">
+                <h3>Adicionar novo professor</h3>
+                <span class="chip">Cadastro</span>
+              </div>
+
+              <div class="form-grid">
+                <div>
+                  <label for="profNovoNome">Nome do professor</label>
+                  <input id="profNovoNome" type="text" placeholder="Ex: Ana Paula" />
+                </div>
+
+                <div>
+                  <label for="profNovaClasse">Classe preferencial</label>
+                  <select id="profNovaClasse"></select>
+                </div>
+
+                <div>
+                  <label for="profNovoStatus">Status</label>
+                  <select id="profNovoStatus">
+                    <option value="Ativo">Ativo</option>
+                    <option value="Inativo">Inativo</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-grid one" style="margin-top:14px;">
+                <div>
+                  <label for="profNovaObs">Observação</label>
+                  <input id="profNovaObs" type="text" placeholder="Ex: Novo professor da classe" />
+                </div>
+              </div>
+
+              <div class="actions">
+                <button type="button" onclick="adicionarProfessorAdmin()">Adicionar professor</button>
+              </div>
+            </div>
+
+            <div class="subcard">
+              <div class="subcard-header">
+                <h3>Editar ou inativar professor</h3>
+                <span class="chip">Cadastro existente</span>
+              </div>
+
+              <div class="form-grid">
+                <div>
+                  <label for="profSelecionado">Professor</label>
+                  <select id="profSelecionado" onchange="preencherProfessorSelecionado()"></select>
+                </div>
+
+                <div>
+                  <label for="profEditarNome">Nome</label>
+                  <input id="profEditarNome" type="text" />
+                </div>
+
+                <div>
+                  <label for="profEditarClasse">Classe</label>
+                  <select id="profEditarClasse"></select>
+                </div>
+              </div>
+
+              <div class="form-grid two" style="margin-top:14px;">
+                <div>
+                  <label for="profEditarStatus">Status</label>
+                  <select id="profEditarStatus">
+                    <option value="Ativo">Ativo</option>
+                    <option value="Inativo">Inativo</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label for="profEditarObs">Observação</label>
+                  <input id="profEditarObs" type="text" />
+                </div>
+              </div>
+
+              <div class="actions">
+                <button type="button" onclick="atualizarProfessorAdmin()">Salvar alterações</button>
+                <button class="red" type="button" onclick="inativarProfessorAdmin()">Inativar professor</button>
+              </div>
+            </div>
+
+            <div class="subcard">
+              <div class="subcard-header">
+                <h3>Substituir professor na escala</h3>
+                <span class="chip">Quando alguém sai do cargo</span>
+              </div>
+
+              <div class="form-grid">
+                <div>
+                  <label for="profSubAntigo">Professor que saiu</label>
+                  <select id="profSubAntigo"></select>
+                </div>
+
+                <div>
+                  <label for="profSubNovo">Novo professor</label>
+                  <input id="profSubNovo" type="text" list="listaProfessoresDatalist" placeholder="Digite ou escolha um professor" />
+                </div>
+
+                <div>
+                  <label for="profSubClasse">Classe</label>
+                  <select id="profSubClasse"></select>
+                </div>
+              </div>
+
+              <div class="form-grid two" style="margin-top:14px;">
+                <div>
+                  <label for="profSubAlcance">Aplicar em</label>
+                  <select id="profSubAlcance">
+                    <option value="futuras">Somente datas futuras</option>
+                    <option value="toda">Toda a escala</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label for="profSubInativar">Professor antigo</label>
+                  <select id="profSubInativar">
+                    <option value="sim">Inativar professor antigo</option>
+                    <option value="nao">Manter professor antigo ativo</option>
+                  </select>
+                </div>
+              </div>
+
+              <p class="help">
+                Esta ação troca o professor antigo pelo novo nas datas escolhidas e registra no histórico.
+              </p>
+
+              <div class="actions">
+                <button class="purple" type="button" onclick="substituirProfessorAdmin()">Substituir professor</button>
+              </div>
+            </div>
+
+            <div class="subcard">
+              <div class="subcard-header">
+                <h3>Mudar professor de classe</h3>
+                <span class="chip">Cadastro e escala</span>
+              </div>
+
+              <div class="form-grid">
+                <div>
+                  <label for="profMudarNome">Professor</label>
+                  <select id="profMudarNome"></select>
+                </div>
+
+                <div>
+                  <label for="profMudarClasse">Nova classe</label>
+                  <select id="profMudarClasse"></select>
+                </div>
+
+                <div>
+                  <label for="profMudarAplicar">Aplicar na escala?</label>
+                  <select id="profMudarAplicar">
+                    <option value="nao">Não, só mudar cadastro</option>
+                    <option value="futuras">Sim, em datas futuras</option>
+                    <option value="toda">Sim, em toda a escala</option>
+                  </select>
+                </div>
+              </div>
+
+              <p class="help">
+                Se aplicar na escala, o sistema remove o professor da classe antiga e coloca na nova classe nas datas encontradas.
+              </p>
+
+              <div class="actions">
+                <button type="button" onclick="mudarProfessorClasseAdmin()">Mudar professor de classe</button>
+              </div>
+            </div>
+
+            <div class="subcard">
+              <div class="subcard-header">
+                <h3>Professores cadastrados</h3>
+                <button class="secondary" type="button" onclick="carregarProfessores()">Atualizar lista</button>
+              </div>
+
+              <datalist id="listaProfessoresDatalist"></datalist>
+
+              <div class="table-wrap">
+                <table id="tabelaProfessores">
+                  <thead></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
           <div id="painelHistorico" class="admin-panel card">
             <div class="section-title">
               <div>
@@ -947,6 +1147,7 @@
 
     let escalaCache = [];
     let classesCache = [];
+    let professoresCache = [];
     let salvamentoEmAndamento = false;
     let timerConfirmacaoSalvamento = null;
 
@@ -1021,7 +1222,7 @@
     }
 
     function abrirPainel(nome) {
-      const paineis = ["licoes", "escala", "historico"];
+      const paineis = ["licoes", "escala", "professores", "historico"];
 
       paineis.forEach((painel) => {
         document.getElementById("painel" + painel.charAt(0).toUpperCase() + painel.slice(1)).classList.toggle("active", painel === nome);
@@ -1030,6 +1231,10 @@
 
       if (nome === "escala") {
         carregarEscala();
+      }
+
+      if (nome === "professores") {
+        carregarProfessores();
       }
 
       if (nome === "historico") {
@@ -1138,6 +1343,7 @@
     async function carregarTudo() {
       await carregarLicoes();
       await carregarEscala();
+      await carregarProfessores();
       await carregarHistorico();
     }
 
@@ -1272,6 +1478,12 @@
       preencherSelect("dataRemover", datas);
       preencherSelect("escalaClasseEditar", classesCache);
       preencherSelect("classeRenomear", classesCache);
+      preencherSelect("profNovaClasse", classesCache);
+      preencherSelect("profEditarClasse", classesCache);
+      preencherSelect("profMudarClasse", classesCache);
+
+      const classesComTodas = ["Todas as classes"].concat(classesCache);
+      preencherSelect("profSubClasse", classesComTodas);
 
       renderizarCamposNovaData();
       preencherProfessorAtual();
@@ -1487,6 +1699,291 @@
         await carregarHistorico();
       } catch (erro) {
         mostrarStatus("error", erro.message || "Erro ao renomear classe.");
+      }
+    }
+
+
+    async function carregarProfessores() {
+      try {
+        const dados = await chamarAppsScript({ acao: "listarProfessores" });
+
+        if (!dados || !dados.sucesso) {
+          throw new Error((dados && dados.mensagem) || "Não foi possível carregar professores.");
+        }
+
+        professoresCache = dados.professores || [];
+
+        preencherSelectsProfessores();
+        renderizarTabelaProfessores();
+      } catch (erro) {
+        mostrarStatus("error", erro.message || "Erro ao carregar professores.");
+      }
+    }
+
+    function nomesProfessores() {
+      return professoresCache.map((prof) => prof.nome).filter(Boolean);
+    }
+
+    function preencherSelectsProfessores() {
+      const nomes = nomesProfessores();
+
+      preencherSelect("profSelecionado", nomes);
+      preencherSelect("profSubAntigo", nomes);
+      preencherSelect("profMudarNome", nomes);
+
+      const datalist = document.getElementById("listaProfessoresDatalist");
+
+      if (datalist) {
+        datalist.innerHTML = nomes.map((nome) => `<option value="${nome}"></option>`).join("");
+      }
+
+      preencherProfessorSelecionado();
+    }
+
+    function professorPorNome(nome) {
+      return professoresCache.find((prof) => String(prof.nome).toLowerCase() === String(nome).toLowerCase());
+    }
+
+    function preencherProfessorSelecionado() {
+      const nome = document.getElementById("profSelecionado").value;
+      const professor = professorPorNome(nome);
+
+      document.getElementById("profEditarNome").value = professor ? professor.nome : "";
+      document.getElementById("profEditarClasse").value = professor ? professor.classe : "";
+      document.getElementById("profEditarStatus").value = professor ? professor.status : "Ativo";
+      document.getElementById("profEditarObs").value = professor ? professor.observacao : "";
+    }
+
+    function renderizarTabelaProfessores() {
+      const tabela = document.getElementById("tabelaProfessores");
+
+      if (!tabela) {
+        return;
+      }
+
+      const thead = tabela.querySelector("thead");
+      const tbody = tabela.querySelector("tbody");
+
+      thead.innerHTML = `
+        <tr>
+          <th>Nome</th>
+          <th>Classe</th>
+          <th>Status</th>
+          <th>Observação</th>
+          <th>Atualizado em</th>
+        </tr>
+      `;
+
+      if (!professoresCache.length) {
+        tbody.innerHTML = "<tr><td colspan='5'>Nenhum professor cadastrado.</td></tr>";
+        return;
+      }
+
+      tbody.innerHTML = professoresCache.map((prof) => `
+        <tr>
+          <td>${prof.nome || ""}</td>
+          <td>${prof.classe || ""}</td>
+          <td>${prof.status || ""}</td>
+          <td>${prof.observacao || ""}</td>
+          <td>${prof.atualizadoEm || ""}</td>
+        </tr>
+      `).join("");
+    }
+
+    async function adicionarProfessorAdmin() {
+      try {
+        const senhaSalva = obterSenhaObrigatoria();
+        const nome = document.getElementById("profNovoNome").value.trim();
+        const classe = document.getElementById("profNovaClasse").value;
+        const status = document.getElementById("profNovoStatus").value;
+        const observacao = document.getElementById("profNovaObs").value.trim();
+
+        if (!nome) {
+          mostrarStatus("error", "Informe o nome do professor.");
+          return;
+        }
+
+        const resposta = await chamarAppsScript({
+          acao: "adicionarProfessor",
+          senha: senhaSalva,
+          nome: nome,
+          classe: classe,
+          status: status,
+          observacao: observacao
+        });
+
+        if (!resposta.sucesso) {
+          throw new Error(resposta.mensagem || "Não foi possível adicionar professor.");
+        }
+
+        mostrarStatus("success", resposta.mensagem || "Professor adicionado com sucesso.");
+
+        document.getElementById("profNovoNome").value = "";
+        document.getElementById("profNovaObs").value = "";
+
+        await carregarProfessores();
+        await carregarHistorico();
+      } catch (erro) {
+        mostrarStatus("error", erro.message || "Erro ao adicionar professor.");
+      }
+    }
+
+    async function atualizarProfessorAdmin() {
+      try {
+        const senhaSalva = obterSenhaObrigatoria();
+        const nomeOriginal = document.getElementById("profSelecionado").value;
+        const nome = document.getElementById("profEditarNome").value.trim();
+        const classe = document.getElementById("profEditarClasse").value;
+        const status = document.getElementById("profEditarStatus").value;
+        const observacao = document.getElementById("profEditarObs").value.trim();
+
+        if (!nomeOriginal || !nome) {
+          mostrarStatus("error", "Selecione um professor e informe o nome.");
+          return;
+        }
+
+        const resposta = await chamarAppsScript({
+          acao: "atualizarProfessor",
+          senha: senhaSalva,
+          nomeOriginal: nomeOriginal,
+          nome: nome,
+          classe: classe,
+          status: status,
+          observacao: observacao
+        });
+
+        if (!resposta.sucesso) {
+          throw new Error(resposta.mensagem || "Não foi possível atualizar professor.");
+        }
+
+        mostrarStatus("success", resposta.mensagem || "Professor atualizado com sucesso.");
+        await carregarProfessores();
+        await carregarHistorico();
+      } catch (erro) {
+        mostrarStatus("error", erro.message || "Erro ao atualizar professor.");
+      }
+    }
+
+    async function inativarProfessorAdmin() {
+      try {
+        const senhaSalva = obterSenhaObrigatoria();
+        const nome = document.getElementById("profSelecionado").value;
+        const observacao = document.getElementById("profEditarObs").value.trim() || "Professor inativado pelo administrador.";
+
+        if (!nome) {
+          mostrarStatus("error", "Selecione um professor para inativar.");
+          return;
+        }
+
+        const confirmar = confirm("Inativar o professor '" + nome + "'? Ele não será removido do histórico.");
+
+        if (!confirmar) {
+          return;
+        }
+
+        const resposta = await chamarAppsScript({
+          acao: "inativarProfessor",
+          senha: senhaSalva,
+          nome: nome,
+          observacao: observacao
+        });
+
+        if (!resposta.sucesso) {
+          throw new Error(resposta.mensagem || "Não foi possível inativar professor.");
+        }
+
+        mostrarStatus("success", resposta.mensagem || "Professor inativado com sucesso.");
+        await carregarProfessores();
+        await carregarHistorico();
+      } catch (erro) {
+        mostrarStatus("error", erro.message || "Erro ao inativar professor.");
+      }
+    }
+
+    async function substituirProfessorAdmin() {
+      try {
+        const senhaSalva = obterSenhaObrigatoria();
+        const professorAntigo = document.getElementById("profSubAntigo").value;
+        const professorNovo = document.getElementById("profSubNovo").value.trim();
+        const classe = document.getElementById("profSubClasse").value;
+        const alcance = document.getElementById("profSubAlcance").value;
+        const inativarAntigo = document.getElementById("profSubInativar").value;
+
+        if (!professorAntigo || !professorNovo) {
+          mostrarStatus("error", "Informe o professor que saiu e o novo professor.");
+          return;
+        }
+
+        const confirmar = confirm(
+          "Substituir '" + professorAntigo + "' por '" + professorNovo + "' em " +
+          (alcance === "futuras" ? "datas futuras" : "toda a escala") + "?"
+        );
+
+        if (!confirmar) {
+          return;
+        }
+
+        const resposta = await chamarAppsScript({
+          acao: "substituirProfessor",
+          senha: senhaSalva,
+          professorAntigo: professorAntigo,
+          professorNovo: professorNovo,
+          classe: classe,
+          alcance: alcance,
+          inativarAntigo: inativarAntigo
+        });
+
+        if (!resposta.sucesso) {
+          throw new Error(resposta.mensagem || "Não foi possível substituir professor.");
+        }
+
+        mostrarStatus("success", resposta.mensagem || "Professor substituído com sucesso.");
+        document.getElementById("profSubNovo").value = "";
+
+        await carregarEscala();
+        await carregarProfessores();
+        await carregarHistorico();
+      } catch (erro) {
+        mostrarStatus("error", erro.message || "Erro ao substituir professor.");
+      }
+    }
+
+    async function mudarProfessorClasseAdmin() {
+      try {
+        const senhaSalva = obterSenhaObrigatoria();
+        const professor = document.getElementById("profMudarNome").value;
+        const classeNova = document.getElementById("profMudarClasse").value;
+        const aplicarEscala = document.getElementById("profMudarAplicar").value;
+
+        if (!professor || !classeNova) {
+          mostrarStatus("error", "Informe professor e nova classe.");
+          return;
+        }
+
+        const confirmar = confirm("Mudar '" + professor + "' para a classe '" + classeNova + "'?");
+
+        if (!confirmar) {
+          return;
+        }
+
+        const resposta = await chamarAppsScript({
+          acao: "mudarProfessorClasse",
+          senha: senhaSalva,
+          professor: professor,
+          classeNova: classeNova,
+          aplicarEscala: aplicarEscala
+        });
+
+        if (!resposta.sucesso) {
+          throw new Error(resposta.mensagem || "Não foi possível mudar professor de classe.");
+        }
+
+        mostrarStatus("success", resposta.mensagem || "Professor mudou de classe com sucesso.");
+        await carregarEscala();
+        await carregarProfessores();
+        await carregarHistorico();
+      } catch (erro) {
+        mostrarStatus("error", erro.message || "Erro ao mudar professor de classe.");
       }
     }
 

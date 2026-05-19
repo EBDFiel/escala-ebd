@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -523,6 +524,9 @@
     const barraPainel = document.getElementById("barraPainel");
     const btnSalvarLicoes = document.getElementById("btnSalvarLicoes");
 
+    let salvamentoEmAndamento = false;
+    let timerConfirmacaoSalvamento = null;
+
     function mostrarStatus(tipo, mensagem) {
       statusBox.className = "status show " + tipo;
       statusBox.textContent = mensagem;
@@ -705,12 +709,44 @@
       }
     }
 
-    function normalizarParaComparacao(html) {
-      return limparHtmlColado(html)
-        .replace(/\r\n/g, "\n")
-        .replace(/\r/g, "\n")
-        .trim();
-    }
+    window.addEventListener("message", function (event) {
+      const resposta = event.data;
+
+      if (!resposta || typeof resposta !== "object") {
+        return;
+      }
+
+      if (resposta.origem !== "appsScriptSalvarLicoes") {
+        return;
+      }
+
+      salvamentoEmAndamento = false;
+
+      if (timerConfirmacaoSalvamento) {
+        clearTimeout(timerConfirmacaoSalvamento);
+        timerConfirmacaoSalvamento = null;
+      }
+
+      if (btnSalvarLicoes) {
+        btnSalvarLicoes.disabled = false;
+        btnSalvarLicoes.textContent = "Salvar lições";
+      }
+
+      if (resposta.sucesso) {
+        mostrarStatus(
+          "success",
+          resposta.mensagem || "Lições salvas com sucesso."
+        );
+
+        carregarLicoes();
+        return;
+      }
+
+      mostrarStatus(
+        "error",
+        resposta.mensagem || "O Apps Script respondeu, mas não conseguiu salvar."
+      );
+    });
 
     function salvarLicoes() {
       const senhaSalva = obterSenhaSessao();
@@ -724,89 +760,42 @@
         return;
       }
 
-      if (!adultos.value.trim()) {
-        mostrarStatus("error", "O campo Jovens e Adultos está vazio.");
-        abrirAba("adultos");
+      if (!adultos.value.trim() && !jovens.value.trim()) {
+        mostrarStatus("error", "Preencha pelo menos uma lição antes de salvar.");
         return;
       }
-
-      if (!jovens.value.trim()) {
-        mostrarStatus("error", "O campo Adolescentes está vazio.");
-        abrirAba("jovens");
-        return;
-      }
-
-      const htmlAdultosAntes = normalizarParaComparacao(adultos.value);
-      const htmlJovensAntes = normalizarParaComparacao(jovens.value);
 
       senhaForm.value = senhaSalva;
       form.action = APPS_SCRIPT_URL;
+
+      salvamentoEmAndamento = true;
 
       if (btnSalvarLicoes) {
         btnSalvarLicoes.disabled = true;
         btnSalvarLicoes.textContent = "Salvando...";
       }
 
-      mostrarStatus("info", "Enviando lições para o Apps Script...");
+      mostrarStatus("info", "Enviando para o Apps Script...");
 
       form.submit();
 
-      setTimeout(async function () {
-        mostrarStatus("info", "Verificando se as lições foram salvas...");
-
-        try {
-          const dados = await chamarAppsScript({ acao: "licoes" });
-
-          if (!dados || !dados.sucesso || !dados.licoes) {
-            throw new Error((dados && dados.mensagem) || "Não foi possível confirmar o salvamento.");
-          }
-
-          const adultosSalvo = normalizarParaComparacao(dados.licoes.adultos || "");
-          const jovensSalvo = normalizarParaComparacao(dados.licoes.jovens || "");
-
-          const adultosConfere = adultosSalvo === htmlAdultosAntes;
-          const jovensConfere = jovensSalvo === htmlJovensAntes;
-
-          adultos.value = dados.licoes.adultos || adultos.value;
-          jovens.value = dados.licoes.jovens || jovens.value;
-
-          if (adultosConfere && jovensConfere) {
-            mostrarStatus("success", "Lições salvas e confirmadas com sucesso.");
-            return;
-          }
-
-          if (!jovensConfere) {
-            abrirAba("jovens");
-            mostrarStatus(
-              "error",
-              "O envio terminou, mas a lição de Adolescentes não voltou salva. Verifique a senha, a implantação do Apps Script e a aba Licoes."
-            );
-            return;
-          }
-
-          if (!adultosConfere) {
-            abrirAba("adultos");
-            mostrarStatus(
-              "error",
-              "O envio terminou, mas a lição de Jovens e Adultos não voltou salva. Verifique a senha, a implantação do Apps Script e a aba Licoes."
-            );
-            return;
-          }
-
-          mostrarStatus("success", "Salvamento concluído.");
-
-        } catch (erro) {
-          mostrarStatus(
-            "error",
-            (erro && erro.message) || "Não foi possível confirmar se as lições foram salvas."
-          );
-        } finally {
-          if (btnSalvarLicoes) {
-            btnSalvarLicoes.disabled = false;
-            btnSalvarLicoes.textContent = "Salvar lições";
-          }
+      timerConfirmacaoSalvamento = setTimeout(function () {
+        if (!salvamentoEmAndamento) {
+          return;
         }
-      }, 3500);
+
+        salvamentoEmAndamento = false;
+
+        if (btnSalvarLicoes) {
+          btnSalvarLicoes.disabled = false;
+          btnSalvarLicoes.textContent = "Salvar lições";
+        }
+
+        mostrarStatus(
+          "error",
+          "O painel enviou as lições, mas não recebeu confirmação do Apps Script. Verifique se o Apps Script foi implantado como nova versão."
+        );
+      }, 12000);
     }
 
     adultos.value = modeloPadrao;

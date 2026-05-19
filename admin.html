@@ -282,27 +282,46 @@
   </header>
 
   <main>
-    <section class="card">
-      <div class="top-card">
-        <div>
-          <label for="senha">Senha do painel</label>
-          <input id="senha" type="password" placeholder="Digite a senha do painel" autocomplete="current-password" />
+    <section class="card" id="telaLogin">
+      <h2>Acesso ao painel</h2>
 
-          <p class="help">
-            Use a mesma senha configurada no Apps Script em <strong>SENHA_ADMIN</strong>.
-          </p>
-        </div>
+      <p>
+        Digite a senha uma única vez para acessar o painel nesta sessão.
+      </p>
 
-        <div class="actions">
-          <button class="secondary" type="button" onclick="carregarLicoes()">Carregar atuais</button>
-          <a class="link-btn secondary" href="./index.html" target="_blank" rel="noopener">Abrir site</a>
-        </div>
+      <label for="senha">Senha do painel</label>
+      <input id="senha" type="password" placeholder="Digite a senha do painel" autocomplete="current-password" />
+
+      <p class="help">
+        A senha precisa ser a mesma configurada no Apps Script em <strong>SENHA_ADMIN</strong>.
+      </p>
+
+      <div class="actions">
+        <button class="secondary" type="button" onclick="entrarNoPainel()">Entrar no painel</button>
+        <a class="link-btn secondary" href="./index.html" target="_blank" rel="noopener">Abrir site público</a>
       </div>
 
       <div class="status" id="status"></div>
     </section>
 
-    <form id="formLicoes" method="POST" target="envioOculto">
+    <section class="card" id="barraPainel" style="display: none;">
+      <div class="top-card">
+        <div>
+          <h2>Painel liberado</h2>
+          <p class="help">
+            A senha ficará ativa somente enquanto esta aba estiver aberta. Se fechar a aba, será necessário digitar novamente.
+          </p>
+        </div>
+
+        <div class="actions">
+          <button class="secondary" type="button" onclick="carregarLicoes()">Carregar atuais</button>
+          <button class="gray" type="button" onclick="sairDoPainel()">Sair do painel</button>
+          <a class="link-btn secondary" href="./index.html" target="_blank" rel="noopener">Abrir site</a>
+        </div>
+      </div>
+    </section>
+
+    <form id="formLicoes" method="POST" target="envioOculto" style="display: none;">
       <input type="hidden" name="acao" value="salvarLicoes" />
       <input type="hidden" id="senhaForm" name="senha" value="" />
 
@@ -493,10 +512,61 @@
     const statusBox = document.getElementById("status");
     const previewAdultos = document.getElementById("previewAdultos");
     const previewJovens = document.getElementById("previewJovens");
+    const telaLogin = document.getElementById("telaLogin");
+    const barraPainel = document.getElementById("barraPainel");
 
     function mostrarStatus(tipo, mensagem) {
       statusBox.className = "status show " + tipo;
       statusBox.textContent = mensagem;
+    }
+
+    function obterSenhaSessao() {
+      return sessionStorage.getItem("senhaAdminEBD") || "";
+    }
+
+    function salvarSenhaSessao(valor) {
+      sessionStorage.setItem("senhaAdminEBD", valor);
+    }
+
+    function limparSenhaSessao() {
+      sessionStorage.removeItem("senhaAdminEBD");
+    }
+
+    function mostrarPainelLogado() {
+      telaLogin.style.display = "none";
+      barraPainel.style.display = "block";
+      form.style.display = "block";
+    }
+
+    function mostrarTelaLogin() {
+      telaLogin.style.display = "block";
+      barraPainel.style.display = "none";
+      form.style.display = "none";
+    }
+
+    function entrarNoPainel() {
+      const senhaDigitada = senha.value.trim();
+
+      if (!senhaDigitada) {
+        mostrarStatus("error", "Digite a senha do painel.");
+        return;
+      }
+
+      salvarSenhaSessao(senhaDigitada);
+      senhaForm.value = senhaDigitada;
+
+      mostrarPainelLogado();
+      mostrarStatus("success", "Painel liberado nesta sessão.");
+
+      carregarLicoes();
+    }
+
+    function sairDoPainel() {
+      limparSenhaSessao();
+      senha.value = "";
+      senhaForm.value = "";
+      mostrarTelaLogin();
+      mostrarStatus("info", "Você saiu do painel. Digite a senha novamente para acessar.");
     }
 
     function limparHtmlColado(html) {
@@ -628,11 +698,14 @@
     }
 
     function salvarLicoes() {
+      const senhaSalva = obterSenhaSessao();
+
       adultos.value = limparHtmlColado(adultos.value);
       jovens.value = limparHtmlColado(jovens.value);
 
-      if (!senha.value.trim()) {
-        mostrarStatus("error", "Digite a senha do painel antes de salvar.");
+      if (!senhaSalva) {
+        mostrarStatus("error", "Sessão expirada. Digite a senha novamente.");
+        mostrarTelaLogin();
         return;
       }
 
@@ -648,8 +721,7 @@
         return;
       }
 
-      senhaForm.value = senha.value.trim();
-
+      senhaForm.value = senhaSalva;
       form.action = APPS_SCRIPT_URL;
 
       form.submit();
@@ -670,7 +742,17 @@
     adultos.value = modeloPadrao;
     jovens.value = modeloPadrao;
 
-    document.addEventListener("DOMContentLoaded", carregarLicoes);
+    document.addEventListener("DOMContentLoaded", () => {
+      const senhaSalva = obterSenhaSessao();
+
+      if (senhaSalva) {
+        senhaForm.value = senhaSalva;
+        mostrarPainelLogado();
+        carregarLicoes();
+      } else {
+        mostrarTelaLogin();
+      }
+    });
   </script>
 </body>
 </html>

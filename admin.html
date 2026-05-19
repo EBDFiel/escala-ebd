@@ -164,6 +164,13 @@
       transform: translateY(-1px);
     }
 
+    button:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+      filter: none;
+    }
+
     .status {
       display: none;
       padding: 14px 16px;
@@ -377,7 +384,7 @@
         </div>
 
         <div class="actions">
-          <button type="button" onclick="salvarLicoes()">Salvar lições</button>
+          <button id="btnSalvarLicoes" type="button" onclick="salvarLicoes()">Salvar lições</button>
           <button class="gray" type="button" onclick="visualizarTudo()">Prévia dos dois campos</button>
         </div>
       </section>
@@ -514,6 +521,7 @@
     const previewJovens = document.getElementById("previewJovens");
     const telaLogin = document.getElementById("telaLogin");
     const barraPainel = document.getElementById("barraPainel");
+    const btnSalvarLicoes = document.getElementById("btnSalvarLicoes");
 
     function mostrarStatus(tipo, mensagem) {
       statusBox.className = "status show " + tipo;
@@ -697,6 +705,13 @@
       }
     }
 
+    function normalizarParaComparacao(html) {
+      return limparHtmlColado(html)
+        .replace(/\r\n/g, "\n")
+        .replace(/\r/g, "\n")
+        .trim();
+    }
+
     function salvarLicoes() {
       const senhaSalva = obterSenhaSessao();
 
@@ -721,22 +736,77 @@
         return;
       }
 
+      const htmlAdultosAntes = normalizarParaComparacao(adultos.value);
+      const htmlJovensAntes = normalizarParaComparacao(jovens.value);
+
       senhaForm.value = senhaSalva;
       form.action = APPS_SCRIPT_URL;
 
+      if (btnSalvarLicoes) {
+        btnSalvarLicoes.disabled = true;
+        btnSalvarLicoes.textContent = "Salvando...";
+      }
+
+      mostrarStatus("info", "Enviando lições para o Apps Script...");
+
       form.submit();
 
-      mostrarStatus(
-        "info",
-        "Enviando para o Apps Script. Depois de alguns segundos, abra o site público para conferir."
-      );
+      setTimeout(async function () {
+        mostrarStatus("info", "Verificando se as lições foram salvas...");
 
-      setTimeout(() => {
-        mostrarStatus(
-          "success",
-          "Envio concluído pelo navegador. Confira o site público. Se não atualizar, recarregue com Ctrl + F5."
-        );
-      }, 3000);
+        try {
+          const dados = await chamarAppsScript({ acao: "licoes" });
+
+          if (!dados || !dados.sucesso || !dados.licoes) {
+            throw new Error((dados && dados.mensagem) || "Não foi possível confirmar o salvamento.");
+          }
+
+          const adultosSalvo = normalizarParaComparacao(dados.licoes.adultos || "");
+          const jovensSalvo = normalizarParaComparacao(dados.licoes.jovens || "");
+
+          const adultosConfere = adultosSalvo === htmlAdultosAntes;
+          const jovensConfere = jovensSalvo === htmlJovensAntes;
+
+          adultos.value = dados.licoes.adultos || adultos.value;
+          jovens.value = dados.licoes.jovens || jovens.value;
+
+          if (adultosConfere && jovensConfere) {
+            mostrarStatus("success", "Lições salvas e confirmadas com sucesso.");
+            return;
+          }
+
+          if (!jovensConfere) {
+            abrirAba("jovens");
+            mostrarStatus(
+              "error",
+              "O envio terminou, mas a lição de Adolescentes não voltou salva. Verifique a senha, a implantação do Apps Script e a aba Licoes."
+            );
+            return;
+          }
+
+          if (!adultosConfere) {
+            abrirAba("adultos");
+            mostrarStatus(
+              "error",
+              "O envio terminou, mas a lição de Jovens e Adultos não voltou salva. Verifique a senha, a implantação do Apps Script e a aba Licoes."
+            );
+            return;
+          }
+
+          mostrarStatus("success", "Salvamento concluído.");
+
+        } catch (erro) {
+          mostrarStatus(
+            "error",
+            (erro && erro.message) || "Não foi possível confirmar se as lições foram salvas."
+          );
+        } finally {
+          if (btnSalvarLicoes) {
+            btnSalvarLicoes.disabled = false;
+            btnSalvarLicoes.textContent = "Salvar lições";
+          }
+        }
+      }, 3500);
     }
 
     adultos.value = modeloPadrao;

@@ -510,9 +510,44 @@
         flex-direction: column;
       }
     }
+  
+    .toast-ebd-success {
+      display: block !important;
+      background: #e8f5e9 !important;
+      color: #1b5e20 !important;
+      border: 1px solid #a5d6a7 !important;
+    }
+
+    .toast-ebd-error {
+      display: block !important;
+      background: #ffebee !important;
+      color: #b71c1c !important;
+      border: 1px solid #ef9a9a !important;
+    }
+
+    .toast-ebd-info {
+      display: block !important;
+      background: #fff8e1 !important;
+      color: #7a5800 !important;
+      border: 1px solid #f4c542 !important;
+    }
   </style>
 </head>
 <body>
+<div id="toastEBD" style="
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999999;
+  display: none;
+  max-width: min(92vw, 680px);
+  padding: 14px 18px;
+  border-radius: 18px;
+  font-weight: 800;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.18);
+  text-align: center;
+"></div>
 <header class="hero">
   <div class="hero-inner">
     <div>
@@ -688,16 +723,40 @@
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec";
   const modeloPadrao = `<div style="font-family:system-ui; background:#fef9e6; border-radius:2rem; padding:1.4rem;"><div style="background:#0b2b3f; color:white; padding:1rem; border-radius:1.5rem;"><h3>Conteúdo da lição</h3></div><div style="padding:1rem;"><p>Adicione aqui o conteúdo da aula...</p></div></div>`;
   let escalaCache = [], classesCache = [], professoresCache = [];
+  let salvandoLicoesEBD = false;
+  let timerSalvarLicoesEBD = null;
 
   function mostrarStatus(tipo, msg) {
-    let s = document.getElementById("status");
-    s.className = `status show ${tipo}`;
-    s.innerHTML = `<span>${tipo === 'success' ? '✅' : tipo === 'error' ? '⚠️' : 'ℹ️'}</span> ${msg}`;
+    const icone = tipo === "success" ? "✅" : tipo === "error" ? "⚠️" : "ℹ️";
+
+    const s = document.getElementById("status");
+    if (s) {
+      s.className = `status show ${tipo}`;
+      s.innerHTML = `<span>${icone}</span> ${msg}`;
+    }
+
+    const toast = document.getElementById("toastEBD");
+    if (toast) {
+      toast.className = "";
+      toast.classList.add(
+        tipo === "success" ? "toast-ebd-success" :
+        tipo === "error" ? "toast-ebd-error" :
+        "toast-ebd-info"
+      );
+      toast.innerHTML = `${icone} ${msg}`;
+      toast.style.display = "block";
+
+      clearTimeout(window.toastTimerEBD);
+      window.toastTimerEBD = setTimeout(() => {
+        toast.style.display = "none";
+        toast.className = "";
+      }, 5200);
+    }
 
     clearTimeout(window.statusTimerEBD);
     window.statusTimerEBD = setTimeout(() => {
-      s.classList.remove('show');
-    }, 5000);
+      if (s) s.classList.remove("show");
+    }, 5200);
   }
   function obterSenhaSessao() { return sessionStorage.getItem("senhaAdminEBD") || ""; }
   function salvarSenhaSessao(v) { sessionStorage.setItem("senhaAdminEBD", v); }
@@ -713,15 +772,15 @@
   function atualizarEditoresVisuais() { let a=document.getElementById("editorVisualAdultos"), j=document.getElementById("editorVisualJovens"); if(a) a.innerHTML = document.getElementById("adultos").value || "<p>Sem lição</p>"; if(j) j.innerHTML = document.getElementById("jovens").value || "<p>Sem lição</p>"; }
   function sincronizarVisual(campo) {
     if (campo === "adultos") {
-      let val = document.getElementById("adultos").value;
+      const val = document.getElementById("adultos").value.trim();
       document.getElementById("editorVisualAdultos").innerHTML = val || "<p>Sem lição</p>";
-      mostrarStatus("success", "Jovens e Adultos atualizado com sucesso.");
+      mostrarStatus("success", "Jovens e Adultos sincronizado com sucesso.");
       return;
     }
 
-    let val = document.getElementById("jovens").value;
+    const val = document.getElementById("jovens").value.trim();
     document.getElementById("editorVisualJovens").innerHTML = val || "<p>Sem lição</p>";
-    mostrarStatus("success", "Adolescentes atualizado com sucesso.");
+    mostrarStatus("success", "Adolescentes sincronizado com sucesso.");
   }
   function alternarHtml(campo) {
     const isAdultos = campo === "adultos";
@@ -771,7 +830,7 @@
     const s = obterSenhaSessao();
 
     if (!s) {
-      return mostrarStatus("error", "Sessão expirada.");
+      return mostrarStatus("error", "Sessão expirada. Saia do painel e entre novamente com a senha.");
     }
 
     sincronizarLicaoAntesDeSalvar("adultos");
@@ -788,6 +847,19 @@
 
     document.getElementById("senhaForm").value = s;
     form.action = APPS_SCRIPT_URL;
+    form.method = "POST";
+    form.target = "envioOculto";
+
+    salvandoLicoesEBD = true;
+
+    clearTimeout(timerSalvarLicoesEBD);
+    timerSalvarLicoesEBD = setTimeout(() => {
+      if (salvandoLicoesEBD) {
+        salvandoLicoesEBD = false;
+        mostrarStatus("error", "As lições foram enviadas, mas o painel não recebeu confirmação. Verifique se o Apps Script foi implantado como nova versão.");
+      }
+    }, 15000);
+
     form.submit();
 
     mostrarStatus("info", "Salvando lições... aguarde a confirmação.");
@@ -795,6 +867,9 @@
 
   window.addEventListener("message", (e) => {
     if (e.data?.origem === "appsScriptSalvarLicoes") {
+      salvandoLicoesEBD = false;
+      clearTimeout(timerSalvarLicoesEBD);
+
       if (e.data.sucesso) {
         mostrarStatus("success", e.data.mensagem || "Lições salvas e atualizadas com sucesso.");
       } else {

@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Painel de Lições — EBD</title>
+
+  <style>
+    :root {
+      --azul: #1f4e79;
+      --azul-escuro: #163a5c;
+      --azul-claro: #eaf3fb;
+      --verde: #2e7d32;
+      --verde-escuro: #256628;
+      --verde-claro: #e9f6ea;
+      --dourado: #c59b35;
+      --texto: #243447;
+      --borda: #d9e2ec;
+      --branco: #ffffff;
+      --vermelho-claro: #fff3f3;
+      --vermelho: #b42318;
+      --amarelo-claro: #fff8e1;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--texto);
+      line-height: 1.6;
+      background:
+        radial-gradient(circle at top left, rgba(197, 155, 53, 0.14), transparent 32%),
+        radial-gradient(circle at top right, rgba(31, 78, 121, 0.12), transparent 30%),
+        linear-gradient(135deg, #eef6ff 0%, #ffffff 45%, #f7fbf7 100%);
+    }
+
+    header {
+      padding: 28px 18px;
+      text-align: center;
+      color: #ffffff;
+      background: linear-gradient(135deg, #102f4d, #1f4e79);
+      border-bottom: 6px solid var(--dourado);
+      box-shadow: 0 12px 30px rgba(16, 47, 77, 0.25);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 4vw, 2.7rem);
+      color: #f3d37a;
+      text-transform: uppercase;
+    }
+
+    header p {
+      margin: 10px auto 0;
+      max-width: 760px;
+    }
+
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 14px 42px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid var(--borda);
+      border-radius: 20px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 22px rgba(31, 78, 121, 0.10);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    label {
+      display: block;
+      font-weight: 800;
+      color: var(--azul-escuro);
+      margin-bottom: 8px;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--borda);
+      border-radius: 14px;
+      padding: 13px 14px;
+      font-size: 1rem;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--texto);
+      background: #ffffff;
+    }
+
+    textarea {
+      min-height: 380px;
+      resize: vertical;
+      font-family: Consolas, Monaco, "Courier New", monospace;
+      line-height: 1.5;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--azul);
+      box-shadow: 0 0 0 4px rgba(31, 78, 121, 0.14);
+    }
+
+    .help {
+      margin: 8px 0 0;
+      color: #5d6d7e;
+      font-size: 0.92rem;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-top: 18px;
+    }
+
+    button,
+    .link-btn {
+      border: none;
+      cursor: pointer;
+      display: inline-block;
+      text-decoration: none;
+      padding: 13px 22px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.98rem;
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--verde), var(--verde-escuro));
+      box-shadow: 0 8px 18px rgba(46, 125, 50, 0.24);
+    }
+
+    button.secondary,
+    .link-btn.secondary {
+      background: linear-gradient(135deg, #1f4e79, #163a5c);
+      box-shadow: 0 8px 18px rgba(31, 78, 121, 0.24);
+    }
+
+    button.gray {
+      background: linear-gradient(135deg, #6b7280, #4b5563);
+      box-shadow: none;
+    }
+
+    button:hover,
+    .link-btn:hover {
+      filter: brightness(1.04);
+      transform: translateY(-1px);
+    }
+
+    .status {
+      display: none;
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-weight: 800;
+      margin-top: 16px;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status.success {
+      color: var(--verde-escuro);
+      background: var(--verde-claro);
+      border: 1px solid #bfe3c1;
+    }
+
+    .status.error {
+      color: var(--vermelho);
+      background: var(--vermelho-claro);
+      border: 1px solid #f2c0bb;
+    }
+
+    .status.info {
+      color: #7a5312;
+      background: var(--amarelo-claro);
+      border: 1px solid rgba(183, 121, 31, 0.25);
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .preview {
+      border: 1px solid var(--borda);
+      border-radius: 18px;
+      background: #ffffff;
+      padding: 16px;
+      max-height: 420px;
+      overflow-y: auto;
+    }
+
+    .preview h3 {
+      color: var(--azul);
+      margin-top: 0;
+    }
+
+    .preview h4 {
+      color: var(--verde-escuro);
+    }
+
+    .preview blockquote {
+      margin: 16px 0;
+      padding: 14px 18px;
+      border-left: 5px solid var(--dourado);
+      background: #fff8e1;
+      border-radius: 12px;
+      color: #7a5312;
+      font-weight: 700;
+    }
+
+    .preview .lesson-note {
+      background: var(--azul-claro);
+      border: 1px solid #cfe2f3;
+      padding: 14px 16px;
+      border-radius: 14px;
+      margin-top: 16px;
+    }
+
+    .preview .lesson-memory {
+      background: var(--verde-claro);
+      border: 1px solid #bfe3c1;
+      padding: 14px 16px;
+      border-radius: 14px;
+      margin: 16px 0;
+      color: var(--verde-escuro);
+      font-weight: 700;
+    }
+
+    .preview .lesson-warning {
+      background: var(--amarelo-claro);
+      border: 1px solid rgba(183, 121, 31, 0.25);
+      padding: 14px 16px;
+      border-radius: 14px;
+      margin-top: 16px;
+      color: #7a5312;
+    }
+
+    iframe {
+      display: none;
+    }
+
+    @media (max-width: 820px) {
+      .grid,
+      .preview-grid {
+        grid-template-columns: 1fr;
+      }
+
+      textarea {
+        min-height: 300px;
+      }
+
+      .actions button,
+      .actions .link-btn {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Painel de Lições EBD</h1>
+    <p>
+      Use este painel exclusivo para atualizar a lição da semana dos Adultos e dos Jovens.
+      Esta página não aparece no site principal.
+    </p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Acesso e salvamento</h2>
+
+      <p>
+        Digite a senha definida no Apps Script e edite as lições em HTML.
+        Depois clique em <strong>Salvar lições</strong>.
+      </p>
+
+      <label for="senha">Senha do painel</label>
+      <input id="senha" name="senha" type="password" placeholder="Digite a senha do painel" autocomplete="current-password" />
+
+      <p class="help">
+        A senha precisa ser a mesma configurada na variável <strong>SENHA_ADMIN</strong> do Apps Script.
+      </p>
+
+      <div class="actions">
+        <button class="secondary" type="button" onclick="carregarLicoes()">Carregar lições atuais</button>
+        <button class="gray" type="button" onclick="atualizarPrevia()">Atualizar prévia</button>
+        <a class="link-btn secondary" href="./index.html" target="_blank" rel="noopener">Abrir site público</a>
+      </div>
+
+      <div class="status" id="status"></div>
+    </section>
+
+    <form id="formLicoes" method="POST" target="envioOculto">
+      <input type="hidden" name="acao" value="salvarLicoes" />
+
+      <section class="card">
+        <div class="grid">
+          <div>
+            <label for="adultos">HTML da lição dos Adultos</label>
+            <textarea id="adultos" name="adultos"></textarea>
+            <p class="help">
+              Substitua o conteúdo por HTML. Exemplo: &lt;h3&gt;Título&lt;/h3&gt;, &lt;p&gt;Texto&lt;/p&gt;, &lt;ol&gt;&lt;li&gt;Ponto&lt;/li&gt;&lt;/ol&gt;.
+            </p>
+          </div>
+
+          <div>
+            <label for="jovens">HTML da lição dos Jovens</label>
+            <textarea id="jovens" name="jovens"></textarea>
+            <p class="help">
+              Evite scripts. Use apenas textos, títulos, listas, versículos, blocos e observações.
+            </p>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" onclick="salvarLicoes()">Salvar lições</button>
+          <button class="gray" type="button" onclick="limparCampos()">Limpar campos</button>
+        </div>
+      </section>
+    </form>
+
+    <section class="card">
+      <h2>Prévia</h2>
+
+      <div class="preview-grid">
+        <div>
+          <h3>Adultos</h3>
+          <div class="preview" id="previewAdultos"></div>
+        </div>
+
+        <div>
+          <h3>Jovens</h3>
+          <div class="preview" id="previewJovens"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <iframe name="envioOculto" id="envioOculto"></iframe>
+
+  <script>
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec";
+
+    const modeloAdultos = `
+<h3>Classe de Adultos 👔🌸</h3>
+
+<h4>Lição da Semana</h4>
+
+<p>
+  <strong>Tema:</strong> Escreva aqui o tema da lição.
+</p>
+
+<blockquote>
+  “Escreva aqui o texto áureo.”
+  <br>
+  <strong>Referência bíblica</strong>
+</blockquote>
+
+<h4>Verdade prática</h4>
+<p>
+  Escreva aqui a verdade prática da lição.
+</p>
+
+<h4>Introdução</h4>
+<p>
+  Escreva aqui a introdução da lição.
+</p>
+
+<h4>Pontos principais</h4>
+<ol>
+  <li>Primeiro ponto da lição.</li>
+  <li>Segundo ponto da lição.</li>
+  <li>Terceiro ponto da lição.</li>
+</ol>
+
+<div class="lesson-note">
+  <strong>Aplicação prática:</strong>
+  escreva aqui uma aplicação para a classe.
+</div>
+`.trim();
+
+    const modeloJovens = `
+<h3>Classe de Jovens 🔥</h3>
+
+<h4>Lição da Semana</h4>
+
+<p>
+  <strong>Tema:</strong> Escreva aqui o tema da lição dos jovens.
+</p>
+
+<blockquote>
+  “Escreva aqui o texto bíblico principal.”
+  <br>
+  <strong>Referência bíblica</strong>
+</blockquote>
+
+<h4>Objetivo da lição</h4>
+<p>
+  Escreva aqui o objetivo da lição.
+</p>
+
+<h4>Para conversar em grupo</h4>
+<ul>
+  <li>Primeira pergunta para reflexão.</li>
+  <li>Segunda pergunta para reflexão.</li>
+  <li>Terceira pergunta para reflexão.</li>
+</ul>
+
+<div class="lesson-note">
+  <strong>Desafio da semana:</strong>
+  escreva aqui um desafio prático.
+</div>
+`.trim();
+
+    const form = document.getElementById("formLicoes");
+    const senha = document.getElementById("senha");
+    const adultos = document.getElementById("adultos");
+    const jovens = document.getElementById("jovens");
+    const statusBox = document.getElementById("status");
+    const previewAdultos = document.getElementById("previewAdultos");
+    const previewJovens = document.getElementById("previewJovens");
+
+    function mostrarStatus(tipo, mensagem) {
+      statusBox.className = "status show " + tipo;
+      statusBox.textContent = mensagem;
+    }
+
+    function atualizarPrevia() {
+      previewAdultos.innerHTML = adultos.value || "<p>Nenhuma lição de adultos preenchida.</p>";
+      previewJovens.innerHTML = jovens.value || "<p>Nenhuma lição de jovens preenchida.</p>";
+    }
+
+    function limparCampos() {
+      adultos.value = "";
+      jovens.value = "";
+      atualizarPrevia();
+      mostrarStatus("info", "Campos limpos. Nada foi salvo ainda.");
+    }
+
+    function chamarAppsScript(parametros) {
+      return new Promise((resolve, reject) => {
+        const callbackName = "callbackAdminEBD_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+        const script = document.createElement("script");
+        const query = new URLSearchParams(parametros);
+
+        query.append("callback", callbackName);
+        query.append("t", Date.now());
+
+        const timeout = setTimeout(() => {
+          if (window[callbackName]) {
+            delete window[callbackName];
+          }
+
+          script.remove();
+          reject(new Error("Tempo esgotado ao conectar ao Apps Script."));
+        }, 15000);
+
+        window[callbackName] = function (resposta) {
+          clearTimeout(timeout);
+          delete window[callbackName];
+          script.remove();
+          resolve(resposta);
+        };
+
+        script.onerror = function () {
+          clearTimeout(timeout);
+          delete window[callbackName];
+          script.remove();
+          reject(new Error("Não foi possível conectar ao Apps Script."));
+        };
+
+        script.src = APPS_SCRIPT_URL + "?" + query.toString();
+        document.body.appendChild(script);
+      });
+    }
+
+    async function carregarLicoes() {
+      mostrarStatus("info", "Carregando lições atuais...");
+
+      try {
+        const dados = await chamarAppsScript({ acao: "licoes" });
+
+        if (!dados || !dados.sucesso) {
+          throw new Error((dados && dados.mensagem) || "Não foi possível carregar as lições.");
+        }
+
+        adultos.value = dados.licoes && dados.licoes.adultos ? dados.licoes.adultos : modeloAdultos;
+        jovens.value = dados.licoes && dados.licoes.jovens ? dados.licoes.jovens : modeloJovens;
+
+        atualizarPrevia();
+        mostrarStatus("success", "Lições carregadas. Edite e clique em Salvar lições quando terminar.");
+      } catch (erro) {
+        adultos.value = modeloAdultos;
+        jovens.value = modeloJovens;
+        atualizarPrevia();
+        mostrarStatus("error", erro.message || "Erro ao carregar lições. Modelos carregados.");
+      }
+    }
+
+    function salvarLicoes() {
+      if (!senha.value.trim()) {
+        mostrarStatus("error", "Digite a senha do painel antes de salvar.");
+        return;
+      }
+
+      if (!adultos.value.trim() || !jovens.value.trim()) {
+        mostrarStatus("error", "Preencha as duas lições antes de salvar.");
+        return;
+      }
+
+      form.action = APPS_SCRIPT_URL;
+      atualizarPrevia();
+
+      form.submit();
+
+      mostrarStatus(
+        "info",
+        "Enviando para o Apps Script. Aguarde alguns segundos e abra o site público para conferir se atualizou."
+      );
+
+      setTimeout(() => {
+        mostrarStatus(
+          "success",
+          "Envio concluído pelo navegador. Confira o site público. Se não atualizar, verifique a senha e a implantação do Apps Script."
+        );
+      }, 3000);
+    }
+
+    adultos.value = modeloAdultos;
+    jovens.value = modeloJovens;
+    atualizarPrevia();
+
+    document.addEventListener("DOMContentLoaded", carregarLicoes);
+  </script>
+</body>
+</html>

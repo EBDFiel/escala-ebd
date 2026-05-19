@@ -268,6 +268,14 @@
       display: block;
     }
 
+    .admin-panel {
+      display: none;
+    }
+
+    .admin-panel.active {
+      display: block;
+    }
+
     /* lesson workspace */
     .lesson-workspace {
       display: flex;
@@ -557,7 +565,7 @@
             <div><h2>📖 Conteúdo das aulas</h2><p>Edição visual e HTML</p></div>
             <span class="chip">Salvamento automático via planilha</span>
           </div>
-          <form id="formLicoes" target="envioOculto" method="POST">
+          <form id="formLicoes" target="envioOculto" method="POST" action="https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec">
             <input type="hidden" name="acao" value="salvarLicoes" />
             <input type="hidden" id="senhaForm" name="senha" />
             <div class="lesson-tabs">
@@ -685,10 +693,87 @@
   async function carregarLicoes() { try { let d = await chamarAppsScript({ acao: "licoes" }); if(d.sucesso) { document.getElementById("adultos").value = d.licoes?.adultos || modeloPadrao; document.getElementById("jovens").value = d.licoes?.jovens || modeloPadrao; atualizarEditoresVisuais(); mostrarStatus("success","Lições carregadas."); } else throw new Error("erro"); } catch(e) { mostrarStatus("error","Erro lições"); } }
   function atualizarEditoresVisuais() { let a=document.getElementById("editorVisualAdultos"), j=document.getElementById("editorVisualJovens"); if(a) a.innerHTML = document.getElementById("adultos").value || "<p>Sem lição</p>"; if(j) j.innerHTML = document.getElementById("jovens").value || "<p>Sem lição</p>"; }
   function sincronizarVisual(campo) { if(campo==="adultos") { let val=document.getElementById("adultos").value; document.getElementById("editorVisualAdultos").innerHTML=val; } else { let val=document.getElementById("jovens").value; document.getElementById("editorVisualJovens").innerHTML=val; } mostrarStatus("info","Visual atualizado"); }
-  function alternarHtml(campo) { let wrap = document.getElementById(`htmlWrap${campo==='adultos'?'Adultos':'Jovens'}`); wrap.classList.toggle("show"); if(!wrap.classList.contains("show")) sincronizarVisual(campo); }
+  function alternarHtml(campo) {
+    const isAdultos = campo === "adultos";
+
+    const wrap = document.getElementById(isAdultos ? "htmlWrapAdultos" : "htmlWrapJovens");
+    const textarea = document.getElementById(isAdultos ? "adultos" : "jovens");
+    const editor = document.getElementById(isAdultos ? "editorVisualAdultos" : "editorVisualJovens");
+
+    if (!wrap || !textarea || !editor) {
+      return;
+    }
+
+    const vaiAbrir = !wrap.classList.contains("show");
+
+    if (vaiAbrir) {
+      textarea.value = editor.innerHTML.trim();
+      wrap.classList.add("show");
+      mostrarStatus("info", "Editor HTML avançado aberto.");
+    } else {
+      editor.innerHTML = textarea.value.trim() || "<p>Sem lição</p>";
+      wrap.classList.remove("show");
+      mostrarStatus("info", "Visual atualizado a partir do HTML.");
+    }
+  }
+
   function limparCampo(campo) { if(confirm("Limpar conteúdo?")) { let txt = document.getElementById(campo); txt.value = ""; atualizarEditoresVisuais(); mostrarStatus("info","Campo limpo"); } }
-  function salvarLicoes() { let s=obterSenhaSessao(); if(!s) return mostrarStatus("error","Sessão expirada."); document.getElementById("senhaForm").value = s; document.getElementById("formLicoes").submit(); mostrarStatus("info","Enviando..."); }
-  window.addEventListener("message", (e) => { if(e.data?.origem === "appsScriptSalvarLicoes") { if(e.data.sucesso) mostrarStatus("success","Lições salvas"); else mostrarStatus("error","Erro ao salvar"); carregarLicoes(); } });
+  function sincronizarLicaoAntesDeSalvar(campo) {
+    const isAdultos = campo === "adultos";
+
+    const wrap = document.getElementById(isAdultos ? "htmlWrapAdultos" : "htmlWrapJovens");
+    const textarea = document.getElementById(isAdultos ? "adultos" : "jovens");
+    const editor = document.getElementById(isAdultos ? "editorVisualAdultos" : "editorVisualJovens");
+
+    if (!textarea || !editor) {
+      return;
+    }
+
+    if (wrap && wrap.classList.contains("show")) {
+      textarea.value = textarea.value.trim();
+      editor.innerHTML = textarea.value || "<p>Sem lição</p>";
+    } else {
+      textarea.value = editor.innerHTML.trim();
+    }
+  }
+
+  function salvarLicoes() {
+    const s = obterSenhaSessao();
+
+    if (!s) {
+      return mostrarStatus("error", "Sessão expirada.");
+    }
+
+    sincronizarLicaoAntesDeSalvar("adultos");
+    sincronizarLicaoAntesDeSalvar("jovens");
+
+    const adultosValor = document.getElementById("adultos").value.trim();
+    const jovensValor = document.getElementById("jovens").value.trim();
+
+    if (!adultosValor && !jovensValor) {
+      return mostrarStatus("error", "Preencha pelo menos uma lição antes de salvar.");
+    }
+
+    const form = document.getElementById("formLicoes");
+
+    document.getElementById("senhaForm").value = s;
+    form.action = APPS_SCRIPT_URL;
+    form.submit();
+
+    mostrarStatus("info", "Enviando lições para salvar...");
+  }
+
+  window.addEventListener("message", (e) => {
+    if (e.data?.origem === "appsScriptSalvarLicoes") {
+      if (e.data.sucesso) {
+        mostrarStatus("success", e.data.mensagem || "Lições salvas com sucesso.");
+      } else {
+        mostrarStatus("error", e.data.mensagem || "Erro ao salvar lições.");
+      }
+
+      carregarLicoes();
+    }
+  });
 
   async function carregarEscala() { let r = await chamarAppsScript({acao:"listar"}); if(r.sucesso) { escalaCache=r.escala||[]; classesCache=escalaCache.length?Object.keys(escalaCache[0]).filter(k=>k!=="Data"):[]; preencherSelectsEscala(); renderizarTabelaEscala(); } }
   function preencherSelectsEscala() { preencherSelect("escalaDataEditar", escalaCache.map(l=>l.Data)); preencherSelect("dataRemover", escalaCache.map(l=>l.Data)); preencherSelect("escalaClasseEditar", classesCache); preencherSelect("classeRenomear", classesCache); preencherSelect("profNovaClasse", classesCache); preencherSelect("profEditarClasse", classesCache); preencherSelect("profMudarClasse", classesCache); preencherSelect("profSubClasse", ["Todas as classes",...classesCache]); renderizarCamposNovaData(); }
@@ -696,7 +781,21 @@
   function renderizarTabelaEscala() { let t = document.getElementById("tabelaEscalaAdmin"); if(!escalaCache.length) { t.querySelector("tbody").innerHTML="<tr><td colspan=10>Nenhum dado</td></tr>"; return; } let cols = Object.keys(escalaCache[0]); t.querySelector("thead").innerHTML="<tr>"+cols.map(c=>`<th>${c}</th>`).join("")+"</tr>"; t.querySelector("tbody").innerHTML=escalaCache.map(l=>"<tr>"+cols.map(c=>`<td>${l[c]||""}</td>`).join("")+"</tr>").join(""); }
   function renderizarCamposNovaData() { let cont = document.getElementById("camposNovaData"); cont.innerHTML = classesCache.map(c => `<div><label>${c}</label><input type="text" data-classe-nova="${c}" placeholder="Professor"></div>`).join(""); }
   async function adminSalvarProfessor() { let s=obterSenhaSessao(); let data=document.getElementById("escalaDataEditar").value, classe=document.getElementById("escalaClasseEditar").value, prof=document.getElementById("escalaProfessorEditar").value.trim(); if(!data||!classe||!prof) return mostrarStatus("error","Preencha todos"); let r=await chamarAppsScript({acao:"adminSalvarProfessor", senha:s, data, classe, professor:prof}); if(r.sucesso){ mostrarStatus("success","Alterado"); carregarEscala(); carregarHistorico(); } else mostrarStatus("error",r.mensagem); }
-  async function adminAdicionarData() { let s=obterSenhaSessao(); let data = document.getElementById("novaDataEscala").value; if(!data) return; let campos={}; document.querySelectorAll("[data-classe-nova]").forEach(i=>campos[i.dataset.classeNova]=i.value.trim()); let r = await chamarAppsScript({acao:"adminAdicionarData", senha:s, data, campos:JSON.stringify(campos)}); if(r.sucesso){ mostrarStatus("success","Data adicionada"); carregarEscala(); carregarHistorico(); } else mostrarStatus("error",r.mensagem); }
+  function formatarDataBR(valor) {
+    if (!valor) {
+      return "";
+    }
+
+    const partes = valor.split("-");
+
+    if (partes.length !== 3) {
+      return valor;
+    }
+
+    return partes[2] + "/" + partes[1] + "/" + partes[0];
+  }
+
+  async function adminAdicionarData() { let s=obterSenhaSessao(); let data = formatarDataBR(document.getElementById("novaDataEscala").value); if(!data) return; let campos={}; document.querySelectorAll("[data-classe-nova]").forEach(i=>campos[i.dataset.classeNova]=i.value.trim()); let r = await chamarAppsScript({acao:"adminAdicionarData", senha:s, data, campos:JSON.stringify(campos)}); if(r.sucesso){ mostrarStatus("success","Data adicionada"); carregarEscala(); carregarHistorico(); } else mostrarStatus("error",r.mensagem); }
   async function adminRemoverData() { let s=obterSenhaSessao(); let data=document.getElementById("dataRemover").value; if(!data||!confirm("Remover esta data?")) return; let r=await chamarAppsScript({acao:"adminRemoverData", senha:s, data}); if(r.sucesso){ mostrarStatus("success","Removida"); carregarEscala(); carregarHistorico(); } }
   async function adminRenomearClasse() { let s=obterSenhaSessao(); let antiga=document.getElementById("classeRenomear").value, nova=document.getElementById("novoNomeClasse").value.trim(); if(!antiga||!nova) return; let r=await chamarAppsScript({acao:"adminRenomearClasse", senha:s, classeAntiga:antiga, classeNova:nova}); if(r.sucesso){ mostrarStatus("success","Renomeada"); carregarEscala(); carregarHistorico(); } }
   async function carregarProfessores() { let r=await chamarAppsScript({acao:"listarProfessores"}); if(r.sucesso){ professoresCache=r.professores; preencherSelectsProfessores(); renderizarTabelaProfessores(); } }

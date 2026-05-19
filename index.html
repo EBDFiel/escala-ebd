@@ -506,6 +506,14 @@
       box-shadow: 0 8px 20px rgba(46, 125, 50, 0.10);
     }
 
+    .scale-action-bottom {
+      margin: 18px auto 0;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+    }
+
     .scale-action p {
       margin: 0 0 12px;
       color: #256628;
@@ -552,7 +560,7 @@
 
     .btn-action-red {
       background: linear-gradient(135deg, #b42318, #7f1d1d);
-      box-shadow: 0 8px 18px rgba(180, 35, 24, 0.24);
+      box-shadow: 0 8px 18px rgba(180, 35, 24, 0.30);
       animation: none;
     }
 
@@ -1868,20 +1876,7 @@
 
     <section class="card">
       <h2 class="section-title">Escala de Aulas 📚</h2>
-
-      <div class="scale-action">
-        <div class="actions-center scale-buttons">
-          <button class="btn btn-action-red btn-mobile-visible" type="button" onclick="abrirModal()">
-            Alterar meu dia 🔄
-          </button>
-
-          <button class="btn btn-secondary-scale btn-mobile-visible" id="btnAlternarEscala" type="button" onclick="alternarEscalaCompleta()">
-            Escala do trimestre 📅
-          </button>
-        </div>
-      </div>
-
-      <div class="loading-box" id="loadingBox">
+<div class="loading-box" id="loadingBox">
         Carregando escala atualizada... 🔄
       </div>
 
@@ -1906,6 +1901,18 @@
       </div>
 
       <div class="mobile-cards" id="cardsEscala"></div>
+
+      <div class="scale-action scale-action-bottom">
+        <div class="actions-center scale-buttons">
+          <button class="btn btn-action-red btn-mobile-visible" type="button" onclick="abrirModal()">
+            Alterar meu dia 🔄
+          </button>
+
+          <button class="btn btn-secondary-scale btn-mobile-visible" id="btnAlternarEscala" type="button" onclick="alternarEscalaCompleta()">
+            Escala do trimestre 📅
+          </button>
+        </div>
+      </div>
     </section>
 
 
@@ -2498,11 +2505,7 @@
           <div class="schedule-item"><strong>Irmãos 👔</strong><span>${linha["Irmãos"]}</span></div>
           <div class="schedule-item"><strong>Irmãs 🌸</strong><span>${linha["Irmãs"]}</span></div>
           <div class="schedule-item"><strong>Suporte 🤝</strong><span>${linha["Suporte"]}</span></div>
-
-          <button class="btn btn-card" type="button" onclick="abrirModal()">
-            Alterar meu dia
-          </button>
-        `;
+`;
 
         cardsEscala.appendChild(card);
       });

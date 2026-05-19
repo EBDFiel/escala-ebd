@@ -2,2215 +2,718 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>Painel Admin — Escala EBD</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Admin EBD — Gestão de Lições e Escala</title>
 
   <style>
-    :root {
-      --azul-900: #0f2742;
-      --azul-800: #163a5c;
-      --azul-700: #1f4e79;
-      --azul-100: #eaf3fb;
-      --verde-700: #256628;
-      --verde-600: #2e7d32;
-      --verde-100: #e9f6ea;
-      --dourado: #c59b35;
-      --vermelho-700: #991b1b;
-      --vermelho-600: #dc2626;
-      --vermelho-100: #fff1f1;
-      --roxo-700: #5b21b6;
-      --roxo-100: #f3e8ff;
-      --cinza-900: #172033;
-      --cinza-700: #364152;
-      --cinza-500: #667085;
-      --cinza-200: #e4e7ec;
-      --cinza-100: #f2f4f7;
-      --branco: #ffffff;
-      --sombra: 0 16px 40px rgba(15, 39, 66, 0.12);
-      --sombra-suave: 0 8px 22px rgba(15, 39, 66, 0.08);
-      --raio: 22px;
-    }
-
     * {
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
     }
 
-    html {
-      scroll-behavior: smooth;
+    :root {
+      --primary-dark: #0b2b3f;
+      --primary-deep: #124263;
+      --primary-main: #1a5a7a;
+      --primary-light: #eef4fc;
+      --accent-gold: #d4af37;
+      --accent-gold-light: #fef7e0;
+      --success: #2e7d32;
+      --success-bg: #e8f5e9;
+      --danger: #c62828;
+      --danger-bg: #ffebee;
+      --warning: #ed6c02;
+      --warning-bg: #fff4e5;
+      --purple: #6a1b9a;
+      --purple-bg: #f3e5f5;
+      --gray-900: #1e293b;
+      --gray-700: #334155;
+      --gray-500: #64748b;
+      --gray-300: #cbd5e1;
+      --gray-100: #f1f5f9;
+      --white: #ffffff;
+      --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 20px 32px -12px rgba(0, 0, 0, 0.12);
+      --radius-card: 28px;
+      --radius-element: 20px;
+      --radius-btn: 40px;
+      --transition: all 0.2s ease;
     }
 
     body {
-      margin: 0;
-      font-family: Inter, "Segoe UI", Arial, Helvetica, sans-serif;
-      color: var(--cinza-900);
-      background:
-        radial-gradient(circle at top left, rgba(197, 155, 53, 0.18), transparent 28%),
-        radial-gradient(circle at top right, rgba(31, 78, 121, 0.18), transparent 30%),
-        linear-gradient(135deg, #eef6ff 0%, #ffffff 48%, #f6fbf7 100%);
-      line-height: 1.6;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(circle at 10% 20%, rgba(18, 66, 99, 0.03), rgba(0, 0, 0, 0) 60%),
+                  var(--gray-100);
+      color: var(--gray-900);
+      line-height: 1.5;
     }
 
+    /* Hero refinado */
     .hero {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-deep) 100%);
+      padding: 2rem 1.5rem;
+      border-bottom: 4px solid var(--accent-gold);
+      box-shadow: var(--shadow-lg);
       position: relative;
       overflow: hidden;
-      padding: 34px 18px 30px;
-      color: #ffffff;
-      background:
-        linear-gradient(135deg, rgba(15, 39, 66, 0.96), rgba(31, 78, 121, 0.94)),
-        radial-gradient(circle at 15% 20%, rgba(243, 211, 122, 0.26), transparent 28%);
-      border-bottom: 6px solid var(--dourado);
-      box-shadow: var(--sombra);
     }
 
-    .hero::after {
-      content: "";
+    .hero::before {
+      content: '';
       position: absolute;
-      right: -80px;
-      top: -80px;
-      width: 240px;
-      height: 240px;
+      top: -30%;
+      right: -10%;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(212, 175, 55, 0.2), transparent 70%);
       border-radius: 50%;
-      background: rgba(255,255,255,0.10);
+      pointer-events: none;
     }
 
     .hero-inner {
-      position: relative;
-      z-index: 1;
-      max-width: 1180px;
+      max-width: 1280px;
       margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
       align-items: center;
+      gap: 1rem;
+      position: relative;
+      z-index: 2;
     }
 
     .hero h1 {
-      margin: 0;
-      color: #f3d37a;
-      font-size: clamp(1.8rem, 4vw, 2.8rem);
-      letter-spacing: -0.03em;
-      text-transform: uppercase;
+      font-size: 1.9rem;
+      letter-spacing: -0.02em;
+      background: linear-gradient(to right, #ffffff, #f5e6b0);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
     }
 
     .hero p {
-      margin: 8px 0 0;
-      max-width: 720px;
-      color: rgba(255,255,255,0.88);
+      color: rgba(255,255,245,0.85);
+      margin-top: 0.4rem;
     }
 
     .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 10px 16px;
-      border: 1px solid rgba(255,255,255,0.22);
-      border-radius: 999px;
-      background: rgba(255,255,255,0.10);
-      color: #ffffff;
-      font-weight: 800;
-      backdrop-filter: blur(8px);
-      white-space: nowrap;
+      background: rgba(255,255,245,0.12);
+      backdrop-filter: blur(12px);
+      padding: 0.6rem 1.4rem;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      color: var(--accent-gold);
     }
 
     main {
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 24px 14px 46px;
+      max-width: 1280px;
+      margin: 2rem auto;
+      padding: 0 1.2rem;
     }
 
+    /* Cards globais */
     .card {
-      background: rgba(255, 255, 255, 0.94);
-      border: 1px solid rgba(228, 231, 236, 0.9);
-      border-radius: var(--raio);
-      padding: 22px;
-      margin-bottom: 20px;
-      box-shadow: var(--sombra-suave);
-      backdrop-filter: blur(10px);
+      background: var(--white);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-md);
+      padding: 1.6rem;
+      margin-bottom: 1.8rem;
+      border: 1px solid rgba(203, 213, 225, 0.5);
+      transition: var(--transition);
     }
 
-    .login-card {
-      max-width: 720px;
-      margin: 0 auto 20px;
+    .status {
+      display: none;
+      padding: 1rem 1.2rem;
+      border-radius: var(--radius-element);
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(4px);
     }
 
-    .top-card {
+    .status.show { display: flex; align-items: center; gap: 0.6rem; }
+    .status.success { background: var(--success-bg); color: #1b5e20; border-left: 5px solid var(--success); }
+    .status.error { background: var(--danger-bg); color: #b71c1c; border-left: 5px solid var(--danger); }
+    .status.info { background: var(--accent-gold-light); color: #7a5800; border-left: 5px solid var(--accent-gold); }
+
+    /* Dashboard métricas */
+    .dashboard-grid {
       display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 18px;
-      align-items: center;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.2rem;
+      margin-bottom: 2rem;
     }
 
+    .metric-card {
+      background: var(--white);
+      border-radius: var(--radius-element);
+      padding: 1.2rem 1rem;
+      border: 1px solid var(--gray-300);
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .metric-card span {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+      color: var(--accent-gold);
+    }
+
+    .metric-card strong {
+      display: block;
+      font-size: 1.2rem;
+      margin-top: 0.5rem;
+      color: var(--primary-deep);
+    }
+
+    /* Layout sidebar + content */
     .panel-shell {
       display: grid;
       grid-template-columns: 260px 1fr;
-      gap: 20px;
+      gap: 1.8rem;
       align-items: start;
     }
 
     .sidebar {
+      background: var(--white);
+      border-radius: 28px;
+      padding: 1rem 0.8rem;
+      border: 1px solid var(--gray-300);
+      box-shadow: var(--shadow-sm);
       position: sticky;
-      top: 14px;
-      background: rgba(255,255,255,0.96);
-      border: 1px solid var(--cinza-200);
-      border-radius: var(--raio);
-      padding: 14px;
-      box-shadow: var(--sombra-suave);
+      top: 1rem;
     }
 
     .sidebar-title {
-      padding: 8px 10px 14px;
-      color: var(--azul-800);
-      font-weight: 900;
-      font-size: 0.95rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+      padding: 0.6rem 1rem 1rem;
+      font-weight: 800;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      color: var(--primary-main);
+      border-bottom: 2px solid var(--gray-100);
+      margin-bottom: 0.8rem;
     }
 
     .nav-btn {
       width: 100%;
+      text-align: left;
+      padding: 0.85rem 1rem;
+      margin: 0.25rem 0;
+      background: transparent;
+      border: none;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin: 6px 0;
-      padding: 13px 14px;
-      border: 1px solid transparent;
-      border-radius: 16px;
-      background: transparent;
-      color: var(--cinza-700);
-      box-shadow: none;
-      text-align: left;
-      font-weight: 850;
+      gap: 0.7rem;
+      color: var(--gray-700);
+      transition: var(--transition);
+      cursor: pointer;
     }
 
     .nav-btn:hover {
-      transform: none;
-      background: var(--azul-100);
-      filter: none;
+      background: var(--primary-light);
+      color: var(--primary-deep);
     }
 
     .nav-btn.active {
-      background: linear-gradient(135deg, var(--azul-700), var(--azul-800));
+      background: linear-gradient(95deg, var(--primary-deep), var(--primary-main));
       color: white;
-      box-shadow: 0 12px 26px rgba(31, 78, 121, 0.24);
+      box-shadow: 0 6px 14px rgba(26, 90, 122, 0.25);
     }
 
     .content-area {
       min-width: 0;
     }
 
-    .status {
-      display: none;
-      padding: 14px 16px;
-      border-radius: 18px;
-      font-weight: 850;
-      margin-bottom: 18px;
-      box-shadow: var(--sombra-suave);
-    }
-
-    .status.show {
-      display: block;
-    }
-
-    .status.success {
-      color: var(--verde-700);
-      background: var(--verde-100);
-      border: 1px solid #bfe3c1;
-    }
-
-    .status.error {
-      color: var(--vermelho-700);
-      background: var(--vermelho-100);
-      border: 1px solid #fecaca;
-    }
-
-    .status.info {
-      color: #7a5312;
-      background: #fff8e1;
-      border: 1px solid rgba(183, 121, 31, 0.25);
-    }
-
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-bottom: 18px;
-    }
-
-    .metric-card {
-      padding: 18px;
-      border-radius: 20px;
-      border: 1px solid var(--cinza-200);
-      background: linear-gradient(135deg, #ffffff, #f8fbff);
-      box-shadow: var(--sombra-suave);
-    }
-
-    .metric-card span {
-      display: block;
-      color: var(--cinza-500);
-      font-size: 0.86rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .metric-card strong {
-      display: block;
-      margin-top: 6px;
-      color: var(--azul-800);
-      font-size: 1.18rem;
-    }
-
-    .section-title {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-
-    .section-title h2 {
-      margin: 0;
-      color: var(--azul-800);
-      font-size: clamp(1.25rem, 3vw, 1.65rem);
-      letter-spacing: -0.02em;
-    }
-
-    .section-title p {
-      margin: 4px 0 0;
-      color: var(--cinza-500);
-    }
-
-    label {
-      display: block;
-      font-weight: 850;
-      color: var(--azul-800);
-      margin-bottom: 8px;
-    }
-
-    input,
-    textarea,
-    select {
-      width: 100%;
-      border: 1px solid var(--cinza-200);
-      border-radius: 16px;
-      padding: 13px 14px;
-      font-size: 1rem;
-      font-family: Arial, Helvetica, sans-serif;
-      color: var(--cinza-900);
-      background: #ffffff;
-      transition: border-color .2s, box-shadow .2s;
-    }
-
-    textarea {
-      min-height: 430px;
-      resize: vertical;
-      font-family: Consolas, Monaco, "Courier New", monospace;
-      line-height: 1.5;
-    }
-
-    input:focus,
-    textarea:focus,
-    select:focus {
-      outline: none;
-      border-color: var(--azul-700);
-      box-shadow: 0 0 0 4px rgba(31, 78, 121, 0.14);
-    }
-
-    .help {
-      margin: 8px 0 0;
-      color: var(--cinza-500);
-      font-size: 0.92rem;
-    }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-      margin-top: 16px;
-    }
-
-    button,
-    .link-btn {
-      border: none;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      text-decoration: none;
-      padding: 13px 20px;
-      border-radius: 999px;
-      font-weight: 900;
-      font-size: 0.96rem;
-      color: #ffffff;
-      background: linear-gradient(135deg, var(--verde-600), var(--verde-700));
-      box-shadow: 0 10px 22px rgba(46, 125, 50, 0.24);
-      transition: transform .15s, filter .15s, box-shadow .15s;
-    }
-
-    button.secondary,
-    .link-btn.secondary {
-      background: linear-gradient(135deg, var(--azul-700), var(--azul-800));
-      box-shadow: 0 10px 22px rgba(31, 78, 121, 0.24);
-    }
-
-    button.gray {
-      background: linear-gradient(135deg, #667085, #475467);
-      box-shadow: 0 10px 22px rgba(102,112,133,.18);
-    }
-
-    button.red {
-      background: linear-gradient(135deg, var(--vermelho-600), var(--vermelho-700));
-      box-shadow: 0 10px 22px rgba(220, 38, 38, 0.25);
-    }
-
-    button.purple {
-      background: linear-gradient(135deg, #6d28d9, #4c1d95);
-      box-shadow: 0 10px 22px rgba(91, 33, 182, 0.24);
-    }
-
-    button:hover,
-    .link-btn:hover {
-      filter: brightness(1.04);
-      transform: translateY(-1px);
-    }
-
-    button:disabled {
-      opacity: 0.65;
-      cursor: not-allowed;
-      transform: none;
-      filter: none;
-    }
-
+    /* Abas lições */
     .lesson-tabs {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-bottom: 18px;
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid var(--gray-300);
+      padding-bottom: 0.5rem;
     }
 
     .tab-btn {
-      background: #ffffff;
-      color: var(--azul-800);
-      border: 1px solid var(--cinza-200);
-      box-shadow: none;
+      background: transparent;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      font-weight: 700;
+      border-radius: 40px;
+      font-size: 0.9rem;
+      color: var(--gray-500);
+      transition: var(--transition);
+      cursor: pointer;
     }
 
     .tab-btn.active {
-      background: linear-gradient(135deg, var(--azul-700), var(--azul-800));
-      color: #ffffff;
-      border-color: transparent;
-      box-shadow: 0 10px 22px rgba(31, 78, 121, 0.20);
+      background: var(--primary-main);
+      color: white;
+      box-shadow: var(--shadow-sm);
     }
 
-    .admin-panel,
     .editor-panel {
       display: none;
     }
 
-    .admin-panel.active,
     .editor-panel.active {
       display: block;
     }
 
-    .editor-title {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-    }
-
-    .editor-title h2 {
-      margin: 0;
-      color: var(--azul-800);
-    }
-
-    .preview-area {
-      display: none;
-      margin-top: 18px;
-      border: 1px solid var(--cinza-200);
-      border-radius: 20px;
-      overflow: hidden;
-      background: #ffffff;
-      max-height: 720px;
-      overflow-y: auto;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5);
-    }
-
-    .preview-area.show {
-      display: block;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-    }
-
-    .form-grid.two {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .form-grid.one {
-      grid-template-columns: 1fr;
-    }
-
-    .classes-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
-      margin-top: 14px;
-    }
-
-    .subcard {
-      border: 1px solid var(--cinza-200);
-      border-radius: var(--raio);
-      padding: 20px;
-      background: linear-gradient(135deg, #ffffff, #fbfdff);
-      margin-top: 18px;
-      box-shadow: var(--sombra-suave);
-    }
-
-    .subcard h3 {
-      margin: 0 0 12px;
-      color: var(--azul-800);
-      font-size: 1.15rem;
-    }
-
-    .subcard-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: var(--azul-100);
-      color: var(--azul-800);
-      font-weight: 850;
-      font-size: 0.8rem;
-    }
-
-    .table-wrap {
-      overflow-x: auto;
-      border: 1px solid var(--cinza-200);
-      border-radius: 18px;
-      background: #ffffff;
-      margin-top: 14px;
-      box-shadow: var(--sombra-suave);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 820px;
-    }
-
-    th,
-    td {
-      padding: 12px 14px;
-      border-bottom: 1px solid #edf2f7;
-      text-align: left;
-      vertical-align: top;
-      white-space: nowrap;
-    }
-
-    th {
-      position: sticky;
-      top: 0;
-      background: var(--azul-100);
-      color: var(--azul-800);
-      font-weight: 900;
-      z-index: 1;
-    }
-
-    tr:hover td {
-      background: #fbfdff;
-    }
-
-    .history-list {
-      display: grid;
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .history-item {
-      background: #ffffff;
-      border: 1px solid var(--cinza-200);
-      border-left: 6px solid var(--roxo-700);
-      border-radius: 18px;
-      padding: 16px;
-      box-shadow: var(--sombra-suave);
-    }
-
-    .history-item strong {
-      color: var(--azul-800);
-    }
-
-
+    /* lesson workspace */
     .lesson-workspace {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
     }
 
     .lesson-editor-card {
-      border: 1px solid var(--cinza-200);
-      border-radius: 22px;
-      background: linear-gradient(135deg, #ffffff, #fbfdff);
-      padding: 18px;
-      box-shadow: var(--sombra-suave);
+      background: var(--white);
+      border-radius: 24px;
+      border: 1px solid var(--gray-300);
+      padding: 1.2rem;
     }
 
     .lesson-toolbar {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--cinza-200);
-    }
-
-    .lesson-toolbar-title {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .lesson-toolbar-title strong {
-      color: var(--azul-800);
-      font-size: 1.05rem;
-    }
-
-    .lesson-toolbar-title span {
-      color: var(--cinza-500);
-      font-size: 0.9rem;
-    }
-
-    .lesson-toolbar-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+      align-items: center;
+      margin-bottom: 1rem;
+      gap: 1rem;
     }
 
     .visual-lesson-editor {
-      min-height: 520px;
-      max-height: 760px;
-      overflow-y: auto;
-      border: 1px solid var(--cinza-200);
+      border: 1px solid var(--gray-300);
       border-radius: 20px;
-      background: #ffffff;
-      padding: 18px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.6);
+      padding: 1.4rem;
+      min-height: 460px;
+      max-height: 560px;
+      overflow-y: auto;
+      background: #fefefe;
+      transition: var(--transition);
     }
 
     .visual-lesson-editor:focus {
       outline: none;
-      border-color: var(--azul-700);
-      box-shadow: 0 0 0 4px rgba(31, 78, 121, 0.12);
-    }
-
-    .visual-lesson-editor[contenteditable="true"] {
-      cursor: text;
+      border-color: var(--primary-main);
+      box-shadow: 0 0 0 3px rgba(26, 90, 122, 0.2);
     }
 
     .html-editor-wrap {
       display: none;
-      margin-top: 14px;
+      margin-top: 1rem;
     }
 
     .html-editor-wrap.show {
       display: block;
     }
 
-    .html-editor-wrap textarea {
-      min-height: 360px;
+    textarea {
+      width: 100%;
+      border-radius: 20px;
+      border: 1px solid var(--gray-300);
+      padding: 0.9rem;
+      font-family: monospace;
+      font-size: 0.9rem;
+      resize: vertical;
     }
 
-    .lesson-mode-note {
-      margin: 10px 0 0;
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: var(--azul-100);
-      color: var(--azul-800);
-      font-weight: 750;
-      font-size: 0.92rem;
+    /* subcards */
+    .subcard {
+      background: var(--gray-100);
+      border-radius: 24px;
+      padding: 1.3rem;
+      margin-top: 1.2rem;
+      border: 1px solid rgba(203, 213, 225, 0.6);
+    }
+
+    .subcard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .chip {
+      background: var(--primary-light);
+      padding: 0.25rem 1rem;
+      border-radius: 30px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--primary-deep);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.8rem;
+      margin-bottom: 0.3rem;
+      display: block;
+      color: var(--gray-700);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border-radius: 18px;
+      border: 1px solid var(--gray-300);
+      padding: 0.7rem 1rem;
+      background: var(--white);
+      transition: var(--transition);
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary-main);
+      box-shadow: 0 0 0 3px rgba(26,90,122,0.2);
+    }
+
+    /* botões modernos */
+    button, .link-btn {
+      border: none;
+      background: linear-gradient(100deg, var(--success), #1b5e20);
+      color: white;
+      font-weight: 700;
+      padding: 0.7rem 1.4rem;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    button.secondary {
+      background: linear-gradient(95deg, var(--primary-deep), var(--primary-main));
+    }
+
+    button.gray {
+      background: linear-gradient(95deg, #5b6e8c, #475569);
+    }
+
+    button.red {
+      background: linear-gradient(95deg, #d32f2f, #b71c1c);
+    }
+
+    button.purple {
+      background: linear-gradient(95deg, #7b1fa2, #4a148c);
+    }
+
+    button.outline-btn {
+      background: var(--white);
+      color: var(--primary-deep);
+      border: 1px solid var(--gray-300);
+      box-shadow: none;
+    }
+
+    button.outline-btn:hover {
+      background: var(--primary-light);
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 24px;
+      border: 1px solid var(--gray-300);
+      background: white;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    th {
+      background: var(--primary-light);
+      padding: 0.9rem;
+      font-weight: 700;
+      color: var(--primary-deep);
+    }
+
+    td {
+      padding: 0.8rem;
+      border-bottom: 1px solid var(--gray-300);
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .history-item {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 1rem;
+      border-left: 6px solid var(--accent-gold);
+      box-shadow: var(--shadow-sm);
     }
 
     .compact-btn {
-      padding: 10px 14px;
-      font-size: 0.88rem;
-      box-shadow: none;
+      padding: 0.45rem 1rem;
+      font-size: 0.75rem;
     }
 
-    .outline-btn {
-      background: #ffffff;
-      color: var(--azul-800);
-      border: 1px solid var(--cinza-200);
-      box-shadow: none;
-    }
-
-    .outline-btn:hover {
-      background: var(--azul-100);
-    }
-
-    iframe {
-      display: none;
-    }
-
-    @media (max-width: 960px) {
-      .hero-inner,
-      .top-card,
+    @media (max-width: 880px) {
       .panel-shell {
         grid-template-columns: 1fr;
       }
-
       .sidebar {
         position: static;
       }
-
+      .hero h1 {
+        font-size: 1.5rem;
+      }
       .dashboard-grid {
         grid-template-columns: 1fr;
       }
-    }
-
-    @media (max-width: 820px) {
-      main {
-        padding: 18px 10px 36px;
-      }
-
-      .card,
-      .subcard {
-        padding: 16px;
-        border-radius: 18px;
-      }
-
-      .form-grid,
-      .form-grid.two,
-      .classes-grid {
-        grid-template-columns: 1fr;
-      }
-
-      textarea {
-        min-height: 330px;
-      }
-
-      .actions button,
-      .actions .link-btn,
-      .lesson-tabs button {
-        width: 100%;
-        text-align: center;
-      }
-
       .lesson-tabs {
-        grid-template-columns: 1fr;
-      }
-
-      table {
-        min-width: 700px;
+        flex-direction: column;
       }
     }
   </style>
 </head>
-
 <body>
-  <header class="hero">
-    <div class="hero-inner">
-      <div>
-        <h1>Painel Admin EBD</h1>
-        <p>Gerencie lições, escala de professores, alterações e histórico em um só lugar.</p>
-      </div>
-
-      <div class="hero-badge">⚙️ Administração</div>
+<header class="hero">
+  <div class="hero-inner">
+    <div>
+      <h1>⚡ Admin EBD · Gestão completa</h1>
+      <p>Lições, escala, corpo docente e histórico em um só lugar</p>
     </div>
-  </header>
+    <div class="hero-badge">🔐 Área restrita</div>
+  </div>
+</header>
 
-  <main>
-    <section class="card login-card" id="telaLogin">
-      <div class="section-title">
-        <div>
-          <h2>Acesso ao painel</h2>
-          <p>Digite a senha uma única vez para acessar esta sessão.</p>
-        </div>
+<main>
+  <section class="card" id="telaLogin">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
+      <span style="font-size: 2rem;">🔑</span>
+      <div><h2 style="margin:0;">Acesso administrativo</h2><p style="color:var(--gray-500)">Senha única por sessão</p></div>
+    </div>
+    <label for="senha">Senha do painel</label>
+    <input id="senha" type="password" placeholder="Insira a senha mestre" />
+    <p class="help" style="font-size:0.8rem; margin:0.5rem 0 1rem;">Utilize a mesma senha configurada no Apps Script (SENHA_ADMIN).</p>
+    <div class="actions" style="display:flex; gap:1rem; flex-wrap:wrap;">
+      <button class="secondary" onclick="entrarNoPainel()">🔓 Acessar painel</button>
+      <a class="link-btn secondary" href="./index.html" target="_blank" style="background:#5b6e8c;">🌐 Site público</a>
+    </div>
+  </section>
+
+  <section class="card" id="barraPainel" style="display: none;">
+    <div style="display: flex; flex-wrap:wrap; justify-content: space-between; align-items: center; gap:1rem;">
+      <div><h2 style="margin:0;">✅ Painel ativo</h2><p class="help" style="margin:0;">Dados sincronizados com Google Sheets</p></div>
+      <div style="display: flex; gap:0.8rem; flex-wrap:wrap;">
+        <button class="secondary compact-btn" onclick="carregarTudo()">🔄 Recarregar</button>
+        <button class="gray compact-btn" onclick="sairDoPainel()">🚪 Sair</button>
+        <a class="link-btn secondary compact-btn" href="./index.html" target="_blank">🌐 Site público</a>
       </div>
+    </div>
+  </section>
 
-      <label for="senha">Senha do painel</label>
-      <input id="senha" type="password" placeholder="Digite a senha do painel" autocomplete="current-password" />
+  <div class="status" id="status"></div>
 
-      <p class="help">A senha precisa ser a mesma configurada no Apps Script em <strong>SENHA_ADMIN</strong>.</p>
+  <section id="painelAdmin" style="display: none;">
+    <div class="dashboard-grid">
+      <div class="metric-card"><span>📌 Modo</span><strong>Administração total</strong></div>
+      <div class="metric-card"><span>📖 Lições</span><strong>Jovens+Adultos / Adolescentes</strong></div>
+      <div class="metric-card"><span>👥 Corpo docente</span><strong>Cadastro e substituição</strong></div>
+      <div class="metric-card"><span>📅 Escala</span><strong>Histórico + alterações</strong></div>
+    </div>
 
-      <div class="actions">
-        <button class="secondary" type="button" onclick="entrarNoPainel()">Entrar no painel</button>
-        <a class="link-btn secondary" href="./index.html" target="_blank" rel="noopener">Abrir site público</a>
-      </div>
-    </section>
+    <div class="panel-shell">
+      <aside class="sidebar">
+        <div class="sidebar-title">⚙️ MENU ADMIN</div>
+        <button id="abaLicoesBtn" class="nav-btn active" onclick="abrirPainel('licoes')">📚 Lições interativas</button>
+        <button id="abaEscalaBtn" class="nav-btn" onclick="abrirPainel('escala')">📅 Gerenciar escala</button>
+        <button id="abaProfessoresBtn" class="nav-btn" onclick="abrirPainel('professores')">👥 Professores</button>
+        <button id="abaHistoricoBtn" class="nav-btn" onclick="abrirPainel('historico')">📜 Histórico</button>
+      </aside>
 
-    <section class="card" id="barraPainel" style="display: none;">
-      <div class="top-card">
-        <div>
-          <h2 style="margin:0;color:var(--azul-800);">Painel liberado</h2>
-          <p class="help">A senha fica ativa somente enquanto esta aba estiver aberta.</p>
-        </div>
-
-        <div class="actions">
-          <button class="secondary" type="button" onclick="carregarTudo()">Recarregar dados</button>
-          <button class="gray" type="button" onclick="sairDoPainel()">Sair do painel</button>
-          <a class="link-btn secondary" href="./index.html" target="_blank" rel="noopener">Abrir site</a>
-        </div>
-      </div>
-    </section>
-
-    <div class="status" id="status"></div>
-
-    <section id="painelAdmin" style="display: none;">
-      <div class="dashboard-grid">
-        <div class="metric-card">
-          <span>Status</span>
-          <strong>Admin ativo</strong>
-        </div>
-        <div class="metric-card">
-          <span>Lições</span>
-          <strong>Jovens e Adultos / Adolescentes</strong>
-        </div>
-        <div class="metric-card">
-          <span>Escala</span>
-          <strong>Controle completo</strong>
-        </div>
-        <div class="metric-card">
-          <span>Professores</span>
-          <strong>Cadastro e substituição</strong>
-        </div>
-      </div>
-
-      <div class="panel-shell">
-        <aside class="sidebar">
-          <div class="sidebar-title">Menu do painel</div>
-          <button id="abaLicoesBtn" class="nav-btn active" type="button" onclick="abrirPainel('licoes')">📚 Lições</button>
-          <button id="abaEscalaBtn" class="nav-btn" type="button" onclick="abrirPainel('escala')">📅 Escala</button>
-          <button id="abaProfessoresBtn" class="nav-btn" type="button" onclick="abrirPainel('professores')">👥 Professores</button>
-          <button id="abaHistoricoBtn" class="nav-btn" type="button" onclick="abrirPainel('historico')">📝 Histórico</button>
-        </aside>
-
-        <div class="content-area">
-          <div id="painelLicoes" class="admin-panel active card">
-            <div class="section-title">
-              <div>
-                <h2>Gerenciar lições</h2>
-                <p>Atualize o conteúdo que aparece na página pública.</p>
-              </div>
-              <span class="chip">HTML da lição</span>
+      <div class="content-area">
+        <!-- PAINEL LIÇÕES -->
+        <div id="painelLicoes" class="admin-panel active card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:1rem;">
+            <div><h2>📖 Conteúdo das aulas</h2><p>Edição visual e HTML</p></div>
+            <span class="chip">Salvamento automático via planilha</span>
+          </div>
+          <form id="formLicoes" target="envioOculto" method="POST">
+            <input type="hidden" name="acao" value="salvarLicoes" />
+            <input type="hidden" id="senhaForm" name="senha" />
+            <div class="lesson-tabs">
+              <button id="tabAdultos" class="tab-btn active" type="button" onclick="abrirAbaLicao('adultos')">🧑 Jovens e Adultos</button>
+              <button id="tabJovens" class="tab-btn" type="button" onclick="abrirAbaLicao('jovens')">🧑‍🎤 Adolescentes</button>
             </div>
 
-            <form id="formLicoes" method="POST" target="envioOculto">
-              <input type="hidden" name="acao" value="salvarLicoes" />
-              <input type="hidden" id="senhaForm" name="senha" value="" />
-
-              <div class="lesson-tabs">
-                <button id="tabAdultos" class="tab-btn active" type="button" onclick="abrirAbaLicao('adultos')">
-                  Jovens e Adultos
-                </button>
-
-                <button id="tabJovens" class="tab-btn" type="button" onclick="abrirAbaLicao('jovens')">
-                  Adolescentes
-                </button>
+            <div id="painelAdultos" class="editor-panel active">
+              <div class="lesson-workspace">
+                <div class="lesson-editor-card">
+                  <div class="lesson-toolbar">
+                    <div><strong>✍️ Editor visual</strong><span style="display:block; font-size:0.7rem;">clique e edite diretamente</span></div>
+                    <div style="display:flex; gap:0.5rem;">
+                      <button type="button" class="outline-btn compact-btn" onclick="alternarHtml('adultos')">🔧 HTML avançado</button>
+                      <button type="button" class="gray compact-btn" onclick="sincronizarVisual('adultos')">🔄 Sincronizar</button>
+                      <button type="button" class="red compact-btn" onclick="limparCampo('adultos')">🗑️ Limpar</button>
+                    </div>
+                  </div>
+                  <div id="editorVisualAdultos" class="visual-lesson-editor" contenteditable="true"></div>
+                  <div id="htmlWrapAdultos" class="html-editor-wrap">
+                    <label>📝 HTML da lição (Jovens/Adultos)</label>
+                    <textarea id="adultos" name="adultos" rows="12"></textarea>
+                  </div>
+                  <div class="lesson-mode-note" style="background:var(--primary-light); border-radius:18px; padding:0.7rem; margin-top:1rem; font-size:0.8rem;">💡 Dica: altere o conteúdo visualmente ou cole HTML e clique em "Sincronizar".</div>
+                </div>
               </div>
+            </div>
 
-              <div id="painelAdultos" class="editor-panel active">
-                <div class="lesson-workspace">
-                  <div class="lesson-editor-card">
-                    <div class="lesson-toolbar">
-                      <div class="lesson-toolbar-title">
-                        <strong>Jovens e Adultos</strong>
-                        <span>Edite visualmente a lição como ela aparecerá no site.</span>
-                      </div>
-
-                      <div class="lesson-toolbar-actions">
-                        <button class="outline-btn compact-btn" type="button" onclick="alternarHtml('adultos')">Editar HTML avançado</button>
-                        <button class="gray compact-btn" type="button" onclick="sincronizarVisual('adultos')">Atualizar visual</button>
-                        <button class="red compact-btn" type="button" onclick="limparCampo('adultos')">Limpar</button>
-                      </div>
+            <div id="painelJovens" class="editor-panel">
+              <div class="lesson-workspace">
+                <div class="lesson-editor-card">
+                  <div class="lesson-toolbar">
+                    <div><strong>🎸 Editor visual – Adolescentes</strong></div>
+                    <div style="display:flex; gap:0.5rem;">
+                      <button type="button" class="outline-btn compact-btn" onclick="alternarHtml('jovens')">🔧 HTML avançado</button>
+                      <button type="button" class="gray compact-btn" onclick="sincronizarVisual('jovens')">🔄 Sincronizar</button>
+                      <button type="button" class="red compact-btn" onclick="limparCampo('jovens')">🗑️ Limpar</button>
                     </div>
-
-                    <div id="editorVisualAdultos" class="visual-lesson-editor" contenteditable="true"></div>
-
-                    <div class="lesson-mode-note">
-                      Dica: para colar uma lição pronta em HTML, clique em <strong>Editar HTML avançado</strong>, cole o código e depois clique em <strong>Atualizar visual</strong>.
-                    </div>
-
-                    <div id="htmlWrapAdultos" class="html-editor-wrap">
-                      <label for="adultos">HTML completo da lição</label>
-                      <textarea id="adultos" name="adultos" placeholder="Cole aqui o modelo HTML da lição..."></textarea>
-                    </div>
-
-                    <p class="help">Este campo será exibido no site como <strong>Jovens e Adultos</strong>.</p>
+                  </div>
+                  <div id="editorVisualJovens" class="visual-lesson-editor" contenteditable="true"></div>
+                  <div id="htmlWrapJovens" class="html-editor-wrap">
+                    <label>📝 HTML Lição Adolescentes</label>
+                    <textarea id="jovens" name="jovens" rows="12"></textarea>
                   </div>
                 </div>
               </div>
+            </div>
+            <div class="actions" style="margin-top:1.5rem;">
+              <button type="button" onclick="salvarLicoes()">💾 Salvar lições</button>
+              <button type="button" class="secondary" onclick="carregarLicoes()">📥 Carregar últimas versões</button>
+            </div>
+          </form>
+        </div>
 
-              <div id="painelJovens" class="editor-panel">
-                <div class="lesson-workspace">
-                  <div class="lesson-editor-card">
-                    <div class="lesson-toolbar">
-                      <div class="lesson-toolbar-title">
-                        <strong>Adolescentes</strong>
-                        <span>Edite visualmente a lição como ela aparecerá no site.</span>
-                      </div>
-
-                      <div class="lesson-toolbar-actions">
-                        <button class="outline-btn compact-btn" type="button" onclick="alternarHtml('jovens')">Editar HTML avançado</button>
-                        <button class="gray compact-btn" type="button" onclick="sincronizarVisual('jovens')">Atualizar visual</button>
-                        <button class="red compact-btn" type="button" onclick="limparCampo('jovens')">Limpar</button>
-                      </div>
-                    </div>
-
-                    <div id="editorVisualJovens" class="visual-lesson-editor" contenteditable="true"></div>
-
-                    <div class="lesson-mode-note">
-                      Dica: para colar uma lição pronta em HTML, clique em <strong>Editar HTML avançado</strong>, cole o código e depois clique em <strong>Atualizar visual</strong>.
-                    </div>
-
-                    <div id="htmlWrapJovens" class="html-editor-wrap">
-                      <label for="jovens">HTML completo da lição</label>
-                      <textarea id="jovens" name="jovens" placeholder="Cole aqui o modelo HTML da lição..."></textarea>
-                    </div>
-
-                    <p class="help">Este campo será exibido no site como <strong>Adolescentes</strong>.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="actions">
-                <button id="btnSalvarLicoes" type="button" onclick="salvarLicoes()">Salvar lições</button>
-                <button class="secondary" type="button" onclick="carregarLicoes()">Carregar lições atuais</button>
-              </div>
-            </form>
+        <!-- PAINEL ESCALA -->
+        <div id="painelEscala" class="admin-panel card">
+          <div><h2>📅 Escala de professores</h2><p>Edição, datas e classes</p></div>
+          <div class="subcard"><div class="subcard-header"><h3>✏️ Alterar professor por data</h3><span class="chip">edição rápida</span></div>
+            <div class="form-grid">
+              <div><label>Data</label><select id="escalaDataEditar" onchange="preencherProfessorAtual()"></select></div>
+              <div><label>Classe</label><select id="escalaClasseEditar" onchange="preencherProfessorAtual()"></select></div>
+              <div><label>Professor</label><input id="escalaProfessorEditar" placeholder="Nome do professor" /></div>
+            </div>
+            <div class="actions"><button onclick="adminSalvarProfessor()">✅ Salvar alteração</button></div>
           </div>
 
-          <div id="painelEscala" class="admin-panel card">
-            <div class="section-title">
-              <div>
-                <h2>Gerenciar escala</h2>
-                <p>Altere professores, datas e nomes das classes.</p>
-              </div>
-              <span class="chip">Google Sheets</span>
-            </div>
-
-            <div class="subcard">
-              <div class="subcard-header">
-                <h3>Alterar professor em uma data</h3>
-                <span class="chip">Edição rápida</span>
-              </div>
-
-              <div class="form-grid">
-                <div>
-                  <label for="escalaDataEditar">Data</label>
-                  <select id="escalaDataEditar" onchange="preencherProfessorAtual()"></select>
-                </div>
-
-                <div>
-                  <label for="escalaClasseEditar">Classe</label>
-                  <select id="escalaClasseEditar" onchange="preencherProfessorAtual()"></select>
-                </div>
-
-                <div>
-                  <label for="escalaProfessorEditar">Professor</label>
-                  <input id="escalaProfessorEditar" type="text" placeholder="Novo nome do professor" />
-                </div>
-              </div>
-
-              <div class="actions">
-                <button type="button" onclick="adminSalvarProfessor()">Salvar professor</button>
-              </div>
-            </div>
-
-            <div class="subcard">
-              <div class="subcard-header">
-                <h3>Adicionar nova data</h3>
-                <span class="chip">Novo domingo</span>
-              </div>
-
-              <div class="form-grid one">
-                <div>
-                  <label for="novaDataEscala">Nova data</label>
-                  <input id="novaDataEscala" type="date" />
-                </div>
-              </div>
-
-              <div id="camposNovaData" class="classes-grid"></div>
-
-              <div class="actions">
-                <button type="button" onclick="adminAdicionarData()">Adicionar data na escala</button>
-              </div>
-            </div>
-
-            <div class="subcard">
-              <div class="subcard-header">
-                <h3>Remover data</h3>
-                <span class="chip">Com confirmação</span>
-              </div>
-
-              <div class="form-grid two">
-                <div>
-                  <label for="dataRemover">Data para remover</label>
-                  <select id="dataRemover"></select>
-                </div>
-
-                <div>
-                  <label>&nbsp;</label>
-                  <button class="red" type="button" onclick="adminRemoverData()">Remover data</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="subcard">
-              <div class="subcard-header">
-                <h3>Renomear classe</h3>
-                <span class="chip">Cabeçalho da planilha</span>
-              </div>
-
-              <div class="form-grid">
-                <div>
-                  <label for="classeRenomear">Classe atual</label>
-                  <select id="classeRenomear"></select>
-                </div>
-
-                <div>
-                  <label for="novoNomeClasse">Novo nome</label>
-                  <input id="novoNomeClasse" type="text" placeholder="Ex: Juniores" />
-                </div>
-
-                <div>
-                  <label>&nbsp;</label>
-                  <button class="purple" type="button" onclick="adminRenomearClasse()">Renomear classe</button>
-                </div>
-              </div>
-
-              <p class="help">Esta alteração muda o nome da coluna na aba <strong>Escala EBD</strong>.</p>
-            </div>
-
-            <div class="subcard">
-              <div class="subcard-header">
-                <h3>Escala atual</h3>
-                <button class="secondary" type="button" onclick="carregarEscala()">Atualizar escala</button>
-              </div>
-
-              <div class="table-wrap">
-                <table id="tabelaEscalaAdmin">
-                  <thead></thead>
-                  <tbody></tbody>
-                </table>
-              </div>
-            </div>
+          <div class="subcard"><div class="subcard-header"><h3>➕ Nova data na escala</h3></div>
+            <div><label>Data (Domingo)</label><input type="date" id="novaDataEscala" /></div>
+            <div id="camposNovaData" class="classes-grid" style="display:grid; gap:0.8rem; margin-top:1rem;"></div>
+            <div class="actions"><button onclick="adminAdicionarData()">Adicionar data</button></div>
           </div>
 
-
-          <div id="painelProfessores" class="admin-panel card">
-            <div class="section-title">
-              <div>
-                <h2>Gerenciar professores</h2>
-                <p>Cadastre, edite, inative, substitua professores e mude professores de classe.</p>
-              </div>
-              <button class="secondary" type="button" onclick="carregarProfessores()">Atualizar professores</button>
-            </div>
-
-            <div class="subcard">
-              <div class="subcard-header">
-                <h3>Adicionar novo professor</h3>
-                <span class="chip">Cadastro</span>
-              </div>
-
-              <div class="form-grid">
-                <div>
-                  <label for="profNovoNome">Nome do professor</label>
-                  <input id="profNovoNome" type="text" placeholder="Ex: Ana Paula" />
-                </div>
-
-                <div>
-                  <label for="profNovaClasse">Classe preferencial</label>
-                  <select id="profNovaClasse"></select>
-                </div>
-
-                <div>
-                  <label for="profNovoStatus">Status</label>
-                  <select id="profNovoStatus">
-                    <option value="Ativo">Ativo</option>
-                    <option value="Inativo">Inativo</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="form-grid one" style="margin-top:14px;">
-                <div>
-                  <label for="profNovaObs">Observação</label>
-                  <input id="profNovaObs" type="text" placeholder="Ex: Novo professor da classe" />
-                </div>
-              </div>
-
-              <div class="actions">
-                <button type="button" onclick="adicionarProfessorAdmin()">Adicionar professor</button>
-              </div>
-            </div>
-
-            <div class="subcard">
-              <div class="subcard-header">
-                <h3>Editar ou inativar professor</h3>
-                <span class="chip">Cadastro existente</span>
-              </div>
-
-              <div class="form-grid">
-                <div>
-                  <label for="profSelecionado">Professor</label>
-                  <select id="profSelecionado" onchange="preencherProfessorSelecionado()"></select>
-                </div>
-
-                <div>
-                  <label for="profEditarNome">Nome</label>
-                  <input id="profEditarNome" type="text" />
-                </div>
-
-                <div>
-                  <label for="profEditarClasse">Classe</label>
-                  <select id="profEditarClasse"></select>
-                </div>
-              </div>
-
-              <div class="form-grid two" style="margin-top:14px;">
-                <div>
-                  <label for="profEditarStatus">Status</label>
-                  <select id="profEditarStatus">
-                    <option value="Ativo">Ativo</option>
-                    <option value="Inativo">Inativo</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label for="profEditarObs">Observação</label>
-                  <input id="profEditarObs" type="text" />
-                </div>
-              </div>
-
-              <div class="actions">
-                <button type="button" onclick="atualizarProfessorAdmin()">Salvar alterações</button>
-                <button class="red" type="button" onclick="inativarProfessorAdmin()">Inativar professor</button>
-              </div>
-            </div>
-
-            <div class="subcard">
-              <div class="subcard-header">
-                <h3>Substituir professor na escala</h3>
-                <span class="chip">Quando alguém sai do cargo</span>
-              </div>
-
-              <div class="form-grid">
-                <div>
-                  <label for="profSubAntigo">Professor que saiu</label>
-                  <select id="profSubAntigo"></select>
-                </div>
-
-                <div>
-                  <label for="profSubNovo">Novo professor</label>
-                  <input id="profSubNovo" type="text" list="listaProfessoresDatalist" placeholder="Digite ou escolha um professor" />
-                </div>
-
-                <div>
-                  <label for="profSubClasse">Classe</label>
-                  <select id="profSubClasse"></select>
-                </div>
-              </div>
-
-              <div class="form-grid two" style="margin-top:14px;">
-                <div>
-                  <label for="profSubAlcance">Aplicar em</label>
-                  <select id="profSubAlcance">
-                    <option value="futuras">Somente datas futuras</option>
-                    <option value="toda">Toda a escala</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label for="profSubInativar">Professor antigo</label>
-                  <select id="profSubInativar">
-                    <option value="sim">Inativar professor antigo</option>
-                    <option value="nao">Manter professor antigo ativo</option>
-                  </select>
-                </div>
-              </div>
-
-              <p class="help">
-                Esta ação troca o professor antigo pelo novo nas datas escolhidas e registra no histórico.
-              </p>
-
-              <div class="actions">
-                <button class="purple" type="button" onclick="substituirProfessorAdmin()">Substituir professor</button>
-              </div>
-            </div>
-
-            <div class="subcard">
-              <div class="subcard-header">
-                <h3>Mudar professor de classe</h3>
-                <span class="chip">Cadastro e escala</span>
-              </div>
-
-              <div class="form-grid">
-                <div>
-                  <label for="profMudarNome">Professor</label>
-                  <select id="profMudarNome"></select>
-                </div>
-
-                <div>
-                  <label for="profMudarClasse">Nova classe</label>
-                  <select id="profMudarClasse"></select>
-                </div>
-
-                <div>
-                  <label for="profMudarAplicar">Aplicar na escala?</label>
-                  <select id="profMudarAplicar">
-                    <option value="nao">Não, só mudar cadastro</option>
-                    <option value="futuras">Sim, em datas futuras</option>
-                    <option value="toda">Sim, em toda a escala</option>
-                  </select>
-                </div>
-              </div>
-
-              <p class="help">
-                Se aplicar na escala, o sistema remove o professor da classe antiga e coloca na nova classe nas datas encontradas.
-              </p>
-
-              <div class="actions">
-                <button type="button" onclick="mudarProfessorClasseAdmin()">Mudar professor de classe</button>
-              </div>
-            </div>
-
-            <div class="subcard">
-              <div class="subcard-header">
-                <h3>Professores cadastrados</h3>
-                <button class="secondary" type="button" onclick="carregarProfessores()">Atualizar lista</button>
-              </div>
-
-              <datalist id="listaProfessoresDatalist"></datalist>
-
-              <div class="table-wrap">
-                <table id="tabelaProfessores">
-                  <thead></thead>
-                  <tbody></tbody>
-                </table>
-              </div>
-            </div>
+          <div class="subcard"><div class="subcard-header"><h3>🗑️ Remover data</h3></div>
+            <div class="form-grid two"><div><label>Data</label><select id="dataRemover"></select></div><div><label> </label><button class="red" onclick="adminRemoverData()">Remover</button></div></div>
           </div>
 
-          <div id="painelHistorico" class="admin-panel card">
-            <div class="section-title">
-              <div>
-                <h2>Histórico de alterações</h2>
-                <p>Últimas alterações feitas na escala.</p>
-              </div>
+          <div class="subcard"><div class="subcard-header"><h3>🏷️ Renomear classe</h3></div>
+            <div class="form-grid"><div><label>Classe atual</label><select id="classeRenomear"></select></div><div><label>Novo nome</label><input id="novoNomeClasse" placeholder="Ex: Juniores" /></div><div><label> </label><button class="purple" onclick="adminRenomearClasse()">Renomear</button></div></div>
+          </div>
 
-              <button class="secondary" type="button" onclick="carregarHistorico()">Atualizar histórico</button>
-            </div>
-
-            <div id="listaHistorico" class="history-list"></div>
+          <div class="subcard"><div class="subcard-header"><h3>📋 Escala completa</h3><button class="secondary compact-btn" onclick="carregarEscala()">Atualizar tabela</button></div>
+            <div class="table-wrap"><table id="tabelaEscalaAdmin"><thead></thead><tbody></tbody></table></div>
           </div>
         </div>
+
+        <!-- PAINEL PROFESSORES -->
+        <div id="painelProfessores" class="admin-panel card">
+          <div><h2>👥 Corpo docente</h2><p>Cadastro, status e substituições</p></div>
+          <div class="subcard"><h3>➕ Novo professor</h3><div class="form-grid"><div><label>Nome</label><input id="profNovoNome" /></div><div><label>Classe preferencial</label><select id="profNovaClasse"></select></div><div><label>Status</label><select id="profNovoStatus"><option>Ativo</option><option>Inativo</option></select></div><div><label>Obs</label><input id="profNovaObs" /></div></div><div class="actions"><button onclick="adicionarProfessorAdmin()">Adicionar</button></div></div>
+          <div class="subcard"><h3>✏️ Editar / Inativar</h3><div class="form-grid"><div><label>Professor</label><select id="profSelecionado" onchange="preencherProfessorSelecionado()"></select></div><div><label>Nome</label><input id="profEditarNome" /></div><div><label>Classe</label><select id="profEditarClasse"></select></div><div><label>Status</label><select id="profEditarStatus"><option>Ativo</option><option>Inativo</option></select></div><div><label>Obs</label><input id="profEditarObs" /></div></div><div class="actions"><button onclick="atualizarProfessorAdmin()">Salvar alterações</button><button class="red" onclick="inativarProfessorAdmin()">Inativar</button></div></div>
+
+          <div class="subcard"><h3>🔄 Substituir professor na escala</h3><div class="form-grid"><div><label>Professor que saiu</label><select id="profSubAntigo"></select></div><div><label>Novo professor</label><input id="profSubNovo" list="listaProfessoresDatalist" /></div><div><label>Classe (opcional)</label><select id="profSubClasse"></select></div><div><label>Aplicar em</label><select id="profSubAlcance"><option value="futuras">Somente futuras</option><option value="toda">Toda escala</option></select></div><div><label>Inativar antigo?</label><select id="profSubInativar"><option value="sim">Sim, inativar</option><option value="nao">Manter ativo</option></select></div></div><div class="actions"><button class="purple" onclick="substituirProfessorAdmin()">Substituir</button></div></div>
+
+          <div class="subcard"><h3>🔄 Mudar professor de classe</h3><div class="form-grid"><div><label>Professor</label><select id="profMudarNome"></select></div><div><label>Nova classe</label><select id="profMudarClasse"></select></div><div><label>Aplicar na escala</label><select id="profMudarAplicar"><option value="nao">Não</option><option value="futuras">Futuras</option><option value="toda">Toda escala</option></select></div></div><div class="actions"><button onclick="mudarProfessorClasseAdmin()">Mudar classe</button></div></div>
+
+          <div class="subcard"><datalist id="listaProfessoresDatalist"></datalist><h3>📋 Professores cadastrados</h3><div class="table-wrap"><table id="tabelaProfessores"><thead></thead><tbody></tbody></table></div></div>
+        </div>
+
+        <div id="painelHistorico" class="admin-panel card">
+          <div style="display:flex; justify-content:space-between;"><h2>📜 Histórico de ações</h2><button class="secondary compact-btn" onclick="carregarHistorico()">Atualizar</button></div>
+          <div id="listaHistorico" class="history-list" style="margin-top:1rem;"></div>
+        </div>
       </div>
-    </section>
-  </main>
-
-  <iframe name="envioOculto" id="envioOculto"></iframe>
-
-  <script>
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec";
-
-    const modeloPadrao = `
-<div style="font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; max-width: 100%; background: white; border-radius: 1rem; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-  <div style="background: linear-gradient(125deg, #0b2b3b, #1a4a5f); padding: 1.5rem; color: white; text-align: center;">
-    <h2 style="margin: 0 0 0.3rem; font-size: 1.4rem;">Título da lição</h2>
-
-    <div style="background: rgba(255,255,240,0.1); margin-top: 0.8rem; padding: 0.6rem; border-radius: 20px; font-style: italic; font-size: 0.85rem;">
-      Texto bíblico principal da lição.
     </div>
-  </div>
-
-  <div style="padding: 1.5rem;">
-    <div style="background: #f0f4f8; border-radius: 0.8rem; padding: 0.8rem 1rem; margin-bottom: 1rem;">
-      <strong>📌 OBJETIVOS DA LIÇÃO:</strong><br>
-      ✓ Primeiro objetivo;<br>
-      ✓ Segundo objetivo;<br>
-      ✓ Terceiro objetivo.
-    </div>
-
-    <div style="background: #f0f4f8; border-radius: 0.8rem; padding: 0.8rem 1rem; margin-bottom: 1rem;">
-      <strong>📖 TEXTOS DE REFERÊNCIA:</strong><br>
-      Escreva aqui os textos de referência.
-    </div>
-
-    <div style="background: #f0f4f8; border-radius: 0.8rem; padding: 0.8rem 1rem; margin-bottom: 1rem;">
-      <strong>✅ VERDADE APLICADA:</strong>
-      Escreva aqui a verdade aplicada.
-    </div>
-
-    <div style="background: #e8f0f5; border-radius: 0.8rem; padding: 0.8rem 1rem; margin-bottom: 1rem;">
-      <strong>🏁 CONCLUSÃO:</strong><br>
-      Escreva aqui a conclusão.
-    </div>
-  </div>
-</div>
-`.trim();
-
-    const senha = document.getElementById("senha");
-    const senhaForm = document.getElementById("senhaForm");
-    const form = document.getElementById("formLicoes");
-    const adultos = document.getElementById("adultos");
-    const jovens = document.getElementById("jovens");
-    const statusBox = document.getElementById("status");
-    const editorVisualAdultos = document.getElementById("editorVisualAdultos");
-    const editorVisualJovens = document.getElementById("editorVisualJovens");
-    const htmlWrapAdultos = document.getElementById("htmlWrapAdultos");
-    const htmlWrapJovens = document.getElementById("htmlWrapJovens");
-    const telaLogin = document.getElementById("telaLogin");
-    const barraPainel = document.getElementById("barraPainel");
-    const painelAdmin = document.getElementById("painelAdmin");
-    const btnSalvarLicoes = document.getElementById("btnSalvarLicoes");
-
-    let escalaCache = [];
-    let classesCache = [];
-    let professoresCache = [];
-    let salvamentoEmAndamento = false;
-    let timerConfirmacaoSalvamento = null;
-
-    function mostrarStatus(tipo, mensagem) {
-      statusBox.className = "status show " + tipo;
-      statusBox.textContent = mensagem;
-
-      if (painelAdmin.style.display !== "none") {
-        statusBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }
-    }
-
-    function obterSenhaSessao() {
-      return sessionStorage.getItem("senhaAdminEBD") || "";
-    }
-
-    function salvarSenhaSessao(valor) {
-      sessionStorage.setItem("senhaAdminEBD", valor);
-    }
-
-    function limparSenhaSessao() {
-      sessionStorage.removeItem("senhaAdminEBD");
-    }
-
-    function mostrarPainelLogado() {
-      telaLogin.style.display = "none";
-      barraPainel.style.display = "block";
-      painelAdmin.style.display = "block";
-    }
-
-    function mostrarTelaLogin() {
-      telaLogin.style.display = "block";
-      barraPainel.style.display = "none";
-      painelAdmin.style.display = "none";
-    }
-
-    function entrarNoPainel() {
-      const senhaDigitada = senha.value.trim();
-
-      if (!senhaDigitada) {
-        mostrarStatus("error", "Digite a senha do painel.");
-        return;
-      }
-
-      salvarSenhaSessao(senhaDigitada);
-      senhaForm.value = senhaDigitada;
-
-      mostrarPainelLogado();
-      mostrarStatus("success", "Painel liberado nesta sessão.");
-
-      carregarTudo();
-    }
-
-    function sairDoPainel() {
-      limparSenhaSessao();
-      senha.value = "";
-      senhaForm.value = "";
-      mostrarTelaLogin();
-      mostrarStatus("info", "Você saiu do painel. Digite a senha novamente para acessar.");
-    }
-
-    function obterSenhaObrigatoria() {
-      const senhaSalva = obterSenhaSessao();
-
-      if (!senhaSalva) {
-        mostrarStatus("error", "Sessão expirada. Digite a senha novamente.");
-        mostrarTelaLogin();
-        throw new Error("Sessão expirada.");
-      }
-
-      return senhaSalva;
-    }
-
-    function abrirPainel(nome) {
-      const paineis = ["licoes", "escala", "professores", "historico"];
-
-      paineis.forEach((painel) => {
-        document.getElementById("painel" + painel.charAt(0).toUpperCase() + painel.slice(1)).classList.toggle("active", painel === nome);
-        document.getElementById("aba" + painel.charAt(0).toUpperCase() + painel.slice(1) + "Btn").classList.toggle("active", painel === nome);
-      });
-
-      if (nome === "escala") {
-        carregarEscala();
-      }
-
-      if (nome === "professores") {
-        carregarProfessores();
-      }
-
-      if (nome === "historico") {
-        carregarHistorico();
-      }
-    }
-
-    function abrirAbaLicao(aba) {
-      const isAdultos = aba === "adultos";
-
-      document.getElementById("tabAdultos").classList.toggle("active", isAdultos);
-      document.getElementById("tabJovens").classList.toggle("active", !isAdultos);
-
-      document.getElementById("painelAdultos").classList.toggle("active", isAdultos);
-      document.getElementById("painelJovens").classList.toggle("active", !isAdultos);
-    }
-
-    function limparHtmlColado(html) {
-      return String(html || "")
-        .trim()
-        .replace(/^```html\s*/i, "")
-        .replace(/^```\s*/i, "")
-        .replace(/```$/i, "")
-        .trim();
-    }
-
-    function atualizarEditoresVisuais() {
-      if (editorVisualAdultos) {
-        editorVisualAdultos.innerHTML = adultos.value || "<p>Nenhuma lição preenchida.</p>";
-      }
-
-      if (editorVisualJovens) {
-        editorVisualJovens.innerHTML = jovens.value || "<p>Nenhuma lição preenchida.</p>";
-      }
-    }
-
-    function sincronizarHtmlAPartirDoVisual() {
-      if (editorVisualAdultos) {
-        adultos.value = limparHtmlColado(editorVisualAdultos.innerHTML);
-      }
-
-      if (editorVisualJovens) {
-        jovens.value = limparHtmlColado(editorVisualJovens.innerHTML);
-      }
-    }
-
-    function sincronizarVisual(campo) {
-      if (campo === "adultos") {
-        adultos.value = limparHtmlColado(adultos.value);
-        editorVisualAdultos.innerHTML = adultos.value || "<p>Nenhuma lição preenchida.</p>";
-        mostrarStatus("info", "Visual de Jovens e Adultos atualizado.");
-      }
-
-      if (campo === "jovens") {
-        jovens.value = limparHtmlColado(jovens.value);
-        editorVisualJovens.innerHTML = jovens.value || "<p>Nenhuma lição preenchida.</p>";
-        mostrarStatus("info", "Visual de Adolescentes atualizado.");
-      }
-    }
-
-    function alternarHtml(campo) {
-      if (campo === "adultos") {
-        htmlWrapAdultos.classList.toggle("show");
-
-        if (htmlWrapAdultos.classList.contains("show")) {
-          adultos.value = limparHtmlColado(editorVisualAdultos.innerHTML);
-        } else {
-          sincronizarVisual("adultos");
-        }
-      }
-
-      if (campo === "jovens") {
-        htmlWrapJovens.classList.toggle("show");
-
-        if (htmlWrapJovens.classList.contains("show")) {
-          jovens.value = limparHtmlColado(editorVisualJovens.innerHTML);
-        } else {
-          sincronizarVisual("jovens");
-        }
-      }
-    }
-
-    function limparCampo(campo) {
-      const confirmar = confirm("Tem certeza que deseja limpar este campo? Isso não salva automaticamente.");
-
-      if (!confirmar) {
-        return;
-      }
-
-      if (campo === "adultos") {
-        adultos.value = "";
-        adultos.value = "";
-        editorVisualAdultos.innerHTML = "<p>Nenhuma lição preenchida.</p>";
-        if (htmlWrapAdultos) htmlWrapAdultos.classList.remove("show");
-        mostrarStatus("info", "Campo Jovens e Adultos limpo. Nada foi salvo ainda.");
-      }
-
-      if (campo === "jovens") {
-        jovens.value = "";
-        jovens.value = "";
-        editorVisualJovens.innerHTML = "<p>Nenhuma lição preenchida.</p>";
-        if (htmlWrapJovens) htmlWrapJovens.classList.remove("show");
-        mostrarStatus("info", "Campo Adolescentes limpo. Nada foi salvo ainda.");
-      }
-    }
-
-    function chamarAppsScript(parametros) {
-      return new Promise((resolve, reject) => {
-        const callbackName = "callbackAdminEBD_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
-        const script = document.createElement("script");
-        const query = new URLSearchParams(parametros);
-
-        query.append("callback", callbackName);
-        query.append("t", Date.now());
-
-        const timeout = setTimeout(() => {
-          if (window[callbackName]) {
-            delete window[callbackName];
-          }
-
-          script.remove();
-          reject(new Error("Tempo esgotado ao conectar ao Apps Script."));
-        }, 15000);
-
-        window[callbackName] = function (resposta) {
-          clearTimeout(timeout);
-          delete window[callbackName];
-          script.remove();
-          resolve(resposta);
-        };
-
-        script.onerror = function () {
-          clearTimeout(timeout);
-          delete window[callbackName];
-          script.remove();
-          reject(new Error("Não foi possível conectar ao Apps Script."));
-        };
-
-        script.src = APPS_SCRIPT_URL + "?" + query.toString();
-        document.body.appendChild(script);
-      });
-    }
-
-    async function carregarTudo() {
-      await carregarLicoes();
-      await carregarEscala();
-      await carregarProfessores();
-      await carregarHistorico();
-    }
-
-    async function carregarLicoes() {
-      mostrarStatus("info", "Carregando lições atuais...");
-
-      try {
-        const dados = await chamarAppsScript({ acao: "licoes" });
-
-        if (!dados || !dados.sucesso) {
-          throw new Error((dados && dados.mensagem) || "Não foi possível carregar as lições.");
-        }
-
-        adultos.value = dados.licoes && dados.licoes.adultos
-          ? limparHtmlColado(dados.licoes.adultos)
-          : modeloPadrao;
-
-        jovens.value = dados.licoes && dados.licoes.jovens
-          ? limparHtmlColado(dados.licoes.jovens)
-          : modeloPadrao;
-
-        atualizarEditoresVisuais();
-
-        mostrarStatus("success", "Dados carregados.");
-      } catch (erro) {
-        adultos.value = modeloPadrao;
-        jovens.value = modeloPadrao;
-
-        mostrarStatus("error", (erro && erro.message) || "Erro ao carregar lições.");
-      }
-    }
-
-    window.addEventListener("message", function (event) {
-      const resposta = event.data;
-
-      if (!resposta || typeof resposta !== "object") {
-        return;
-      }
-
-      if (resposta.origem !== "appsScriptSalvarLicoes") {
-        return;
-      }
-
-      salvamentoEmAndamento = false;
-
-      if (timerConfirmacaoSalvamento) {
-        clearTimeout(timerConfirmacaoSalvamento);
-        timerConfirmacaoSalvamento = null;
-      }
-
-      if (btnSalvarLicoes) {
-        btnSalvarLicoes.disabled = false;
-        btnSalvarLicoes.textContent = "Salvar lições";
-      }
-
-      if (resposta.sucesso) {
-        mostrarStatus("success", resposta.mensagem || "Lições salvas com sucesso.");
-        carregarLicoes();
-        return;
-      }
-
-      mostrarStatus("error", resposta.mensagem || "O Apps Script respondeu, mas não conseguiu salvar.");
-    });
-
-    function salvarLicoes() {
-      const senhaSalva = obterSenhaObrigatoria();
-
-      sincronizarHtmlAPartirDoVisual();
-
-      adultos.value = limparHtmlColado(adultos.value);
-      jovens.value = limparHtmlColado(jovens.value);
-
-      if (!adultos.value.trim() && !jovens.value.trim()) {
-        mostrarStatus("error", "Preencha pelo menos uma lição antes de salvar.");
-        return;
-      }
-
-      senhaForm.value = senhaSalva;
-      form.action = APPS_SCRIPT_URL;
-
-      salvamentoEmAndamento = true;
-
-      if (btnSalvarLicoes) {
-        btnSalvarLicoes.disabled = true;
-        btnSalvarLicoes.textContent = "Salvando...";
-      }
-
-      mostrarStatus("info", "Enviando para o Apps Script...");
-
-      form.submit();
-
-      timerConfirmacaoSalvamento = setTimeout(function () {
-        if (!salvamentoEmAndamento) {
-          return;
-        }
-
-        salvamentoEmAndamento = false;
-
-        if (btnSalvarLicoes) {
-          btnSalvarLicoes.disabled = false;
-          btnSalvarLicoes.textContent = "Salvar lições";
-        }
-
-        mostrarStatus(
-          "error",
-          "O painel enviou as lições, mas não recebeu confirmação do Apps Script. Verifique senha, implantação e permissões."
-        );
-      }, 12000);
-    }
-
-    async function carregarEscala() {
-      try {
-        const dados = await chamarAppsScript({ acao: "listar" });
-
-        if (!dados || !dados.sucesso) {
-          throw new Error((dados && dados.mensagem) || "Não foi possível carregar a escala.");
-        }
-
-        escalaCache = dados.escala || [];
-        classesCache = escalaCache.length ? Object.keys(escalaCache[0]).filter((item) => item !== "Data") : [];
-
-        preencherSelectsEscala();
-        renderizarTabelaEscala();
-      } catch (erro) {
-        mostrarStatus("error", erro.message || "Erro ao carregar escala.");
-      }
-    }
-
-    function preencherSelectsEscala() {
-      const datas = escalaCache.map((linha) => linha.Data).filter(Boolean);
-
-      preencherSelect("escalaDataEditar", datas);
-      preencherSelect("dataRemover", datas);
-      preencherSelect("escalaClasseEditar", classesCache);
-      preencherSelect("classeRenomear", classesCache);
-      preencherSelect("profNovaClasse", classesCache);
-      preencherSelect("profEditarClasse", classesCache);
-      preencherSelect("profMudarClasse", classesCache);
-
-      const classesComTodas = ["Todas as classes"].concat(classesCache);
-      preencherSelect("profSubClasse", classesComTodas);
-
-      renderizarCamposNovaData();
-      preencherProfessorAtual();
-    }
-
-    function preencherSelect(id, itens) {
-      const select = document.getElementById(id);
-
-      if (!select) {
-        return;
-      }
-
-      select.innerHTML = "";
-
-      itens.forEach((item) => {
-        const option = document.createElement("option");
-        option.value = item;
-        option.textContent = item;
-        select.appendChild(option);
-      });
-    }
-
-    function preencherProfessorAtual() {
-      const data = document.getElementById("escalaDataEditar").value;
-      const classe = document.getElementById("escalaClasseEditar").value;
-      const campo = document.getElementById("escalaProfessorEditar");
-
-      const linha = escalaCache.find((item) => item.Data === data);
-
-      campo.value = linha && classe ? (linha[classe] || "") : "";
-    }
-
-    function renderizarCamposNovaData() {
-      const container = document.getElementById("camposNovaData");
-      container.innerHTML = "";
-
-      classesCache.forEach((classe) => {
-        const div = document.createElement("div");
-        div.innerHTML = `
-          <label>${classe}</label>
-          <input type="text" data-classe-nova="${classe}" placeholder="Professor de ${classe}">
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    function renderizarTabelaEscala() {
-      const tabela = document.getElementById("tabelaEscalaAdmin");
-      const thead = tabela.querySelector("thead");
-      const tbody = tabela.querySelector("tbody");
-
-      if (!escalaCache.length) {
-        thead.innerHTML = "";
-        tbody.innerHTML = "<tr><td>Nenhuma escala encontrada.</td></tr>";
-        return;
-      }
-
-      const colunas = Object.keys(escalaCache[0]);
-
-      thead.innerHTML = "<tr>" + colunas.map((coluna) => `<th>${coluna}</th>`).join("") + "</tr>";
-      tbody.innerHTML = escalaCache.map((linha) => {
-        return "<tr>" + colunas.map((coluna) => `<td>${linha[coluna] || ""}</td>`).join("") + "</tr>";
-      }).join("");
-    }
-
-    async function adminSalvarProfessor() {
-      try {
-        const senhaSalva = obterSenhaObrigatoria();
-        const data = document.getElementById("escalaDataEditar").value;
-        const classe = document.getElementById("escalaClasseEditar").value;
-        const professor = document.getElementById("escalaProfessorEditar").value.trim();
-
-        if (!data || !classe || !professor) {
-          mostrarStatus("error", "Informe data, classe e professor.");
-          return;
-        }
-
-        const resposta = await chamarAppsScript({
-          acao: "adminSalvarProfessor",
-          senha: senhaSalva,
-          data: data,
-          classe: classe,
-          professor: professor
-        });
-
-        if (!resposta.sucesso) {
-          throw new Error(resposta.mensagem || "Não foi possível salvar professor.");
-        }
-
-        mostrarStatus("success", resposta.mensagem || "Professor alterado com sucesso.");
-        await carregarEscala();
-        await carregarHistorico();
-      } catch (erro) {
-        mostrarStatus("error", erro.message || "Erro ao salvar professor.");
-      }
-    }
-
-    function formatarDataBR(valor) {
-      if (!valor) {
-        return "";
-      }
-
-      const partes = valor.split("-");
-
-      if (partes.length !== 3) {
-        return valor;
-      }
-
-      return partes[2] + "/" + partes[1] + "/" + partes[0];
-    }
-
-    async function adminAdicionarData() {
-      try {
-        const senhaSalva = obterSenhaObrigatoria();
-        const data = formatarDataBR(document.getElementById("novaDataEscala").value);
-
-        if (!data) {
-          mostrarStatus("error", "Informe a nova data.");
-          return;
-        }
-
-        const campos = {};
-
-        document.querySelectorAll("[data-classe-nova]").forEach((input) => {
-          campos[input.dataset.classeNova] = input.value.trim();
-        });
-
-        const resposta = await chamarAppsScript({
-          acao: "adminAdicionarData",
-          senha: senhaSalva,
-          data: data,
-          campos: JSON.stringify(campos)
-        });
-
-        if (!resposta.sucesso) {
-          throw new Error(resposta.mensagem || "Não foi possível adicionar data.");
-        }
-
-        mostrarStatus("success", resposta.mensagem || "Data adicionada com sucesso.");
-        document.getElementById("novaDataEscala").value = "";
-        await carregarEscala();
-        await carregarHistorico();
-      } catch (erro) {
-        mostrarStatus("error", erro.message || "Erro ao adicionar data.");
-      }
-    }
-
-    async function adminRemoverData() {
-      try {
-        const senhaSalva = obterSenhaObrigatoria();
-        const data = document.getElementById("dataRemover").value;
-
-        if (!data) {
-          mostrarStatus("error", "Selecione uma data para remover.");
-          return;
-        }
-
-        const confirmar = confirm("Tem certeza que deseja remover a escala do dia " + data + "?");
-
-        if (!confirmar) {
-          return;
-        }
-
-        const resposta = await chamarAppsScript({
-          acao: "adminRemoverData",
-          senha: senhaSalva,
-          data: data
-        });
-
-        if (!resposta.sucesso) {
-          throw new Error(resposta.mensagem || "Não foi possível remover data.");
-        }
-
-        mostrarStatus("success", resposta.mensagem || "Data removida com sucesso.");
-        await carregarEscala();
-        await carregarHistorico();
-      } catch (erro) {
-        mostrarStatus("error", erro.message || "Erro ao remover data.");
-      }
-    }
-
-    async function adminRenomearClasse() {
-      try {
-        const senhaSalva = obterSenhaObrigatoria();
-        const classeAntiga = document.getElementById("classeRenomear").value;
-        const classeNova = document.getElementById("novoNomeClasse").value.trim();
-
-        if (!classeAntiga || !classeNova) {
-          mostrarStatus("error", "Informe a classe atual e o novo nome.");
-          return;
-        }
-
-        const confirmar = confirm("Renomear a classe '" + classeAntiga + "' para '" + classeNova + "'?");
-
-        if (!confirmar) {
-          return;
-        }
-
-        const resposta = await chamarAppsScript({
-          acao: "adminRenomearClasse",
-          senha: senhaSalva,
-          classeAntiga: classeAntiga,
-          classeNova: classeNova
-        });
-
-        if (!resposta.sucesso) {
-          throw new Error(resposta.mensagem || "Não foi possível renomear classe.");
-        }
-
-        mostrarStatus("success", resposta.mensagem || "Classe renomeada com sucesso.");
-        document.getElementById("novoNomeClasse").value = "";
-        await carregarEscala();
-        await carregarHistorico();
-      } catch (erro) {
-        mostrarStatus("error", erro.message || "Erro ao renomear classe.");
-      }
-    }
-
-
-    async function carregarProfessores() {
-      try {
-        const dados = await chamarAppsScript({ acao: "listarProfessores" });
-
-        if (!dados || !dados.sucesso) {
-          throw new Error((dados && dados.mensagem) || "Não foi possível carregar professores.");
-        }
-
-        professoresCache = dados.professores || [];
-
-        preencherSelectsProfessores();
-        renderizarTabelaProfessores();
-      } catch (erro) {
-        mostrarStatus("error", erro.message || "Erro ao carregar professores.");
-      }
-    }
-
-    function nomesProfessores() {
-      return professoresCache.map((prof) => prof.nome).filter(Boolean);
-    }
-
-    function preencherSelectsProfessores() {
-      const nomes = nomesProfessores();
-
-      preencherSelect("profSelecionado", nomes);
-      preencherSelect("profSubAntigo", nomes);
-      preencherSelect("profMudarNome", nomes);
-
-      const datalist = document.getElementById("listaProfessoresDatalist");
-
-      if (datalist) {
-        datalist.innerHTML = nomes.map((nome) => `<option value="${nome}"></option>`).join("");
-      }
-
-      preencherProfessorSelecionado();
-    }
-
-    function professorPorNome(nome) {
-      return professoresCache.find((prof) => String(prof.nome).toLowerCase() === String(nome).toLowerCase());
-    }
-
-    function preencherProfessorSelecionado() {
-      const nome = document.getElementById("profSelecionado").value;
-      const professor = professorPorNome(nome);
-
-      document.getElementById("profEditarNome").value = professor ? professor.nome : "";
-      document.getElementById("profEditarClasse").value = professor ? professor.classe : "";
-      document.getElementById("profEditarStatus").value = professor ? professor.status : "Ativo";
-      document.getElementById("profEditarObs").value = professor ? professor.observacao : "";
-    }
-
-    function renderizarTabelaProfessores() {
-      const tabela = document.getElementById("tabelaProfessores");
-
-      if (!tabela) {
-        return;
-      }
-
-      const thead = tabela.querySelector("thead");
-      const tbody = tabela.querySelector("tbody");
-
-      thead.innerHTML = `
-        <tr>
-          <th>Nome</th>
-          <th>Classe</th>
-          <th>Status</th>
-          <th>Observação</th>
-          <th>Atualizado em</th>
-        </tr>
-      `;
-
-      if (!professoresCache.length) {
-        tbody.innerHTML = "<tr><td colspan='5'>Nenhum professor cadastrado.</td></tr>";
-        return;
-      }
-
-      tbody.innerHTML = professoresCache.map((prof) => `
-        <tr>
-          <td>${prof.nome || ""}</td>
-          <td>${prof.classe || ""}</td>
-          <td>${prof.status || ""}</td>
-          <td>${prof.observacao || ""}</td>
-          <td>${prof.atualizadoEm || ""}</td>
-        </tr>
-      `).join("");
-    }
-
-    async function adicionarProfessorAdmin() {
-      try {
-        const senhaSalva = obterSenhaObrigatoria();
-        const nome = document.getElementById("profNovoNome").value.trim();
-        const classe = document.getElementById("profNovaClasse").value;
-        const status = document.getElementById("profNovoStatus").value;
-        const observacao = document.getElementById("profNovaObs").value.trim();
-
-        if (!nome) {
-          mostrarStatus("error", "Informe o nome do professor.");
-          return;
-        }
-
-        const resposta = await chamarAppsScript({
-          acao: "adicionarProfessor",
-          senha: senhaSalva,
-          nome: nome,
-          classe: classe,
-          status: status,
-          observacao: observacao
-        });
-
-        if (!resposta.sucesso) {
-          throw new Error(resposta.mensagem || "Não foi possível adicionar professor.");
-        }
-
-        mostrarStatus("success", resposta.mensagem || "Professor adicionado com sucesso.");
-
-        document.getElementById("profNovoNome").value = "";
-        document.getElementById("profNovaObs").value = "";
-
-        await carregarProfessores();
-        await carregarHistorico();
-      } catch (erro) {
-        mostrarStatus("error", erro.message || "Erro ao adicionar professor.");
-      }
-    }
-
-    async function atualizarProfessorAdmin() {
-      try {
-        const senhaSalva = obterSenhaObrigatoria();
-        const nomeOriginal = document.getElementById("profSelecionado").value;
-        const nome = document.getElementById("profEditarNome").value.trim();
-        const classe = document.getElementById("profEditarClasse").value;
-        const status = document.getElementById("profEditarStatus").value;
-        const observacao = document.getElementById("profEditarObs").value.trim();
-
-        if (!nomeOriginal || !nome) {
-          mostrarStatus("error", "Selecione um professor e informe o nome.");
-          return;
-        }
-
-        const resposta = await chamarAppsScript({
-          acao: "atualizarProfessor",
-          senha: senhaSalva,
-          nomeOriginal: nomeOriginal,
-          nome: nome,
-          classe: classe,
-          status: status,
-          observacao: observacao
-        });
-
-        if (!resposta.sucesso) {
-          throw new Error(resposta.mensagem || "Não foi possível atualizar professor.");
-        }
-
-        mostrarStatus("success", resposta.mensagem || "Professor atualizado com sucesso.");
-        await carregarProfessores();
-        await carregarHistorico();
-      } catch (erro) {
-        mostrarStatus("error", erro.message || "Erro ao atualizar professor.");
-      }
-    }
-
-    async function inativarProfessorAdmin() {
-      try {
-        const senhaSalva = obterSenhaObrigatoria();
-        const nome = document.getElementById("profSelecionado").value;
-        const observacao = document.getElementById("profEditarObs").value.trim() || "Professor inativado pelo administrador.";
-
-        if (!nome) {
-          mostrarStatus("error", "Selecione um professor para inativar.");
-          return;
-        }
-
-        const confirmar = confirm("Inativar o professor '" + nome + "'? Ele não será removido do histórico.");
-
-        if (!confirmar) {
-          return;
-        }
-
-        const resposta = await chamarAppsScript({
-          acao: "inativarProfessor",
-          senha: senhaSalva,
-          nome: nome,
-          observacao: observacao
-        });
-
-        if (!resposta.sucesso) {
-          throw new Error(resposta.mensagem || "Não foi possível inativar professor.");
-        }
-
-        mostrarStatus("success", resposta.mensagem || "Professor inativado com sucesso.");
-        await carregarProfessores();
-        await carregarHistorico();
-      } catch (erro) {
-        mostrarStatus("error", erro.message || "Erro ao inativar professor.");
-      }
-    }
-
-    async function substituirProfessorAdmin() {
-      try {
-        const senhaSalva = obterSenhaObrigatoria();
-        const professorAntigo = document.getElementById("profSubAntigo").value;
-        const professorNovo = document.getElementById("profSubNovo").value.trim();
-        const classe = document.getElementById("profSubClasse").value;
-        const alcance = document.getElementById("profSubAlcance").value;
-        const inativarAntigo = document.getElementById("profSubInativar").value;
-
-        if (!professorAntigo || !professorNovo) {
-          mostrarStatus("error", "Informe o professor que saiu e o novo professor.");
-          return;
-        }
-
-        const confirmar = confirm(
-          "Substituir '" + professorAntigo + "' por '" + professorNovo + "' em " +
-          (alcance === "futuras" ? "datas futuras" : "toda a escala") + "?"
-        );
-
-        if (!confirmar) {
-          return;
-        }
-
-        const resposta = await chamarAppsScript({
-          acao: "substituirProfessor",
-          senha: senhaSalva,
-          professorAntigo: professorAntigo,
-          professorNovo: professorNovo,
-          classe: classe,
-          alcance: alcance,
-          inativarAntigo: inativarAntigo
-        });
-
-        if (!resposta.sucesso) {
-          throw new Error(resposta.mensagem || "Não foi possível substituir professor.");
-        }
-
-        mostrarStatus("success", resposta.mensagem || "Professor substituído com sucesso.");
-        document.getElementById("profSubNovo").value = "";
-
-        await carregarEscala();
-        await carregarProfessores();
-        await carregarHistorico();
-      } catch (erro) {
-        mostrarStatus("error", erro.message || "Erro ao substituir professor.");
-      }
-    }
-
-    async function mudarProfessorClasseAdmin() {
-      try {
-        const senhaSalva = obterSenhaObrigatoria();
-        const professor = document.getElementById("profMudarNome").value;
-        const classeNova = document.getElementById("profMudarClasse").value;
-        const aplicarEscala = document.getElementById("profMudarAplicar").value;
-
-        if (!professor || !classeNova) {
-          mostrarStatus("error", "Informe professor e nova classe.");
-          return;
-        }
-
-        const confirmar = confirm("Mudar '" + professor + "' para a classe '" + classeNova + "'?");
-
-        if (!confirmar) {
-          return;
-        }
-
-        const resposta = await chamarAppsScript({
-          acao: "mudarProfessorClasse",
-          senha: senhaSalva,
-          professor: professor,
-          classeNova: classeNova,
-          aplicarEscala: aplicarEscala
-        });
-
-        if (!resposta.sucesso) {
-          throw new Error(resposta.mensagem || "Não foi possível mudar professor de classe.");
-        }
-
-        mostrarStatus("success", resposta.mensagem || "Professor mudou de classe com sucesso.");
-        await carregarEscala();
-        await carregarProfessores();
-        await carregarHistorico();
-      } catch (erro) {
-        mostrarStatus("error", erro.message || "Erro ao mudar professor de classe.");
-      }
-    }
-
-    async function carregarHistorico() {
-      try {
-        const dados = await chamarAppsScript({ acao: "historico", limite: "50" });
-
-        if (!dados || !dados.sucesso) {
-          throw new Error((dados && dados.mensagem) || "Não foi possível carregar histórico.");
-        }
-
-        const lista = document.getElementById("listaHistorico");
-        const historico = dados.historico || [];
-
-        if (!historico.length) {
-          lista.innerHTML = "<p class='help'>Nenhuma alteração registrada ainda.</p>";
-          return;
-        }
-
-        lista.innerHTML = historico.map((item) => `
-          <div class="history-item">
-            <strong>${item.dataHora || ""}</strong><br>
-            <strong>Classe:</strong> ${item.classe || ""}<br>
-            <strong>Solicitante:</strong> ${item.professorSolicitante || ""}<br>
-            <strong>Data antiga:</strong> ${item.dataAntiga || ""}<br>
-            <strong>Nova data:</strong> ${item.novaData || ""}<br>
-            <strong>Professor/Alteração:</strong> ${item.professorTrocado || ""}<br>
-            <strong>Origem:</strong> ${item.origem || ""}
-          </div>
-        `).join("");
-      } catch (erro) {
-        mostrarStatus("error", erro.message || "Erro ao carregar histórico.");
-      }
-    }
-
-    adultos.value = modeloPadrao;
-    jovens.value = modeloPadrao;
-    atualizarEditoresVisuais();
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const senhaSalva = obterSenhaSessao();
-
-      if (senhaSalva) {
-        senhaForm.value = senhaSalva;
-        mostrarPainelLogado();
-        carregarTudo();
-      } else {
-        mostrarTelaLogin();
-      }
-    });
-  </script>
+  </section>
+</main>
+<iframe name="envioOculto" id="envioOculto" style="display:none;"></iframe>
+
+<script>
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec";
+  const modeloPadrao = `<div style="font-family:system-ui; background:#fef9e6; border-radius:2rem; padding:1.4rem;"><div style="background:#0b2b3f; color:white; padding:1rem; border-radius:1.5rem;"><h3>Conteúdo da lição</h3></div><div style="padding:1rem;"><p>Adicione aqui o conteúdo da aula...</p></div></div>`;
+  let escalaCache = [], classesCache = [], professoresCache = [];
+
+  function mostrarStatus(tipo, msg) { let s = document.getElementById("status"); s.className = `status show ${tipo}`; s.innerHTML = `<span>${tipo === 'success' ? '✓' : tipo==='error' ? '⚠️' : 'ℹ️'}</span> ${msg}`; setTimeout(() => s.classList.remove('show'), 4000); }
+  function obterSenhaSessao() { return sessionStorage.getItem("senhaAdminEBD") || ""; }
+  function salvarSenhaSessao(v) { sessionStorage.setItem("senhaAdminEBD", v); }
+  function limparSenhaSessao() { sessionStorage.removeItem("senhaAdminEBD"); }
+
+  function entrarNoPainel() { let s = document.getElementById("senha").value.trim(); if(!s) return mostrarStatus("error","Digite a senha."); salvarSenhaSessao(s); document.getElementById("senhaForm").value = s; document.getElementById("telaLogin").style.display = "none"; document.getElementById("barraPainel").style.display = "block"; document.getElementById("painelAdmin").style.display = "block"; mostrarStatus("success","Painel liberado."); carregarTudo(); }
+  function sairDoPainel() { limparSenhaSessao(); document.getElementById("telaLogin").style.display = "block"; document.getElementById("barraPainel").style.display = "none"; document.getElementById("painelAdmin").style.display = "none"; mostrarStatus("info","Sessão finalizada."); }
+
+  function chamarAppsScript(params) { return new Promise((resolve, reject) => { let cb = "cb_" + Date.now() + Math.random(); let script = document.createElement("script"); let query = new URLSearchParams(params); query.append("callback", cb); query.append("t", Date.now()); let timeout = setTimeout(() => { delete window[cb]; script.remove(); reject(new Error("Timeout")); }, 15000); window[cb] = (r) => { clearTimeout(timeout); delete window[cb]; script.remove(); resolve(r); }; script.onerror = () => { clearTimeout(timeout); reject(new Error("Falha rede")); }; script.src = APPS_SCRIPT_URL + "?" + query; document.body.appendChild(script); }); }
+
+  async function carregarTudo() { await carregarLicoes(); await carregarEscala(); await carregarProfessores(); await carregarHistorico(); }
+  async function carregarLicoes() { try { let d = await chamarAppsScript({ acao: "licoes" }); if(d.sucesso) { document.getElementById("adultos").value = d.licoes?.adultos || modeloPadrao; document.getElementById("jovens").value = d.licoes?.jovens || modeloPadrao; atualizarEditoresVisuais(); mostrarStatus("success","Lições carregadas."); } else throw new Error("erro"); } catch(e) { mostrarStatus("error","Erro lições"); } }
+  function atualizarEditoresVisuais() { let a=document.getElementById("editorVisualAdultos"), j=document.getElementById("editorVisualJovens"); if(a) a.innerHTML = document.getElementById("adultos").value || "<p>Sem lição</p>"; if(j) j.innerHTML = document.getElementById("jovens").value || "<p>Sem lição</p>"; }
+  function sincronizarVisual(campo) { if(campo==="adultos") { let val=document.getElementById("adultos").value; document.getElementById("editorVisualAdultos").innerHTML=val; } else { let val=document.getElementById("jovens").value; document.getElementById("editorVisualJovens").innerHTML=val; } mostrarStatus("info","Visual atualizado"); }
+  function alternarHtml(campo) { let wrap = document.getElementById(`htmlWrap${campo==='adultos'?'Adultos':'Jovens'}`); wrap.classList.toggle("show"); if(!wrap.classList.contains("show")) sincronizarVisual(campo); }
+  function limparCampo(campo) { if(confirm("Limpar conteúdo?")) { let txt = document.getElementById(campo); txt.value = ""; atualizarEditoresVisuais(); mostrarStatus("info","Campo limpo"); } }
+  function salvarLicoes() { let s=obterSenhaSessao(); if(!s) return mostrarStatus("error","Sessão expirada."); document.getElementById("senhaForm").value = s; document.getElementById("formLicoes").submit(); mostrarStatus("info","Enviando..."); }
+  window.addEventListener("message", (e) => { if(e.data?.origem === "appsScriptSalvarLicoes") { if(e.data.sucesso) mostrarStatus("success","Lições salvas"); else mostrarStatus("error","Erro ao salvar"); carregarLicoes(); } });
+
+  async function carregarEscala() { let r = await chamarAppsScript({acao:"listar"}); if(r.sucesso) { escalaCache=r.escala||[]; classesCache=escalaCache.length?Object.keys(escalaCache[0]).filter(k=>k!=="Data"):[]; preencherSelectsEscala(); renderizarTabelaEscala(); } }
+  function preencherSelectsEscala() { preencherSelect("escalaDataEditar", escalaCache.map(l=>l.Data)); preencherSelect("dataRemover", escalaCache.map(l=>l.Data)); preencherSelect("escalaClasseEditar", classesCache); preencherSelect("classeRenomear", classesCache); preencherSelect("profNovaClasse", classesCache); preencherSelect("profEditarClasse", classesCache); preencherSelect("profMudarClasse", classesCache); preencherSelect("profSubClasse", ["Todas as classes",...classesCache]); renderizarCamposNovaData(); }
+  function preencherSelect(id, itens) { let s=document.getElementById(id); if(!s) return; s.innerHTML=itens.map(i=>`<option>${i}</option>`).join(""); }
+  function renderizarTabelaEscala() { let t = document.getElementById("tabelaEscalaAdmin"); if(!escalaCache.length) { t.querySelector("tbody").innerHTML="<tr><td colspan=10>Nenhum dado</td></tr>"; return; } let cols = Object.keys(escalaCache[0]); t.querySelector("thead").innerHTML="<tr>"+cols.map(c=>`<th>${c}</th>`).join("")+"</tr>"; t.querySelector("tbody").innerHTML=escalaCache.map(l=>"<tr>"+cols.map(c=>`<td>${l[c]||""}</td>`).join("")+"</tr>").join(""); }
+  function renderizarCamposNovaData() { let cont = document.getElementById("camposNovaData"); cont.innerHTML = classesCache.map(c => `<div><label>${c}</label><input type="text" data-classe-nova="${c}" placeholder="Professor"></div>`).join(""); }
+  async function adminSalvarProfessor() { let s=obterSenhaSessao(); let data=document.getElementById("escalaDataEditar").value, classe=document.getElementById("escalaClasseEditar").value, prof=document.getElementById("escalaProfessorEditar").value.trim(); if(!data||!classe||!prof) return mostrarStatus("error","Preencha todos"); let r=await chamarAppsScript({acao:"adminSalvarProfessor", senha:s, data, classe, professor:prof}); if(r.sucesso){ mostrarStatus("success","Alterado"); carregarEscala(); carregarHistorico(); } else mostrarStatus("error",r.mensagem); }
+  async function adminAdicionarData() { let s=obterSenhaSessao(); let data = document.getElementById("novaDataEscala").value; if(!data) return; let campos={}; document.querySelectorAll("[data-classe-nova]").forEach(i=>campos[i.dataset.classeNova]=i.value.trim()); let r = await chamarAppsScript({acao:"adminAdicionarData", senha:s, data, campos:JSON.stringify(campos)}); if(r.sucesso){ mostrarStatus("success","Data adicionada"); carregarEscala(); carregarHistorico(); } else mostrarStatus("error",r.mensagem); }
+  async function adminRemoverData() { let s=obterSenhaSessao(); let data=document.getElementById("dataRemover").value; if(!data||!confirm("Remover esta data?")) return; let r=await chamarAppsScript({acao:"adminRemoverData", senha:s, data}); if(r.sucesso){ mostrarStatus("success","Removida"); carregarEscala(); carregarHistorico(); } }
+  async function adminRenomearClasse() { let s=obterSenhaSessao(); let antiga=document.getElementById("classeRenomear").value, nova=document.getElementById("novoNomeClasse").value.trim(); if(!antiga||!nova) return; let r=await chamarAppsScript({acao:"adminRenomearClasse", senha:s, classeAntiga:antiga, classeNova:nova}); if(r.sucesso){ mostrarStatus("success","Renomeada"); carregarEscala(); carregarHistorico(); } }
+  async function carregarProfessores() { let r=await chamarAppsScript({acao:"listarProfessores"}); if(r.sucesso){ professoresCache=r.professores; preencherSelectsProfessores(); renderizarTabelaProfessores(); } }
+  function preencherSelectsProfessores() { let nomes=professoresCache.map(p=>p.nome); preencherSelect("profSelecionado",nomes); preencherSelect("profSubAntigo",nomes); preencherSelect("profMudarNome",nomes); let dl=document.getElementById("listaProfessoresDatalist"); if(dl) dl.innerHTML=nomes.map(n=>`<option>${n}</option>`).join(""); preencherProfessorSelecionado(); }
+  function preencherProfessorSelecionado() { let nome=document.getElementById("profSelecionado").value; let p=professoresCache.find(pr=>pr.nome===nome); if(p){ document.getElementById("profEditarNome").value=p.nome; document.getElementById("profEditarClasse").value=p.classe; document.getElementById("profEditarStatus").value=p.status; document.getElementById("profEditarObs").value=p.observacao||""; } }
+  function renderizarTabelaProfessores() { let t=document.getElementById("tabelaProfessores"); t.querySelector("thead").innerHTML="<tr><th>Nome</th><th>Classe</th><th>Status</th><th>Obs</th><th>Atualizado</th></tr>"; t.querySelector("tbody").innerHTML=professoresCache.map(p=>`<tr><td>${p.nome}</td><td>${p.classe}</td><td>${p.status}</td><td>${p.observacao||""}</td><td>${p.atualizadoEm||""}</td></tr>`).join(""); }
+  async function adicionarProfessorAdmin() { let s=obterSenhaSessao(); let nome=document.getElementById("profNovoNome").value.trim(); if(!nome) return; let r=await chamarAppsScript({acao:"adicionarProfessor", senha:s, nome, classe:document.getElementById("profNovaClasse").value, status:document.getElementById("profNovoStatus").value, observacao:document.getElementById("profNovaObs").value}); if(r.sucesso){ mostrarStatus("success","Professor adicionado"); carregarProfessores(); carregarHistorico(); } }
+  async function atualizarProfessorAdmin() { let s=obterSenhaSessao(); let nomeOrig=document.getElementById("profSelecionado").value; if(!nomeOrig) return; let r=await chamarAppsScript({acao:"atualizarProfessor", senha:s, nomeOriginal:nomeOrig, nome:document.getElementById("profEditarNome").value, classe:document.getElementById("profEditarClasse").value, status:document.getElementById("profEditarStatus").value, observacao:document.getElementById("profEditarObs").value}); if(r.sucesso){ mostrarStatus("success","Atualizado"); carregarProfessores(); carregarHistorico(); } }
+  async function inativarProfessorAdmin() { let s=obterSenhaSessao(); let nome=document.getElementById("profSelecionado").value; if(!nome||!confirm("Inativar?")) return; let r=await chamarAppsScript({acao:"inativarProfessor", senha:s, nome, observacao:document.getElementById("profEditarObs").value}); if(r.sucesso){ mostrarStatus("success","Inativado"); carregarProfessores(); carregarHistorico(); } }
+  async function substituirProfessorAdmin() { let s=obterSenhaSessao(); let antigo=document.getElementById("profSubAntigo").value, novo=document.getElementById("profSubNovo").value.trim(); if(!antigo||!novo) return; let r=await chamarAppsScript({acao:"substituirProfessor", senha:s, professorAntigo:antigo, professorNovo:novo, classe:document.getElementById("profSubClasse").value, alcance:document.getElementById("profSubAlcance").value, inativarAntigo:document.getElementById("profSubInativar").value}); if(r.sucesso){ mostrarStatus("success","Substituição feita"); carregarEscala(); carregarProfessores(); carregarHistorico(); } }
+  async function mudarProfessorClasseAdmin() { let s=obterSenhaSessao(); let prof=document.getElementById("profMudarNome").value, classeNova=document.getElementById("profMudarClasse").value; if(!prof||!classeNova) return; let r=await chamarAppsScript({acao:"mudarProfessorClasse", senha:s, professor:prof, classeNova, aplicarEscala:document.getElementById("profMudarAplicar").value}); if(r.sucesso){ mostrarStatus("success","Classe alterada"); carregarEscala(); carregarProfessores(); carregarHistorico(); } }
+  async function carregarHistorico() { let r=await chamarAppsScript({acao:"historico",limite:"50"}); let div=document.getElementById("listaHistorico"); if(r.sucesso && r.historico?.length) div.innerHTML=r.historico.map(i=>`<div class="history-item"><strong>${i.dataHora}</strong><br>Classe: ${i.classe}<br>Alteração: ${i.professorTrocado||i.novaData}<br>Origem: ${i.origem}</div>`).join(""); else div.innerHTML="<p class='help'>Nenhum registro</p>"; }
+  function preencherProfessorAtual() { let data=document.getElementById("escalaDataEditar").value, classe=document.getElementById("escalaClasseEditar").value, linha=escalaCache.find(l=>l.Data===data); document.getElementById("escalaProfessorEditar").value = linha && classe ? linha[classe] : ""; }
+  function abrirPainel(nome) { ["licoes","escala","professores","historico"].forEach(p=>{ document.getElementById(`painel${p.charAt(0).toUpperCase()+p.slice(1)}`).classList.toggle("active", p===nome); document.getElementById(`aba${p.charAt(0).toUpperCase()+p.slice(1)}Btn`).classList.toggle("active", p===nome); }); if(nome==="escala") carregarEscala(); if(nome==="professores") carregarProfessores(); if(nome==="historico") carregarHistorico(); }
+  function abrirAbaLicao(aba) { let adulto=aba==="adultos"; document.getElementById("tabAdultos").classList.toggle("active", adulto); document.getElementById("tabJovens").classList.toggle("active", !adulto); document.getElementById("painelAdultos").classList.toggle("active", adulto); document.getElementById("painelJovens").classList.toggle("active", !adulto); }
+
+  document.addEventListener("DOMContentLoaded", () => { if(obterSenhaSessao()) { document.getElementById("senhaForm").value=obterSenhaSessao(); document.getElementById("telaLogin").style.display="none"; document.getElementById("barraPainel").style.display="block"; document.getElementById("painelAdmin").style.display="block"; carregarTudo(); } else { document.getElementById("telaLogin").style.display="block"; } });
+</script>
 </body>
 </html>

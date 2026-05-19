@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -3113,14 +3112,22 @@
 
     try {
       const documento = new DOMParser().parseFromString(conteudoBruto, "text/html");
-      const containerModelo = documento.querySelector(".lesson-container");
+      const styleTags = Array.from(documento.querySelectorAll("style"))
+        .map((style) => style.outerHTML)
+        .join("");
+
+      const containerModelo =
+        documento.querySelector(".lesson-container") ||
+        documento.querySelector(".ebd-premium-lesson") ||
+        documento.querySelector(".ebd-lesson-wrapper") ||
+        documento.querySelector(".ebd-lesson-card");
 
       if (containerModelo) {
-        return containerModelo.outerHTML;
+        return styleTags + containerModelo.outerHTML;
       }
 
       if (documento.body && documento.body.innerHTML.trim()) {
-        return documento.body.innerHTML.trim();
+        return styleTags + documento.body.innerHTML.trim();
       }
     } catch (erro) {
       console.warn("Não foi possível preparar o HTML da lição:", erro);
@@ -3129,7 +3136,7 @@
     return conteudoBruto;
   }
 
-  function abrirLicao(tipo) {
+  async function abrirLicao(tipo) {
       const modalLicao = document.getElementById("modalLicao");
       const tituloLicao = document.getElementById("tituloLicao");
       const conteudoLicao = document.getElementById("conteudoLicao");
@@ -3138,18 +3145,30 @@
         return;
       }
 
+      modalLicao.classList.add("active");
+      document.body.style.overflow = "hidden";
+
+      tituloLicao.textContent = tipo === "adultos"
+        ? "Lição da Semana — Jovens e Adultos"
+        : "Lição da Semana — Adolescentes";
+
+      conteudoLicao.innerHTML = `
+        <div style="padding: 28px; text-align: center;">
+          <strong>Carregando lição atualizada...</strong><br>
+          <span style="color:#64748b;">Buscando a versão mais recente no painel.</span>
+        </div>
+      `;
+
+      await carregarLicoesDaPlanilha(true);
+
       if (tipo === "adultos") {
-        tituloLicao.textContent = "Lição da Semana — Jovens e Adultos";
         conteudoLicao.innerHTML = prepararConteudoLicao(licoesSemana.adultos);
+        return;
       }
 
       if (tipo === "jovens") {
-        tituloLicao.textContent = "Lição da Semana — Adolescentes";
         conteudoLicao.innerHTML = prepararConteudoLicao(licoesSemana.jovens);
       }
-
-      modalLicao.classList.add("active");
-      document.body.style.overflow = "hidden";
     }
 
     function fecharLicao() {

@@ -8,83 +8,284 @@
 
   <style>
     :root {
-      --azul: #1f4e79;
-      --azul-escuro: #163a5c;
-      --verde: #2e7d32;
-      --verde-escuro: #256628;
+      --azul-900: #0f2742;
+      --azul-800: #163a5c;
+      --azul-700: #1f4e79;
+      --azul-100: #eaf3fb;
+      --verde-700: #256628;
+      --verde-600: #2e7d32;
+      --verde-100: #e9f6ea;
       --dourado: #c59b35;
-      --texto: #243447;
-      --borda: #d9e2ec;
+      --vermelho-700: #991b1b;
+      --vermelho-600: #dc2626;
+      --vermelho-100: #fff1f1;
+      --roxo-700: #5b21b6;
+      --roxo-100: #f3e8ff;
+      --cinza-900: #172033;
+      --cinza-700: #364152;
+      --cinza-500: #667085;
+      --cinza-200: #e4e7ec;
+      --cinza-100: #f2f4f7;
       --branco: #ffffff;
-      --vermelho-claro: #fff3f3;
-      --vermelho: #b42318;
-      --verde-claro: #e9f6ea;
-      --amarelo-claro: #fff8e1;
-      --roxo: #5b21b6;
+      --sombra: 0 16px 40px rgba(15, 39, 66, 0.12);
+      --sombra-suave: 0 8px 22px rgba(15, 39, 66, 0.08);
+      --raio: 22px;
     }
 
     * {
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      color: var(--texto);
-      line-height: 1.6;
+      font-family: Inter, "Segoe UI", Arial, Helvetica, sans-serif;
+      color: var(--cinza-900);
       background:
-        radial-gradient(circle at top left, rgba(197, 155, 53, 0.14), transparent 32%),
-        radial-gradient(circle at top right, rgba(31, 78, 121, 0.12), transparent 30%),
-        linear-gradient(135deg, #eef6ff 0%, #ffffff 45%, #f7fbf7 100%);
+        radial-gradient(circle at top left, rgba(197, 155, 53, 0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(31, 78, 121, 0.18), transparent 30%),
+        linear-gradient(135deg, #eef6ff 0%, #ffffff 48%, #f6fbf7 100%);
+      line-height: 1.6;
     }
 
-    header {
-      padding: 26px 18px;
-      text-align: center;
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 34px 18px 30px;
       color: #ffffff;
-      background: linear-gradient(135deg, #102f4d, #1f4e79);
+      background:
+        linear-gradient(135deg, rgba(15, 39, 66, 0.96), rgba(31, 78, 121, 0.94)),
+        radial-gradient(circle at 15% 20%, rgba(243, 211, 122, 0.26), transparent 28%);
       border-bottom: 6px solid var(--dourado);
-      box-shadow: 0 12px 30px rgba(16, 47, 77, 0.25);
+      box-shadow: var(--sombra);
     }
 
-    header h1 {
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -80px;
+      top: -80px;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.10);
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 1180px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .hero h1 {
       margin: 0;
-      font-size: clamp(1.7rem, 4vw, 2.5rem);
       color: #f3d37a;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      letter-spacing: -0.03em;
       text-transform: uppercase;
     }
 
-    header p {
-      margin: 10px auto 0;
-      max-width: 820px;
+    .hero p {
+      margin: 8px 0 0;
+      max-width: 720px;
+      color: rgba(255,255,255,0.88);
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      color: #ffffff;
+      font-weight: 800;
+      backdrop-filter: blur(8px);
+      white-space: nowrap;
     }
 
     main {
       max-width: 1180px;
       margin: 0 auto;
-      padding: 24px 14px 42px;
+      padding: 24px 14px 46px;
     }
 
     .card {
-      background: rgba(255, 255, 255, 0.96);
-      border: 1px solid var(--borda);
-      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(228, 231, 236, 0.9);
+      border-radius: var(--raio);
       padding: 22px;
       margin-bottom: 20px;
-      box-shadow: 0 8px 22px rgba(31, 78, 121, 0.10);
+      box-shadow: var(--sombra-suave);
+      backdrop-filter: blur(10px);
+    }
+
+    .login-card {
+      max-width: 720px;
+      margin: 0 auto 20px;
     }
 
     .top-card {
       display: grid;
       grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .panel-shell {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 14px;
+      background: rgba(255,255,255,0.96);
+      border: 1px solid var(--cinza-200);
+      border-radius: var(--raio);
+      padding: 14px;
+      box-shadow: var(--sombra-suave);
+    }
+
+    .sidebar-title {
+      padding: 8px 10px 14px;
+      color: var(--azul-800);
+      font-weight: 900;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .nav-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 6px 0;
+      padding: 13px 14px;
+      border: 1px solid transparent;
+      border-radius: 16px;
+      background: transparent;
+      color: var(--cinza-700);
+      box-shadow: none;
+      text-align: left;
+      font-weight: 850;
+    }
+
+    .nav-btn:hover {
+      transform: none;
+      background: var(--azul-100);
+      filter: none;
+    }
+
+    .nav-btn.active {
+      background: linear-gradient(135deg, var(--azul-700), var(--azul-800));
+      color: white;
+      box-shadow: 0 12px 26px rgba(31, 78, 121, 0.24);
+    }
+
+    .content-area {
+      min-width: 0;
+    }
+
+    .status {
+      display: none;
+      padding: 14px 16px;
+      border-radius: 18px;
+      font-weight: 850;
+      margin-bottom: 18px;
+      box-shadow: var(--sombra-suave);
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status.success {
+      color: var(--verde-700);
+      background: var(--verde-100);
+      border: 1px solid #bfe3c1;
+    }
+
+    .status.error {
+      color: var(--vermelho-700);
+      background: var(--vermelho-100);
+      border: 1px solid #fecaca;
+    }
+
+    .status.info {
+      color: #7a5312;
+      background: #fff8e1;
+      border: 1px solid rgba(183, 121, 31, 0.25);
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .metric-card {
+      padding: 18px;
+      border-radius: 20px;
+      border: 1px solid var(--cinza-200);
+      background: linear-gradient(135deg, #ffffff, #f8fbff);
+      box-shadow: var(--sombra-suave);
+    }
+
+    .metric-card span {
+      display: block;
+      color: var(--cinza-500);
+      font-size: 0.86rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .metric-card strong {
+      display: block;
+      margin-top: 6px;
+      color: var(--azul-800);
+      font-size: 1.18rem;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
       gap: 16px;
-      align-items: end;
+      margin-bottom: 16px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      color: var(--azul-800);
+      font-size: clamp(1.25rem, 3vw, 1.65rem);
+      letter-spacing: -0.02em;
+    }
+
+    .section-title p {
+      margin: 4px 0 0;
+      color: var(--cinza-500);
     }
 
     label {
       display: block;
-      font-weight: 800;
-      color: var(--azul-escuro);
+      font-weight: 850;
+      color: var(--azul-800);
       margin-bottom: 8px;
     }
 
@@ -92,17 +293,18 @@
     textarea,
     select {
       width: 100%;
-      border: 1px solid var(--borda);
-      border-radius: 14px;
+      border: 1px solid var(--cinza-200);
+      border-radius: 16px;
       padding: 13px 14px;
       font-size: 1rem;
       font-family: Arial, Helvetica, sans-serif;
-      color: var(--texto);
+      color: var(--cinza-900);
       background: #ffffff;
+      transition: border-color .2s, box-shadow .2s;
     }
 
     textarea {
-      min-height: 420px;
+      min-height: 430px;
       resize: vertical;
       font-family: Consolas, Monaco, "Courier New", monospace;
       line-height: 1.5;
@@ -112,13 +314,13 @@
     textarea:focus,
     select:focus {
       outline: none;
-      border-color: var(--azul);
+      border-color: var(--azul-700);
       box-shadow: 0 0 0 4px rgba(31, 78, 121, 0.14);
     }
 
     .help {
       margin: 8px 0 0;
-      color: #5d6d7e;
+      color: var(--cinza-500);
       font-size: 0.92rem;
     }
 
@@ -134,36 +336,40 @@
     .link-btn {
       border: none;
       cursor: pointer;
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       text-decoration: none;
-      padding: 13px 22px;
+      padding: 13px 20px;
       border-radius: 999px;
-      font-weight: 800;
-      font-size: 0.98rem;
+      font-weight: 900;
+      font-size: 0.96rem;
       color: #ffffff;
-      background: linear-gradient(135deg, var(--verde), var(--verde-escuro));
-      box-shadow: 0 8px 18px rgba(46, 125, 50, 0.24);
+      background: linear-gradient(135deg, var(--verde-600), var(--verde-700));
+      box-shadow: 0 10px 22px rgba(46, 125, 50, 0.24);
+      transition: transform .15s, filter .15s, box-shadow .15s;
     }
 
     button.secondary,
     .link-btn.secondary {
-      background: linear-gradient(135deg, #1f4e79, #163a5c);
-      box-shadow: 0 8px 18px rgba(31, 78, 121, 0.24);
+      background: linear-gradient(135deg, var(--azul-700), var(--azul-800));
+      box-shadow: 0 10px 22px rgba(31, 78, 121, 0.24);
     }
 
     button.gray {
-      background: linear-gradient(135deg, #6b7280, #4b5563);
-      box-shadow: none;
+      background: linear-gradient(135deg, #667085, #475467);
+      box-shadow: 0 10px 22px rgba(102,112,133,.18);
     }
 
     button.red {
-      background: linear-gradient(135deg, #b42318, #7f1d1d);
-      box-shadow: none;
+      background: linear-gradient(135deg, var(--vermelho-600), var(--vermelho-700));
+      box-shadow: 0 10px 22px rgba(220, 38, 38, 0.25);
     }
 
     button.purple {
       background: linear-gradient(135deg, #6d28d9, #4c1d95);
-      box-shadow: 0 8px 18px rgba(91, 33, 182, 0.24);
+      box-shadow: 0 10px 22px rgba(91, 33, 182, 0.24);
     }
 
     button:hover,
@@ -179,55 +385,25 @@
       filter: none;
     }
 
-    .status {
-      display: none;
-      padding: 14px 16px;
-      border-radius: 14px;
-      font-weight: 800;
-      margin-top: 16px;
-    }
-
-    .status.show {
-      display: block;
-    }
-
-    .status.success {
-      color: var(--verde-escuro);
-      background: var(--verde-claro);
-      border: 1px solid #bfe3c1;
-    }
-
-    .status.error {
-      color: var(--vermelho);
-      background: var(--vermelho-claro);
-      border: 1px solid #f2c0bb;
-    }
-
-    .status.info {
-      color: #7a5312;
-      background: var(--amarelo-claro);
-      border: 1px solid rgba(183, 121, 31, 0.25);
-    }
-
-    .main-tabs,
     .lesson-tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
       margin-bottom: 18px;
     }
 
     .tab-btn {
       background: #ffffff;
-      color: var(--azul-escuro);
-      border: 1px solid var(--borda);
+      color: var(--azul-800);
+      border: 1px solid var(--cinza-200);
       box-shadow: none;
     }
 
     .tab-btn.active {
-      background: linear-gradient(135deg, var(--azul), var(--azul-escuro));
+      background: linear-gradient(135deg, var(--azul-700), var(--azul-800));
       color: #ffffff;
       border-color: transparent;
+      box-shadow: 0 10px 22px rgba(31, 78, 121, 0.20);
     }
 
     .admin-panel,
@@ -246,23 +422,24 @@
       gap: 16px;
       align-items: center;
       flex-wrap: wrap;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .editor-title h2 {
       margin: 0;
-      color: var(--azul-escuro);
+      color: var(--azul-800);
     }
 
     .preview-area {
       display: none;
       margin-top: 18px;
-      border: 1px solid var(--borda);
-      border-radius: 18px;
+      border: 1px solid var(--cinza-200);
+      border-radius: 20px;
       overflow: hidden;
       background: #ffffff;
       max-height: 720px;
       overflow-y: auto;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5);
     }
 
     .preview-area.show {
@@ -287,28 +464,50 @@
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 14px;
-      margin-top: 12px;
+      margin-top: 14px;
     }
 
     .subcard {
-      border: 1px solid var(--borda);
-      border-radius: 18px;
-      padding: 18px;
-      background: #fbfdff;
+      border: 1px solid var(--cinza-200);
+      border-radius: var(--raio);
+      padding: 20px;
+      background: linear-gradient(135deg, #ffffff, #fbfdff);
       margin-top: 18px;
+      box-shadow: var(--sombra-suave);
     }
 
     .subcard h3 {
-      margin-top: 0;
-      color: var(--azul-escuro);
+      margin: 0 0 12px;
+      color: var(--azul-800);
+      font-size: 1.15rem;
+    }
+
+    .subcard-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--azul-100);
+      color: var(--azul-800);
+      font-weight: 850;
+      font-size: 0.8rem;
     }
 
     .table-wrap {
       overflow-x: auto;
-      border: 1px solid var(--borda);
-      border-radius: 16px;
+      border: 1px solid var(--cinza-200);
+      border-radius: 18px;
       background: #ffffff;
       margin-top: 14px;
+      box-shadow: var(--sombra-suave);
     }
 
     table {
@@ -319,7 +518,7 @@
 
     th,
     td {
-      padding: 10px 12px;
+      padding: 12px 14px;
       border-bottom: 1px solid #edf2f7;
       text-align: left;
       vertical-align: top;
@@ -327,9 +526,16 @@
     }
 
     th {
-      background: #eaf3fb;
-      color: var(--azul-escuro);
-      font-weight: 800;
+      position: sticky;
+      top: 0;
+      background: var(--azul-100);
+      color: var(--azul-800);
+      font-weight: 900;
+      z-index: 1;
+    }
+
+    tr:hover td {
+      background: #fbfdff;
     }
 
     .history-list {
@@ -340,23 +546,48 @@
 
     .history-item {
       background: #ffffff;
-      border: 1px solid var(--borda);
-      border-left: 5px solid var(--roxo);
-      border-radius: 14px;
-      padding: 14px;
-      box-shadow: 0 5px 15px rgba(31, 78, 121, 0.08);
+      border: 1px solid var(--cinza-200);
+      border-left: 6px solid var(--roxo-700);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: var(--sombra-suave);
     }
 
     .history-item strong {
-      color: var(--azul-escuro);
+      color: var(--azul-800);
     }
 
     iframe {
       display: none;
     }
 
-    @media (max-width: 820px) {
+    @media (max-width: 960px) {
+      .hero-inner,
       .top-card,
+      .panel-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 820px) {
+      main {
+        padding: 18px 10px 36px;
+      }
+
+      .card,
+      .subcard {
+        padding: 16px;
+        border-radius: 18px;
+      }
+
       .form-grid,
       .form-grid.two,
       .classes-grid {
@@ -364,60 +595,64 @@
       }
 
       textarea {
-        min-height: 340px;
+        min-height: 330px;
       }
 
       .actions button,
       .actions .link-btn,
-      .main-tabs button,
       .lesson-tabs button {
         width: 100%;
         text-align: center;
       }
 
+      .lesson-tabs {
+        grid-template-columns: 1fr;
+      }
+
       table {
-        min-width: 680px;
+        min-width: 700px;
       }
     }
   </style>
 </head>
 
 <body>
-  <header>
-    <h1>Painel Admin EBD</h1>
-    <p>
-      Gerencie lições, escala de professores e histórico de alterações.
-    </p>
+  <header class="hero">
+    <div class="hero-inner">
+      <div>
+        <h1>Painel Admin EBD</h1>
+        <p>Gerencie lições, escala de professores, alterações e histórico em um só lugar.</p>
+      </div>
+
+      <div class="hero-badge">⚙️ Administração</div>
+    </div>
   </header>
 
   <main>
-    <section class="card" id="telaLogin">
-      <h2>Acesso ao painel</h2>
-
-      <p>Digite a senha uma única vez para acessar o painel nesta sessão.</p>
+    <section class="card login-card" id="telaLogin">
+      <div class="section-title">
+        <div>
+          <h2>Acesso ao painel</h2>
+          <p>Digite a senha uma única vez para acessar esta sessão.</p>
+        </div>
+      </div>
 
       <label for="senha">Senha do painel</label>
       <input id="senha" type="password" placeholder="Digite a senha do painel" autocomplete="current-password" />
 
-      <p class="help">
-        A senha precisa ser a mesma configurada no Apps Script em <strong>SENHA_ADMIN</strong>.
-      </p>
+      <p class="help">A senha precisa ser a mesma configurada no Apps Script em <strong>SENHA_ADMIN</strong>.</p>
 
       <div class="actions">
         <button class="secondary" type="button" onclick="entrarNoPainel()">Entrar no painel</button>
         <a class="link-btn secondary" href="./index.html" target="_blank" rel="noopener">Abrir site público</a>
       </div>
-
-      <div class="status" id="status"></div>
     </section>
 
     <section class="card" id="barraPainel" style="display: none;">
       <div class="top-card">
         <div>
-          <h2>Painel liberado</h2>
-          <p class="help">
-            A senha ficará ativa somente enquanto esta aba estiver aberta. Se fechar a aba, será necessário digitar novamente.
-          </p>
+          <h2 style="margin:0;color:var(--azul-800);">Painel liberado</h2>
+          <p class="help">A senha fica ativa somente enquanto esta aba estiver aberta.</p>
         </div>
 
         <div class="actions">
@@ -428,189 +663,230 @@
       </div>
     </section>
 
-    <section class="card" id="painelAdmin" style="display: none;">
-      <div class="main-tabs">
-        <button id="abaLicoesBtn" class="tab-btn active" type="button" onclick="abrirPainel('licoes')">Lições</button>
-        <button id="abaEscalaBtn" class="tab-btn" type="button" onclick="abrirPainel('escala')">Escala</button>
-        <button id="abaHistoricoBtn" class="tab-btn" type="button" onclick="abrirPainel('historico')">Histórico</button>
+    <div class="status" id="status"></div>
+
+    <section id="painelAdmin" style="display: none;">
+      <div class="dashboard-grid">
+        <div class="metric-card">
+          <span>Status</span>
+          <strong>Admin ativo</strong>
+        </div>
+        <div class="metric-card">
+          <span>Lições</span>
+          <strong>Jovens e Adultos / Adolescentes</strong>
+        </div>
+        <div class="metric-card">
+          <span>Escala</span>
+          <strong>Controle completo</strong>
+        </div>
       </div>
 
-      <div id="painelLicoes" class="admin-panel active">
-        <form id="formLicoes" method="POST" target="envioOculto">
-          <input type="hidden" name="acao" value="salvarLicoes" />
-          <input type="hidden" id="senhaForm" name="senha" value="" />
+      <div class="panel-shell">
+        <aside class="sidebar">
+          <div class="sidebar-title">Menu do painel</div>
+          <button id="abaLicoesBtn" class="nav-btn active" type="button" onclick="abrirPainel('licoes')">📚 Lições</button>
+          <button id="abaEscalaBtn" class="nav-btn" type="button" onclick="abrirPainel('escala')">📅 Escala</button>
+          <button id="abaHistoricoBtn" class="nav-btn" type="button" onclick="abrirPainel('historico')">📝 Histórico</button>
+        </aside>
 
-          <div class="lesson-tabs">
-            <button id="tabAdultos" class="tab-btn active" type="button" onclick="abrirAbaLicao('adultos')">
-              Jovens e Adultos
-            </button>
+        <div class="content-area">
+          <div id="painelLicoes" class="admin-panel active card">
+            <div class="section-title">
+              <div>
+                <h2>Gerenciar lições</h2>
+                <p>Atualize o conteúdo que aparece na página pública.</p>
+              </div>
+              <span class="chip">HTML da lição</span>
+            </div>
 
-            <button id="tabJovens" class="tab-btn" type="button" onclick="abrirAbaLicao('jovens')">
-              Adolescentes
-            </button>
-          </div>
+            <form id="formLicoes" method="POST" target="envioOculto">
+              <input type="hidden" name="acao" value="salvarLicoes" />
+              <input type="hidden" id="senhaForm" name="senha" value="" />
 
-          <div id="painelAdultos" class="editor-panel active">
-            <div class="editor-title">
-              <h2>Jovens e Adultos</h2>
+              <div class="lesson-tabs">
+                <button id="tabAdultos" class="tab-btn active" type="button" onclick="abrirAbaLicao('adultos')">
+                  Jovens e Adultos
+                </button>
+
+                <button id="tabJovens" class="tab-btn" type="button" onclick="abrirAbaLicao('jovens')">
+                  Adolescentes
+                </button>
+              </div>
+
+              <div id="painelAdultos" class="editor-panel active">
+                <div class="editor-title">
+                  <h2>Jovens e Adultos</h2>
+
+                  <div class="actions">
+                    <button class="gray" type="button" onclick="visualizar('adultos')">Prévia</button>
+                    <button class="red" type="button" onclick="limparCampo('adultos')">Limpar</button>
+                  </div>
+                </div>
+
+                <label for="adultos">HTML completo da lição</label>
+                <textarea id="adultos" name="adultos" placeholder="Cole aqui o modelo HTML da lição..."></textarea>
+
+                <p class="help">Este campo será exibido no site como <strong>Jovens e Adultos</strong>.</p>
+
+                <div id="previewAdultos" class="preview-area"></div>
+              </div>
+
+              <div id="painelJovens" class="editor-panel">
+                <div class="editor-title">
+                  <h2>Adolescentes</h2>
+
+                  <div class="actions">
+                    <button class="gray" type="button" onclick="visualizar('jovens')">Prévia</button>
+                    <button class="red" type="button" onclick="limparCampo('jovens')">Limpar</button>
+                  </div>
+                </div>
+
+                <label for="jovens">HTML completo da lição</label>
+                <textarea id="jovens" name="jovens" placeholder="Cole aqui o modelo HTML da lição..."></textarea>
+
+                <p class="help">Este campo será exibido no site como <strong>Adolescentes</strong>.</p>
+
+                <div id="previewJovens" class="preview-area"></div>
+              </div>
 
               <div class="actions">
-                <button class="gray" type="button" onclick="visualizar('adultos')">Prévia</button>
-                <button class="red" type="button" onclick="limparCampo('adultos')">Limpar</button>
+                <button id="btnSalvarLicoes" type="button" onclick="salvarLicoes()">Salvar lições</button>
+                <button class="gray" type="button" onclick="visualizarTudo()">Prévia dos dois campos</button>
+                <button class="secondary" type="button" onclick="carregarLicoes()">Carregar lições atuais</button>
+              </div>
+            </form>
+          </div>
+
+          <div id="painelEscala" class="admin-panel card">
+            <div class="section-title">
+              <div>
+                <h2>Gerenciar escala</h2>
+                <p>Altere professores, datas e nomes das classes.</p>
+              </div>
+              <span class="chip">Google Sheets</span>
+            </div>
+
+            <div class="subcard">
+              <div class="subcard-header">
+                <h3>Alterar professor em uma data</h3>
+                <span class="chip">Edição rápida</span>
+              </div>
+
+              <div class="form-grid">
+                <div>
+                  <label for="escalaDataEditar">Data</label>
+                  <select id="escalaDataEditar" onchange="preencherProfessorAtual()"></select>
+                </div>
+
+                <div>
+                  <label for="escalaClasseEditar">Classe</label>
+                  <select id="escalaClasseEditar" onchange="preencherProfessorAtual()"></select>
+                </div>
+
+                <div>
+                  <label for="escalaProfessorEditar">Professor</label>
+                  <input id="escalaProfessorEditar" type="text" placeholder="Novo nome do professor" />
+                </div>
+              </div>
+
+              <div class="actions">
+                <button type="button" onclick="adminSalvarProfessor()">Salvar professor</button>
               </div>
             </div>
 
-            <label for="adultos">Cole aqui o HTML completo da lição</label>
-            <textarea id="adultos" name="adultos" placeholder="Cole aqui o modelo HTML da lição..."></textarea>
+            <div class="subcard">
+              <div class="subcard-header">
+                <h3>Adicionar nova data</h3>
+                <span class="chip">Novo domingo</span>
+              </div>
 
-            <p class="help">
-              Este campo será exibido no site como <strong>Jovens e Adultos</strong>.
-            </p>
+              <div class="form-grid one">
+                <div>
+                  <label for="novaDataEscala">Nova data</label>
+                  <input id="novaDataEscala" type="date" />
+                </div>
+              </div>
 
-            <div id="previewAdultos" class="preview-area"></div>
-          </div>
-
-          <div id="painelJovens" class="editor-panel">
-            <div class="editor-title">
-              <h2>Adolescentes</h2>
+              <div id="camposNovaData" class="classes-grid"></div>
 
               <div class="actions">
-                <button class="gray" type="button" onclick="visualizar('jovens')">Prévia</button>
-                <button class="red" type="button" onclick="limparCampo('jovens')">Limpar</button>
+                <button type="button" onclick="adminAdicionarData()">Adicionar data na escala</button>
               </div>
             </div>
 
-            <label for="jovens">Cole aqui o HTML completo da lição</label>
-            <textarea id="jovens" name="jovens" placeholder="Cole aqui o modelo HTML da lição..."></textarea>
+            <div class="subcard">
+              <div class="subcard-header">
+                <h3>Remover data</h3>
+                <span class="chip">Com confirmação</span>
+              </div>
 
-            <p class="help">
-              Este campo será exibido no site como <strong>Adolescentes</strong>.
-            </p>
+              <div class="form-grid two">
+                <div>
+                  <label for="dataRemover">Data para remover</label>
+                  <select id="dataRemover"></select>
+                </div>
 
-            <div id="previewJovens" class="preview-area"></div>
-          </div>
-
-          <div class="actions">
-            <button id="btnSalvarLicoes" type="button" onclick="salvarLicoes()">Salvar lições</button>
-            <button class="gray" type="button" onclick="visualizarTudo()">Prévia dos dois campos</button>
-            <button class="secondary" type="button" onclick="carregarLicoes()">Carregar lições atuais</button>
-          </div>
-        </form>
-      </div>
-
-      <div id="painelEscala" class="admin-panel">
-        <h2>Gerenciar escala</h2>
-        <p class="help">
-          Use esta área para alterar professores, adicionar datas, remover datas e renomear classes sem abrir a planilha.
-        </p>
-
-        <div class="subcard">
-          <h3>Alterar professor em uma data</h3>
-
-          <div class="form-grid">
-            <div>
-              <label for="escalaDataEditar">Data</label>
-              <select id="escalaDataEditar" onchange="preencherProfessorAtual()"></select>
+                <div>
+                  <label>&nbsp;</label>
+                  <button class="red" type="button" onclick="adminRemoverData()">Remover data</button>
+                </div>
+              </div>
             </div>
 
-            <div>
-              <label for="escalaClasseEditar">Classe</label>
-              <select id="escalaClasseEditar" onchange="preencherProfessorAtual()"></select>
+            <div class="subcard">
+              <div class="subcard-header">
+                <h3>Renomear classe</h3>
+                <span class="chip">Cabeçalho da planilha</span>
+              </div>
+
+              <div class="form-grid">
+                <div>
+                  <label for="classeRenomear">Classe atual</label>
+                  <select id="classeRenomear"></select>
+                </div>
+
+                <div>
+                  <label for="novoNomeClasse">Novo nome</label>
+                  <input id="novoNomeClasse" type="text" placeholder="Ex: Juniores" />
+                </div>
+
+                <div>
+                  <label>&nbsp;</label>
+                  <button class="purple" type="button" onclick="adminRenomearClasse()">Renomear classe</button>
+                </div>
+              </div>
+
+              <p class="help">Esta alteração muda o nome da coluna na aba <strong>Escala EBD</strong>.</p>
             </div>
 
-            <div>
-              <label for="escalaProfessorEditar">Professor</label>
-              <input id="escalaProfessorEditar" type="text" placeholder="Novo nome do professor" />
+            <div class="subcard">
+              <div class="subcard-header">
+                <h3>Escala atual</h3>
+                <button class="secondary" type="button" onclick="carregarEscala()">Atualizar escala</button>
+              </div>
+
+              <div class="table-wrap">
+                <table id="tabelaEscalaAdmin">
+                  <thead></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
             </div>
           </div>
 
-          <div class="actions">
-            <button type="button" onclick="adminSalvarProfessor()">Salvar professor</button>
+          <div id="painelHistorico" class="admin-panel card">
+            <div class="section-title">
+              <div>
+                <h2>Histórico de alterações</h2>
+                <p>Últimas alterações feitas na escala.</p>
+              </div>
+
+              <button class="secondary" type="button" onclick="carregarHistorico()">Atualizar histórico</button>
+            </div>
+
+            <div id="listaHistorico" class="history-list"></div>
           </div>
         </div>
-
-        <div class="subcard">
-          <h3>Adicionar nova data</h3>
-
-          <div class="form-grid one">
-            <div>
-              <label for="novaDataEscala">Nova data</label>
-              <input id="novaDataEscala" type="date" />
-            </div>
-          </div>
-
-          <div id="camposNovaData" class="classes-grid"></div>
-
-          <div class="actions">
-            <button type="button" onclick="adminAdicionarData()">Adicionar data na escala</button>
-          </div>
-        </div>
-
-        <div class="subcard">
-          <h3>Remover data</h3>
-
-          <div class="form-grid two">
-            <div>
-              <label for="dataRemover">Data para remover</label>
-              <select id="dataRemover"></select>
-            </div>
-
-            <div>
-              <label>&nbsp;</label>
-              <button class="red" type="button" onclick="adminRemoverData()">Remover data</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="subcard">
-          <h3>Renomear classe</h3>
-
-          <div class="form-grid">
-            <div>
-              <label for="classeRenomear">Classe atual</label>
-              <select id="classeRenomear"></select>
-            </div>
-
-            <div>
-              <label for="novoNomeClasse">Novo nome</label>
-              <input id="novoNomeClasse" type="text" placeholder="Ex: Juniores" />
-            </div>
-
-            <div>
-              <label>&nbsp;</label>
-              <button class="purple" type="button" onclick="adminRenomearClasse()">Renomear classe</button>
-            </div>
-          </div>
-
-          <p class="help">
-            Esta alteração muda o nome da coluna na aba <strong>Escala EBD</strong>. Depois disso, a página pública também usará o novo nome.
-          </p>
-        </div>
-
-        <div class="subcard">
-          <h3>Escala atual</h3>
-
-          <div class="actions">
-            <button class="secondary" type="button" onclick="carregarEscala()">Atualizar escala</button>
-          </div>
-
-          <div class="table-wrap">
-            <table id="tabelaEscalaAdmin">
-              <thead></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <div id="painelHistorico" class="admin-panel">
-        <h2>Histórico de alterações</h2>
-
-        <div class="actions">
-          <button class="secondary" type="button" onclick="carregarHistorico()">Atualizar histórico</button>
-        </div>
-
-        <div id="listaHistorico" class="history-list"></div>
       </div>
     </section>
   </main>
@@ -677,6 +953,10 @@
     function mostrarStatus(tipo, mensagem) {
       statusBox.className = "status show " + tipo;
       statusBox.textContent = mensagem;
+
+      if (painelAdmin.style.display !== "none") {
+        statusBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
     }
 
     function obterSenhaSessao() {

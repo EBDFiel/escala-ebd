@@ -557,6 +557,115 @@
       color: var(--azul-800);
     }
 
+
+    .lesson-workspace {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .lesson-editor-card {
+      border: 1px solid var(--cinza-200);
+      border-radius: 22px;
+      background: linear-gradient(135deg, #ffffff, #fbfdff);
+      padding: 18px;
+      box-shadow: var(--sombra-suave);
+    }
+
+    .lesson-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--cinza-200);
+    }
+
+    .lesson-toolbar-title {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .lesson-toolbar-title strong {
+      color: var(--azul-800);
+      font-size: 1.05rem;
+    }
+
+    .lesson-toolbar-title span {
+      color: var(--cinza-500);
+      font-size: 0.9rem;
+    }
+
+    .lesson-toolbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .visual-lesson-editor {
+      min-height: 520px;
+      max-height: 760px;
+      overflow-y: auto;
+      border: 1px solid var(--cinza-200);
+      border-radius: 20px;
+      background: #ffffff;
+      padding: 18px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.6);
+    }
+
+    .visual-lesson-editor:focus {
+      outline: none;
+      border-color: var(--azul-700);
+      box-shadow: 0 0 0 4px rgba(31, 78, 121, 0.12);
+    }
+
+    .visual-lesson-editor[contenteditable="true"] {
+      cursor: text;
+    }
+
+    .html-editor-wrap {
+      display: none;
+      margin-top: 14px;
+    }
+
+    .html-editor-wrap.show {
+      display: block;
+    }
+
+    .html-editor-wrap textarea {
+      min-height: 360px;
+    }
+
+    .lesson-mode-note {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: var(--azul-100);
+      color: var(--azul-800);
+      font-weight: 750;
+      font-size: 0.92rem;
+    }
+
+    .compact-btn {
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      box-shadow: none;
+    }
+
+    .outline-btn {
+      background: #ffffff;
+      color: var(--azul-800);
+      border: 1px solid var(--cinza-200);
+      box-shadow: none;
+    }
+
+    .outline-btn:hover {
+      background: var(--azul-100);
+    }
+
     iframe {
       display: none;
     }
@@ -719,44 +828,71 @@
               </div>
 
               <div id="painelAdultos" class="editor-panel active">
-                <div class="editor-title">
-                  <h2>Jovens e Adultos</h2>
+                <div class="lesson-workspace">
+                  <div class="lesson-editor-card">
+                    <div class="lesson-toolbar">
+                      <div class="lesson-toolbar-title">
+                        <strong>Jovens e Adultos</strong>
+                        <span>Edite visualmente a lição como ela aparecerá no site.</span>
+                      </div>
 
-                  <div class="actions">
-                    <button class="gray" type="button" onclick="visualizar('adultos')">Prévia</button>
-                    <button class="red" type="button" onclick="limparCampo('adultos')">Limpar</button>
+                      <div class="lesson-toolbar-actions">
+                        <button class="outline-btn compact-btn" type="button" onclick="alternarHtml('adultos')">Editar HTML avançado</button>
+                        <button class="gray compact-btn" type="button" onclick="sincronizarVisual('adultos')">Atualizar visual</button>
+                        <button class="red compact-btn" type="button" onclick="limparCampo('adultos')">Limpar</button>
+                      </div>
+                    </div>
+
+                    <div id="editorVisualAdultos" class="visual-lesson-editor" contenteditable="true"></div>
+
+                    <div class="lesson-mode-note">
+                      Dica: para colar uma lição pronta em HTML, clique em <strong>Editar HTML avançado</strong>, cole o código e depois clique em <strong>Atualizar visual</strong>.
+                    </div>
+
+                    <div id="htmlWrapAdultos" class="html-editor-wrap">
+                      <label for="adultos">HTML completo da lição</label>
+                      <textarea id="adultos" name="adultos" placeholder="Cole aqui o modelo HTML da lição..."></textarea>
+                    </div>
+
+                    <p class="help">Este campo será exibido no site como <strong>Jovens e Adultos</strong>.</p>
                   </div>
                 </div>
-
-                <label for="adultos">HTML completo da lição</label>
-                <textarea id="adultos" name="adultos" placeholder="Cole aqui o modelo HTML da lição..."></textarea>
-
-                <p class="help">Este campo será exibido no site como <strong>Jovens e Adultos</strong>.</p>
-
-                <div id="previewAdultos" class="preview-area"></div>
               </div>
 
               <div id="painelJovens" class="editor-panel">
-                <div class="editor-title">
-                  <h2>Adolescentes</h2>
+                <div class="lesson-workspace">
+                  <div class="lesson-editor-card">
+                    <div class="lesson-toolbar">
+                      <div class="lesson-toolbar-title">
+                        <strong>Adolescentes</strong>
+                        <span>Edite visualmente a lição como ela aparecerá no site.</span>
+                      </div>
 
-                  <div class="actions">
-                    <button class="gray" type="button" onclick="visualizar('jovens')">Prévia</button>
-                    <button class="red" type="button" onclick="limparCampo('jovens')">Limpar</button>
+                      <div class="lesson-toolbar-actions">
+                        <button class="outline-btn compact-btn" type="button" onclick="alternarHtml('jovens')">Editar HTML avançado</button>
+                        <button class="gray compact-btn" type="button" onclick="sincronizarVisual('jovens')">Atualizar visual</button>
+                        <button class="red compact-btn" type="button" onclick="limparCampo('jovens')">Limpar</button>
+                      </div>
+                    </div>
+
+                    <div id="editorVisualJovens" class="visual-lesson-editor" contenteditable="true"></div>
+
+                    <div class="lesson-mode-note">
+                      Dica: para colar uma lição pronta em HTML, clique em <strong>Editar HTML avançado</strong>, cole o código e depois clique em <strong>Atualizar visual</strong>.
+                    </div>
+
+                    <div id="htmlWrapJovens" class="html-editor-wrap">
+                      <label for="jovens">HTML completo da lição</label>
+                      <textarea id="jovens" name="jovens" placeholder="Cole aqui o modelo HTML da lição..."></textarea>
+                    </div>
+
+                    <p class="help">Este campo será exibido no site como <strong>Adolescentes</strong>.</p>
                   </div>
                 </div>
-
-                <label for="jovens">HTML completo da lição</label>
-                <textarea id="jovens" name="jovens" placeholder="Cole aqui o modelo HTML da lição..."></textarea>
-
-                <p class="help">Este campo será exibido no site como <strong>Adolescentes</strong>.</p>
-
-                <div id="previewJovens" class="preview-area"></div>
               </div>
 
               <div class="actions">
                 <button id="btnSalvarLicoes" type="button" onclick="salvarLicoes()">Salvar lições</button>
-                <button class="gray" type="button" onclick="visualizarTudo()">Prévia dos dois campos</button>
                 <button class="secondary" type="button" onclick="carregarLicoes()">Carregar lições atuais</button>
               </div>
             </form>
@@ -1138,8 +1274,10 @@
     const adultos = document.getElementById("adultos");
     const jovens = document.getElementById("jovens");
     const statusBox = document.getElementById("status");
-    const previewAdultos = document.getElementById("previewAdultos");
-    const previewJovens = document.getElementById("previewJovens");
+    const editorVisualAdultos = document.getElementById("editorVisualAdultos");
+    const editorVisualJovens = document.getElementById("editorVisualJovens");
+    const htmlWrapAdultos = document.getElementById("htmlWrapAdultos");
+    const htmlWrapJovens = document.getElementById("htmlWrapJovens");
     const telaLogin = document.getElementById("telaLogin");
     const barraPainel = document.getElementById("barraPainel");
     const painelAdmin = document.getElementById("painelAdmin");
@@ -1261,24 +1399,60 @@
         .trim();
     }
 
-    function visualizar(campo) {
+    function atualizarEditoresVisuais() {
+      if (editorVisualAdultos) {
+        editorVisualAdultos.innerHTML = adultos.value || "<p>Nenhuma lição preenchida.</p>";
+      }
+
+      if (editorVisualJovens) {
+        editorVisualJovens.innerHTML = jovens.value || "<p>Nenhuma lição preenchida.</p>";
+      }
+    }
+
+    function sincronizarHtmlAPartirDoVisual() {
+      if (editorVisualAdultos) {
+        adultos.value = limparHtmlColado(editorVisualAdultos.innerHTML);
+      }
+
+      if (editorVisualJovens) {
+        jovens.value = limparHtmlColado(editorVisualJovens.innerHTML);
+      }
+    }
+
+    function sincronizarVisual(campo) {
       if (campo === "adultos") {
         adultos.value = limparHtmlColado(adultos.value);
-        previewAdultos.innerHTML = adultos.value || "<div style='padding:16px;'>Nenhuma lição preenchida.</div>";
-        previewAdultos.classList.add("show");
+        editorVisualAdultos.innerHTML = adultos.value || "<p>Nenhuma lição preenchida.</p>";
+        mostrarStatus("info", "Visual de Jovens e Adultos atualizado.");
       }
 
       if (campo === "jovens") {
         jovens.value = limparHtmlColado(jovens.value);
-        previewJovens.innerHTML = jovens.value || "<div style='padding:16px;'>Nenhuma lição preenchida.</div>";
-        previewJovens.classList.add("show");
+        editorVisualJovens.innerHTML = jovens.value || "<p>Nenhuma lição preenchida.</p>";
+        mostrarStatus("info", "Visual de Adolescentes atualizado.");
       }
     }
 
-    function visualizarTudo() {
-      visualizar("adultos");
-      visualizar("jovens");
-      mostrarStatus("info", "Prévia atualizada nos dois campos.");
+    function alternarHtml(campo) {
+      if (campo === "adultos") {
+        htmlWrapAdultos.classList.toggle("show");
+
+        if (htmlWrapAdultos.classList.contains("show")) {
+          adultos.value = limparHtmlColado(editorVisualAdultos.innerHTML);
+        } else {
+          sincronizarVisual("adultos");
+        }
+      }
+
+      if (campo === "jovens") {
+        htmlWrapJovens.classList.toggle("show");
+
+        if (htmlWrapJovens.classList.contains("show")) {
+          jovens.value = limparHtmlColado(editorVisualJovens.innerHTML);
+        } else {
+          sincronizarVisual("jovens");
+        }
+      }
     }
 
     function limparCampo(campo) {
@@ -1290,15 +1464,17 @@
 
       if (campo === "adultos") {
         adultos.value = "";
-        previewAdultos.innerHTML = "";
-        previewAdultos.classList.remove("show");
+        adultos.value = "";
+        editorVisualAdultos.innerHTML = "<p>Nenhuma lição preenchida.</p>";
+        if (htmlWrapAdultos) htmlWrapAdultos.classList.remove("show");
         mostrarStatus("info", "Campo Jovens e Adultos limpo. Nada foi salvo ainda.");
       }
 
       if (campo === "jovens") {
         jovens.value = "";
-        previewJovens.innerHTML = "";
-        previewJovens.classList.remove("show");
+        jovens.value = "";
+        editorVisualJovens.innerHTML = "<p>Nenhuma lição preenchida.</p>";
+        if (htmlWrapJovens) htmlWrapJovens.classList.remove("show");
         mostrarStatus("info", "Campo Adolescentes limpo. Nada foi salvo ainda.");
       }
     }
@@ -1365,8 +1541,7 @@
           ? limparHtmlColado(dados.licoes.jovens)
           : modeloPadrao;
 
-        previewAdultos.classList.remove("show");
-        previewJovens.classList.remove("show");
+        atualizarEditoresVisuais();
 
         mostrarStatus("success", "Dados carregados.");
       } catch (erro) {
@@ -1411,6 +1586,8 @@
 
     function salvarLicoes() {
       const senhaSalva = obterSenhaObrigatoria();
+
+      sincronizarHtmlAPartirDoVisual();
 
       adultos.value = limparHtmlColado(adultos.value);
       jovens.value = limparHtmlColado(jovens.value);
@@ -2021,6 +2198,7 @@
 
     adultos.value = modeloPadrao;
     jovens.value = modeloPadrao;
+    atualizarEditoresVisuais();
 
     document.addEventListener("DOMContentLoaded", () => {
       const senhaSalva = obterSenhaSessao();

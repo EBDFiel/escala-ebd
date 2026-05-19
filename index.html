@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1801,27 +1803,27 @@
       <h2 class="section-title">Lição da Semana 📖</h2>
 
       <p class="small-text lesson-intro">
-        Confira a lição atual da semana para as classes de Adultos e Jovens.
+        Confira a lição atual da semana para as classes de Jovens e Adultos e Adolescentes.
       </p>
 
       <div class="lesson-grid">
         <article class="lesson-card lesson-adultos">
-          <h3>Adultos 👔🌸</h3>
+          <h3>Jovens e Adultos 👔🌸🔥</h3>
           <p>
-            Lição atual para as classes de adultos. Você poderá substituir este conteúdo toda semana.
+            Lição atual para as classes de jovens e adultos.
           </p>
           <button class="btn btn-card" type="button" onclick="abrirLicao('adultos')">
-            Ver lição dos Adultos
+            Ver lição de Jovens e Adultos
           </button>
         </article>
 
         <article class="lesson-card lesson-jovens">
-          <h3>Jovens 🔥</h3>
+          <h3>Adolescentes 🌱</h3>
           <p>
-            Lição atual para a classe de jovens. Você poderá substituir este conteúdo toda semana.
+            Lição atual para a classe de adolescentes.
           </p>
           <button class="btn btn-card" type="button" onclick="abrirLicao('jovens')">
-            Ver lição dos Jovens
+            Ver lição dos Adolescentes
           </button>
         </article>
       </div>
@@ -2186,7 +2188,7 @@
 
     let licoesSemana = {
       adultos: `
-      <h3>Classe de Adultos 👔🌸</h3>
+      <h3>Classe de Jovens e Adultos 👔🌸🔥</h3>
 
       <h4>Lição modelo da semana</h4>
 
@@ -2232,12 +2234,12 @@
       </p>
 `,
       jovens: `
-      <h3>Classe de Jovens 🔥</h3>
+      <h3>Classe de Adolescentes 🌱</h3>
 
       <h4>Lição modelo da semana</h4>
 
       <p>
-        <strong>Tema:</strong> Jovens firmes em Cristo em uma geração instável.
+        <strong>Tema:</strong> Adolescentes firmes em Cristo em uma geração instável.
       </p>
 
       <blockquote>
@@ -2255,7 +2257,7 @@
 
       <h4>Introdução</h4>
       <p>
-        Esta é uma lição modelo para os jovens. Pelo painel admin.html, você poderá substituir este conteúdo
+        Esta é uma lição modelo para os adolescentes. Pelo painel admin.html, você poderá substituir este conteúdo
         pela lição atual sem mexer no GitHub.
       </p>
 
@@ -2271,9 +2273,9 @@
         “Sê o exemplo dos fiéis.” — 1 Timóteo 4:12
       </div>
 
-      <h4>Aplicação para os jovens</h4>
+      <h4>Aplicação para os adolescentes</h4>
       <p>
-        Converse com a classe sobre os desafios de viver para Cristo na escola, no trabalho,
+        Converse com a classe sobre os desafios de viver para Cristo na escola, na família,
         nas redes sociais e nos relacionamentos.
       </p>
 `
@@ -2913,12 +2915,12 @@
       }
 
       if (tipo === "adultos") {
-        tituloLicao.textContent = "Lição da Semana — Adultos";
+        tituloLicao.textContent = "Lição da Semana — Jovens e Adultos";
         conteudoLicao.innerHTML = prepararConteudoLicao(licoesSemana.adultos);
       }
 
       if (tipo === "jovens") {
-        tituloLicao.textContent = "Lição da Semana — Jovens";
+        tituloLicao.textContent = "Lição da Semana — Adolescentes";
         conteudoLicao.innerHTML = prepararConteudoLicao(licoesSemana.jovens);
       }
 

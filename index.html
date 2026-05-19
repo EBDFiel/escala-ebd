@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -427,6 +429,23 @@
       background: #ffffff;
       font-size: 1.35rem;
       box-shadow: 0 6px 14px rgba(31, 78, 121, 0.14);
+    }
+
+    .info-emoji.foto-pastor-wrap {
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      overflow: hidden;
+      border: 2px solid #ffffff;
+    }
+
+    .foto-pastor {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 20%;
+      display: block;
+      border-radius: 50%;
     }
 
     .realistic-icon {
@@ -1249,41 +1268,8 @@
 
       <div class="info-box">
         <div class="info-item info-blue">
-          <span class="info-emoji realistic-icon" aria-hidden="true">
-            <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="skinPastor" x1="0" x2="1">
-                  <stop offset="0%" stop-color="#f3c19a"/>
-                  <stop offset="100%" stop-color="#d89568"/>
-                </linearGradient>
-                <linearGradient id="suitPastor" x1="0" x2="1">
-                  <stop offset="0%" stop-color="#102f4d"/>
-                  <stop offset="100%" stop-color="#1f4e79"/>
-                </linearGradient>
-              </defs>
-
-              <circle cx="40" cy="40" r="38" fill="#ffffff"/>
-              <circle cx="40" cy="40" r="36" fill="#eaf3fb"/>
-
-              <path d="M18 72c2-18 12-29 22-29s20 11 22 29H18z" fill="url(#suitPastor)"/>
-              <path d="M28 45h24l8 27H20z" fill="#ffffff"/>
-              <path d="M28 45l12 10 12-10 4 8-16 13-16-13z" fill="#dbe7f1"/>
-              <path d="M36 51h8l-2 7 4 14H34l4-14z" fill="#b42318"/>
-
-              <rect x="34" y="35" width="12" height="12" rx="5" fill="#d89568"/>
-              <circle cx="40" cy="27" r="15" fill="url(#skinPastor)"/>
-
-              <path d="M24 25c2-11 8-18 17-18 9 0 15 7 16 18-4-3-8-4-12-4-2 0-4 1-5 3-1-2-3-3-5-3-4 0-8 1-11 4z" fill="#263238"/>
-              <path d="M25 30c2-6 5-10 9-11-1.5 3-2 6-1.5 9-3 0-5 1-7.5 2z" fill="#1f2937"/>
-              <path d="M55 30c-2-6-5-10-9-11 1.5 3 2 6 1.5 9 3 0 5 1 7.5 2z" fill="#1f2937"/>
-              <path d="M34 18c2-1 4-1.5 6-1.5s4 0.5 6 1.5c-2.3 1.2-4.3 2.5-6 4.5-1.7-2-3.7-3.3-6-4.5z" fill="url(#skinPastor)"/>
-
-              <circle cx="34" cy="28" r="1.8" fill="#263238"/>
-              <circle cx="46" cy="28" r="1.8" fill="#263238"/>
-              <path d="M35 35c3 2 7 2 10 0" fill="none" stroke="#7a3e2b" stroke-width="2" stroke-linecap="round"/>
-              <path d="M32.5 24c2-1.3 4-1.3 6-.3" stroke="#263238" stroke-width="1.8" stroke-linecap="round"/>
-              <path d="M42 23.7c2-1 4-.8 6 .4" stroke="#263238" stroke-width="1.8" stroke-linecap="round"/>
-            </svg>
+          <span class="info-emoji foto-pastor-wrap" aria-hidden="true">
+            <img src="pastor-presidente.png" alt="Pastor Presidente Oseas Valadares" class="foto-pastor" />
           </span>
           <strong>Pastor Presidente</strong>
           Oseas Valadares

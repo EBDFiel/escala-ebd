@@ -513,6 +513,20 @@
       font-size: 0.96rem;
     }
 
+    .actions-center {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .btn-secondary-scale {
+      background: linear-gradient(135deg, var(--azul), var(--azul-escuro));
+      box-shadow: 0 8px 18px rgba(31, 78, 121, 0.24);
+      animation: none;
+    }
+
     .btn {
       display: inline-block;
       border: none;
@@ -1811,10 +1825,20 @@
       <h2 class="section-title">Escala de Aulas 📚</h2>
 
       <div class="scale-action">
-        <p>Precisa trocar sua data? Clique abaixo e faça a alteração de forma guiada.</p>
-        <button class="btn btn-desktop" type="button" onclick="abrirModal()">
-          Alterar meu dia 🔄
-        </button>
+        <p>
+          Mostrando inicialmente apenas a escala da semana atual.
+          Para conferir o restante do trimestre, use o botão abaixo.
+        </p>
+
+        <div class="actions-center">
+          <button class="btn btn-desktop" type="button" onclick="abrirModal()">
+            Alterar meu dia 🔄
+          </button>
+
+          <button class="btn btn-desktop btn-secondary-scale" id="btnAlternarEscala" type="button" onclick="alternarEscalaCompleta()">
+            Ver escala completa 📅
+          </button>
+        </div>
       </div>
 
       <div class="loading-box" id="loadingBox">
@@ -1976,21 +2000,6 @@
         </div>
       </div>
     </section>
-
-    <section class="card history-section">
-      <h2>Histórico de Alterações 📝</h2>
-
-      <p class="small-text">
-        Aqui aparecem as últimas alterações realizadas na escala.
-      </p>
-
-      <div class="history-list" id="historicoAlteracoes">
-        <div class="history-empty">
-          Nenhuma alteração registrada ainda.
-        </div>
-      </div>
-    </section>
-
   </main>
 
   <footer>
@@ -2330,6 +2339,7 @@
     let linhasEscala = [];
     let ultimaVersaoEscala = "";
     let formularioAberto = false;
+    let mostrarEscalaCompleta = false;
 
     let escala = {
       "Crianças 1 a 5 anos": [],
@@ -2458,10 +2468,87 @@
       });
     }
 
+    function converterDataEscala(dataTexto) {
+      const partes = String(dataTexto || "").trim().split("/");
+
+      if (partes.length !== 3) {
+        return null;
+      }
+
+      const dia = Number(partes[0]);
+      const mes = Number(partes[1]) - 1;
+      const ano = Number(partes[2]);
+
+      if (!dia || mes < 0 || !ano) {
+        return null;
+      }
+
+      return new Date(ano, mes, dia);
+    }
+
+    function obterLinhasDaSemanaAtual(linhas) {
+      const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
+
+      const linhasValidas = linhas
+        .map((linha) => ({
+          linha: linha,
+          data: converterDataEscala(linha.Data || linha.data)
+        }))
+        .filter((item) => item.data)
+        .sort((a, b) => a.data - b.data);
+
+      if (linhasValidas.length === 0) {
+        return linhas.slice(0, 1);
+      }
+
+      const proxima = linhasValidas.find((item) => item.data >= hoje);
+
+      if (proxima) {
+        return [proxima.linha];
+      }
+
+      return [linhasValidas[linhasValidas.length - 1].linha];
+    }
+
+    function obterLinhasParaExibir() {
+      if (mostrarEscalaCompleta) {
+        return linhasEscala;
+      }
+
+      return obterLinhasDaSemanaAtual(linhasEscala);
+    }
+
+    function atualizarBotaoEscala() {
+      const botao = document.getElementById("btnAlternarEscala");
+
+      if (!botao) {
+        return;
+      }
+
+      botao.textContent = mostrarEscalaCompleta
+        ? "Ver somente a semana atual 📌"
+        : "Ver escala completa 📅";
+    }
+
+    function alternarEscalaCompleta() {
+      mostrarEscalaCompleta = !mostrarEscalaCompleta;
+
+      const linhasParaExibir = obterLinhasParaExibir();
+
+      renderizarTabela(linhasParaExibir);
+      renderizarCards(linhasParaExibir);
+      atualizarBotaoEscala();
+    }
+
     function renderizarEscala(linhas) {
       atualizarEscalaLocal(linhas);
-      renderizarTabela(linhas);
-      renderizarCards(linhas);
+
+      const linhasParaExibir = obterLinhasParaExibir();
+
+      renderizarTabela(linhasParaExibir);
+      renderizarCards(linhasParaExibir);
+      atualizarBotaoEscala();
     }
 
     function chamarAppsScript(parametros) {
@@ -2684,7 +2771,6 @@
       if (versaoAtual !== ultimaVersaoEscala) {
         ultimaVersaoEscala = versaoAtual;
         await carregarEscalaDaPlanilha(true);
-        await carregarHistoricoAlteracoes(true);
         await carregarLicoesDaPlanilha();
       }
     }
@@ -3034,7 +3120,6 @@
         try {
           await enviarAlteracao(payload);
           await carregarEscalaDaPlanilha();
-          await carregarHistoricoAlteracoes();
 
           ultimaVersaoEscala = await obterVersaoAtual();
 
@@ -3111,7 +3196,6 @@
 
       if (SITE_PUBLICADO) {
         await carregarEscalaDaPlanilha();
-        await carregarHistoricoAlteracoes();
         await carregarLicoesDaPlanilha();
 
         ultimaVersaoEscala = await obterVersaoAtual();
@@ -3121,7 +3205,6 @@
         }, 60000);
       } else {
         await carregarEscalaDaPlanilha();
-        await carregarHistoricoAlteracoes();
       }
     });
 

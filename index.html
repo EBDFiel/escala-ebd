@@ -883,6 +883,124 @@
       text-align: center;
     }
 
+
+    .lesson-section {
+      background: linear-gradient(135deg, #ffffff, #f7fbff);
+    }
+
+    .lesson-intro {
+      text-align: center;
+      margin-top: -6px;
+      margin-bottom: 18px;
+    }
+
+    .lesson-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .lesson-card {
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid var(--borda);
+      box-shadow: 0 8px 20px rgba(31, 78, 121, 0.10);
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .lesson-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 28px rgba(31, 78, 121, 0.16);
+    }
+
+    .lesson-card h3 {
+      margin-top: 0;
+      color: var(--azul);
+      font-size: 1.25rem;
+    }
+
+    .lesson-adultos {
+      background: linear-gradient(135deg, #eaf3fb, #ffffff);
+    }
+
+    .lesson-jovens {
+      background: linear-gradient(135deg, #fff8e1, #ffffff);
+    }
+
+    .lesson-modal {
+      max-width: 860px;
+    }
+
+    .lesson-content {
+      font-size: 1rem;
+      line-height: 1.75;
+    }
+
+    .lesson-content h3 {
+      color: var(--azul);
+      margin-top: 0;
+      font-size: 1.35rem;
+    }
+
+    .lesson-content h4 {
+      color: var(--verde-escuro);
+      margin-bottom: 6px;
+      font-size: 1.08rem;
+    }
+
+    .lesson-content blockquote {
+      margin: 16px 0;
+      padding: 14px 18px;
+      border-left: 5px solid var(--dourado);
+      background: #fff8e1;
+      border-radius: 12px;
+      color: #7a5312;
+      font-weight: 700;
+    }
+
+    .lesson-content ul,
+    .lesson-content ol {
+      padding-left: 22px;
+    }
+
+    .lesson-content .lesson-note {
+      background: var(--azul-claro);
+      border: 1px solid #cfe2f3;
+      padding: 14px 16px;
+      border-radius: 14px;
+      margin-top: 16px;
+    }
+
+    .lesson-content .lesson-memory {
+      background: var(--verde-claro);
+      border: 1px solid #bfe3c1;
+      padding: 14px 16px;
+      border-radius: 14px;
+      margin: 16px 0;
+      color: var(--verde-escuro);
+      font-weight: 700;
+    }
+
+    .lesson-content .lesson-warning {
+      background: var(--amarelo-claro);
+      border: 1px solid rgba(183, 121, 31, 0.25);
+      padding: 14px 16px;
+      border-radius: 14px;
+      margin-top: 16px;
+      color: #7a5312;
+    }
+
+    @media (max-width: 700px) {
+      .lesson-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .lesson-content {
+        font-size: 0.95rem;
+      }
+    }
+
     footer {
       text-align: center;
       padding: 26px 16px;
@@ -1403,6 +1521,37 @@
       <div class="mobile-cards" id="cardsEscala"></div>
     </section>
 
+
+    <section class="card lesson-section">
+      <h2 class="section-title">Lição da Semana 📖</h2>
+
+      <p class="small-text lesson-intro">
+        Confira a lição atual da semana para as classes de Adultos e Jovens.
+      </p>
+
+      <div class="lesson-grid">
+        <article class="lesson-card lesson-adultos">
+          <h3>Adultos 👔🌸</h3>
+          <p>
+            Lição atual para as classes de adultos. Você poderá substituir este conteúdo toda semana.
+          </p>
+          <button class="btn btn-card" type="button" onclick="abrirLicao('adultos')">
+            Ver lição dos Adultos
+          </button>
+        </article>
+
+        <article class="lesson-card lesson-jovens">
+          <h3>Jovens 🔥</h3>
+          <p>
+            Lição atual para a classe de jovens. Você poderá substituir este conteúdo toda semana.
+          </p>
+          <button class="btn btn-card" type="button" onclick="abrirLicao('jovens')">
+            Ver lição dos Jovens
+          </button>
+        </article>
+      </div>
+    </section>
+
     <section class="card instructions">
       <h2>Como alterar seu dia de aula 🔄</h2>
 
@@ -1612,6 +1761,22 @@
     </div>
   </div>
 
+
+  <div class="modal-overlay" id="modalLicao">
+    <div class="modal lesson-modal">
+      <div class="modal-header">
+        <h2 id="tituloLicao">Lição da Semana</h2>
+        <button class="close-btn" type="button" onclick="fecharLicao()" aria-label="Fechar">
+          ×
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div id="conteudoLicao" class="lesson-content"></div>
+      </div>
+    </div>
+  </div>
+
   <script>
 
     function ajustarSubtituloAoTitulo() {
@@ -1777,6 +1942,163 @@
     const btnConfirmar = document.getElementById("btnConfirmar");
     const loadingBox = document.getElementById("loadingBox");
     const historicoAlteracoes = document.getElementById("historicoAlteracoes");
+
+
+    const licoesSemana = {
+      adultos: `
+        <h3>Classe de Adultos 👔🌸</h3>
+
+        <h4>Lição modelo da semana</h4>
+
+        <p>
+          <strong>Tema:</strong> Sede firmes e constantes na obra do Senhor.
+        </p>
+
+        <blockquote>
+          “Portanto, meus amados irmãos, sede firmes e constantes, sempre abundantes na obra do Senhor,
+          sabendo que o vosso trabalho não é vão no Senhor.”
+          <br>
+          <strong>1 Coríntios 15:58</strong>
+        </blockquote>
+
+        <h4>Verdade prática</h4>
+        <p>
+          O cristão adulto é chamado a servir ao Senhor com perseverança, maturidade e fidelidade,
+          sabendo que Deus valoriza cada esforço realizado em sua obra.
+        </p>
+
+        <h4>Introdução</h4>
+        <p>
+          Esta é uma lição modelo. Toda semana você poderá substituir este texto pelo conteúdo atual da lição
+          dos adultos. Você pode usar parágrafos, listas, versículos, perguntas e aplicações práticas.
+        </p>
+
+        <h4>Pontos principais</h4>
+        <ol>
+          <li><strong>Firmeza na fé:</strong> permanecer fiel mesmo diante das dificuldades.</li>
+          <li><strong>Constância no serviço:</strong> continuar servindo com alegria e responsabilidade.</li>
+          <li><strong>Esperança na recompensa:</strong> confiar que o trabalho no Senhor nunca é inútil.</li>
+        </ol>
+
+        <div class="lesson-memory">
+          <strong>Texto para memorizar:</strong>
+          “O vosso trabalho não é vão no Senhor.” — 1 Coríntios 15:58
+        </div>
+
+        <h4>Aplicação para a classe</h4>
+        <p>
+          Reflita com a classe sobre como cada irmão pode contribuir melhor com a obra de Deus durante a semana,
+          seja na família, na igreja, no trabalho ou na comunidade.
+        </p>
+
+        <h4>Perguntas para reflexão</h4>
+        <ul>
+          <li>Tenho permanecido firme mesmo quando enfrento dificuldades?</li>
+          <li>Estou servindo ao Senhor com constância ou apenas quando é conveniente?</li>
+          <li>Como posso ajudar mais a obra de Deus nesta semana?</li>
+        </ul>
+
+        <div class="lesson-warning">
+          <strong>Observação:</strong>
+          substitua todo este conteúdo HTML pela lição atual dos adultos quando for atualizar o site.
+        </div>
+      `,
+
+      jovens: `
+        <h3>Classe de Jovens 🔥</h3>
+
+        <h4>Lição modelo da semana</h4>
+
+        <p>
+          <strong>Tema:</strong> Jovens firmes em Cristo em uma geração instável.
+        </p>
+
+        <blockquote>
+          “Ninguém despreze a tua mocidade; mas sê o exemplo dos fiéis, na palavra,
+          no trato, no amor, no espírito, na fé, na pureza.”
+          <br>
+          <strong>1 Timóteo 4:12</strong>
+        </blockquote>
+
+        <h4>Verdade prática</h4>
+        <p>
+          O jovem cristão pode ser exemplo em sua geração quando decide viver com fé,
+          pureza, responsabilidade e compromisso com Deus.
+        </p>
+
+        <h4>Introdução</h4>
+        <p>
+          Esta é uma lição modelo para os jovens. Toda semana você poderá substituir este conteúdo
+          pela lição atual, mantendo a mesma estrutura visual do site.
+        </p>
+
+        <h4>Pontos principais</h4>
+        <ol>
+          <li><strong>Ser exemplo na palavra:</strong> cuidar do que fala e da forma como se comunica.</li>
+          <li><strong>Ser exemplo no comportamento:</strong> viver de modo coerente com a fé cristã.</li>
+          <li><strong>Ser exemplo na fé:</strong> confiar em Deus e buscar crescimento espiritual.</li>
+        </ol>
+
+        <div class="lesson-memory">
+          <strong>Texto para memorizar:</strong>
+          “Sê o exemplo dos fiéis.” — 1 Timóteo 4:12
+        </div>
+
+        <h4>Aplicação para os jovens</h4>
+        <p>
+          Converse com a classe sobre os desafios de viver para Cristo na escola, no trabalho,
+          nas redes sociais e nos relacionamentos.
+        </p>
+
+        <h4>Para conversar em grupo</h4>
+        <ul>
+          <li>Quais são os maiores desafios para um jovem cristão hoje?</li>
+          <li>Como posso ser exemplo sem agir com orgulho?</li>
+          <li>Que atitude prática posso tomar nesta semana para me aproximar mais de Deus?</li>
+        </ul>
+
+        <div class="lesson-note">
+          <strong>Desafio da semana:</strong>
+          escolher uma atitude prática para demonstrar Cristo durante a semana.
+        </div>
+
+        <div class="lesson-warning">
+          <strong>Observação:</strong>
+          substitua todo este conteúdo HTML pela lição atual dos jovens quando for atualizar o site.
+        </div>
+      `
+    };
+
+    function abrirLicao(tipo) {
+      const modalLicao = document.getElementById("modalLicao");
+      const tituloLicao = document.getElementById("tituloLicao");
+      const conteudoLicao = document.getElementById("conteudoLicao");
+
+      if (!modalLicao || !tituloLicao || !conteudoLicao) {
+        return;
+      }
+
+      if (tipo === "adultos") {
+        tituloLicao.textContent = "Lição da Semana — Adultos";
+        conteudoLicao.innerHTML = licoesSemana.adultos;
+      }
+
+      if (tipo === "jovens") {
+        tituloLicao.textContent = "Lição da Semana — Jovens";
+        conteudoLicao.innerHTML = licoesSemana.jovens;
+      }
+
+      modalLicao.classList.add("active");
+    }
+
+    function fecharLicao() {
+      const modalLicao = document.getElementById("modalLicao");
+
+      if (modalLicao) {
+        modalLicao.classList.remove("active");
+      }
+    }
+
 
     function normalizarLinha(linha) {
       return {
@@ -2296,9 +2618,16 @@
       }
     });
 
+    document.getElementById("modalLicao").addEventListener("click", function (event) {
+      if (event.target === this) {
+        fecharLicao();
+      }
+    });
+
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape") {
         fecharModal();
+        fecharLicao();
       }
     });
 

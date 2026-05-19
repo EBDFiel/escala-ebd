@@ -531,6 +531,31 @@
       display: inline-block;
     }
 
+    .scale-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(160px, 220px));
+      justify-content: center;
+      align-items: stretch;
+      gap: 12px;
+    }
+
+    .scale-buttons .btn {
+      width: 100%;
+      min-height: 48px;
+      padding: 13px 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .btn-action-red {
+      background: linear-gradient(135deg, #b42318, #7f1d1d);
+      box-shadow: 0 8px 18px rgba(180, 35, 24, 0.24);
+      animation: none;
+    }
+
     .btn {
       display: inline-block;
       border: none;
@@ -1601,7 +1626,19 @@
       }
 
       .btn-mobile-visible {
-        display: inline-block;
+        display: inline-flex;
+      }
+
+      .scale-buttons {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .scale-buttons .btn {
+        width: 100%;
+        min-height: 50px;
+        padding: 12px 10px;
+        font-size: 0.9rem;
       }
 
       .table-wrap {
@@ -1833,18 +1870,13 @@
       <h2 class="section-title">Escala de Aulas 📚</h2>
 
       <div class="scale-action">
-        <p>
-          Mostrando inicialmente apenas a escala da semana atual.
-          Para conferir o restante do trimestre, use o botão abaixo.
-        </p>
-
-        <div class="actions-center">
-          <button class="btn btn-desktop" type="button" onclick="abrirModal()">
+        <div class="actions-center scale-buttons">
+          <button class="btn btn-action-red btn-mobile-visible" type="button" onclick="abrirModal()">
             Alterar meu dia 🔄
           </button>
 
           <button class="btn btn-secondary-scale btn-mobile-visible" id="btnAlternarEscala" type="button" onclick="alternarEscalaCompleta()">
-            Ver escala completa 📅
+            Escala do trimestre 📅
           </button>
         </div>
       </div>
@@ -2535,8 +2567,8 @@
       }
 
       botao.textContent = mostrarEscalaCompleta
-        ? "Ver somente a semana atual 📌"
-        : "Ver escala completa 📅";
+        ? "Semana atual 📌"
+        : "Escala do trimestre 📅";
     }
 
     function alternarEscalaCompleta() {

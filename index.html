@@ -31,6 +31,11 @@
   <meta name="twitter:description" content="Escola Bíblica Dominical — 2º Trimestre 2026" />
   <meta name="twitter:image" content="https://ebdfiel.github.io/escala-ebd/preview-whatsapp.jpg" />
 
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
   <style>
     :root {
       --azul: #1f4e79;
@@ -1007,6 +1012,267 @@
 
       .lesson-content {
         font-size: 0.95rem;
+      }
+    }
+
+
+    /* Modelo visual completo para lições coladas pelo painel admin.html */
+    .lesson-modal {
+      max-width: min(1160px, calc(100vw - 36px));
+    }
+
+    .lesson-content .lesson-container,
+    .lesson-content .lesson-container * {
+      box-sizing: border-box;
+    }
+
+    .lesson-content .lesson-container {
+      font-family: 'Inter', Arial, Helvetica, sans-serif;
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 2rem;
+      box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.20);
+      overflow: hidden;
+      color: #1a2c3e;
+      line-height: 1.5;
+    }
+
+    .lesson-content .lesson-container .hero {
+      background: linear-gradient(125deg, #0b2b3b 0%, #1a4a5f 100%);
+      padding: 2.5rem 2rem;
+      color: #ffffff;
+      text-align: center;
+      border-bottom: 5px solid #f4c542;
+    }
+
+    .lesson-content .lesson-container .hero h1 {
+      color: #ffffff;
+      font-size: 1.9rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      margin: 0 0 0.5rem;
+      line-height: 1.25;
+    }
+
+    .lesson-content .lesson-container .hero-sub {
+      font-size: 1rem;
+      opacity: 0.85;
+      margin-top: 0.5rem;
+    }
+
+    .lesson-content .lesson-container .versiculo-dia {
+      background: rgba(255, 255, 240, 0.12);
+      margin: 1.2rem auto 0;
+      padding: 1rem;
+      border-radius: 28px;
+      font-style: italic;
+      max-width: 90%;
+      border-left: 4px solid #f4c542;
+    }
+
+    .lesson-content .lesson-container .content {
+      padding: 2rem 2rem 2.5rem;
+    }
+
+    .lesson-content .lesson-container .ref-card,
+    .lesson-content .lesson-container .verdade-card,
+    .lesson-content .lesson-container .ponto-card,
+    .lesson-content .lesson-container .momento-card {
+      background: #f8fafd;
+      border-radius: 1.2rem;
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 1.8rem;
+      border-left: 6px solid #2c7a6e;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    }
+
+    .lesson-content .lesson-container .ref-card h3,
+    .lesson-content .lesson-container .verdade-card h3,
+    .lesson-content .lesson-container .ponto-card h3,
+    .lesson-content .lesson-container .momento-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem;
+      color: #1e4a5f;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      line-height: 1.3;
+    }
+
+    .lesson-content .lesson-container .analise-geral {
+      background: #eef2f0;
+      border-radius: 1.2rem;
+      padding: 1.2rem 1.5rem;
+      margin: 1.8rem 0;
+      border: 1px solid #cbdcd9;
+    }
+
+    .lesson-content .lesson-container .analise-geral h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 0 0 0.75rem;
+      color: #1e5a4f;
+      line-height: 1.3;
+    }
+
+    .lesson-content .lesson-container .introducao-box {
+      background: #f4f0e6;
+      border-radius: 1.2rem;
+      padding: 1.2rem 1.5rem;
+      margin: 1rem 0 2rem 0;
+    }
+
+    .lesson-content .lesson-container .introducao-box h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem;
+      color: #1a2c3e;
+      line-height: 1.3;
+    }
+
+    .lesson-content .lesson-container .topico-principal {
+      background: #ffffff;
+      border-radius: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03);
+      border: 1px solid #e2edf2;
+      overflow: hidden;
+    }
+
+    .lesson-content .lesson-container .topico-header {
+      background: #fef7e0;
+      padding: 1rem 1.5rem;
+      border-left: 8px solid #f4c542;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: #2c5a4a;
+      line-height: 1.3;
+    }
+
+    .lesson-content .lesson-container .subtopico {
+      padding: 1.2rem 1.8rem;
+      border-bottom: 1px solid #e9f0f3;
+    }
+
+    .lesson-content .lesson-container .subtopico:last-child {
+      border-bottom: none;
+    }
+
+    .lesson-content .lesson-container .subtopico h4 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1f6e5c;
+      margin: 0 0 0.6rem;
+      line-height: 1.3;
+    }
+
+    .lesson-content .lesson-container p {
+      color: #2f4453;
+      margin: 0 0 0.7rem;
+      line-height: 1.6;
+    }
+
+    .lesson-content .lesson-container p:last-child {
+      margin-bottom: 0;
+    }
+
+    .lesson-content .lesson-container .apoio-inline,
+    .lesson-content .lesson-container .pratica-inline {
+      background: #f4f9fe;
+      border-radius: 14px;
+      padding: 0.8rem 1rem;
+      margin-top: 0.8rem;
+      font-size: 0.9rem;
+      border-left: 3px solid #5aa9c2;
+      color: #2f4453;
+      line-height: 1.55;
+    }
+
+    .lesson-content .lesson-container .refletindo {
+      background: #fff7eb;
+      padding: 0.9rem 1.2rem;
+      border-radius: 20px;
+      margin: 1rem 1.8rem;
+      font-style: italic;
+      font-weight: 500;
+      border-left: 4px solid #e2a526;
+      color: #2f4453;
+    }
+
+    .lesson-content .lesson-container .complementando,
+    .lesson-content .lesson-container .eu-ensinei,
+    .lesson-content .lesson-container .conclusao,
+    .lesson-content .lesson-container .subsidio-box {
+      background: #eef3f5;
+      border-radius: 1.2rem;
+      padding: 1.2rem 1.8rem;
+      margin: 1.8rem 0;
+    }
+
+    .lesson-content .lesson-container .complementando h3,
+    .lesson-content .lesson-container .eu-ensinei h3,
+    .lesson-content .lesson-container .conclusao h3,
+    .lesson-content .lesson-container .subsidio-box h3 {
+      font-weight: 700;
+      margin: 0 0 0.7rem;
+      color: #1f6452;
+      font-size: 1.2rem;
+      line-height: 1.3;
+    }
+
+    .lesson-content .lesson-container hr {
+      margin: 1rem 0;
+      border: 0;
+      height: 1px;
+      background: linear-gradient(to right, #cce0e6, transparent);
+    }
+
+    .lesson-content .lesson-container .footer-note {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.75rem;
+      color: #6c8a9c;
+      border-top: 1px solid #dce7ec;
+      padding-top: 1.5rem;
+    }
+
+    @media (max-width: 680px) {
+      .lesson-modal {
+        max-width: calc(100vw - 20px);
+      }
+
+      .lesson-modal .modal-body {
+        padding: 10px;
+      }
+
+      .lesson-content .lesson-container {
+        border-radius: 1.2rem;
+      }
+
+      .lesson-content .lesson-container .content {
+        padding: 1.5rem;
+      }
+
+      .lesson-content .lesson-container .hero {
+        padding: 2rem 1.2rem;
+      }
+
+      .lesson-content .lesson-container .hero h1 {
+        font-size: 1.5rem;
+      }
+
+      .lesson-content .lesson-container .topico-header {
+        font-size: 1.1rem;
+      }
+
+      .lesson-content .lesson-container .subtopico {
+        padding: 1rem 1.2rem;
+      }
+
+      .lesson-content .lesson-container .refletindo {
+        margin: 1rem;
       }
     }
 
@@ -2598,7 +2864,46 @@
       return dados;
     }
 
-    function abrirLicao(tipo) {
+  
+  function prepararConteudoLicao(html) {
+    const conteudoBruto = String(html || "").trim();
+
+    if (!conteudoBruto) {
+      return `
+        <div class="lesson-container">
+          <div class="hero">
+            <h1>Lição da Semana</h1>
+            <div class="versiculo-dia">Nenhuma lição cadastrada ainda.</div>
+          </div>
+          <div class="content">
+            <div class="ref-card">
+              <h3>📖 Conteúdo indisponível</h3>
+              <p>Atualize esta lição pelo painel administrativo.</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    try {
+      const documento = new DOMParser().parseFromString(conteudoBruto, "text/html");
+      const containerModelo = documento.querySelector(".lesson-container");
+
+      if (containerModelo) {
+        return containerModelo.outerHTML;
+      }
+
+      if (documento.body && documento.body.innerHTML.trim()) {
+        return documento.body.innerHTML.trim();
+      }
+    } catch (erro) {
+      console.warn("Não foi possível preparar o HTML da lição:", erro);
+    }
+
+    return conteudoBruto;
+  }
+
+  function abrirLicao(tipo) {
       const modalLicao = document.getElementById("modalLicao");
       const tituloLicao = document.getElementById("tituloLicao");
       const conteudoLicao = document.getElementById("conteudoLicao");
@@ -2609,12 +2914,12 @@
 
       if (tipo === "adultos") {
         tituloLicao.textContent = "Lição da Semana — Adultos";
-        conteudoLicao.innerHTML = licoesSemana.adultos;
+        conteudoLicao.innerHTML = prepararConteudoLicao(licoesSemana.adultos);
       }
 
       if (tipo === "jovens") {
         tituloLicao.textContent = "Lição da Semana — Jovens";
-        conteudoLicao.innerHTML = licoesSemana.jovens;
+        conteudoLicao.innerHTML = prepararConteudoLicao(licoesSemana.jovens);
       }
 
       modalLicao.classList.add("active");

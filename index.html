@@ -930,6 +930,15 @@
 
     .lesson-modal {
       max-width: 860px;
+      max-height: calc(100vh - 40px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lesson-modal .modal-body {
+      overflow-y: auto;
+      max-height: calc(100vh - 130px);
+      -webkit-overflow-scrolling: touch;
     }
 
     .lesson-content {
@@ -1796,6 +1805,10 @@
 
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec";
 
+    const SITE_PUBLICADO =
+      location.hostname === "ebdfiel.github.io" ||
+      location.hostname.endsWith(".github.io");
+
     const classesEscala = [
       "Crianças 1 a 5 anos",
       "Crianças 6 a 10 anos",
@@ -2191,6 +2204,11 @@
 
     function chamarAppsScript(parametros) {
       return new Promise((resolve, reject) => {
+        if (!SITE_PUBLICADO) {
+          reject(new Error("Conexão externa desativada na prévia local."));
+          return;
+        }
+
         const callbackName = "callbackEscalaEBD_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
         const script = document.createElement("script");
         const query = new URLSearchParams(parametros);
@@ -2198,13 +2216,24 @@
         query.append("callback", callbackName);
         query.append("t", Date.now());
 
+        const timeout = setTimeout(() => {
+          if (window[callbackName]) {
+            delete window[callbackName];
+          }
+
+          script.remove();
+          reject(new Error("Tempo esgotado ao conectar ao Apps Script."));
+        }, 15000);
+
         window[callbackName] = function (resposta) {
+          clearTimeout(timeout);
           delete window[callbackName];
           script.remove();
           resolve(resposta);
         };
 
         script.onerror = function () {
+          clearTimeout(timeout);
           delete window[callbackName];
           script.remove();
           reject(new Error("Não foi possível conectar ao Apps Script."));
@@ -2223,6 +2252,20 @@
 
       if (linhasEscala.length === 0) {
         renderizarEscala(escalaReserva);
+      }
+
+      if (!SITE_PUBLICADO) {
+        if (!modoSilencioso) {
+          loadingBox.textContent = "Prévia local: mostrando escala inicial. 📌";
+        }
+
+        if (!modoSilencioso) {
+          setTimeout(() => {
+            loadingBox.classList.remove("show");
+          }, 1800);
+        }
+
+        return;
       }
 
       try {
@@ -2258,6 +2301,15 @@
     }
 
     async function carregarHistoricoAlteracoes(modoSilencioso = false) {
+      if (!SITE_PUBLICADO) {
+        historicoAlteracoes.innerHTML = `
+          <div class="history-empty">
+            Prévia local: histórico carregará no GitHub Pages.
+          </div>
+        `;
+        return;
+      }
+
       try {
         const dados = await chamarAppsScript({ acao: "historico" });
 
@@ -2305,6 +2357,10 @@
     }
 
     async function obterVersaoAtual() {
+      if (!SITE_PUBLICADO) {
+        return "";
+      }
+
       try {
         const dados = await chamarAppsScript({ acao: "versao" });
 
@@ -2320,7 +2376,7 @@
     }
 
     async function verificarAlteracaoNaPlanilha() {
-      if (formularioAberto) {
+      if (!SITE_PUBLICADO || formularioAberto) {
         return;
       }
 
@@ -2518,6 +2574,10 @@
     }
 
     async function enviarAlteracao(payload) {
+      if (!SITE_PUBLICADO) {
+        throw new Error("Na prévia local, a conexão com a planilha fica desativada. Publique no GitHub Pages para salvar alterações.");
+      }
+
       const dados = await chamarAppsScript({
         acao: "trocar",
         classe: payload.classe,
@@ -2641,23 +2701,25 @@
       await carregarEscalaDaPlanilha();
       await carregarHistoricoAlteracoes();
 
-      ultimaVersaoEscala = await obterVersaoAtual();
+      if (SITE_PUBLICADO) {
+        ultimaVersaoEscala = await obterVersaoAtual();
 
-      setInterval(async function () {
-        await verificarAlteracaoNaPlanilha();
-      }, 60000);
+        setInterval(async function () {
+          await verificarAlteracaoNaPlanilha();
+        }, 60000);
+      }
     });
 
     window.addEventListener("resize", ajustarSubtituloAoTitulo);
     window.addEventListener("load", ajustarSubtituloAoTitulo);
 
     document.addEventListener("visibilitychange", async function () {
-      if (!document.hidden) {
+      if (!document.hidden && SITE_PUBLICADO) {
         await verificarAlteracaoNaPlanilha();
       }
     });
 
-    if ("serviceWorker" in navigator) {
+    if ("serviceWorker" in navigator && SITE_PUBLICADO) {
       window.addEventListener("load", function () {
         navigator.serviceWorker.register("./service-worker.js")
           .then(function () {

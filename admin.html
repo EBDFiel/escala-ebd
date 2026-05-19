@@ -585,6 +585,17 @@
   </section>
 
   <div class="status" id="status"></div>
+  <div id="logMensagensEBD" style="
+    display:none;
+    background:#ffffff;
+    border:1px solid #cbd5e1;
+    border-radius:18px;
+    padding:12px 16px;
+    margin-bottom:1.2rem;
+    box-shadow:0 4px 12px rgba(0,0,0,0.05);
+    font-size:0.9rem;
+    color:#334155;
+  "></div>
 
   <section id="painelAdmin" style="display: none;">
     <div class="dashboard-grid">
@@ -735,6 +746,59 @@
       s.innerHTML = `<span>${icone}</span> ${msg}`;
     }
 
+    const log = document.getElementById("logMensagensEBD");
+    if (log) {
+      const agora = new Date().toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      });
+
+      log.style.display = "block";
+      log.innerHTML = `
+        <strong>Última mensagem do painel:</strong><br>
+        <span style="color:${tipo === "error" ? "#b71c1c" : tipo === "success" ? "#1b5e20" : "#7a5800"};">
+          ${icone} ${agora} — ${msg}
+        </span>
+      `;
+    }
+
+    const toast = document.getElementById("toastEBD");
+    if (toast) {
+      toast.className = "";
+      toast.classList.add(
+        tipo === "success" ? "toast-ebd-success" :
+        tipo === "error" ? "toast-ebd-error" :
+        "toast-ebd-info"
+      );
+      toast.innerHTML = `${icone} ${msg}`;
+      toast.style.display = "block";
+
+      clearTimeout(window.toastTimerEBD);
+
+      if (tipo === "error") {
+        // Erro fica visível por mais tempo para dar tempo de ler.
+        window.toastTimerEBD = setTimeout(() => {
+          toast.style.display = "none";
+          toast.className = "";
+        }, 15000);
+      } else {
+        window.toastTimerEBD = setTimeout(() => {
+          toast.style.display = "none";
+          toast.className = "";
+        }, 5200);
+      }
+    }
+
+    clearTimeout(window.statusTimerEBD);
+
+    if (tipo !== "error") {
+      window.statusTimerEBD = setTimeout(() => {
+        if (s) s.classList.remove("show");
+      }, 5200);
+    }
+  }
+
     const toast = document.getElementById("toastEBD");
     if (toast) {
       toast.className = "";
@@ -768,7 +832,7 @@
   function chamarAppsScript(params) { return new Promise((resolve, reject) => { let cb = "cb_" + Date.now() + Math.random(); let script = document.createElement("script"); let query = new URLSearchParams(params); query.append("callback", cb); query.append("t", Date.now()); let timeout = setTimeout(() => { delete window[cb]; script.remove(); reject(new Error("Timeout")); }, 15000); window[cb] = (r) => { clearTimeout(timeout); delete window[cb]; script.remove(); resolve(r); }; script.onerror = () => { clearTimeout(timeout); reject(new Error("Falha rede")); }; script.src = APPS_SCRIPT_URL + "?" + query; document.body.appendChild(script); }); }
 
   async function carregarTudo() { await carregarLicoes(); await carregarEscala(); await carregarProfessores(); await carregarHistorico(); }
-  async function carregarLicoes() { try { let d = await chamarAppsScript({ acao: "licoes" }); if(d.sucesso) { document.getElementById("adultos").value = d.licoes?.adultos || modeloPadrao; document.getElementById("jovens").value = d.licoes?.jovens || modeloPadrao; atualizarEditoresVisuais(); mostrarStatus("success","Lições carregadas."); } else throw new Error("erro"); } catch(e) { mostrarStatus("error","Erro lições"); } }
+  async function carregarLicoes() { try { let d = await chamarAppsScript({ acao: "licoes" }); if(d.sucesso) { document.getElementById("adultos").value = d.licoes?.adultos || modeloPadrao; document.getElementById("jovens").value = d.licoes?.jovens || modeloPadrao; atualizarEditoresVisuais(); mostrarStatus("success","Lições carregadas."); } else throw new Error("erro"); } catch(e) { mostrarStatus("error","Erro ao carregar lições. Verifique se a URL do Apps Script está correta e se a implantação está como Nova versão."); } }
   function atualizarEditoresVisuais() { let a=document.getElementById("editorVisualAdultos"), j=document.getElementById("editorVisualJovens"); if(a) a.innerHTML = document.getElementById("adultos").value || "<p>Sem lição</p>"; if(j) j.innerHTML = document.getElementById("jovens").value || "<p>Sem lição</p>"; }
   function sincronizarVisual(campo) {
     if (campo === "adultos") {
@@ -856,7 +920,7 @@
     timerSalvarLicoesEBD = setTimeout(() => {
       if (salvandoLicoesEBD) {
         salvandoLicoesEBD = false;
-        mostrarStatus("error", "As lições foram enviadas, mas o painel não recebeu confirmação. Verifique se o Apps Script foi implantado como nova versão.");
+        mostrarStatus("error", "As lições foram enviadas, mas o painel não recebeu confirmação do Apps Script. Confira se a senha está correta, se a implantação está em Nova versão e se o Apps Script tem .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL).");
       }
     }, 15000);
 

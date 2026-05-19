@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Painel de Lições — EBD</title>
+  <title>Painel Admin — Escala EBD</title>
 
   <style>
     :root {
@@ -21,6 +20,7 @@
       --vermelho: #b42318;
       --verde-claro: #e9f6ea;
       --amarelo-claro: #fff8e1;
+      --roxo: #5b21b6;
     }
 
     * {
@@ -56,7 +56,7 @@
 
     header p {
       margin: 10px auto 0;
-      max-width: 780px;
+      max-width: 820px;
     }
 
     main {
@@ -89,7 +89,8 @@
     }
 
     input,
-    textarea {
+    textarea,
+    select {
       width: 100%;
       border: 1px solid var(--borda);
       border-radius: 14px;
@@ -101,14 +102,15 @@
     }
 
     textarea {
-      min-height: 430px;
+      min-height: 420px;
       resize: vertical;
       font-family: Consolas, Monaco, "Courier New", monospace;
       line-height: 1.5;
     }
 
     input:focus,
-    textarea:focus {
+    textarea:focus,
+    select:focus {
       outline: none;
       border-color: var(--azul);
       box-shadow: 0 0 0 4px rgba(31, 78, 121, 0.14);
@@ -159,6 +161,11 @@
       box-shadow: none;
     }
 
+    button.purple {
+      background: linear-gradient(135deg, #6d28d9, #4c1d95);
+      box-shadow: 0 8px 18px rgba(91, 33, 182, 0.24);
+    }
+
     button:hover,
     .link-btn:hover {
       filter: brightness(1.04);
@@ -202,7 +209,8 @@
       border: 1px solid rgba(183, 121, 31, 0.25);
     }
 
-    .tabs {
+    .main-tabs,
+    .lesson-tabs {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
@@ -222,10 +230,12 @@
       border-color: transparent;
     }
 
+    .admin-panel,
     .editor-panel {
       display: none;
     }
 
+    .admin-panel.active,
     .editor-panel.active {
       display: block;
     }
@@ -259,23 +269,114 @@
       display: block;
     }
 
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .form-grid.two {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .form-grid.one {
+      grid-template-columns: 1fr;
+    }
+
+    .classes-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .subcard {
+      border: 1px solid var(--borda);
+      border-radius: 18px;
+      padding: 18px;
+      background: #fbfdff;
+      margin-top: 18px;
+    }
+
+    .subcard h3 {
+      margin-top: 0;
+      color: var(--azul-escuro);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--borda);
+      border-radius: 16px;
+      background: #ffffff;
+      margin-top: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 820px;
+    }
+
+    th,
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #edf2f7;
+      text-align: left;
+      vertical-align: top;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #eaf3fb;
+      color: var(--azul-escuro);
+      font-weight: 800;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .history-item {
+      background: #ffffff;
+      border: 1px solid var(--borda);
+      border-left: 5px solid var(--roxo);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 5px 15px rgba(31, 78, 121, 0.08);
+    }
+
+    .history-item strong {
+      color: var(--azul-escuro);
+    }
+
     iframe {
       display: none;
     }
 
     @media (max-width: 820px) {
-      .top-card {
+      .top-card,
+      .form-grid,
+      .form-grid.two,
+      .classes-grid {
         grid-template-columns: 1fr;
       }
 
       textarea {
-        min-height: 360px;
+        min-height: 340px;
       }
 
       .actions button,
-      .actions .link-btn {
+      .actions .link-btn,
+      .main-tabs button,
+      .lesson-tabs button {
         width: 100%;
         text-align: center;
+      }
+
+      table {
+        min-width: 680px;
       }
     }
   </style>
@@ -283,9 +384,9 @@
 
 <body>
   <header>
-    <h1>Painel de Lições EBD</h1>
+    <h1>Painel Admin EBD</h1>
     <p>
-      Painel simples para atualizar as lições de Jovens e Adultos e de Adolescentes.
+      Gerencie lições, escala de professores e histórico de alterações.
     </p>
   </header>
 
@@ -293,9 +394,7 @@
     <section class="card" id="telaLogin">
       <h2>Acesso ao painel</h2>
 
-      <p>
-        Digite a senha uma única vez para acessar o painel nesta sessão.
-      </p>
+      <p>Digite a senha uma única vez para acessar o painel nesta sessão.</p>
 
       <label for="senha">Senha do painel</label>
       <input id="senha" type="password" placeholder="Digite a senha do painel" autocomplete="current-password" />
@@ -322,74 +421,198 @@
         </div>
 
         <div class="actions">
-          <button class="secondary" type="button" onclick="carregarLicoes()">Carregar atuais</button>
+          <button class="secondary" type="button" onclick="carregarTudo()">Recarregar dados</button>
           <button class="gray" type="button" onclick="sairDoPainel()">Sair do painel</button>
           <a class="link-btn secondary" href="./index.html" target="_blank" rel="noopener">Abrir site</a>
         </div>
       </div>
     </section>
 
-    <form id="formLicoes" method="POST" target="envioOculto" style="display: none;">
-      <input type="hidden" name="acao" value="salvarLicoes" />
-      <input type="hidden" id="senhaForm" name="senha" value="" />
+    <section class="card" id="painelAdmin" style="display: none;">
+      <div class="main-tabs">
+        <button id="abaLicoesBtn" class="tab-btn active" type="button" onclick="abrirPainel('licoes')">Lições</button>
+        <button id="abaEscalaBtn" class="tab-btn" type="button" onclick="abrirPainel('escala')">Escala</button>
+        <button id="abaHistoricoBtn" class="tab-btn" type="button" onclick="abrirPainel('historico')">Histórico</button>
+      </div>
 
-      <section class="card">
-        <div class="tabs">
-          <button id="tabAdultos" class="tab-btn active" type="button" onclick="abrirAba('adultos')">
-            Jovens e Adultos
-          </button>
+      <div id="painelLicoes" class="admin-panel active">
+        <form id="formLicoes" method="POST" target="envioOculto">
+          <input type="hidden" name="acao" value="salvarLicoes" />
+          <input type="hidden" id="senhaForm" name="senha" value="" />
 
-          <button id="tabJovens" class="tab-btn" type="button" onclick="abrirAba('jovens')">
-            Adolescentes
-          </button>
-        </div>
+          <div class="lesson-tabs">
+            <button id="tabAdultos" class="tab-btn active" type="button" onclick="abrirAbaLicao('adultos')">
+              Jovens e Adultos
+            </button>
 
-        <div id="painelAdultos" class="editor-panel active">
-          <div class="editor-title">
-            <h2>Jovens e Adultos</h2>
+            <button id="tabJovens" class="tab-btn" type="button" onclick="abrirAbaLicao('jovens')">
+              Adolescentes
+            </button>
+          </div>
 
-            <div class="actions">
-              <button class="gray" type="button" onclick="visualizar('adultos')">Prévia</button>
-              <button class="red" type="button" onclick="limparCampo('adultos')">Limpar</button>
+          <div id="painelAdultos" class="editor-panel active">
+            <div class="editor-title">
+              <h2>Jovens e Adultos</h2>
+
+              <div class="actions">
+                <button class="gray" type="button" onclick="visualizar('adultos')">Prévia</button>
+                <button class="red" type="button" onclick="limparCampo('adultos')">Limpar</button>
+              </div>
+            </div>
+
+            <label for="adultos">Cole aqui o HTML completo da lição</label>
+            <textarea id="adultos" name="adultos" placeholder="Cole aqui o modelo HTML da lição..."></textarea>
+
+            <p class="help">
+              Este campo será exibido no site como <strong>Jovens e Adultos</strong>.
+            </p>
+
+            <div id="previewAdultos" class="preview-area"></div>
+          </div>
+
+          <div id="painelJovens" class="editor-panel">
+            <div class="editor-title">
+              <h2>Adolescentes</h2>
+
+              <div class="actions">
+                <button class="gray" type="button" onclick="visualizar('jovens')">Prévia</button>
+                <button class="red" type="button" onclick="limparCampo('jovens')">Limpar</button>
+              </div>
+            </div>
+
+            <label for="jovens">Cole aqui o HTML completo da lição</label>
+            <textarea id="jovens" name="jovens" placeholder="Cole aqui o modelo HTML da lição..."></textarea>
+
+            <p class="help">
+              Este campo será exibido no site como <strong>Adolescentes</strong>.
+            </p>
+
+            <div id="previewJovens" class="preview-area"></div>
+          </div>
+
+          <div class="actions">
+            <button id="btnSalvarLicoes" type="button" onclick="salvarLicoes()">Salvar lições</button>
+            <button class="gray" type="button" onclick="visualizarTudo()">Prévia dos dois campos</button>
+            <button class="secondary" type="button" onclick="carregarLicoes()">Carregar lições atuais</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="painelEscala" class="admin-panel">
+        <h2>Gerenciar escala</h2>
+        <p class="help">
+          Use esta área para alterar professores, adicionar datas, remover datas e renomear classes sem abrir a planilha.
+        </p>
+
+        <div class="subcard">
+          <h3>Alterar professor em uma data</h3>
+
+          <div class="form-grid">
+            <div>
+              <label for="escalaDataEditar">Data</label>
+              <select id="escalaDataEditar" onchange="preencherProfessorAtual()"></select>
+            </div>
+
+            <div>
+              <label for="escalaClasseEditar">Classe</label>
+              <select id="escalaClasseEditar" onchange="preencherProfessorAtual()"></select>
+            </div>
+
+            <div>
+              <label for="escalaProfessorEditar">Professor</label>
+              <input id="escalaProfessorEditar" type="text" placeholder="Novo nome do professor" />
             </div>
           </div>
 
-          <label for="adultos">Cole aqui o HTML completo da lição</label>
-          <textarea id="adultos" name="adultos" placeholder="Cole aqui o modelo HTML da lição..."></textarea>
-
-          <p class="help">
-            Este campo será exibido no site como <strong>Jovens e Adultos</strong>.
-          </p>
-
-          <div id="previewAdultos" class="preview-area"></div>
+          <div class="actions">
+            <button type="button" onclick="adminSalvarProfessor()">Salvar professor</button>
+          </div>
         </div>
 
-        <div id="painelJovens" class="editor-panel">
-          <div class="editor-title">
-            <h2>Adolescentes</h2>
+        <div class="subcard">
+          <h3>Adicionar nova data</h3>
 
-            <div class="actions">
-              <button class="gray" type="button" onclick="visualizar('jovens')">Prévia</button>
-              <button class="red" type="button" onclick="limparCampo('jovens')">Limpar</button>
+          <div class="form-grid one">
+            <div>
+              <label for="novaDataEscala">Nova data</label>
+              <input id="novaDataEscala" type="date" />
             </div>
           </div>
 
-          <label for="jovens">Cole aqui o HTML completo da lição</label>
-          <textarea id="jovens" name="jovens" placeholder="Cole aqui o modelo HTML da lição..."></textarea>
+          <div id="camposNovaData" class="classes-grid"></div>
+
+          <div class="actions">
+            <button type="button" onclick="adminAdicionarData()">Adicionar data na escala</button>
+          </div>
+        </div>
+
+        <div class="subcard">
+          <h3>Remover data</h3>
+
+          <div class="form-grid two">
+            <div>
+              <label for="dataRemover">Data para remover</label>
+              <select id="dataRemover"></select>
+            </div>
+
+            <div>
+              <label>&nbsp;</label>
+              <button class="red" type="button" onclick="adminRemoverData()">Remover data</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="subcard">
+          <h3>Renomear classe</h3>
+
+          <div class="form-grid">
+            <div>
+              <label for="classeRenomear">Classe atual</label>
+              <select id="classeRenomear"></select>
+            </div>
+
+            <div>
+              <label for="novoNomeClasse">Novo nome</label>
+              <input id="novoNomeClasse" type="text" placeholder="Ex: Juniores" />
+            </div>
+
+            <div>
+              <label>&nbsp;</label>
+              <button class="purple" type="button" onclick="adminRenomearClasse()">Renomear classe</button>
+            </div>
+          </div>
 
           <p class="help">
-            Este campo será exibido no site como <strong>Adolescentes</strong>.
+            Esta alteração muda o nome da coluna na aba <strong>Escala EBD</strong>. Depois disso, a página pública também usará o novo nome.
           </p>
-
-          <div id="previewJovens" class="preview-area"></div>
         </div>
+
+        <div class="subcard">
+          <h3>Escala atual</h3>
+
+          <div class="actions">
+            <button class="secondary" type="button" onclick="carregarEscala()">Atualizar escala</button>
+          </div>
+
+          <div class="table-wrap">
+            <table id="tabelaEscalaAdmin">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="painelHistorico" class="admin-panel">
+        <h2>Histórico de alterações</h2>
 
         <div class="actions">
-          <button id="btnSalvarLicoes" type="button" onclick="salvarLicoes()">Salvar lições</button>
-          <button class="gray" type="button" onclick="visualizarTudo()">Prévia dos dois campos</button>
+          <button class="secondary" type="button" onclick="carregarHistorico()">Atualizar histórico</button>
         </div>
-      </section>
-    </form>
+
+        <div id="listaHistorico" class="history-list"></div>
+      </div>
+    </section>
   </main>
 
   <iframe name="envioOculto" id="envioOculto"></iframe>
@@ -425,85 +648,6 @@
       Escreva aqui a verdade aplicada.
     </div>
 
-    <div style="background: #f0f4f8; border-radius: 0.8rem; padding: 0.8rem 1rem; margin-bottom: 1rem;">
-      <strong>🙏 MOMENTO DE ORAÇÃO:</strong>
-      Escreva aqui o motivo de oração.
-    </div>
-
-    <div style="background: #f0f4f8; border-radius: 0.8rem; padding: 0.8rem 1rem; margin-bottom: 1rem;">
-      <strong>🔑 PONTO CHAVE:</strong>
-      Escreva aqui o ponto chave.
-    </div>
-
-    <div style="background: #e8f0e8; border-radius: 0.8rem; padding: 0.8rem 1rem; margin-bottom: 1rem;">
-      <strong>📊 ANÁLISE GERAL:</strong><br>
-      Escreva aqui a análise geral da lição.
-    </div>
-
-    <div style="background: #f5f0e6; border-radius: 0.8rem; padding: 0.8rem 1rem; margin-bottom: 1rem;">
-      <strong>🚪 INTRODUÇÃO:</strong><br>
-      Escreva aqui a introdução.
-    </div>
-
-    <div style="background: #e3f0fa; border-radius: 0.8rem; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 4px solid #2c7a6e;">
-      <strong>🧠 APOIO PEDAGÓGICO:</strong><br>
-      Escreva aqui o apoio pedagógico.
-    </div>
-
-    <div style="background: #e0f2e6; border-radius: 0.8rem; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 4px solid #2e7d64;">
-      <strong>✅ APLICAÇÃO PRÁTICA:</strong><br>
-      Escreva aqui a aplicação prática.
-    </div>
-
-    <hr style="margin: 1rem 0;">
-
-    <div style="margin-bottom: 1.5rem;">
-      <h3 style="background: #fef7e0; padding: 0.5rem 0.8rem; border-left: 5px solid #f4c542; margin-bottom: 0.8rem;">1. PRIMEIRO TÓPICO</h3>
-
-      <p>Escreva aqui o texto do primeiro tópico.</p>
-
-      <h4 style="margin: 1rem 0 0.5rem;">1.1. Primeiro subtópico:</h4>
-
-      <p>Escreva aqui o texto do primeiro subtópico.</p>
-
-      <div style="background: #e3f0fa; border-radius: 0.8rem; padding: 0.6rem 0.8rem; margin: 0.8rem 0;">
-        <strong>🧠 APOIO PEDAGÓGICO:</strong><br>
-        Escreva aqui o apoio pedagógico do tópico.
-      </div>
-
-      <div style="background: #e0f2e6; border-radius: 0.8rem; padding: 0.6rem 0.8rem; margin: 0.8rem 0;">
-        <strong>✅ APLICAÇÃO PRÁTICA:</strong><br>
-        Escreva aqui a aplicação prática do tópico.
-      </div>
-    </div>
-
-    <div style="margin-bottom: 1.5rem;">
-      <h3 style="background: #fef7e0; padding: 0.5rem 0.8rem; border-left: 5px solid #f4c542; margin-bottom: 0.8rem;">2. SEGUNDO TÓPICO</h3>
-
-      <p>Escreva aqui o texto do segundo tópico.</p>
-    </div>
-
-    <div style="margin-bottom: 1.5rem;">
-      <h3 style="background: #fef7e0; padding: 0.5rem 0.8rem; border-left: 5px solid #f4c542; margin-bottom: 0.8rem;">3. TERCEIRO TÓPICO</h3>
-
-      <p>Escreva aqui o texto do terceiro tópico.</p>
-    </div>
-
-    <div style="background: #e8f0f5; border-radius: 0.8rem; padding: 0.8rem 1rem; margin-bottom: 1rem;">
-      <strong>📚 SUBSÍDIOS PARA O EDUCADOR:</strong><br>
-      Escreva aqui os subsídios.
-    </div>
-
-    <div style="background: #e8f0f5; border-radius: 0.8rem; padding: 0.8rem 1rem; margin-bottom: 1rem;">
-      <strong>🔧 COMPLEMENTANDO:</strong><br>
-      Escreva aqui o complemento.
-    </div>
-
-    <div style="background: #fef4e6; border-radius: 0.8rem; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 4px solid #f4c542;">
-      <strong>💎 EU ENSINEI QUE:</strong><br>
-      Escreva aqui o resumo principal.
-    </div>
-
     <div style="background: #e8f0f5; border-radius: 0.8rem; padding: 0.8rem 1rem; margin-bottom: 1rem;">
       <strong>🏁 CONCLUSÃO:</strong><br>
       Escreva aqui a conclusão.
@@ -512,9 +656,9 @@
 </div>
 `.trim();
 
-    const form = document.getElementById("formLicoes");
     const senha = document.getElementById("senha");
     const senhaForm = document.getElementById("senhaForm");
+    const form = document.getElementById("formLicoes");
     const adultos = document.getElementById("adultos");
     const jovens = document.getElementById("jovens");
     const statusBox = document.getElementById("status");
@@ -522,8 +666,11 @@
     const previewJovens = document.getElementById("previewJovens");
     const telaLogin = document.getElementById("telaLogin");
     const barraPainel = document.getElementById("barraPainel");
+    const painelAdmin = document.getElementById("painelAdmin");
     const btnSalvarLicoes = document.getElementById("btnSalvarLicoes");
 
+    let escalaCache = [];
+    let classesCache = [];
     let salvamentoEmAndamento = false;
     let timerConfirmacaoSalvamento = null;
 
@@ -547,13 +694,13 @@
     function mostrarPainelLogado() {
       telaLogin.style.display = "none";
       barraPainel.style.display = "block";
-      form.style.display = "block";
+      painelAdmin.style.display = "block";
     }
 
     function mostrarTelaLogin() {
       telaLogin.style.display = "block";
       barraPainel.style.display = "none";
-      form.style.display = "none";
+      painelAdmin.style.display = "none";
     }
 
     function entrarNoPainel() {
@@ -570,7 +717,7 @@
       mostrarPainelLogado();
       mostrarStatus("success", "Painel liberado nesta sessão.");
 
-      carregarLicoes();
+      carregarTudo();
     }
 
     function sairDoPainel() {
@@ -581,16 +728,36 @@
       mostrarStatus("info", "Você saiu do painel. Digite a senha novamente para acessar.");
     }
 
-    function limparHtmlColado(html) {
-      return String(html || "")
-        .trim()
-        .replace(/^```html\s*/i, "")
-        .replace(/^```\s*/i, "")
-        .replace(/```$/i, "")
-        .trim();
+    function obterSenhaObrigatoria() {
+      const senhaSalva = obterSenhaSessao();
+
+      if (!senhaSalva) {
+        mostrarStatus("error", "Sessão expirada. Digite a senha novamente.");
+        mostrarTelaLogin();
+        throw new Error("Sessão expirada.");
+      }
+
+      return senhaSalva;
     }
 
-    function abrirAba(aba) {
+    function abrirPainel(nome) {
+      const paineis = ["licoes", "escala", "historico"];
+
+      paineis.forEach((painel) => {
+        document.getElementById("painel" + painel.charAt(0).toUpperCase() + painel.slice(1)).classList.toggle("active", painel === nome);
+        document.getElementById("aba" + painel.charAt(0).toUpperCase() + painel.slice(1) + "Btn").classList.toggle("active", painel === nome);
+      });
+
+      if (nome === "escala") {
+        carregarEscala();
+      }
+
+      if (nome === "historico") {
+        carregarHistorico();
+      }
+    }
+
+    function abrirAbaLicao(aba) {
       const isAdultos = aba === "adultos";
 
       document.getElementById("tabAdultos").classList.toggle("active", isAdultos);
@@ -598,6 +765,15 @@
 
       document.getElementById("painelAdultos").classList.toggle("active", isAdultos);
       document.getElementById("painelJovens").classList.toggle("active", !isAdultos);
+    }
+
+    function limparHtmlColado(html) {
+      return String(html || "")
+        .trim()
+        .replace(/^```html\s*/i, "")
+        .replace(/^```\s*/i, "")
+        .replace(/```$/i, "")
+        .trim();
     }
 
     function visualizar(campo) {
@@ -679,6 +855,12 @@
       });
     }
 
+    async function carregarTudo() {
+      await carregarLicoes();
+      await carregarEscala();
+      await carregarHistorico();
+    }
+
     async function carregarLicoes() {
       mostrarStatus("info", "Carregando lições atuais...");
 
@@ -700,12 +882,12 @@
         previewAdultos.classList.remove("show");
         previewJovens.classList.remove("show");
 
-        mostrarStatus("success", "Lições carregadas. Edite somente o campo que precisar e depois clique em Salvar lições.");
+        mostrarStatus("success", "Dados carregados.");
       } catch (erro) {
         adultos.value = modeloPadrao;
         jovens.value = modeloPadrao;
 
-        mostrarStatus("error", (erro && erro.message) || "Erro ao carregar. Modelo padrão inserido.");
+        mostrarStatus("error", (erro && erro.message) || "Erro ao carregar lições.");
       }
     }
 
@@ -733,32 +915,19 @@
       }
 
       if (resposta.sucesso) {
-        mostrarStatus(
-          "success",
-          resposta.mensagem || "Lições salvas com sucesso."
-        );
-
+        mostrarStatus("success", resposta.mensagem || "Lições salvas com sucesso.");
         carregarLicoes();
         return;
       }
 
-      mostrarStatus(
-        "error",
-        resposta.mensagem || "O Apps Script respondeu, mas não conseguiu salvar."
-      );
+      mostrarStatus("error", resposta.mensagem || "O Apps Script respondeu, mas não conseguiu salvar.");
     });
 
     function salvarLicoes() {
-      const senhaSalva = obterSenhaSessao();
+      const senhaSalva = obterSenhaObrigatoria();
 
       adultos.value = limparHtmlColado(adultos.value);
       jovens.value = limparHtmlColado(jovens.value);
-
-      if (!senhaSalva) {
-        mostrarStatus("error", "Sessão expirada. Digite a senha novamente.");
-        mostrarTelaLogin();
-        return;
-      }
 
       if (!adultos.value.trim() && !jovens.value.trim()) {
         mostrarStatus("error", "Preencha pelo menos uma lição antes de salvar.");
@@ -793,9 +962,284 @@
 
         mostrarStatus(
           "error",
-          "O painel enviou as lições, mas não recebeu confirmação do Apps Script. Verifique se o Apps Script foi implantado como nova versão."
+          "O painel enviou as lições, mas não recebeu confirmação do Apps Script. Verifique senha, implantação e permissões."
         );
       }, 12000);
+    }
+
+    async function carregarEscala() {
+      try {
+        const dados = await chamarAppsScript({ acao: "listar" });
+
+        if (!dados || !dados.sucesso) {
+          throw new Error((dados && dados.mensagem) || "Não foi possível carregar a escala.");
+        }
+
+        escalaCache = dados.escala || [];
+        classesCache = escalaCache.length ? Object.keys(escalaCache[0]).filter((item) => item !== "Data") : [];
+
+        preencherSelectsEscala();
+        renderizarTabelaEscala();
+      } catch (erro) {
+        mostrarStatus("error", erro.message || "Erro ao carregar escala.");
+      }
+    }
+
+    function preencherSelectsEscala() {
+      const datas = escalaCache.map((linha) => linha.Data).filter(Boolean);
+
+      preencherSelect("escalaDataEditar", datas);
+      preencherSelect("dataRemover", datas);
+      preencherSelect("escalaClasseEditar", classesCache);
+      preencherSelect("classeRenomear", classesCache);
+
+      renderizarCamposNovaData();
+      preencherProfessorAtual();
+    }
+
+    function preencherSelect(id, itens) {
+      const select = document.getElementById(id);
+
+      if (!select) {
+        return;
+      }
+
+      select.innerHTML = "";
+
+      itens.forEach((item) => {
+        const option = document.createElement("option");
+        option.value = item;
+        option.textContent = item;
+        select.appendChild(option);
+      });
+    }
+
+    function preencherProfessorAtual() {
+      const data = document.getElementById("escalaDataEditar").value;
+      const classe = document.getElementById("escalaClasseEditar").value;
+      const campo = document.getElementById("escalaProfessorEditar");
+
+      const linha = escalaCache.find((item) => item.Data === data);
+
+      campo.value = linha && classe ? (linha[classe] || "") : "";
+    }
+
+    function renderizarCamposNovaData() {
+      const container = document.getElementById("camposNovaData");
+      container.innerHTML = "";
+
+      classesCache.forEach((classe) => {
+        const div = document.createElement("div");
+        div.innerHTML = `
+          <label>${classe}</label>
+          <input type="text" data-classe-nova="${classe}" placeholder="Professor de ${classe}">
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderizarTabelaEscala() {
+      const tabela = document.getElementById("tabelaEscalaAdmin");
+      const thead = tabela.querySelector("thead");
+      const tbody = tabela.querySelector("tbody");
+
+      if (!escalaCache.length) {
+        thead.innerHTML = "";
+        tbody.innerHTML = "<tr><td>Nenhuma escala encontrada.</td></tr>";
+        return;
+      }
+
+      const colunas = Object.keys(escalaCache[0]);
+
+      thead.innerHTML = "<tr>" + colunas.map((coluna) => `<th>${coluna}</th>`).join("") + "</tr>";
+      tbody.innerHTML = escalaCache.map((linha) => {
+        return "<tr>" + colunas.map((coluna) => `<td>${linha[coluna] || ""}</td>`).join("") + "</tr>";
+      }).join("");
+    }
+
+    async function adminSalvarProfessor() {
+      try {
+        const senhaSalva = obterSenhaObrigatoria();
+        const data = document.getElementById("escalaDataEditar").value;
+        const classe = document.getElementById("escalaClasseEditar").value;
+        const professor = document.getElementById("escalaProfessorEditar").value.trim();
+
+        if (!data || !classe || !professor) {
+          mostrarStatus("error", "Informe data, classe e professor.");
+          return;
+        }
+
+        const resposta = await chamarAppsScript({
+          acao: "adminSalvarProfessor",
+          senha: senhaSalva,
+          data: data,
+          classe: classe,
+          professor: professor
+        });
+
+        if (!resposta.sucesso) {
+          throw new Error(resposta.mensagem || "Não foi possível salvar professor.");
+        }
+
+        mostrarStatus("success", resposta.mensagem || "Professor alterado com sucesso.");
+        await carregarEscala();
+        await carregarHistorico();
+      } catch (erro) {
+        mostrarStatus("error", erro.message || "Erro ao salvar professor.");
+      }
+    }
+
+    function formatarDataBR(valor) {
+      if (!valor) {
+        return "";
+      }
+
+      const partes = valor.split("-");
+
+      if (partes.length !== 3) {
+        return valor;
+      }
+
+      return partes[2] + "/" + partes[1] + "/" + partes[0];
+    }
+
+    async function adminAdicionarData() {
+      try {
+        const senhaSalva = obterSenhaObrigatoria();
+        const data = formatarDataBR(document.getElementById("novaDataEscala").value);
+
+        if (!data) {
+          mostrarStatus("error", "Informe a nova data.");
+          return;
+        }
+
+        const campos = {};
+
+        document.querySelectorAll("[data-classe-nova]").forEach((input) => {
+          campos[input.dataset.classeNova] = input.value.trim();
+        });
+
+        const resposta = await chamarAppsScript({
+          acao: "adminAdicionarData",
+          senha: senhaSalva,
+          data: data,
+          campos: JSON.stringify(campos)
+        });
+
+        if (!resposta.sucesso) {
+          throw new Error(resposta.mensagem || "Não foi possível adicionar data.");
+        }
+
+        mostrarStatus("success", resposta.mensagem || "Data adicionada com sucesso.");
+        document.getElementById("novaDataEscala").value = "";
+        await carregarEscala();
+        await carregarHistorico();
+      } catch (erro) {
+        mostrarStatus("error", erro.message || "Erro ao adicionar data.");
+      }
+    }
+
+    async function adminRemoverData() {
+      try {
+        const senhaSalva = obterSenhaObrigatoria();
+        const data = document.getElementById("dataRemover").value;
+
+        if (!data) {
+          mostrarStatus("error", "Selecione uma data para remover.");
+          return;
+        }
+
+        const confirmar = confirm("Tem certeza que deseja remover a escala do dia " + data + "?");
+
+        if (!confirmar) {
+          return;
+        }
+
+        const resposta = await chamarAppsScript({
+          acao: "adminRemoverData",
+          senha: senhaSalva,
+          data: data
+        });
+
+        if (!resposta.sucesso) {
+          throw new Error(resposta.mensagem || "Não foi possível remover data.");
+        }
+
+        mostrarStatus("success", resposta.mensagem || "Data removida com sucesso.");
+        await carregarEscala();
+        await carregarHistorico();
+      } catch (erro) {
+        mostrarStatus("error", erro.message || "Erro ao remover data.");
+      }
+    }
+
+    async function adminRenomearClasse() {
+      try {
+        const senhaSalva = obterSenhaObrigatoria();
+        const classeAntiga = document.getElementById("classeRenomear").value;
+        const classeNova = document.getElementById("novoNomeClasse").value.trim();
+
+        if (!classeAntiga || !classeNova) {
+          mostrarStatus("error", "Informe a classe atual e o novo nome.");
+          return;
+        }
+
+        const confirmar = confirm("Renomear a classe '" + classeAntiga + "' para '" + classeNova + "'?");
+
+        if (!confirmar) {
+          return;
+        }
+
+        const resposta = await chamarAppsScript({
+          acao: "adminRenomearClasse",
+          senha: senhaSalva,
+          classeAntiga: classeAntiga,
+          classeNova: classeNova
+        });
+
+        if (!resposta.sucesso) {
+          throw new Error(resposta.mensagem || "Não foi possível renomear classe.");
+        }
+
+        mostrarStatus("success", resposta.mensagem || "Classe renomeada com sucesso.");
+        document.getElementById("novoNomeClasse").value = "";
+        await carregarEscala();
+        await carregarHistorico();
+      } catch (erro) {
+        mostrarStatus("error", erro.message || "Erro ao renomear classe.");
+      }
+    }
+
+    async function carregarHistorico() {
+      try {
+        const dados = await chamarAppsScript({ acao: "historico", limite: "50" });
+
+        if (!dados || !dados.sucesso) {
+          throw new Error((dados && dados.mensagem) || "Não foi possível carregar histórico.");
+        }
+
+        const lista = document.getElementById("listaHistorico");
+        const historico = dados.historico || [];
+
+        if (!historico.length) {
+          lista.innerHTML = "<p class='help'>Nenhuma alteração registrada ainda.</p>";
+          return;
+        }
+
+        lista.innerHTML = historico.map((item) => `
+          <div class="history-item">
+            <strong>${item.dataHora || ""}</strong><br>
+            <strong>Classe:</strong> ${item.classe || ""}<br>
+            <strong>Solicitante:</strong> ${item.professorSolicitante || ""}<br>
+            <strong>Data antiga:</strong> ${item.dataAntiga || ""}<br>
+            <strong>Nova data:</strong> ${item.novaData || ""}<br>
+            <strong>Professor/Alteração:</strong> ${item.professorTrocado || ""}<br>
+            <strong>Origem:</strong> ${item.origem || ""}
+          </div>
+        `).join("");
+      } catch (erro) {
+        mostrarStatus("error", erro.message || "Erro ao carregar histórico.");
+      }
     }
 
     adultos.value = modeloPadrao;
@@ -807,7 +1251,7 @@
       if (senhaSalva) {
         senhaForm.value = senhaSalva;
         mostrarPainelLogado();
-        carregarLicoes();
+        carregarTudo();
       } else {
         mostrarTelaLogin();
       }

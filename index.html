@@ -144,6 +144,16 @@
       }
     }
 
+    @keyframes pulseRed {
+      0%, 100% {
+        box-shadow: 0 10px 24px rgba(225, 29, 29, 0.35);
+      }
+
+      50% {
+        box-shadow: 0 14px 34px rgba(225, 29, 29, 0.55);
+      }
+    }
+
     @keyframes modalEntrada {
       from {
         transform: translateY(18px) scale(0.98);
@@ -559,9 +569,9 @@
     }
 
     .btn-action-red {
-      background: linear-gradient(135deg, #b42318, #7f1d1d);
-      box-shadow: 0 8px 18px rgba(180, 35, 24, 0.30);
-      animation: none;
+      background: linear-gradient(135deg, #e11d1d, #991b1b) !important;
+      box-shadow: 0 10px 24px rgba(225, 29, 29, 0.35) !important;
+      animation: pulseRed 2.4s ease-in-out infinite;
     }
 
     .btn {

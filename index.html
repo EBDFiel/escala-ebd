@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -8,6 +9,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_VERSAO_LICOES_2026_05_19_DEBUG" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -2757,13 +2759,24 @@
       }
     }
 
-    async function carregarLicoesDaPlanilha(modoSilencioso = false) {
+    async function carregarLicoesDaPlanilha(modoSilencioso = false, forcarAtualizacao = false) {
       try {
+        if (forcarAtualizacao) {
+          try {
+            localStorage.removeItem("ebdLicoesAdultos");
+            localStorage.removeItem("ebdLicoesJovens");
+          } catch (erroLocalStorage) {
+            console.warn("Não foi possível limpar cache local das lições:", erroLocalStorage);
+          }
+        }
+
         const dados = await chamarAppsScript({
           acao: "licoes",
           cache: "nao",
-          t: Date.now()
+          _nocache: Date.now()
         });
+
+        window.ultimaRespostaLicoesEBD = dados;
 
         if (!dados || !dados.sucesso || !dados.licoes) {
           if (!modoSilencioso) {
@@ -2804,6 +2817,11 @@
         return true;
       } catch (erro) {
         console.error("Erro ao carregar lições:", erro);
+        window.ultimoErroLicoesEBD = erro;
+
+        if (forcarAtualizacao) {
+          return false;
+        }
 
         try {
           const adultosCache = localStorage.getItem("ebdLicoesAdultos");
@@ -3159,15 +3177,40 @@
         </div>
       `;
 
-      await carregarLicoesDaPlanilha(true);
+      const carregou = await carregarLicoesDaPlanilha(true, true);
+
+      if (!carregou) {
+        const erro = window.ultimoErroLicoesEBD;
+        conteudoLicao.innerHTML = `
+          <div style="padding: 24px; border-radius: 18px; background:#fff3f3; color:#991b1b; border:1px solid #fecaca;">
+            <h3 style="margin-top:0;">Não foi possível carregar a lição atualizada</h3>
+            <p>O site tentou buscar a lição no Apps Script, mas não recebeu uma resposta válida.</p>
+            <p><strong>Erro:</strong> ${erro && erro.message ? erro.message : "Resposta inválida ou tempo esgotado."}</p>
+            <p>Abra o link <code>?acao=licoes</code> do Apps Script para confirmar se a lição está salva.</p>
+          </div>
+        `;
+        return;
+      }
 
       if (tipo === "adultos") {
-        conteudoLicao.innerHTML = prepararConteudoLicao(licoesSemana.adultos);
+        const conteudo = String(licoesSemana.adultos || "").trim();
+
+        if (!conteudo || conteudo.includes("Lição modelo da semana")) {
+          console.warn("A lição de adultos carregada parece ser a lição modelo:", conteudo.slice(0, 300));
+        }
+
+        conteudoLicao.innerHTML = prepararConteudoLicao(conteudo);
         return;
       }
 
       if (tipo === "jovens") {
-        conteudoLicao.innerHTML = prepararConteudoLicao(licoesSemana.jovens);
+        const conteudo = String(licoesSemana.jovens || "").trim();
+
+        if (!conteudo || conteudo.includes("Lição modelo da semana")) {
+          console.warn("A lição de adolescentes carregada parece ser a lição modelo:", conteudo.slice(0, 300));
+        }
+
+        conteudoLicao.innerHTML = prepararConteudoLicao(conteudo);
       }
     }
 

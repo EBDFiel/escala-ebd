@@ -2606,11 +2606,6 @@
 
     function chamarAppsScript(parametros) {
       return new Promise((resolve, reject) => {
-        if (!SITE_PUBLICADO) {
-          reject(new Error("Conexão externa desativada na prévia local."));
-          return;
-        }
-
         const callbackName = "callbackEscalaEBD_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
         const script = document.createElement("script");
         const query = new URLSearchParams(parametros);
@@ -2762,27 +2757,70 @@
       }
     }
 
-    async function carregarLicoesDaPlanilha() {
-      if (!SITE_PUBLICADO) {
-        return;
-      }
-
+    async function carregarLicoesDaPlanilha(modoSilencioso = false) {
       try {
-        const dados = await chamarAppsScript({ acao: "licoes" });
+        const dados = await chamarAppsScript({
+          acao: "licoes",
+          cache: "nao",
+          t: Date.now()
+        });
 
         if (!dados || !dados.sucesso || !dados.licoes) {
-          return;
+          if (!modoSilencioso) {
+            console.warn("Lições não retornaram no formato esperado:", dados);
+          }
+          return false;
         }
 
-        if (dados.licoes.adultos) {
-          licoesSemana.adultos = dados.licoes.adultos;
+        const licoesRecebidas = dados.licoes || {};
+
+        const adultosRecebido =
+          licoesRecebidas.adultos ||
+          licoesRecebidas.jovensAdultos ||
+          licoesRecebidas.jovens_e_adultos ||
+          licoesRecebidas["jovens-e-adultos"] ||
+          "";
+
+        const jovensRecebido =
+          licoesRecebidas.jovens ||
+          licoesRecebidas.adolescentes ||
+          "";
+
+        if (adultosRecebido && String(adultosRecebido).trim()) {
+          licoesSemana.adultos = String(adultosRecebido);
         }
 
-        if (dados.licoes.jovens) {
-          licoesSemana.jovens = dados.licoes.jovens;
+        if (jovensRecebido && String(jovensRecebido).trim()) {
+          licoesSemana.jovens = String(jovensRecebido);
         }
+
+        try {
+          localStorage.setItem("ebdLicoesAdultos", licoesSemana.adultos);
+          localStorage.setItem("ebdLicoesJovens", licoesSemana.jovens);
+        } catch (erroLocalStorage) {
+          console.warn("Não foi possível salvar lições no cache local:", erroLocalStorage);
+        }
+
+        return true;
       } catch (erro) {
         console.error("Erro ao carregar lições:", erro);
+
+        try {
+          const adultosCache = localStorage.getItem("ebdLicoesAdultos");
+          const jovensCache = localStorage.getItem("ebdLicoesJovens");
+
+          if (adultosCache) {
+            licoesSemana.adultos = adultosCache;
+          }
+
+          if (jovensCache) {
+            licoesSemana.jovens = jovensCache;
+          }
+        } catch (erroLocalStorage) {
+          console.warn("Não foi possível carregar lições do cache local:", erroLocalStorage);
+        }
+
+        return false;
       }
     }
 
@@ -3247,17 +3285,15 @@
 
       renderizarEscala(escalaReserva);
 
-      if (SITE_PUBLICADO) {
-        await carregarEscalaDaPlanilha();
-        await carregarLicoesDaPlanilha();
+      await carregarEscalaDaPlanilha();
+      await carregarLicoesDaPlanilha();
 
+      if (SITE_PUBLICADO) {
         ultimaVersaoEscala = await obterVersaoAtual();
 
         setInterval(async function () {
           await verificarAlteracaoNaPlanilha();
         }, 60000);
-      } else {
-        await carregarEscalaDaPlanilha();
       }
     });
 
@@ -3272,12 +3308,18 @@
 
     if ("serviceWorker" in navigator && SITE_PUBLICADO) {
       window.addEventListener("load", function () {
-        navigator.serviceWorker.register("./service-worker.js")
-          .then(function () {
-            console.log("Aplicativo EBD instalado como PWA.");
+        navigator.serviceWorker.getRegistrations()
+          .then(function (registrations) {
+            registrations.forEach(function (registration) {
+              registration.update();
+
+              // Evita que uma versão antiga do PWA segure lições antigas no cache.
+              // Se preferir manter PWA instalado, esta linha pode ser removida futuramente.
+              registration.unregister();
+            });
           })
           .catch(function (erro) {
-            console.error("Erro ao registrar Service Worker:", erro);
+            console.warn("Não foi possível atualizar/remover service worker:", erro);
           });
       });
     }

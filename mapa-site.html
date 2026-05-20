@@ -5,80 +5,375 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mapa automático do Site Escala EBD</title>
   <style>
+    :root {
+      --navy: #0b2740;
+      --blue: #1f4e79;
+      --gold: #d4af37;
+      --bg: #f4f8fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #64748b;
+      --line: #dbe4ee;
+      --green: #166534;
+      --purple: #6d28d9;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: "Segoe UI", Arial, sans-serif;
-      background: linear-gradient(135deg, #f4f8fb, #ffffff);
-      color: #1f2937;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(212,175,55,0.16), transparent 28%),
+        linear-gradient(135deg, #f4f8fb, #ffffff);
       line-height: 1.6;
     }
 
     .page {
-      max-width: 920px;
+      max-width: 1120px;
       margin: 0 auto;
       padding: 22px;
     }
 
     .hero {
-      padding: 26px;
-      border-radius: 26px;
-      background: linear-gradient(135deg, #0b2740, #1f4e79);
+      padding: 28px;
+      border-radius: 28px;
       color: #ffffff;
-      border-bottom: 6px solid #d4af37;
-      box-shadow: 0 18px 36px rgba(11, 39, 64, 0.20);
+      background: linear-gradient(135deg, var(--navy), var(--blue));
+      border-bottom: 6px solid var(--gold);
+      box-shadow: 0 20px 44px rgba(11,39,64,0.22);
     }
 
     .hero h1 {
       margin: 0 0 8px;
-      font-size: 2rem;
+      font-size: clamp(1.7rem, 4vw, 2.55rem);
+      line-height: 1.12;
     }
 
-    .card {
+    .hero p {
+      margin: 6px 0 0;
+      color: rgba(255,255,255,0.88);
+      max-width: 850px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
       margin-top: 18px;
-      background: #ffffff;
-      border: 1px solid #dbe4ee;
-      border-radius: 20px;
-      padding: 18px;
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
     }
 
-    code {
-      display: block;
-      background: #0f172a;
-      color: #dbeafe;
-      padding: 12px;
-      border-radius: 14px;
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.22);
+      color: #fff8d8;
+      font-weight: 800;
+      font-size: 0.86rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .card,
+    .section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+    }
+
+    .card h2,
+    .section h2 {
+      margin: 0 0 10px;
+      color: var(--navy);
+      font-size: 1.18rem;
+    }
+
+    .section {
+      margin-top: 18px;
+    }
+
+    h3 {
+      color: var(--blue);
+      margin: 18px 0 8px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    code,
+    pre {
+      font-family: Consolas, Monaco, monospace;
+    }
+
+    pre {
+      overflow-x: auto;
       white-space: pre-wrap;
       word-break: break-word;
+      background: #0f172a;
+      color: #dbeafe;
+      padding: 14px;
+      border-radius: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+    }
+
+    th,
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eaf3fb;
+      color: var(--navy);
+    }
+
+    ul {
+      margin-top: 0;
+      padding-left: 1.2rem;
+    }
+
+    .status-ok {
+      color: var(--green);
+      font-weight: 900;
+    }
+
+    .status-info {
+      color: var(--purple);
+      font-weight: 900;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 28px 10px 8px;
+      font-size: 0.92rem;
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+      }
+
+      .page {
+        max-width: none;
+        padding: 0;
+      }
+
+      .hero,
+      .card,
+      .section {
+        box-shadow: none;
+        break-inside: avoid;
+      }
     }
   </style>
 </head>
 <body>
   <div class="page">
-    <div class="hero">
+    <header class="hero">
       <h1>🗺️ Mapa automático do Site Escala EBD</h1>
       <p>
-        Este é o mapa inicial. Depois que o GitHub Actions rodar, este arquivo será
-        substituído automaticamente por uma versão técnica gerada a partir dos arquivos
-        index.html, admin.html e Code.gs.
+        Documento gerado automaticamente pelo GitHub Actions a partir dos arquivos
+        <strong>index.html</strong>, <strong>admin.html</strong> e <strong>Code.gs</strong>.
       </p>
+
+      <div class="badge-row">
+        <span class="badge">📅 Gerado em: 19/05/2026, 22:57:21</span>
+        <span class="badge">🌿 Branch: main</span>
+        <span class="badge">🔖 Commit: be0b355</span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <h2>🌐 Página pública</h2>
+        <p><strong>Arquivo:</strong> index.html</p>
+        <p><strong>Versão:</strong><br>INDEX_EBD_REDESIGN_PREMIUM_SENHA_ALTERACAO_2026_05_19</p>
+      </div>
+
+      <div class="card">
+        <h2>🔐 Painel admin</h2>
+        <p><strong>Arquivo:</strong> admin.html</p>
+        <p><strong>Versão:</strong><br>sem marcador encontrado</p>
+      </div>
+
+      <div class="card">
+        <h2>⚙️ Apps Script</h2>
+        <p><strong>Arquivo:</strong> Code.gs</p>
+        <p><strong>Ações detectadas:</strong> 0</p>
+      </div>
+
+      <div class="card">
+        <h2>🔗 Apps Script URL</h2>
+        <p class="muted">https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec</p>
+      </div>
     </div>
 
-    <div class="card">
-      <h2>Como ativar</h2>
+    <section class="section">
+      <h2>1. Último commit analisado</h2>
+      <pre>Add workflow to update site map automatically</pre>
+    </section>
+
+    <section class="section">
+      <h2>2. Arquivos principais</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Arquivo</th>
+            <th>Existe?</th>
+            <th>Linhas</th>
+            <th>Tamanho bytes</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+      <tr>
+        <td>index.html</td>
+        <td>Sim</td>
+        <td>4436</td>
+        <td>118351</td>
+      </tr>
+      <tr>
+        <td>admin.html</td>
+        <td>Sim</td>
+        <td>1480</td>
+        <td>58470</td>
+      </tr>
+      <tr>
+        <td>Code.gs</td>
+        <td>Não</td>
+        <td>-</td>
+        <td>-</td>
+      </tr>
+      <tr>
+        <td>mapa-site.html</td>
+        <td>Sim</td>
+        <td>86</td>
+        <td>2180</td>
+      </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>3. Recursos detectados automaticamente</h2>
+      <ul>
+        <li class="status-ok">🧠 Quizzes externos: detectado</li>
+        <li class="status-ok">📲 Compartilhamento por WhatsApp: detectado</li>
+        <li class="status-ok">🗺️ Mapa do site no admin: detectado</li>
+        <li class="status-ok">🔐 Senha para alterar dia: detectada</li>
+        <li class="status-ok">📌 Botão voltar para semana atual: detectado</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>4. Senhas e constantes importantes</h2>
+      <p><strong>Senha para alterar dia na página pública:</strong> 1234</p>
+      <p class="muted">
+        A senha do painel admin fica no Code.gs em <code>SENHA_ADMIN</code>.
+        Por segurança, este mapa não tenta exibir essa senha.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>5. Abas/painéis detectados no admin.html</h2>
+      <ul><li>painelAdultos</li><li>painelEscala</li><li>painelHistorico</li><li>painelJovens</li><li>painelLicoes</li><li>painelMapa</li><li>painelProfessores</li><li>painelQuizzes</li></ul>
+    </section>
+
+    <section class="section">
+      <h2>6. Ações detectadas no Apps Script</h2>
+      <p class="muted">Nenhuma ação detectada.</p>
+    </section>
+
+    <section class="section">
+      <h2>7. Funções principais do index.html</h2>
+      <ul><li>abrirLicao</li><li>abrirModal</li><li>abrirWhatsAppComMensagem</li><li>ajustarSubtituloAoTitulo</li><li>alternarEscalaCompleta</li><li>atualizarBotaoEscala</li><li>atualizarBotoesQuiz</li><li>atualizarEscalaLocal</li><li>atualizarResumo</li><li>carregarDatasAtuais</li><li>carregarEscalaDaPlanilha</li><li>carregarHistoricoAlteracoes</li><li>carregarLicoesDaPlanilha</li><li>carregarNovasDatas</li><li>carregarProfessores</li><li>carregarQuizzesDaPlanilha</li><li>chamarAppsScript</li><li>compartilharQuizWhatsApp</li><li>converterDataEscala</li><li>encontrarProfessorNaData</li><li>enviarAlteracao</li><li>fecharLicao</li><li>fecharModal</li><li>limparSelect</li><li>limparStatus</li><li>montarMensagemQuiz</li><li>mostrarStatus</li><li>normalizarLinha</li><li>obterLinhasDaSemanaAtual</li><li>obterLinhasParaExibir</li><li>obterVersaoAtual</li><li>pedirSenhaAlteracao</li><li>preencherSelect</li><li>prepararConteudoLicao</li><li>renderizarCards</li><li>renderizarEscala</li><li>renderizarTabela</li><li>verificarAlteracaoNaPlanilha</li><li>voltarParaSemanaAtual</li></ul>
+    </section>
+
+    <section class="section">
+      <h2>8. Funções principais do admin.html</h2>
+      <ul><li>abrirAbaLicao</li><li>abrirPainel</li><li>adicionarProfessorAdmin</li><li>adminAdicionarData</li><li>adminRemoverData</li><li>adminRenomearClasse</li><li>adminSalvarProfessor</li><li>alternarHtml</li><li>atualizarProfessorAdmin</li><li>carregarAtualizacoesMapa</li><li>carregarEscala</li><li>carregarHistorico</li><li>carregarLicoes</li><li>carregarProfessores</li><li>carregarQuizzesAdmin</li><li>carregarTudo</li><li>chamarAppsScript</li><li>copiarMapaSite</li><li>entrarNoPainel</li><li>formatarDataBR</li><li>inativarProfessorAdmin</li><li>limparCampo</li><li>limparSenhaSessao</li><li>mostrarStatus</li><li>mudarProfessorClasseAdmin</li><li>obterSenhaSessao</li><li>preencherProfessorAtual</li><li>preencherProfessorSelecionado</li><li>preencherSelect</li><li>preencherSelectsEscala</li><li>preencherSelectsProfessores</li><li>recarregarMapaAutomatico</li><li>renderizarCamposNovaData</li><li>renderizarTabelaEscala</li><li>renderizarTabelaProfessores</li><li>sairDoPainel</li><li>salvarLicoes</li><li>salvarQuizzesAdmin</li><li>salvarSenhaSessao</li><li>sincronizarLicaoAntesDeSalvar</li><li>sincronizarVisual</li><li>substituirProfessorAdmin</li><li>testarQuizzesAdmin</li><li>validarUrlQuiz</li></ul>
+    </section>
+
+    <section class="section">
+      <h2>9. Funções principais do Code.gs</h2>
+      <p class="muted">Nenhuma função detectada.</p>
+    </section>
+
+    <section class="section">
+      <h2>10. IDs importantes do index.html</h2>
+      <ul><li>escala</li><li>loadingBox</li><li>tabelaEscala</li><li>cardsEscala</li><li>btnAlternarEscala</li><li>licoes</li><li>quiz</li><li>quizAdultos</li><li>quizJovens</li><li>shareQuizAdultos</li><li>shareQuizJovens</li><li>btnVoltarSemanaAtual</li><li>modalAlteracao</li><li>formAlteracao</li><li>classe</li><li>professor</li><li>dataAtual</li><li>novaData</li><li>resumoTroca</li><li>btnConfirmar</li><li>statusMensagem</li><li>modalLicao</li><li>tituloLicao</li><li>conteudoLicao</li></ul>
+    </section>
+
+    <section class="section">
+      <h2>11. IDs importantes do admin.html</h2>
+      <ul><li>toastEBD</li><li>telaLogin</li><li>senha</li><li>barraPainel</li><li>status</li><li>logMensagensEBD</li><li>painelAdmin</li><li>abaLicoesBtn</li><li>abaEscalaBtn</li><li>abaProfessoresBtn</li><li>abaQuizzesBtn</li><li>abaMapaBtn</li><li>abaHistoricoBtn</li><li>painelLicoes</li><li>formLicoes</li><li>senhaForm</li><li>tabAdultos</li><li>tabJovens</li><li>painelAdultos</li><li>editorVisualAdultos</li><li>htmlWrapAdultos</li><li>adultos</li><li>painelJovens</li><li>editorVisualJovens</li><li>htmlWrapJovens</li><li>jovens</li><li>painelEscala</li><li>escalaDataEditar</li><li>escalaClasseEditar</li><li>escalaProfessorEditar</li><li>novaDataEscala</li><li>camposNovaData</li><li>dataRemover</li><li>classeRenomear</li><li>novoNomeClasse</li><li>tabelaEscalaAdmin</li><li>painelProfessores</li><li>profNovoNome</li><li>profNovaClasse</li><li>profNovoStatus</li><li>profNovaObs</li><li>profSelecionado</li><li>profEditarNome</li><li>profEditarClasse</li><li>profEditarStatus</li><li>profEditarObs</li><li>profSubAntigo</li><li>profSubNovo</li><li>profSubClasse</li><li>profSubAlcance</li><li>profSubInativar</li><li>profMudarNome</li><li>profMudarClasse</li><li>profMudarAplicar</li><li>listaProfessoresDatalist</li><li>tabelaProfessores</li><li>painelQuizzes</li><li>quizAdultosLink</li><li>quizJovensLink</li><li>painelMapa</li><li>iframeMapaAutomatico</li><li>painelHistorico</li><li>listaHistorico</li><li>envioOculto</li></ul>
+    </section>
+
+    <section class="section">
+      <h2>12. Botões detectados na página pública</h2>
+      <ul><li>Alterar meu dia 🔐</li><li>Escala do trimestre 📅</li><li>Ver lição de Jovens e Adultos</li><li>Ver lição dos Adolescentes</li><li>📲 Compartilhar Adultos</li><li>📲 Compartilhar Adolescentes</li><li>📌 Voltar para semana atual</li><li>×</li><li>Cancelar</li><li>Confirmar alteração</li><li>Fechar</li></ul>
+    </section>
+
+    <section class="section">
+      <h2>13. Botões detectados no painel admin</h2>
+      <ul><li>🔓 Acessar painel</li><li>🔄 Recarregar</li><li>🚪 Sair</li><li>📚 Lições interativas</li><li>📅 Gerenciar escala</li><li>👥 Professores</li><li>🧠 Quizzes</li><li>🗺️ Mapa do Site</li><li>📜 Histórico</li><li>🧑 Jovens e Adultos</li><li>🧑‍🎤 Adolescentes</li><li>🔧 HTML avançado</li><li>🔄 Sincronizar</li><li>🗑️ Limpar</li><li>💾 Salvar lições</li><li>📥 Carregar últimas versões</li><li>✅ Salvar alteração</li><li>Adicionar data</li><li>Remover</li><li>Renomear</li><li>Atualizar tabela</li><li>Adicionar</li><li>Salvar alterações</li><li>Inativar</li><li>Substituir</li><li>Mudar classe</li><li>Salvar links dos quizzes</li><li>Carregar links atuais</li><li>Testar links</li><li>🔄 Recarregar mapa</li><li>🌐 Abrir em nova aba</li><li>🖨️ Imprimir painel</li><li>Atualizar</li></ul>
+    </section>
+
+    <section class="section">
+      <h2>14. Como publicar alterações</h2>
+      <h3>Quando alterar index.html ou admin.html</h3>
       <ol>
-        <li>Criar a pasta <strong>.github/workflows</strong>.</li>
-        <li>Adicionar o arquivo <strong>atualizar-mapa-site.yml</strong>.</li>
-        <li>Criar a pasta <strong>scripts</strong>.</li>
-        <li>Adicionar o arquivo <strong>gerar-mapa-site.js</strong>.</li>
-        <li>Subir este arquivo <strong>mapa-site.html</strong>.</li>
+        <li>Substituir o arquivo no GitHub.</li>
         <li>Fazer commit.</li>
+        <li>Aguardar o GitHub Pages atualizar.</li>
+        <li>Abrir o site e usar Ctrl + F5.</li>
       </ol>
-    </div>
 
-    <div class="card">
-      <h2>Arquivo gerado automaticamente</h2>
-      <code>mapa-site.html</code>
+      <h3>Quando alterar Code.gs</h3>
+      <ol>
+        <li>Colar o código no Apps Script.</li>
+        <li>Conferir SENHA_ADMIN.</li>
+        <li>Salvar.</li>
+        <li>Implantar como Nova versão.</li>
+      </ol>
+    </section>
+
+    <section class="section">
+      <h2>15. Observação importante</h2>
+      <p>
+        Este mapa é automático e técnico. Ele detecta estrutura, funções, IDs, botões,
+        ações e marcadores de versão. Para explicações pastorais, decisões de design
+        ou intenção das mudanças, mantenha também uma documentação manual no painel.
+      </p>
+    </section>
+
+    <div class="footer">
+      ⛪ Escala EBD · Mapa automático gerado pelo GitHub Actions
     </div>
   </div>
 </body>

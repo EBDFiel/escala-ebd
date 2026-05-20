@@ -9,7 +9,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_QUIZ_WHATSAPP_2026_05_19" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_QUIZ_WHATSAPP_CORRIGIDO_2026_05_19" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -1388,6 +1388,8 @@
     }
 
     .whatsapp-share-btn {
+      border: none;
+      cursor: pointer;
       min-height: 50px;
       display: inline-flex;
       align-items: center;
@@ -2185,13 +2187,13 @@
         </div>
 
         <div class="quiz-share-buttons">
-          <a id="shareQuizAdultos" class="whatsapp-share-btn" href="#" target="_blank" rel="noopener">
+          <button id="shareQuizAdultos" class="whatsapp-share-btn" type="button" onclick="compartilharQuizWhatsApp('adultos')">
             📲 Compartilhar Adultos
-          </a>
+          </button>
 
-          <a id="shareQuizJovens" class="whatsapp-share-btn" href="#" target="_blank" rel="noopener">
+          <button id="shareQuizJovens" class="whatsapp-share-btn" type="button" onclick="compartilharQuizWhatsApp('jovens')">
             📲 Compartilhar Adolescentes
-          </a>
+          </button>
         </div>
       </div>
     </section>
@@ -3003,12 +3005,12 @@
     }
 
 
-    function montarLinkWhatsAppQuiz(tipo, link) {
+    function montarMensagemQuiz(tipo, link) {
       const titulo = tipo === "adultos"
         ? "Quiz da Lição da Semana — Jovens e Adultos"
         : "Quiz da Lição da Semana — Adolescentes";
 
-      const mensagem =
+      return (
         `Paz do Senhor! 🙌
 
 ` +
@@ -3021,9 +3023,24 @@
         `${link}
 
 ` +
-        `Participe e compartilhe com a classe! 📖✨`;
+        `Participe e compartilhe com a classe! 📖✨`
+      );
+    }
 
-      return "https://wa.me/?text=" + encodeURIComponent(mensagem);
+    function abrirWhatsAppComMensagem(mensagem) {
+      const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(mensagem);
+      window.open(url, "_blank", "noopener");
+    }
+
+    function compartilharQuizWhatsApp(tipo) {
+      const link = tipo === "adultos" ? quizLinks.adultos : quizLinks.jovens;
+
+      if (!link) {
+        alert("O link deste quiz ainda não foi cadastrado no painel admin.");
+        return;
+      }
+
+      abrirWhatsAppComMensagem(montarMensagemQuiz(tipo, link));
     }
 
     function atualizarBotoesQuiz() {
@@ -3038,7 +3055,7 @@
           quizAdultos.classList.remove("disabled");
           quizAdultos.title = "Abrir quiz de Jovens e Adultos em outra página";
         } else {
-          quizAdultos.href = "#";
+          quizAdultos.href = "javascript:void(0)";
           quizAdultos.classList.add("disabled");
           quizAdultos.title = "Quiz de Jovens e Adultos ainda não cadastrado";
         }
@@ -3050,32 +3067,26 @@
           quizJovens.classList.remove("disabled");
           quizJovens.title = "Abrir quiz de Adolescentes em outra página";
         } else {
-          quizJovens.href = "#";
+          quizJovens.href = "javascript:void(0)";
           quizJovens.classList.add("disabled");
           quizJovens.title = "Quiz de Adolescentes ainda não cadastrado";
         }
       }
 
       if (shareQuizAdultos) {
-        if (quizLinks.adultos) {
-          shareQuizAdultos.href = montarLinkWhatsAppQuiz("adultos", quizLinks.adultos);
-          shareQuizAdultos.classList.remove("disabled");
-          shareQuizAdultos.title = "Compartilhar quiz de Jovens e Adultos no WhatsApp";
-        } else {
-          shareQuizAdultos.href = "#";
-          shareQuizAdultos.classList.add("disabled");
-        }
+        shareQuizAdultos.disabled = !quizLinks.adultos;
+        shareQuizAdultos.classList.toggle("disabled", !quizLinks.adultos);
+        shareQuizAdultos.title = quizLinks.adultos
+          ? "Compartilhar quiz de Jovens e Adultos no WhatsApp"
+          : "Quiz de Jovens e Adultos ainda não cadastrado";
       }
 
       if (shareQuizJovens) {
-        if (quizLinks.jovens) {
-          shareQuizJovens.href = montarLinkWhatsAppQuiz("jovens", quizLinks.jovens);
-          shareQuizJovens.classList.remove("disabled");
-          shareQuizJovens.title = "Compartilhar quiz dos Adolescentes no WhatsApp";
-        } else {
-          shareQuizJovens.href = "#";
-          shareQuizJovens.classList.add("disabled");
-        }
+        shareQuizJovens.disabled = !quizLinks.jovens;
+        shareQuizJovens.classList.toggle("disabled", !quizLinks.jovens);
+        shareQuizJovens.title = quizLinks.jovens
+          ? "Compartilhar quiz dos Adolescentes no WhatsApp"
+          : "Quiz de Adolescentes ainda não cadastrado";
       }
     }
 

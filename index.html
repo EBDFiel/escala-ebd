@@ -9,7 +9,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_COM_QUIZ_2026_05_19" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_QUIZ_WHATSAPP_2026_05_19" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -1340,6 +1340,92 @@
     }
 
 
+
+    .lesson-teacher-callout {
+      margin: 18px 0 20px;
+      padding: 18px;
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at top right, rgba(197, 155, 53, 0.18), transparent 30%),
+        linear-gradient(135deg, #eaf3fb, #ffffff);
+      border: 1px solid rgba(31, 78, 121, 0.18);
+      box-shadow: 0 10px 24px rgba(31, 78, 121, 0.10);
+      text-align: center;
+    }
+
+    .lesson-teacher-callout h3 {
+      margin: 0 0 8px;
+      color: var(--azul-escuro);
+      font-size: 1.22rem;
+    }
+
+    .lesson-teacher-callout p {
+      margin: 6px auto 0;
+      max-width: 850px;
+      color: #41546a;
+      font-weight: 700;
+      line-height: 1.65;
+    }
+
+    .quiz-share-note {
+      max-width: 860px;
+      margin: 0 auto 16px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #e9f6ea, #ffffff);
+      border: 1px solid rgba(46, 125, 50, 0.20);
+      color: #256628;
+      font-weight: 800;
+      line-height: 1.55;
+    }
+
+    .quiz-share-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(190px, 260px));
+      gap: 12px;
+      justify-content: center;
+      margin-top: 14px;
+    }
+
+    .whatsapp-share-btn {
+      min-height: 50px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border-radius: 999px;
+      text-decoration: none;
+      color: #ffffff;
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      font-weight: 950;
+      box-shadow: 0 10px 22px rgba(18, 140, 126, 0.28);
+      transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .whatsapp-share-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      filter: brightness(1.05);
+      box-shadow: 0 14px 30px rgba(18, 140, 126, 0.36);
+    }
+
+    .whatsapp-share-btn.disabled {
+      pointer-events: none;
+      opacity: 0.55;
+      filter: grayscale(0.4);
+    }
+
+    @media (max-width: 700px) {
+      .quiz-share-buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .whatsapp-share-btn {
+        width: 100%;
+      }
+    }
+
+
     .quiz-zone {
       margin-top: 22px;
       padding: 18px;
@@ -2047,6 +2133,15 @@
         Confira a lição atual da semana para as classes de Jovens e Adultos e Adolescentes.
       </p>
 
+      <div class="lesson-teacher-callout">
+        <h3>📚 Professores, aproveitem o material da lição!</h3>
+        <p>
+          Preparamos um material prontinho para ajudar você a elaborar sua aula com mais clareza,
+          organização e aplicação prática. Acesse a lição da semana, estude os tópicos, adapte para sua classe
+          e leve uma aula ainda mais edificante para seus alunos.
+        </p>
+      </div>
+
       <div class="lesson-grid">
         <article class="lesson-card lesson-adultos">
           <h3>Jovens e Adultos 👔🌸🔥</h3>
@@ -2071,6 +2166,12 @@
 
       <div class="quiz-zone">
         <h3>Quiz da Lição da Semana 🧠✨</h3>
+
+        <div class="quiz-share-note">
+          Professores, compartilhem o link do quiz nos grupos de WhatsApp da classe e incentivem seus alunos
+          a responderem. O quiz é interativo e ajuda a fixar melhor o conteúdo da lição da semana.
+        </div>
+
         <p>Ao clicar, você será encaminhado para a página externa do quiz.</p>
 
         <div class="quiz-buttons">
@@ -2080,6 +2181,16 @@
 
           <a id="quizJovens" class="quiz-btn jovens" href="https://ebdfiel.github.io/Quizzes-ConectarJovens-/trimestre-02/licao-07/index.html" target="_blank" rel="noopener">
             <span>Quiz Adolescentes 🚀</span>
+          </a>
+        </div>
+
+        <div class="quiz-share-buttons">
+          <a id="shareQuizAdultos" class="whatsapp-share-btn" href="#" target="_blank" rel="noopener">
+            📲 Compartilhar Adultos
+          </a>
+
+          <a id="shareQuizJovens" class="whatsapp-share-btn" href="#" target="_blank" rel="noopener">
+            📲 Compartilhar Adolescentes
           </a>
         </div>
       </div>
@@ -2892,9 +3003,34 @@
     }
 
 
+    function montarLinkWhatsAppQuiz(tipo, link) {
+      const titulo = tipo === "adultos"
+        ? "Quiz da Lição da Semana — Jovens e Adultos"
+        : "Quiz da Lição da Semana — Adolescentes";
+
+      const mensagem =
+        `Paz do Senhor! 🙌
+
+` +
+        `Já está disponível o ${titulo}.
+
+` +
+        `Responda o quiz interativo para revisar e fixar melhor o conteúdo da lição desta semana:
+
+` +
+        `${link}
+
+` +
+        `Participe e compartilhe com a classe! 📖✨`;
+
+      return "https://wa.me/?text=" + encodeURIComponent(mensagem);
+    }
+
     function atualizarBotoesQuiz() {
       const quizAdultos = document.getElementById("quizAdultos");
       const quizJovens = document.getElementById("quizJovens");
+      const shareQuizAdultos = document.getElementById("shareQuizAdultos");
+      const shareQuizJovens = document.getElementById("shareQuizJovens");
 
       if (quizAdultos) {
         if (quizLinks.adultos) {
@@ -2917,6 +3053,28 @@
           quizJovens.href = "#";
           quizJovens.classList.add("disabled");
           quizJovens.title = "Quiz de Adolescentes ainda não cadastrado";
+        }
+      }
+
+      if (shareQuizAdultos) {
+        if (quizLinks.adultos) {
+          shareQuizAdultos.href = montarLinkWhatsAppQuiz("adultos", quizLinks.adultos);
+          shareQuizAdultos.classList.remove("disabled");
+          shareQuizAdultos.title = "Compartilhar quiz de Jovens e Adultos no WhatsApp";
+        } else {
+          shareQuizAdultos.href = "#";
+          shareQuizAdultos.classList.add("disabled");
+        }
+      }
+
+      if (shareQuizJovens) {
+        if (quizLinks.jovens) {
+          shareQuizJovens.href = montarLinkWhatsAppQuiz("jovens", quizLinks.jovens);
+          shareQuizJovens.classList.remove("disabled");
+          shareQuizJovens.title = "Compartilhar quiz dos Adolescentes no WhatsApp";
+        } else {
+          shareQuizJovens.href = "#";
+          shareQuizJovens.classList.add("disabled");
         }
       }
     }

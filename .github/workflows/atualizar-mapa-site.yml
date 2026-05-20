@@ -1,0 +1,54 @@
+name: Atualizar mapa do site
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "index.html"
+      - "admin.html"
+      - "Code.gs"
+      - "scripts/gerar-mapa-site.js"
+      - ".github/workflows/atualizar-mapa-site.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  atualizar-mapa:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Gerar mapa do site
+        run: node scripts/gerar-mapa-site.js
+
+      - name: Verificar alterações
+        id: diff
+        run: |
+          if git diff --quiet mapa-site.html; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configurar usuário do commit
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit automático do mapa
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git add mapa-site.html
+          git commit -m "Atualiza mapa automático do site"
+          git push

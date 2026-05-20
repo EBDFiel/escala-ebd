@@ -9,7 +9,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_REDESIGN_PREMIUM_BOTAO_SEMANA_2026_05_19" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_REDESIGN_PREMIUM_SENHA_ALTERACAO_2026_05_19" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -2682,6 +2682,9 @@
             2º Trimestre 2026
           </div>
         </div>
+        <p class="small-text" style="text-align:center; margin:10px 0 0; color:#64748b;">
+          Para evitar alterações acidentais, o botão de alteração pede a senha padrão <strong>1234</strong>.
+        </p>
       </div>
     </section>
 
@@ -2721,7 +2724,7 @@
       <div class="scale-action scale-action-bottom">
         <div class="actions-center scale-buttons">
           <button class="btn btn-action-red btn-mobile-visible" type="button" onclick="abrirModal()">
-            Alterar meu dia 🔄
+            Alterar meu dia 🔐
           </button>
 
           <button class="btn btn-secondary-scale btn-mobile-visible" id="btnAlternarEscala" type="button" onclick="alternarEscalaCompleta()">
@@ -3053,6 +3056,7 @@
     }
 
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec";
+    const SENHA_ALTERAR_DIA = "1234";
 
     const SITE_PUBLICADO =
       location.hostname === "ebdfiel.github.io" ||
@@ -3905,7 +3909,26 @@
       }
     }
 
+    function pedirSenhaAlteracao() {
+      const senhaDigitada = prompt("Digite a senha para alterar a escala:");
+
+      if (senhaDigitada === null) {
+        return false;
+      }
+
+      if (String(senhaDigitada).trim() !== SENHA_ALTERAR_DIA) {
+        alert("Senha incorreta. A alteração da escala não foi liberada.");
+        return false;
+      }
+
+      return true;
+    }
+
     function abrirModal() {
+      if (!pedirSenhaAlteracao()) {
+        return;
+      }
+
       formularioAberto = true;
 
       if (modal) {

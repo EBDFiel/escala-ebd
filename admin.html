@@ -611,6 +611,7 @@
         <button id="abaLicoesBtn" class="nav-btn active" onclick="abrirPainel('licoes')">📚 Lições interativas</button>
         <button id="abaEscalaBtn" class="nav-btn" onclick="abrirPainel('escala')">📅 Gerenciar escala</button>
         <button id="abaProfessoresBtn" class="nav-btn" onclick="abrirPainel('professores')">👥 Professores</button>
+        <button id="abaQuizzesBtn" class="nav-btn" onclick="abrirPainel('quizzes')">🧠 Quizzes</button>
         <button id="abaHistoricoBtn" class="nav-btn" onclick="abrirPainel('historico')">📜 Histórico</button>
       </aside>
 
@@ -720,6 +721,47 @@
           <div class="subcard"><datalist id="listaProfessoresDatalist"></datalist><h3>📋 Professores cadastrados</h3><div class="table-wrap"><table id="tabelaProfessores"><thead></thead><tbody></tbody></table></div></div>
         </div>
 
+
+        <div id="painelQuizzes" class="admin-panel card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:1rem;">
+            <div>
+              <h2>🧠 Links dos quizzes</h2>
+              <p>Atualize os links externos dos quizzes da lição da semana.</p>
+            </div>
+            <span class="chip">Abre em outra página</span>
+          </div>
+
+          <div class="subcard">
+            <div class="subcard-header">
+              <h3>Quiz Jovens e Adultos</h3>
+              <span class="chip">Link externo</span>
+            </div>
+
+            <label for="quizAdultosLink">URL do quiz de Jovens e Adultos</label>
+            <input id="quizAdultosLink" type="url" placeholder="https://..." />
+
+            <p class="help">Exemplo: https://ebdfiel.github.io/Quizzes-ClaseAdultos-2026/trimestre-02/licao-07/</p>
+          </div>
+
+          <div class="subcard">
+            <div class="subcard-header">
+              <h3>Quiz Adolescentes</h3>
+              <span class="chip">Link externo</span>
+            </div>
+
+            <label for="quizJovensLink">URL do quiz dos Adolescentes</label>
+            <input id="quizJovensLink" type="url" placeholder="https://..." />
+
+            <p class="help">Exemplo: https://ebdfiel.github.io/Quizzes-ConectarJovens-/trimestre-02/licao-07/index.html</p>
+          </div>
+
+          <div class="actions">
+            <button type="button" onclick="salvarQuizzesAdmin()">Salvar links dos quizzes</button>
+            <button class="secondary" type="button" onclick="carregarQuizzesAdmin()">Carregar links atuais</button>
+            <button class="gray" type="button" onclick="testarQuizzesAdmin()">Testar links</button>
+          </div>
+        </div>
+
         <div id="painelHistorico" class="admin-panel card">
           <div style="display:flex; justify-content:space-between;"><h2>📜 Histórico de ações</h2><button class="secondary compact-btn" onclick="carregarHistorico()">Atualizar</button></div>
           <div id="listaHistorico" class="history-list" style="margin-top:1rem;"></div>
@@ -775,19 +817,10 @@
       toast.style.display = "block";
 
       clearTimeout(window.toastTimerEBD);
-
-      if (tipo === "error") {
-        // Erro fica visível por mais tempo para dar tempo de ler.
-        window.toastTimerEBD = setTimeout(() => {
-          toast.style.display = "none";
-          toast.className = "";
-        }, 15000);
-      } else {
-        window.toastTimerEBD = setTimeout(() => {
-          toast.style.display = "none";
-          toast.className = "";
-        }, 5200);
-      }
+      window.toastTimerEBD = setTimeout(() => {
+        toast.style.display = "none";
+        toast.className = "";
+      }, tipo === "error" ? 15000 : 5200);
     }
 
     clearTimeout(window.statusTimerEBD);
@@ -799,29 +832,6 @@
     }
   }
 
-    const toast = document.getElementById("toastEBD");
-    if (toast) {
-      toast.className = "";
-      toast.classList.add(
-        tipo === "success" ? "toast-ebd-success" :
-        tipo === "error" ? "toast-ebd-error" :
-        "toast-ebd-info"
-      );
-      toast.innerHTML = `${icone} ${msg}`;
-      toast.style.display = "block";
-
-      clearTimeout(window.toastTimerEBD);
-      window.toastTimerEBD = setTimeout(() => {
-        toast.style.display = "none";
-        toast.className = "";
-      }, 5200);
-    }
-
-    clearTimeout(window.statusTimerEBD);
-    window.statusTimerEBD = setTimeout(() => {
-      if (s) s.classList.remove("show");
-    }, 5200);
-  }
   function obterSenhaSessao() { return sessionStorage.getItem("senhaAdminEBD") || ""; }
   function salvarSenhaSessao(v) { sessionStorage.setItem("senhaAdminEBD", v); }
   function limparSenhaSessao() { sessionStorage.removeItem("senhaAdminEBD"); }
@@ -831,7 +841,7 @@
 
   function chamarAppsScript(params) { return new Promise((resolve, reject) => { let cb = "cb_" + Date.now() + Math.random(); let script = document.createElement("script"); let query = new URLSearchParams(params); query.append("callback", cb); query.append("t", Date.now()); let timeout = setTimeout(() => { delete window[cb]; script.remove(); reject(new Error("Timeout")); }, 15000); window[cb] = (r) => { clearTimeout(timeout); delete window[cb]; script.remove(); resolve(r); }; script.onerror = () => { clearTimeout(timeout); reject(new Error("Falha rede")); }; script.src = APPS_SCRIPT_URL + "?" + query; document.body.appendChild(script); }); }
 
-  async function carregarTudo() { await carregarLicoes(); await carregarEscala(); await carregarProfessores(); await carregarHistorico(); }
+  async function carregarTudo() { await carregarLicoes(); await carregarEscala(); await carregarProfessores(); await carregarQuizzesAdmin(); await carregarHistorico(); }
   async function carregarLicoes() { try { let d = await chamarAppsScript({ acao: "licoes" }); if(d.sucesso) { document.getElementById("adultos").value = d.licoes?.adultos || modeloPadrao; document.getElementById("jovens").value = d.licoes?.jovens || modeloPadrao; atualizarEditoresVisuais(); mostrarStatus("success","Lições carregadas."); } else throw new Error("erro"); } catch(e) { mostrarStatus("error","Erro ao carregar lições. Verifique se a URL do Apps Script está correta e se a implantação está como Nova versão."); } }
   function atualizarEditoresVisuais() { let a=document.getElementById("editorVisualAdultos"), j=document.getElementById("editorVisualJovens"); if(a) a.innerHTML = document.getElementById("adultos").value || "<p>Sem lição</p>"; if(j) j.innerHTML = document.getElementById("jovens").value || "<p>Sem lição</p>"; }
   function sincronizarVisual(campo) {
@@ -976,12 +986,138 @@
   async function inativarProfessorAdmin() { let s=obterSenhaSessao(); let nome=document.getElementById("profSelecionado").value; if(!nome||!confirm("Inativar?")) return; let r=await chamarAppsScript({acao:"inativarProfessor", senha:s, nome, observacao:document.getElementById("profEditarObs").value}); if(r.sucesso){ mostrarStatus("success","Inativado"); carregarProfessores(); carregarHistorico(); } }
   async function substituirProfessorAdmin() { let s=obterSenhaSessao(); let antigo=document.getElementById("profSubAntigo").value, novo=document.getElementById("profSubNovo").value.trim(); if(!antigo||!novo) return; let r=await chamarAppsScript({acao:"substituirProfessor", senha:s, professorAntigo:antigo, professorNovo:novo, classe:document.getElementById("profSubClasse").value, alcance:document.getElementById("profSubAlcance").value, inativarAntigo:document.getElementById("profSubInativar").value}); if(r.sucesso){ mostrarStatus("success","Substituição feita"); carregarEscala(); carregarProfessores(); carregarHistorico(); } }
   async function mudarProfessorClasseAdmin() { let s=obterSenhaSessao(); let prof=document.getElementById("profMudarNome").value, classeNova=document.getElementById("profMudarClasse").value; if(!prof||!classeNova) return; let r=await chamarAppsScript({acao:"mudarProfessorClasse", senha:s, professor:prof, classeNova, aplicarEscala:document.getElementById("profMudarAplicar").value}); if(r.sucesso){ mostrarStatus("success","Classe alterada"); carregarEscala(); carregarProfessores(); carregarHistorico(); } }
+
+  async function carregarQuizzesAdmin() {
+    try {
+      const dados = await chamarAppsScript({
+        acao: "quizzes",
+        cache: "nao",
+        _nocache: Date.now()
+      });
+
+      if (!dados || !dados.sucesso || !dados.quizzes) {
+        throw new Error((dados && dados.mensagem) || "Não foi possível carregar os links dos quizzes.");
+      }
+
+      const campoAdultos = document.getElementById("quizAdultosLink");
+      const campoJovens = document.getElementById("quizJovensLink");
+
+      if (campoAdultos) {
+        campoAdultos.value = dados.quizzes.adultos || "";
+      }
+
+      if (campoJovens) {
+        campoJovens.value = dados.quizzes.jovens || "";
+      }
+
+      mostrarStatus("success", "Links dos quizzes carregados com sucesso.");
+    } catch (erro) {
+      mostrarStatus("error", erro.message || "Erro ao carregar links dos quizzes.");
+    }
+  }
+
+  function validarUrlQuiz(url) {
+    if (!url) {
+      return true;
+    }
+
+    try {
+      const parsed = new URL(url);
+      return parsed.protocol === "https:" || parsed.protocol === "http:";
+    } catch (erro) {
+      return false;
+    }
+  }
+
+  async function salvarQuizzesAdmin() {
+    try {
+      const senhaSalva = obterSenhaObrigatoria();
+      const adultos = document.getElementById("quizAdultosLink").value.trim();
+      const jovens = document.getElementById("quizJovensLink").value.trim();
+
+      if (!validarUrlQuiz(adultos)) {
+        mostrarStatus("error", "O link do quiz de Jovens e Adultos não é válido.");
+        return;
+      }
+
+      if (!validarUrlQuiz(jovens)) {
+        mostrarStatus("error", "O link do quiz dos Adolescentes não é válido.");
+        return;
+      }
+
+      const resposta = await chamarAppsScript({
+        acao: "salvarQuizzes",
+        senha: senhaSalva,
+        adultos: adultos,
+        jovens: jovens,
+        _nocache: Date.now()
+      });
+
+      if (!resposta || !resposta.sucesso) {
+        throw new Error((resposta && resposta.mensagem) || "Não foi possível salvar os links dos quizzes.");
+      }
+
+      mostrarStatus("success", resposta.mensagem || "Links dos quizzes salvos com sucesso.");
+      await carregarHistorico();
+    } catch (erro) {
+      mostrarStatus("error", erro.message || "Erro ao salvar links dos quizzes.");
+    }
+  }
+
+  function testarQuizzesAdmin() {
+    const adultos = document.getElementById("quizAdultosLink").value.trim();
+    const jovens = document.getElementById("quizJovensLink").value.trim();
+
+    if (adultos) {
+      window.open(adultos, "_blank", "noopener");
+    }
+
+    if (jovens) {
+      window.open(jovens, "_blank", "noopener");
+    }
+
+    if (!adultos && !jovens) {
+      mostrarStatus("error", "Nenhum link de quiz informado para testar.");
+      return;
+    }
+
+    mostrarStatus("success", "Abrindo links dos quizzes em outra página.");
+  }
+
   async function carregarHistorico() { let r=await chamarAppsScript({acao:"historico",limite:"50"}); let div=document.getElementById("listaHistorico"); if(r.sucesso && r.historico?.length) div.innerHTML=r.historico.map(i=>`<div class="history-item"><strong>${i.dataHora}</strong><br>Classe: ${i.classe}<br>Alteração: ${i.professorTrocado||i.novaData}<br>Origem: ${i.origem}</div>`).join(""); else div.innerHTML="<p class='help'>Nenhum registro</p>"; }
   function preencherProfessorAtual() { let data=document.getElementById("escalaDataEditar").value, classe=document.getElementById("escalaClasseEditar").value, linha=escalaCache.find(l=>l.Data===data); document.getElementById("escalaProfessorEditar").value = linha && classe ? linha[classe] : ""; }
-  function abrirPainel(nome) { ["licoes","escala","professores","historico"].forEach(p=>{ document.getElementById(`painel${p.charAt(0).toUpperCase()+p.slice(1)}`).classList.toggle("active", p===nome); document.getElementById(`aba${p.charAt(0).toUpperCase()+p.slice(1)}Btn`).classList.toggle("active", p===nome); }); if(nome==="escala") carregarEscala(); if(nome==="professores") carregarProfessores(); if(nome==="historico") carregarHistorico(); }
+  function abrirPainel(nome) {
+    ["licoes", "escala", "professores", "quizzes", "historico"].forEach((p) => {
+      const painel = document.getElementById(`painel${p.charAt(0).toUpperCase() + p.slice(1)}`);
+      const botao = document.getElementById(`aba${p.charAt(0).toUpperCase() + p.slice(1)}Btn`);
+
+      if (painel) {
+        painel.classList.toggle("active", p === nome);
+      }
+
+      if (botao) {
+        botao.classList.toggle("active", p === nome);
+      }
+    });
+
+    if (nome === "escala") carregarEscala();
+    if (nome === "professores") carregarProfessores();
+    if (nome === "quizzes") carregarQuizzesAdmin();
+    if (nome === "historico") carregarHistorico();
+  }
   function abrirAbaLicao(aba) { let adulto=aba==="adultos"; document.getElementById("tabAdultos").classList.toggle("active", adulto); document.getElementById("tabJovens").classList.toggle("active", !adulto); document.getElementById("painelAdultos").classList.toggle("active", adulto); document.getElementById("painelJovens").classList.toggle("active", !adulto); }
 
-  document.addEventListener("DOMContentLoaded", () => { if(obterSenhaSessao()) { document.getElementById("senhaForm").value=obterSenhaSessao(); document.getElementById("telaLogin").style.display="none"; document.getElementById("barraPainel").style.display="block"; document.getElementById("painelAdmin").style.display="block"; carregarTudo(); } else { document.getElementById("telaLogin").style.display="block"; } });
+  document.addEventListener("DOMContentLoaded", () => {
+    const campoSenha = document.getElementById("senha");
+    if (campoSenha) {
+      campoSenha.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          entrarNoPainel();
+        }
+      });
+    }
+ if(obterSenhaSessao()) { document.getElementById("senhaForm").value=obterSenhaSessao(); document.getElementById("telaLogin").style.display="none"; document.getElementById("barraPainel").style.display="block"; document.getElementById("painelAdmin").style.display="block"; carregarTudo(); } else { document.getElementById("telaLogin").style.display="block"; } });
 </script>
 </body>
 </html>

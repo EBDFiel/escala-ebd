@@ -1304,8 +1304,44 @@ Ao mexer no index.html ou admin.html, é necessário substituir no GitHub e limp
   function chamarAppsScript(params) { return new Promise((resolve, reject) => { let cb = "cb_" + Date.now() + Math.random(); let script = document.createElement("script"); let query = new URLSearchParams(params); query.append("callback", cb); query.append("t", Date.now()); let timeout = setTimeout(() => { delete window[cb]; script.remove(); reject(new Error("Timeout")); }, 15000); window[cb] = (r) => { clearTimeout(timeout); delete window[cb]; script.remove(); resolve(r); }; script.onerror = () => { clearTimeout(timeout); reject(new Error("Falha rede")); }; script.src = APPS_SCRIPT_URL + "?" + query; document.body.appendChild(script); }); }
 
   async function carregarTudo() { await carregarLicoes(); await carregarEscala(); await carregarProfessores(); await carregarQuizzesAdmin(); await carregarHistorico(); }
-  async function carregarLicoes() { try { let d = await chamarAppsScript({ acao: "licoes" }); if(d.sucesso) { document.getElementById("adultos").value = d.licoes?.adultos || modeloPadrao; document.getElementById("jovens").value = d.licoes?.jovens || modeloPadrao; atualizarEditoresVisuais(); mostrarStatus("success","Lições carregadas."); } else throw new Error("erro"); } catch(e) { mostrarStatus("error","Erro ao carregar lições. Verifique se a URL do Apps Script está correta e se a implantação está como Nova versão."); } }
-  function atualizarEditoresVisuais() { let a=document.getElementById("editorVisualAdultos"), j=document.getElementById("editorVisualJovens"); if(a) a.innerHTML = document.getElementById("adultos").value || "<p>Sem lição</p>"; if(j) j.innerHTML = document.getElementById("jovens").value || "<p>Sem lição</p>"; }
+  async function carregarLicoes(modoSilencioso = false) {
+    try {
+      const r = await chamarAppsScript({
+        acao: "licoes",
+        cache: "nao",
+        _nocache: Date.now()
+      });
+
+      if (!r || !r.sucesso || !r.licoes) {
+        throw new Error((r && r.mensagem) || "Resposta inválida ao carregar lições.");
+      }
+
+      document.getElementById("adultos").value = r.licoes.adultos || modeloPadrao;
+      document.getElementById("jovens").value = r.licoes.jovens || modeloPadrao;
+
+      sincronizarVisual("adultos");
+      sincronizarVisual("jovens");
+
+      if (!modoSilencioso) {
+        mostrarStatus("success", "Lições carregadas com sucesso.");
+      }
+    } catch (erro) {
+      console.error("Erro ao carregar lições:", erro);
+
+      document.getElementById("adultos").value = document.getElementById("adultos").value || modeloPadrao;
+      document.getElementById("jovens").value = document.getElementById("jovens").value || modeloPadrao;
+
+      sincronizarVisual("adultos");
+      sincronizarVisual("jovens");
+
+      if (!modoSilencioso) {
+        mostrarStatus("error", "Não foi possível carregar as lições agora. Confira a implantação do Apps Script ou tente novamente em alguns instantes.");
+      } else {
+        mostrarStatus("info", "Painel aberto. As lições não carregaram automaticamente, mas você pode tentar pelo botão Carregar lições atuais.");
+      }
+    }
+  }
+
   function sincronizarVisual(campo) {
     if (campo === "adultos") {
       const val = document.getElementById("adultos").value.trim();

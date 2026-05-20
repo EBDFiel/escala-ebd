@@ -9,7 +9,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_REDESIGN_PREMIUM_2026_05_19" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_REDESIGN_PREMIUM_BOTAO_SEMANA_2026_05_19" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -1947,6 +1947,59 @@
       line-height: 1.2;
     }
 
+
+    .floating-week-btn {
+      position: fixed;
+      right: 18px;
+      bottom: 20px;
+      z-index: 900;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 13px 18px;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #1f4e79, #0b2740);
+      color: #ffffff;
+      font-weight: 950;
+      font-size: 0.92rem;
+      cursor: pointer;
+      box-shadow: 0 16px 34px rgba(11, 39, 64, 0.32);
+      animation: floatingWeekPulse 2.4s ease-in-out infinite;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+
+    .floating-week-btn.show {
+      display: inline-flex;
+    }
+
+    .floating-week-btn:hover {
+      transform: translateY(-3px) scale(1.03);
+      filter: brightness(1.06);
+    }
+
+    @keyframes floatingWeekPulse {
+      0%, 100% {
+        box-shadow: 0 16px 34px rgba(11, 39, 64, 0.26);
+      }
+
+      50% {
+        box-shadow: 0 20px 44px rgba(31, 78, 121, 0.42);
+      }
+    }
+
+    @media (max-width: 700px) {
+      .floating-week-btn {
+        left: 14px;
+        right: 14px;
+        bottom: 14px;
+        width: calc(100% - 28px);
+        padding: 14px 18px;
+        font-size: 0.95rem;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *,
       *::before,
@@ -2893,6 +2946,11 @@
     </p>
   </footer>
 
+
+  <button id="btnVoltarSemanaAtual" class="floating-week-btn" type="button" onclick="voltarParaSemanaAtual()">
+    📌 Voltar para semana atual
+  </button>
+
   <div class="modal-overlay" id="modalAlteracao">
     <div class="modal">
       <div class="modal-header">
@@ -3390,14 +3448,38 @@
 
     function atualizarBotaoEscala() {
       const botao = document.getElementById("btnAlternarEscala");
+      const botaoFlutuante = document.getElementById("btnVoltarSemanaAtual");
 
-      if (!botao) {
-        return;
+      if (botao) {
+        botao.textContent = mostrarEscalaCompleta
+          ? "Semana atual 📌"
+          : "Escala do trimestre 📅";
       }
 
-      botao.textContent = mostrarEscalaCompleta
-        ? "Semana atual 📌"
-        : "Escala do trimestre 📅";
+      if (botaoFlutuante) {
+        botaoFlutuante.classList.toggle("show", mostrarEscalaCompleta);
+      }
+    }
+
+    function voltarParaSemanaAtual() {
+      if (mostrarEscalaCompleta) {
+        mostrarEscalaCompleta = false;
+
+        const linhasParaExibir = obterLinhasParaExibir();
+
+        renderizarTabela(linhasParaExibir);
+        renderizarCards(linhasParaExibir);
+        atualizarBotaoEscala();
+      }
+
+      const secaoEscala = document.getElementById("escala");
+
+      if (secaoEscala) {
+        secaoEscala.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }
     }
 
     function alternarEscalaCompleta() {
@@ -3408,6 +3490,15 @@
       renderizarTabela(linhasParaExibir);
       renderizarCards(linhasParaExibir);
       atualizarBotaoEscala();
+
+      const secaoEscala = document.getElementById("escala");
+
+      if (secaoEscala) {
+        secaoEscala.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }
     }
 
     function renderizarEscala(linhas) {

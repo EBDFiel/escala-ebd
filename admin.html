@@ -531,6 +531,148 @@
       color: #7a5800 !important;
       border: 1px solid #f4c542 !important;
     }
+  
+    .mapa-doc {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .mapa-hero {
+      background:
+        radial-gradient(circle at top right, rgba(212,175,55,0.20), transparent 32%),
+        linear-gradient(135deg, #0b2740, #1f4e79);
+      color: #ffffff;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 18px 38px rgba(11,39,64,0.20);
+    }
+
+    .mapa-hero h2 {
+      margin: 0 0 8px;
+      color: #ffffff;
+      font-size: 1.7rem;
+    }
+
+    .mapa-hero p {
+      margin: 0;
+      color: rgba(255,255,255,0.86);
+      max-width: 850px;
+      line-height: 1.6;
+    }
+
+    .mapa-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+
+    .mapa-card {
+      background: #ffffff;
+      border: 1px solid var(--gray-200);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .mapa-card h3 {
+      margin: 0 0 10px;
+      color: var(--primary);
+      font-size: 1.05rem;
+    }
+
+    .mapa-card p,
+    .mapa-card li {
+      color: var(--gray-600);
+      line-height: 1.55;
+      font-size: 0.95rem;
+    }
+
+    .mapa-card ul,
+    .mapa-card ol {
+      margin: 0;
+      padding-left: 1.1rem;
+    }
+
+    .mapa-code {
+      display: block;
+      background: #0f172a;
+      color: #dbeafe;
+      padding: 12px 14px;
+      border-radius: 14px;
+      overflow-x: auto;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.86rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .mapa-section {
+      background: #ffffff;
+      border: 1px solid var(--gray-200);
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .mapa-section h3 {
+      margin: 0 0 12px;
+      color: var(--primary);
+      font-size: 1.18rem;
+    }
+
+    .mapa-section h4 {
+      margin: 18px 0 8px;
+      color: var(--primary-dark);
+      font-size: 1rem;
+    }
+
+    .mapa-section p,
+    .mapa-section li {
+      color: var(--gray-600);
+      line-height: 1.6;
+    }
+
+    .mapa-section ul,
+    .mapa-section ol {
+      margin-top: 0;
+      padding-left: 1.25rem;
+    }
+
+    .mapa-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    @media print {
+      header.hero,
+      .sidebar,
+      #barraPainel,
+      #status,
+      #logMensagensEBD,
+      .mapa-actions {
+        display: none !important;
+      }
+
+      #painelAdmin,
+      #painelMapa {
+        display: block !important;
+      }
+
+      .content-area {
+        width: 100% !important;
+      }
+
+      .mapa-section,
+      .mapa-card,
+      .mapa-hero {
+        box-shadow: none !important;
+        break-inside: avoid;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -612,6 +754,7 @@
         <button id="abaEscalaBtn" class="nav-btn" onclick="abrirPainel('escala')">📅 Gerenciar escala</button>
         <button id="abaProfessoresBtn" class="nav-btn" onclick="abrirPainel('professores')">👥 Professores</button>
         <button id="abaQuizzesBtn" class="nav-btn" onclick="abrirPainel('quizzes')">🧠 Quizzes</button>
+        <button id="abaMapaBtn" class="nav-btn" onclick="abrirPainel('mapa')">🗺️ Mapa do Site</button>
         <button id="abaHistoricoBtn" class="nav-btn" onclick="abrirPainel('historico')">📜 Histórico</button>
       </aside>
 
@@ -759,6 +902,325 @@
             <button type="button" onclick="salvarQuizzesAdmin()">Salvar links dos quizzes</button>
             <button class="secondary" type="button" onclick="carregarQuizzesAdmin()">Carregar links atuais</button>
             <button class="gray" type="button" onclick="testarQuizzesAdmin()">Testar links</button>
+          </div>
+        </div>
+
+
+        <div id="painelMapa" class="admin-panel card">
+          <div class="mapa-doc">
+            <div class="mapa-hero">
+              <h2>🗺️ Mapa completo do site Escala EBD</h2>
+              <p>
+                Documentação interna do projeto para consulta futura. Esta área explica como o site funciona,
+                quais arquivos existem, como o painel se conecta ao Google Sheets e o que outra IA precisa saber
+                para continuar ajudando no projeto.
+              </p>
+
+              <div class="mapa-actions">
+                <button type="button" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+                <button class="secondary" type="button" onclick="copiarMapaSite()">📋 Copiar mapa</button>
+              </div>
+            </div>
+
+            <div class="mapa-grid">
+              <div class="mapa-card">
+                <h3>🌐 Página pública</h3>
+                <p><strong>Arquivo:</strong> index.html</p>
+                <p><strong>URL:</strong> https://ebdfiel.github.io/escala-ebd/</p>
+                <p>Mostra escala, lições, quizzes, compartilhamento no WhatsApp e professores por classe.</p>
+              </div>
+
+              <div class="mapa-card">
+                <h3>🔐 Painel admin</h3>
+                <p><strong>Arquivo:</strong> admin.html</p>
+                <p><strong>URL:</strong> https://ebdfiel.github.io/escala-ebd/admin.html</p>
+                <p>Atualiza lições, escala, professores, quizzes, histórico e este mapa do site.</p>
+              </div>
+
+              <div class="mapa-card">
+                <h3>⚙️ Apps Script</h3>
+                <p><strong>Arquivo:</strong> Code.gs</p>
+                <p>Faz a ponte entre GitHub Pages e Google Sheets.</p>
+                <p>Após alteração, precisa ser implantado como <strong>Nova versão</strong>.</p>
+              </div>
+            </div>
+
+            <div class="mapa-section">
+              <h3>1. Resumo do projeto</h3>
+              <p>
+                O site <strong>Escala EBD</strong> é uma página pública hospedada no GitHub Pages,
+                integrada ao Google Sheets por meio de Google Apps Script. Ele foi criado para a
+                Escola Bíblica Dominical, permitindo consultar a escala de professores, acessar
+                a lição da semana, responder quizzes externos e solicitar troca de dia.
+              </p>
+
+              <h4>Arquivos principais</h4>
+              <ul>
+                <li><strong>index.html:</strong> página pública principal.</li>
+                <li><strong>admin.html:</strong> painel administrativo.</li>
+                <li><strong>Code.gs:</strong> código do Google Apps Script.</li>
+              </ul>
+            </div>
+
+            <div class="mapa-section">
+              <h3>2. URL do Apps Script</h3>
+              <p>O site usa esta URL para buscar e salvar dados:</p>
+              <code class="mapa-code">https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec</code>
+
+              <p>No <strong>index.html</strong> e no <strong>admin.html</strong>, essa URL aparece na constante:</p>
+              <code class="mapa-code">const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec";</code>
+            </div>
+
+            <div class="mapa-section">
+              <h3>3. Abas da planilha Google Sheets</h3>
+              <ul>
+                <li><strong>Escala EBD:</strong> guarda a escala de professores por data.</li>
+                <li><strong>Histórico:</strong> registra alterações feitas no site e no painel.</li>
+                <li><strong>Licoes:</strong> guarda o HTML das lições da semana.</li>
+                <li><strong>Professores:</strong> guarda/organiza professores por classe.</li>
+                <li><strong>Quizzes:</strong> guarda os links externos dos quizzes.</li>
+              </ul>
+
+              <h4>Aba Escala EBD — colunas esperadas</h4>
+              <code class="mapa-code">Data
+Crianças 1 a 5 anos
+Crianças 6 a 10 anos
+Pré-Adolescentes
+Adolescentes
+Discipulado
+Jovens
+Irmãos
+Irmãs
+Suporte</code>
+
+              <h4>Aba Licoes — chaves</h4>
+              <ul>
+                <li><strong>adultos:</strong> Lição de Jovens e Adultos.</li>
+                <li><strong>jovens:</strong> Lição dos Adolescentes.</li>
+              </ul>
+
+              <h4>Aba Quizzes — chaves</h4>
+              <ul>
+                <li><strong>adultos:</strong> Quiz de Jovens e Adultos.</li>
+                <li><strong>jovens:</strong> Quiz dos Adolescentes.</li>
+              </ul>
+            </div>
+
+            <div class="mapa-section">
+              <h3>4. Ações do Apps Script</h3>
+              <code class="mapa-code">listar
+trocar
+historico
+versao
+licoes
+salvarLicoes
+listarProfessores
+salvarProfessores
+quizzes
+salvarQuizzes</code>
+
+              <h4>Funções principais</h4>
+              <ul>
+                <li><strong>acao=listar:</strong> retorna a escala atual.</li>
+                <li><strong>acao=trocar:</strong> troca dois professores dentro da mesma classe.</li>
+                <li><strong>acao=historico:</strong> retorna o histórico de alterações.</li>
+                <li><strong>acao=versao:</strong> retorna a versão atual dos dados.</li>
+                <li><strong>acao=licoes:</strong> retorna as lições salvas.</li>
+                <li><strong>acao=salvarLicoes:</strong> salva as lições pelo painel.</li>
+                <li><strong>acao=quizzes:</strong> retorna os links dos quizzes.</li>
+                <li><strong>acao=salvarQuizzes:</strong> salva os links dos quizzes.</li>
+              </ul>
+            </div>
+
+            <div class="mapa-section">
+              <h3>5. Senhas</h3>
+              <h4>Senha do painel admin</h4>
+              <p>A senha do painel fica no <strong>Code.gs</strong>:</p>
+              <code class="mapa-code">const SENHA_ADMIN = "SUA_SENHA_AQUI";</code>
+
+              <h4>Senha para alterar dia no site público</h4>
+              <p>A senha simples para liberar o formulário de alteração é:</p>
+              <code class="mapa-code">1234</code>
+              <p>No <strong>index.html</strong>, ela fica em:</p>
+              <code class="mapa-code">const SENHA_ALTERAR_DIA = "1234";</code>
+            </div>
+
+            <div class="mapa-section">
+              <h3>6. Página principal — index.html</h3>
+              <p>A página pública atual tem visual premium e contém:</p>
+              <ul>
+                <li>cabeçalho com logo e versículo;</li>
+                <li>atalhos rápidos para Escala, Lição e Quiz;</li>
+                <li>escala da semana em formato de card;</li>
+                <li>botão <strong>Alterar meu dia</strong> com senha 1234;</li>
+                <li>botão <strong>Escala do trimestre</strong>;</li>
+                <li>botão flutuante <strong>Voltar para semana atual</strong>;</li>
+                <li>lição de Jovens e Adultos e Adolescentes;</li>
+                <li>quizzes externos;</li>
+                <li>botões de compartilhar quiz no WhatsApp;</li>
+                <li>tutorial de alteração;</li>
+                <li>professores por classe;</li>
+                <li>rodapé institucional.</li>
+              </ul>
+
+              <h4>Design</h4>
+              <ul>
+                <li>azul institucional e dourado;</li>
+                <li>cards arredondados;</li>
+                <li>botões animados;</li>
+                <li>vermelho para alteração de dia;</li>
+                <li>roxo/rosa para quiz;</li>
+                <li>verde para WhatsApp.</li>
+              </ul>
+            </div>
+
+            <div class="mapa-section">
+              <h3>7. Painel admin — admin.html</h3>
+              <p>O painel administrativo possui as seguintes abas:</p>
+              <ul>
+                <li><strong>Lições:</strong> edita Jovens e Adultos / Adolescentes.</li>
+                <li><strong>Escala:</strong> permite gerenciar datas e professores.</li>
+                <li><strong>Professores:</strong> gerencia cadastro e substituições.</li>
+                <li><strong>Quizzes:</strong> atualiza links externos dos quizzes.</li>
+                <li><strong>Mapa do Site:</strong> esta documentação interna.</li>
+                <li><strong>Histórico:</strong> mostra alterações registradas.</li>
+              </ul>
+
+              <h4>Fluxo para atualizar lições</h4>
+              <ol>
+                <li>Abrir admin.html.</li>
+                <li>Digitar a senha do painel.</li>
+                <li>Ir em <strong>Lições</strong>.</li>
+                <li>Escolher Jovens e Adultos ou Adolescentes.</li>
+                <li>Clicar em <strong>HTML avançado</strong>.</li>
+                <li>Colar o HTML da lição.</li>
+                <li>Clicar em <strong>Sincronizar</strong>.</li>
+                <li>Clicar em <strong>Salvar lições</strong>.</li>
+              </ol>
+
+              <h4>Fluxo para atualizar quizzes</h4>
+              <ol>
+                <li>Abrir admin.html.</li>
+                <li>Ir em <strong>Quizzes</strong>.</li>
+                <li>Colar os links da semana.</li>
+                <li>Clicar em <strong>Salvar links dos quizzes</strong>.</li>
+                <li>Testar na página principal.</li>
+              </ol>
+            </div>
+
+            <div class="mapa-section">
+              <h3>8. Links iniciais dos quizzes</h3>
+              <h4>Jovens e Adultos</h4>
+              <code class="mapa-code">https://ebdfiel.github.io/Quizzes-ClaseAdultos-2026/trimestre-02/licao-07/</code>
+
+              <h4>Adolescentes</h4>
+              <code class="mapa-code">https://ebdfiel.github.io/Quizzes-ConectarJovens-/trimestre-02/licao-07/index.html</code>
+
+              <p>Esses links são externos. A página principal apenas encaminha o usuário para outra página/aba.</p>
+            </div>
+
+            <div class="mapa-section">
+              <h3>9. Classes e professores iniciais</h3>
+              <div class="mapa-grid">
+                <div class="mapa-card"><h3>Crianças 1 a 5 anos 👶</h3><p>Rosilene, Alessandra, Edivania, Rosângela</p></div>
+                <div class="mapa-card"><h3>Crianças 6 a 10 anos 👧</h3><p>Rita, Thaís, Vitória, Larissa</p></div>
+                <div class="mapa-card"><h3>Pré-Adolescentes 🙋</h3><p>Oseas Junior, Igor</p></div>
+                <div class="mapa-card"><h3>Adolescentes 🌱</h3><p>Maria Tereza, Fernanda, Graziele — apoio</p></div>
+                <div class="mapa-card"><h3>Discipulado 📖</h3><p>Noeme, Suely</p></div>
+                <div class="mapa-card"><h3>Jovens 🔥</h3><p>Emanuela, Lucas, Ronan</p></div>
+                <div class="mapa-card"><h3>Irmãos 👔</h3><p>Pb Elias, Pb Felipe, Pb Claudinei, Pb Adriano, Dc João Paulo</p></div>
+                <div class="mapa-card"><h3>Irmãs 🌸</h3><p>Pastora, Samella, Ana Cardoso</p></div>
+                <div class="mapa-card"><h3>Suporte 🤝</h3><p>Ronan</p></div>
+              </div>
+            </div>
+
+            <div class="mapa-section">
+              <h3>10. Como publicar alterações</h3>
+              <h4>Alterou index.html ou admin.html?</h4>
+              <ol>
+                <li>Substituir o arquivo no GitHub.</li>
+                <li>Fazer commit.</li>
+                <li>Aguardar GitHub Pages atualizar.</li>
+                <li>Abrir o site e usar <strong>Ctrl + F5</strong>.</li>
+              </ol>
+
+              <h4>Alterou Code.gs?</h4>
+              <ol>
+                <li>Colar o código no Apps Script.</li>
+                <li>Conferir <strong>SENHA_ADMIN</strong>.</li>
+                <li>Salvar.</li>
+                <li>Ir em <strong>Implantar &gt; Gerenciar implantações</strong>.</li>
+                <li>Editar a implantação.</li>
+                <li>Selecionar <strong>Nova versão</strong>.</li>
+                <li>Implantar.</li>
+              </ol>
+            </div>
+
+            <div class="mapa-section">
+              <h3>11. Problemas comuns</h3>
+              <h4>Painel salvou, mas página não mostra</h4>
+              <ul>
+                <li>abrir <code>APPS_SCRIPT_URL?acao=licoes</code>;</li>
+                <li>verificar se a lição aparece no JSON;</li>
+                <li>se aparece, o problema é cache ou index.html antigo;</li>
+                <li>usar Ctrl + F5, aba anônima ou <code>?v=1</code>.</li>
+              </ul>
+
+              <h4>Botão do painel não responde</h4>
+              <ul>
+                <li>normalmente é erro de JavaScript no admin.html;</li>
+                <li>abrir console do navegador;</li>
+                <li>verificar se o arquivo admin.html correto foi publicado.</li>
+              </ul>
+
+              <h4>Quiz abre errado</h4>
+              <ul>
+                <li>verificar links na aba Quizzes;</li>
+                <li>confirmar se o botão de WhatsApp é um <code>button</code> com JavaScript, não <code>a href="#"</code>.</li>
+              </ul>
+            </div>
+
+            <div class="mapa-section">
+              <h3>12. Prompt para enviar a outra IA</h3>
+              <p>Copie e envie este resumo para outra IA antes de pedir ajuda:</p>
+              <code class="mapa-code">Estou trabalhando em um site chamado Escala EBD, hospedado no GitHub Pages.
+
+Ele tem:
+- index.html como página pública;
+- admin.html como painel administrativo;
+- Google Apps Script em Code.gs;
+- Google Sheets com abas: Escala EBD, Histórico, Licoes, Professores e Quizzes.
+
+A página pública mostra:
+- escala da semana;
+- botão para escala do trimestre;
+- botão flutuante para voltar à semana atual;
+- botão Alterar meu dia com senha 1234;
+- lição da semana para Jovens e Adultos e Adolescentes;
+- quizzes externos;
+- botões de compartilhar quiz no WhatsApp;
+- professores por classe.
+
+O Apps Script usa esta URL:
+https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec
+
+As ações do Apps Script incluem:
+listar, trocar, historico, versao, licoes, salvarLicoes, quizzes, salvarQuizzes, listarProfessores e salvarProfessores.
+
+As lições usam as chaves:
+adultos = Jovens e Adultos
+jovens = Adolescentes
+
+Os quizzes usam as chaves:
+adultos = quiz Jovens e Adultos
+jovens = quiz Adolescentes
+
+A senha do admin fica no Code.gs em SENHA_ADMIN.
+A senha simples para alterar dia no site público é 1234 no index.html.
+
+Ao mexer no Code.gs, é obrigatório salvar e implantar como Nova versão no Apps Script.
+Ao mexer no index.html ou admin.html, é necessário substituir no GitHub e limpar cache com Ctrl + F5.</code>
+            </div>
           </div>
         </div>
 
@@ -987,6 +1449,32 @@
   async function substituirProfessorAdmin() { let s=obterSenhaSessao(); let antigo=document.getElementById("profSubAntigo").value, novo=document.getElementById("profSubNovo").value.trim(); if(!antigo||!novo) return; let r=await chamarAppsScript({acao:"substituirProfessor", senha:s, professorAntigo:antigo, professorNovo:novo, classe:document.getElementById("profSubClasse").value, alcance:document.getElementById("profSubAlcance").value, inativarAntigo:document.getElementById("profSubInativar").value}); if(r.sucesso){ mostrarStatus("success","Substituição feita"); carregarEscala(); carregarProfessores(); carregarHistorico(); } }
   async function mudarProfessorClasseAdmin() { let s=obterSenhaSessao(); let prof=document.getElementById("profMudarNome").value, classeNova=document.getElementById("profMudarClasse").value; if(!prof||!classeNova) return; let r=await chamarAppsScript({acao:"mudarProfessorClasse", senha:s, professor:prof, classeNova, aplicarEscala:document.getElementById("profMudarAplicar").value}); if(r.sucesso){ mostrarStatus("success","Classe alterada"); carregarEscala(); carregarProfessores(); carregarHistorico(); } }
 
+
+  function copiarMapaSite() {
+    const painelMapa = document.getElementById("painelMapa");
+
+    if (!painelMapa) {
+      mostrarStatus("error", "Mapa do site não encontrado.");
+      return;
+    }
+
+    const texto = painelMapa.innerText || "";
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texto)
+        .then(() => mostrarStatus("success", "Mapa do site copiado com sucesso."))
+        .catch(() => mostrarStatus("error", "Não foi possível copiar automaticamente."));
+    } else {
+      const area = document.createElement("textarea");
+      area.value = texto;
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand("copy");
+      area.remove();
+      mostrarStatus("success", "Mapa do site copiado com sucesso.");
+    }
+  }
+
   async function carregarQuizzesAdmin() {
     try {
       const dados = await chamarAppsScript({
@@ -1087,7 +1575,7 @@
   async function carregarHistorico() { let r=await chamarAppsScript({acao:"historico",limite:"50"}); let div=document.getElementById("listaHistorico"); if(r.sucesso && r.historico?.length) div.innerHTML=r.historico.map(i=>`<div class="history-item"><strong>${i.dataHora}</strong><br>Classe: ${i.classe}<br>Alteração: ${i.professorTrocado||i.novaData}<br>Origem: ${i.origem}</div>`).join(""); else div.innerHTML="<p class='help'>Nenhum registro</p>"; }
   function preencherProfessorAtual() { let data=document.getElementById("escalaDataEditar").value, classe=document.getElementById("escalaClasseEditar").value, linha=escalaCache.find(l=>l.Data===data); document.getElementById("escalaProfessorEditar").value = linha && classe ? linha[classe] : ""; }
   function abrirPainel(nome) {
-    ["licoes", "escala", "professores", "quizzes", "historico"].forEach((p) => {
+    ["licoes", "escala", "professores", "quizzes", "mapa", "historico"].forEach((p) => {
       const painel = document.getElementById(`painel${p.charAt(0).toUpperCase() + p.slice(1)}`);
       const botao = document.getElementById(`aba${p.charAt(0).toUpperCase() + p.slice(1)}Btn`);
 

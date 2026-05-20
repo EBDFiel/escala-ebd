@@ -9,7 +9,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_QUIZ_WHATSAPP_CORRIGIDO_2026_05_19" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_REDESIGN_PREMIUM_2026_05_19" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -1957,6 +1957,598 @@
         scroll-behavior: auto !important;
       }
     }
+
+    /* =========================================================
+       REDESENHO PREMIUM 2026 — ESCALA EBD
+       Mantém as funções existentes e melhora a aparência geral.
+       ========================================================= */
+
+    :root {
+      --premium-navy: #0b2740;
+      --premium-blue: #1f4e79;
+      --premium-blue-2: #2b6f9f;
+      --premium-gold: #d4af37;
+      --premium-gold-soft: #fff5d6;
+      --premium-green: #238b45;
+      --premium-purple: #7c3aed;
+      --premium-pink: #db2777;
+      --premium-red: #dc2626;
+      --premium-bg: #f4f8fb;
+      --premium-card: rgba(255, 255, 255, 0.92);
+      --premium-border: rgba(148, 163, 184, 0.28);
+      --premium-text: #1f2937;
+      --premium-muted: #64748b;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 12% 8%, rgba(212, 175, 55, 0.18), transparent 28%),
+        radial-gradient(circle at 88% 12%, rgba(31, 78, 121, 0.16), transparent 30%),
+        linear-gradient(135deg, #f2f7fb 0%, #ffffff 44%, #f3faf4 100%);
+      color: var(--premium-text);
+    }
+
+    header {
+      padding: 24px 18px 28px;
+      border-bottom: 5px solid var(--premium-gold);
+      background:
+        radial-gradient(circle at 50% -40px, rgba(255,255,255,0.18), transparent 30%),
+        linear-gradient(135deg, #082f49 0%, #18496f 62%, #1f4e79 100%);
+    }
+
+    header::after {
+      bottom: -82px;
+      width: 360px;
+      height: 120px;
+    }
+
+    .header-inner {
+      max-width: 1040px;
+    }
+
+    .header-logo {
+      max-width: 470px;
+      margin-bottom: 12px;
+    }
+
+    .header-subtitle {
+      font-size: 0.82rem;
+      opacity: 0.92;
+    }
+
+    .header-title {
+      font-size: clamp(1.8rem, 4.4vw, 2.8rem);
+    }
+
+    .header-note {
+      margin-top: 12px;
+      padding: 6px 16px;
+      font-size: 0.9rem;
+      background: rgba(255,255,255,0.12);
+    }
+
+    .header-verse {
+      max-width: 680px;
+      margin-top: 16px;
+      padding: 14px 18px;
+      border-radius: 18px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+    }
+
+    .header-verse .verse-icon {
+      width: 34px;
+      height: 34px;
+      font-size: 1.08rem;
+      margin-bottom: 6px;
+    }
+
+    .header-verse p {
+      font-size: 0.92rem;
+      line-height: 1.65;
+    }
+
+    main {
+      max-width: 1120px;
+      padding: 24px 16px 56px;
+    }
+
+    .premium-card,
+    .card {
+      border-radius: 26px;
+      border: 1px solid var(--premium-border);
+      background: var(--premium-card);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+      backdrop-filter: blur(10px);
+    }
+
+    .premium-section-title {
+      text-align: center;
+      margin: 0 auto 18px;
+      max-width: 820px;
+    }
+
+    .premium-section-title .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 8px;
+      padding: 6px 13px;
+      border-radius: 999px;
+      background: var(--premium-gold-soft);
+      color: #7a5312;
+      font-size: 0.78rem;
+      font-weight: 950;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border: 1px solid rgba(212, 175, 55, 0.35);
+    }
+
+    .premium-section-title h2 {
+      margin: 0;
+      color: var(--premium-navy);
+      font-size: clamp(1.45rem, 3vw, 2rem);
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+    }
+
+    .premium-section-title p {
+      margin: 9px auto 0;
+      color: var(--premium-muted);
+      font-weight: 650;
+    }
+
+    .quick-access {
+      margin-top: -8px;
+      padding: 18px;
+    }
+
+    .quick-access-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .quick-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 150px;
+      padding: 18px;
+      border-radius: 24px;
+      text-decoration: none;
+      color: var(--premium-text);
+      background: #ffffff;
+      border: 1px solid var(--premium-border);
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .quick-card::after {
+      content: "";
+      position: absolute;
+      right: -34px;
+      bottom: -34px;
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: rgba(31, 78, 121, 0.08);
+    }
+
+    .quick-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 36px rgba(15, 23, 42, 0.12);
+    }
+
+    .quick-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      border-radius: 18px;
+      font-size: 1.45rem;
+      color: #ffffff;
+      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.14);
+    }
+
+    .quick-card:nth-child(1) .quick-icon {
+      background: linear-gradient(135deg, var(--premium-blue), var(--premium-blue-2));
+    }
+
+    .quick-card:nth-child(2) .quick-icon {
+      background: linear-gradient(135deg, var(--premium-gold), #b7791f);
+    }
+
+    .quick-card:nth-child(3) .quick-icon {
+      background: linear-gradient(135deg, var(--premium-purple), var(--premium-pink));
+    }
+
+    .quick-card h3 {
+      margin: 0 0 5px;
+      color: var(--premium-navy);
+      font-size: 1.08rem;
+    }
+
+    .quick-card p {
+      margin: 0;
+      color: var(--premium-muted);
+      font-weight: 650;
+      font-size: 0.93rem;
+      line-height: 1.45;
+    }
+
+    .notice-strip {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .notice-main {
+      padding: 22px;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at right top, rgba(212, 175, 55, 0.16), transparent 32%),
+        linear-gradient(135deg, #ffffff, #f8fbff);
+      border-left: 7px solid var(--premium-gold);
+    }
+
+    .notice-main h2 {
+      margin: 0 0 8px;
+      color: var(--premium-navy);
+      font-size: 1.35rem;
+    }
+
+    .notice-main p {
+      margin: 8px 0 0;
+      font-weight: 650;
+      color: #40546a;
+    }
+
+    .leadership-mini {
+      display: grid;
+      gap: 10px;
+    }
+
+    .mini-leader {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: #ffffff;
+      border: 1px solid var(--premium-border);
+      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
+    }
+
+    .mini-leader strong {
+      display: block;
+      color: var(--premium-navy);
+      margin-bottom: 2px;
+    }
+
+    .warning {
+      display: none;
+    }
+
+    .scale-premium {
+      padding: 24px;
+    }
+
+    .scale-premium .loading-box {
+      max-width: 760px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .scale-premium .table-wrap {
+      display: none;
+    }
+
+    .scale-premium .mobile-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 16px;
+      max-width: 950px;
+      margin: 0 auto;
+    }
+
+    .scale-premium .schedule-card {
+      margin: 0;
+      padding: 24px;
+      border-radius: 26px;
+      border: 1px solid rgba(31, 78, 121, 0.14);
+      background:
+        radial-gradient(circle at top right, rgba(31, 78, 121, 0.10), transparent 30%),
+        linear-gradient(135deg, #ffffff, #f7fbff);
+      box-shadow: 0 16px 36px rgba(15, 23, 42, 0.09);
+    }
+
+    .scale-premium .schedule-card h3 {
+      border-bottom: none;
+      padding-bottom: 4px;
+      margin-bottom: 16px;
+    }
+
+    .scale-premium .mobile-date-badge {
+      padding: 10px 20px;
+      font-size: 1.05rem;
+      background: linear-gradient(135deg, var(--premium-navy), var(--premium-blue));
+    }
+
+    .scale-premium .schedule-item {
+      padding: 9px 0;
+      font-size: 0.98rem;
+      border-bottom: 1px dashed rgba(148, 163, 184, 0.35);
+    }
+
+    .scale-premium .schedule-item strong {
+      color: var(--premium-navy);
+    }
+
+    .scale-action-bottom {
+      margin-top: 20px;
+    }
+
+    .scale-buttons {
+      grid-template-columns: repeat(2, minmax(170px, 230px));
+    }
+
+    .btn {
+      min-height: 46px;
+      border-radius: 999px;
+      letter-spacing: -0.01em;
+    }
+
+    .btn-action-red {
+      background: linear-gradient(135deg, #ef4444, #991b1b) !important;
+    }
+
+    .lesson-section {
+      position: relative;
+      overflow: hidden;
+      padding: 24px;
+      background:
+        radial-gradient(circle at top right, rgba(212, 175, 55, 0.16), transparent 30%),
+        linear-gradient(135deg, #ffffff, #f8fbff);
+    }
+
+    .lesson-flow {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0 20px;
+    }
+
+    .flow-step {
+      padding: 14px;
+      border-radius: 18px;
+      background: #ffffff;
+      border: 1px solid var(--premium-border);
+      text-align: center;
+      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
+      font-weight: 850;
+      color: var(--premium-navy);
+    }
+
+    .lesson-teacher-callout {
+      margin: 16px 0 20px;
+      padding: 22px;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at top left, rgba(212, 175, 55, 0.20), transparent 30%),
+        linear-gradient(135deg, #fffaf0, #ffffff);
+      border: 1px solid rgba(212, 175, 55, 0.32);
+      border-left: 7px solid var(--premium-gold);
+      box-shadow: 0 14px 28px rgba(197, 155, 53, 0.10);
+    }
+
+    .lesson-teacher-callout h3 {
+      color: var(--premium-navy);
+      font-size: 1.25rem;
+    }
+
+    .lesson-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .lesson-card {
+      min-height: 190px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 22px;
+      border-radius: 24px;
+      border: 1px solid var(--premium-border);
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.07);
+    }
+
+    .lesson-card h3 {
+      color: var(--premium-navy);
+      font-size: 1.2rem;
+    }
+
+    .lesson-card p {
+      color: var(--premium-muted);
+      font-weight: 650;
+    }
+
+    .lesson-card .btn-card {
+      background: linear-gradient(135deg, var(--premium-blue), var(--premium-blue-2));
+      align-self: center;
+      padding: 10px 20px;
+    }
+
+    .quiz-zone {
+      margin-top: 20px;
+      padding: 24px;
+      border-radius: 26px;
+      color: #ffffff;
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.18), transparent 28%),
+        linear-gradient(135deg, #172554, #4c1d95 52%, #9d174d);
+      border: 1px solid rgba(255,255,255,0.20);
+      box-shadow: 0 18px 38px rgba(76, 29, 149, 0.20);
+    }
+
+    .quiz-zone h3 {
+      color: #ffffff;
+      font-size: 1.35rem;
+    }
+
+    .quiz-zone p {
+      color: rgba(255,255,255,0.86);
+    }
+
+    .quiz-share-note {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.20);
+      color: #ffffff;
+    }
+
+    .quiz-btn {
+      box-shadow: 0 12px 26px rgba(0,0,0,0.22);
+    }
+
+    .quiz-btn.adultos {
+      background: linear-gradient(135deg, #1d4ed8, #0f172a);
+    }
+
+    .quiz-btn.jovens {
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+    }
+
+    .instructions {
+      padding: 24px;
+      background:
+        radial-gradient(circle at top right, rgba(46, 125, 50, 0.12), transparent 30%),
+        linear-gradient(135deg, #ffffff, #f3fff6);
+      border-left: 7px solid var(--premium-green);
+    }
+
+    .instructions ol {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      padding-left: 0;
+      list-style: none;
+      counter-reset: passo;
+    }
+
+    .instructions li {
+      counter-increment: passo;
+      position: relative;
+      padding: 12px 12px 12px 46px;
+      border-radius: 16px;
+      background: #ffffff;
+      border: 1px solid rgba(46, 125, 50, 0.14);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+      font-weight: 650;
+    }
+
+    .instructions li::before {
+      content: counter(passo);
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--premium-green);
+      color: #ffffff;
+      font-weight: 950;
+      font-size: 0.82rem;
+    }
+
+    .teachers-premium {
+      padding: 24px;
+    }
+
+    .teachers-premium .class-section {
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
+
+    .teachers-premium .class-card {
+      border-radius: 20px;
+      border: 1px solid var(--premium-border);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+      padding: 15px;
+    }
+
+    .teachers-premium .class-card h3 {
+      color: var(--premium-navy);
+      font-size: 1rem;
+    }
+
+    .teachers-premium .class-card li {
+      font-weight: 650;
+      color: #425466;
+    }
+
+    footer {
+      border-top: 1px solid rgba(148, 163, 184, 0.26);
+      background:
+        linear-gradient(135deg, #ffffff, #f8fbff);
+    }
+
+    .leadership-card {
+      border-radius: 18px;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+    }
+
+    @media (max-width: 760px) {
+      header {
+        padding: 20px 12px 24px;
+      }
+
+      .header-logo {
+        max-width: 315px;
+      }
+
+      .header-verse {
+        padding: 13px 14px;
+      }
+
+      main {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .quick-access-grid,
+      .notice-strip,
+      .lesson-flow,
+      .lesson-grid,
+      .instructions ol {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-card {
+        min-height: auto;
+      }
+
+      .scale-premium,
+      .lesson-section,
+      .instructions,
+      .teachers-premium {
+        padding: 16px;
+      }
+
+      .scale-premium .mobile-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .scale-buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .lesson-card {
+        min-height: auto;
+      }
+    }
+
   </style>
 </head>
 
@@ -1985,110 +2577,69 @@
     </div>
   </header>
 
+  
   <main>
 
-    <section class="card intro">
-      <h2>Conferência da Escala 📖</h2>
+    <section class="premium-card quick-access" aria-label="Acesso rápido">
+      <div class="quick-access-grid">
+        <a class="quick-card" href="#escala">
+          <span class="quick-icon">📅</span>
+          <h3>Escala da semana</h3>
+          <p>Veja rapidamente quem está escalado para a próxima aula.</p>
+        </a>
 
-      <p>🙏 Paz do Senhor, professores!</p>
+        <a class="quick-card" href="#licoes">
+          <span class="quick-icon">📖</span>
+          <h3>Lição da semana</h3>
+          <p>Material pronto para ajudar os professores a prepararem suas aulas.</p>
+        </a>
 
-      <p>
-        Confira abaixo sua data na escala da EBD. Caso precise mudar o dia de dar aula,
-        escolha sua classe, seu nome, sua data atual e a nova data desejada.
-      </p>
-
-      <p>
-        🔄 O sistema fará a troca entre os dois professores da mesma classe.
-      </p>
-
-      <div class="info-box">
-        <div class="info-item info-blue">
-          <span class="info-emoji foto-pastor-wrap" aria-hidden="true">
-            <img src="pastor-presidente.png" alt="Pastor Presidente Oseas Valadares" class="foto-pastor" />
-          </span>
-          <strong>Pastor Presidente</strong>
-          Oseas Valadares
-        </div>
-
-        <div class="info-item info-green">
-          <span class="info-emoji realistic-icon double-icon" aria-hidden="true">
-            <svg viewBox="0 0 90 80" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="skinSup1" x1="0" x2="1">
-                  <stop offset="0%" stop-color="#f1bd91"/>
-                  <stop offset="100%" stop-color="#d28b5f"/>
-                </linearGradient>
-                <linearGradient id="skinSup2" x1="0" x2="1">
-                  <stop offset="0%" stop-color="#e0a276"/>
-                  <stop offset="100%" stop-color="#b96f45"/>
-                </linearGradient>
-                <linearGradient id="suitSup" x1="0" x2="1">
-                  <stop offset="0%" stop-color="#163a5c"/>
-                  <stop offset="100%" stop-color="#1f4e79"/>
-                </linearGradient>
-              </defs>
-
-              <circle cx="45" cy="40" r="38" fill="#ffffff"/>
-              <circle cx="45" cy="40" r="36" fill="#e9f6ea"/>
-
-              <path d="M13 72c2-16 11-25 20-25s18 9 20 25H13z" fill="url(#suitSup)"/>
-              <path d="M24 49h18l6 23H18z" fill="#ffffff"/>
-              <path d="M26 49l7 7 7-7 4 6-11 9-11-9z" fill="#dbe7f1"/>
-              <path d="M31 54h5l-1.3 5 2.4 13h-7.2l2.4-13z" fill="#c59b35"/>
-              <rect x="29" y="39" width="8" height="9" rx="3" fill="#c7865f"/>
-              <circle cx="33" cy="31" r="12" fill="url(#skinSup1)"/>
-              <path d="M22 30c1-10 6-16 12-16 7 0 12 6 12 16-5-4-15-5-24 0z" fill="#2f2f2f"/>
-              <circle cx="29" cy="31" r="1.4" fill="#263238"/>
-              <circle cx="37" cy="31" r="1.4" fill="#263238"/>
-              <path d="M30 37c2 1.5 5 1.5 7 0" fill="none" stroke="#7a3e2b" stroke-width="1.6" stroke-linecap="round"/>
-
-              <path d="M38 72c2-16 11-25 20-25s18 9 20 25H38z" fill="#102f4d"/>
-              <path d="M49 49h18l6 23H43z" fill="#ffffff"/>
-              <path d="M51 49l7 7 7-7 4 6-11 9-11-9z" fill="#dbe7f1"/>
-              <path d="M56 54h5l-1.3 5 2.4 13h-7.2l2.4-13z" fill="#b42318"/>
-              <rect x="54" y="39" width="8" height="9" rx="3" fill="#a95f3c"/>
-              <circle cx="58" cy="31" r="12" fill="url(#skinSup2)"/>
-
-              <path d="M47 30c1-10 6-16 12-16 7 0 12 6 12 16-3-3-7-4-10.5-4-1.5 0-2.4.8-2.8 2.2-.5-1.4-1.5-2.2-3-2.2-3.3 0-6 1-7.7 4z" fill="#1f2937"/>
-              <path d="M49 32c1.6-6 4-10 7-11-1 3-1.2 6-.6 8.5-2.4 0-4.4.8-6.4 2.5z" fill="#263238"/>
-              <path d="M69 32c-1.6-6-4-10-7-11 1 3 1.2 6 .6 8.5 2.4 0 4.4.8 6.4 2.5z" fill="#263238"/>
-              <path d="M54 21c1.6-.8 3-1.2 4.4-1.2 1.6 0 3 .4 4.6 1.2-1.8 1.2-3.2 2.5-4.5 4.5-1.2-2-2.7-3.3-4.5-4.5z" fill="url(#skinSup2)"/>
-
-              <circle cx="54" cy="31" r="1.4" fill="#263238"/>
-              <circle cx="62" cy="31" r="1.4" fill="#263238"/>
-              <path d="M55 37c2 1.5 5 1.5 7 0" fill="none" stroke="#6f3b28" stroke-width="1.6" stroke-linecap="round"/>
-            </svg>
-          </span>
-          <strong>Superintendentes</strong>
-          Coop. Ronan e Pb Elias
-        </div>
-
-        <div class="info-item info-gold">
-          <span class="info-emoji">📅</span>
-          <strong>Período da escala</strong>
-          2º Trimestre 2026
-        </div>
-      </div>
-
-      <div class="highlight-message">
-        ✨ Confira sua escala com atenção e use o botão
-        <strong>“Alterar meu dia”</strong> no cartão da data.
+        <a class="quick-card" href="#quiz">
+          <span class="quick-icon">🧠</span>
+          <h3>Quiz interativo</h3>
+          <p>Compartilhe com a classe e incentive a participação durante a semana.</p>
+        </a>
       </div>
     </section>
 
-    <section class="card warning">
-      <h2>Atenção ao alterar sua data ⚠️</h2>
+    <section class="premium-card intro">
+      <div class="notice-strip">
+        <div class="notice-main">
+          <h2>Conferência da Escala 📖</h2>
+          <p>🙏 Paz do Senhor, professores!</p>
+          <p>
+            Confira sua data na escala da EBD. Caso precise mudar o dia de dar aula,
+            use o botão <strong>Alterar meu dia</strong>. A troca será feita dentro da mesma classe.
+          </p>
+        </div>
 
-      <p>
-        Escolha a classe correta. A troca será feita dentro da mesma classe:
-        seu nome vai para a nova data escolhida, e o professor que estava nessa nova data
-        vai para o seu antigo dia.
-      </p>
+        <div class="leadership-mini">
+          <div class="mini-leader">
+            <strong>⛪ Pastor Presidente</strong>
+            Oseas Valadares
+          </div>
+
+          <div class="mini-leader">
+            <strong>👥 Superintendentes</strong>
+            Coop. Ronan e Pb Elias
+          </div>
+
+          <div class="mini-leader">
+            <strong>📅 Período</strong>
+            2º Trimestre 2026
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section class="card">
-      <h2 class="section-title">Escala de Aulas 📚</h2>
-<div class="loading-box" id="loadingBox">
+    <section id="escala" class="premium-card scale-premium">
+      <div class="premium-section-title">
+        <span class="eyebrow">📅 Escala</span>
+        <h2>Escala da Semana</h2>
+        <p>Mostramos primeiro a semana atual. Para consultar todas as datas, use o botão da escala do trimestre.</p>
+      </div>
+
+      <div class="loading-box" id="loadingBox">
         Carregando escala atualizada... 🔄
       </div>
 
@@ -2127,46 +2678,55 @@
       </div>
     </section>
 
+    <section id="licoes" class="premium-card lesson-section">
+      <div class="premium-section-title">
+        <span class="eyebrow">📖 Ensino</span>
+        <h2>Lição da Semana</h2>
+        <p>Um espaço preparado para auxiliar professores e alunos no estudo da Palavra.</p>
+      </div>
 
-    <section class="card lesson-section">
-      <h2 class="section-title">Lição da Semana 📖</h2>
-
-      <p class="small-text lesson-intro">
-        Confira a lição atual da semana para as classes de Jovens e Adultos e Adolescentes.
-      </p>
+      <div class="lesson-flow">
+        <div class="flow-step">1. Estude a lição 📚</div>
+        <div class="flow-step">2. Prepare sua aula ✍️</div>
+        <div class="flow-step">3. Compartilhe o quiz 📲</div>
+      </div>
 
       <div class="lesson-teacher-callout">
-        <h3>📚 Professores, aproveitem o material da lição!</h3>
+        <h3>📚 Professor, sua aula começa aqui</h3>
         <p>
           Preparamos um material prontinho para ajudar você a elaborar sua aula com mais clareza,
-          organização e aplicação prática. Acesse a lição da semana, estude os tópicos, adapte para sua classe
-          e leve uma aula ainda mais edificante para seus alunos.
+          organização e aplicação prática. Acesse a lição da semana, adapte para sua classe
+          e ministre uma aula ainda mais edificante.
         </p>
       </div>
 
       <div class="lesson-grid">
         <article class="lesson-card lesson-adultos">
-          <h3>Jovens e Adultos 👔🌸🔥</h3>
-          <p>
-            Lição atual para as classes de jovens e adultos.
-          </p>
+          <div>
+            <h3>Jovens e Adultos 👔🌸🔥</h3>
+            <p>
+              Material atual para apoiar a preparação das classes de jovens e adultos.
+            </p>
+          </div>
           <button class="btn btn-card" type="button" onclick="abrirLicao('adultos')">
             Ver lição de Jovens e Adultos
           </button>
         </article>
 
         <article class="lesson-card lesson-jovens">
-          <h3>Adolescentes 🌱</h3>
-          <p>
-            Lição atual para a classe de adolescentes.
-          </p>
+          <div>
+            <h3>Adolescentes 🌱</h3>
+            <p>
+              Conteúdo da semana com linguagem e aplicação voltadas para os adolescentes.
+            </p>
+          </div>
           <button class="btn btn-card" type="button" onclick="abrirLicao('jovens')">
             Ver lição dos Adolescentes
           </button>
         </article>
       </div>
 
-      <div class="quiz-zone">
+      <div id="quiz" class="quiz-zone">
         <h3>Quiz da Lição da Semana 🧠✨</h3>
 
         <div class="quiz-share-note">
@@ -2174,7 +2734,7 @@
           a responderem. O quiz é interativo e ajuda a fixar melhor o conteúdo da lição da semana.
         </div>
 
-        <p>Ao clicar, você será encaminhado para a página externa do quiz.</p>
+        <p>Ao clicar no quiz, você será encaminhado para uma página externa.</p>
 
         <div class="quiz-buttons">
           <a id="quizAdultos" class="quiz-btn adultos" href="https://ebdfiel.github.io/Quizzes-ClaseAdultos-2026/trimestre-02/licao-07/" target="_blank" rel="noopener">
@@ -2198,12 +2758,16 @@
       </div>
     </section>
 
-    <section class="card instructions">
-      <h2>Como alterar seu dia de aula 🔄</h2>
+    <section class="premium-card instructions">
+      <div class="premium-section-title">
+        <span class="eyebrow">🔄 Troca de data</span>
+        <h2>Como alterar seu dia de aula</h2>
+        <p>Siga os passos abaixo para solicitar uma troca dentro da mesma classe.</p>
+      </div>
 
       <ol>
-        <li>No celular, procure o cartão da escala.</li>
-        <li>Toque no botão <strong>Alterar meu dia</strong>.</li>
+        <li>No celular ou computador, confira o cartão da escala.</li>
+        <li>Clique no botão <strong>Alterar meu dia</strong>.</li>
         <li>Escolha a classe em que você vai dar aula.</li>
         <li>Escolha seu nome.</li>
         <li>Escolha a data em que você está escalado atualmente.</li>
@@ -2213,8 +2777,12 @@
       </ol>
     </section>
 
-    <section class="card">
-      <h2 class="section-title">Professores por Classe 👩‍🏫</h2>
+    <section class="premium-card teachers-premium">
+      <div class="premium-section-title">
+        <span class="eyebrow">👩‍🏫 Corpo docente</span>
+        <h2>Professores por Classe</h2>
+        <p>Equipe de apoio da Escola Bíblica Dominical no trimestre atual.</p>
+      </div>
 
       <div class="class-section">
         <div class="class-card">
@@ -2300,6 +2868,7 @@
       </div>
     </section>
   </main>
+
 
   <footer>
     <div class="leadership-footer">

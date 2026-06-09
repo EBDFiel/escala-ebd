@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -3052,9 +3050,15 @@
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec";
     const SENHA_ALTERAR_DIA = "1234";
 
+    const DOMINIOS_PUBLICADOS = [
+      "ebdfiel.github.io",
+      "escala.ebdfiel.com.br"
+    ];
+
     const SITE_PUBLICADO =
-      location.hostname === "ebdfiel.github.io" ||
-      location.hostname.endsWith(".github.io");
+      location.protocol !== "file:" &&
+      (DOMINIOS_PUBLICADOS.includes(location.hostname) ||
+        location.hostname.endsWith(".github.io"));
 
     const classesEscala = [
       "Cordeirinhos de Cristo",

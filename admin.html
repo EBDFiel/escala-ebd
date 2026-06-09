@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1518,17 +1519,56 @@
   function salvarSenhaSessao(v) { sessionStorage.setItem("senhaAdminEBD", v); }
   function limparSenhaSessao() { sessionStorage.removeItem("senhaAdminEBD"); }
 
+  function obterSenhaObrigatoria() {
+    let senha = obterSenhaSessao();
+
+    if (!senha) {
+      const campoSenha = document.getElementById("senha");
+      senha = campoSenha ? campoSenha.value.trim() : "";
+    }
+
+    if (!senha) {
+      senha = window.prompt("Digite a senha administrativa para confirmar:") || "";
+      senha = senha.trim();
+    }
+
+    if (!senha) {
+      throw new Error("Sessão expirada. Entre novamente com a senha para continuar.");
+    }
+
+    salvarSenhaSessao(senha);
+
+    const senhaForm = document.getElementById("senhaForm");
+    if (senhaForm) {
+      senhaForm.value = senha;
+    }
+
+    return senha;
+  }
+
   function entrarNoPainel() { let s = document.getElementById("senha").value.trim(); if(!s) return mostrarStatus("error","Digite a senha."); salvarSenhaSessao(s); document.getElementById("senhaForm").value = s; document.getElementById("telaLogin").style.display = "none"; document.getElementById("barraPainel").style.display = "block"; document.getElementById("painelAdmin").style.display = "block"; mostrarStatus("success","Painel liberado."); carregarTudo(); }
   function sairDoPainel() { limparSenhaSessao(); document.getElementById("telaLogin").style.display = "block"; document.getElementById("barraPainel").style.display = "none"; document.getElementById("painelAdmin").style.display = "none"; mostrarStatus("info","Sessão finalizada."); }
 
   function chamarAppsScript(params) { return new Promise((resolve, reject) => { let cb = "cb_" + Date.now() + Math.random(); let script = document.createElement("script"); let query = new URLSearchParams(params); query.append("callback", cb); query.append("t", Date.now()); let timeout = setTimeout(() => { delete window[cb]; script.remove(); reject(new Error("Timeout")); }, 15000); window[cb] = (r) => { clearTimeout(timeout); delete window[cb]; script.remove(); resolve(r); }; script.onerror = () => { clearTimeout(timeout); reject(new Error("Falha rede")); }; script.src = APPS_SCRIPT_URL + "?" + query; document.body.appendChild(script); }); }
 
   async function carregarTudo() {
-    await carregarLicoes(true);
-    await carregarEscala();
-    await carregarProfessores();
-    await carregarQuizzesAdmin();
-    await carregarHistorico();
+    const tarefas = [
+      () => carregarLicoes(true),
+      () => carregarEscala(),
+      () => carregarProfessores(),
+      () => carregarQuizzesAdmin(),
+      () => carregarHistorico()
+    ];
+
+    for (const tarefa of tarefas) {
+      try {
+        await tarefa();
+      } catch (erro) {
+        console.warn("Uma etapa do carregamento inicial falhou, mas o painel continuará ativo:", erro);
+      }
+    }
+
+    garantirMenusAdmin();
   }
   async function carregarLicoes(modoSilencioso = false) {
     try {
@@ -1771,12 +1811,285 @@
     }
   });
 
-  async function carregarEscala() { let r = await chamarAppsScript({acao:"listar"}); if(r.sucesso) { escalaCache=r.escala||[]; classesCache=escalaCache.length?ordenarClassesEBD(Object.keys(escalaCache[0])):[]; preencherSelectsEscala(); renderizarTabelaEscala(); } }
-  function preencherSelectsEscala() { preencherSelect("escalaDataEditar", escalaCache.map(l=>l.Data)); preencherSelect("dataRemover", escalaCache.map(l=>l.Data)); preencherSelect("escalaClasseEditar", classesCache); preencherSelect("classeRenomear", classesCache); preencherSelect("profNovaClasse", classesCache); preencherSelect("profEditarClasse", classesCache); preencherSelect("profMudarClasse", classesCache); preencherSelect("profSubClasse", ["Todas as classes",...classesCache]); renderizarCamposNovaData(); }
-  function preencherSelect(id, itens) { let s=document.getElementById(id); if(!s) return; s.innerHTML=itens.map(i=>`<option>${i}</option>`).join(""); }
-  function renderizarTabelaEscala() { let t = document.getElementById("tabelaEscalaAdmin"); if(!escalaCache.length) { t.querySelector("tbody").innerHTML="<tr><td colspan=10>Nenhum dado</td></tr>"; return; } let cols = ["Data", ...ordemClassesEBD, "Suporte"].filter(c => Object.prototype.hasOwnProperty.call(escalaCache[0], c)); t.querySelector("thead").innerHTML="<tr>"+cols.map(c=>`<th>${c}</th>`).join("")+"</tr>"; t.querySelector("tbody").innerHTML=escalaCache.map(l=>"<tr>"+cols.map(c=>`<td>${l[c]||""}</td>`).join("")+"</tr>").join(""); }
-  function renderizarCamposNovaData() { let cont = document.getElementById("camposNovaData"); cont.innerHTML = classesCache.map(c => `<div><label>${c}</label><input type="text" data-classe-nova="${c}" placeholder="Professor"></div>`).join(""); }
-  async function adminSalvarProfessor() { let s=obterSenhaSessao(); let data=document.getElementById("escalaDataEditar").value, classe=document.getElementById("escalaClasseEditar").value, prof=document.getElementById("escalaProfessorEditar").value.trim(); if(!data||!classe||!prof) return mostrarStatus("error","Preencha todos"); let r=await chamarAppsScript({acao:"adminSalvarProfessor", senha:s, data, classe, professor:prof}); if(r.sucesso){ mostrarStatus("success","Alterado"); carregarEscala(); carregarHistorico(); } else mostrarStatus("error",r.mensagem); }
+  const professoresPadraoEBD = [
+    { nome: "Rosilene", classe: "Cordeirinhos de Cristo", status: "Ativo", observacao: "" },
+    { nome: "Alessandra", classe: "Cordeirinhos de Cristo", status: "Ativo", observacao: "" },
+    { nome: "Edivania", classe: "Cordeirinhos de Cristo", status: "Ativo", observacao: "" },
+    { nome: "Rosângela", classe: "Cordeirinhos de Cristo", status: "Ativo", observacao: "" },
+    { nome: "Rita", classe: "Soldadinhos de Cristo", status: "Ativo", observacao: "" },
+    { nome: "Thaís", classe: "Soldadinhos de Cristo", status: "Ativo", observacao: "" },
+    { nome: "Vitória", classe: "Soldadinhos de Cristo", status: "Ativo", observacao: "" },
+    { nome: "Larissa", classe: "Soldadinhos de Cristo", status: "Ativo", observacao: "" },
+    { nome: "Oseas Junior", classe: "Heróis e Amigos", status: "Ativo", observacao: "" },
+    { nome: "Igor", classe: "Heróis e Amigos", status: "Ativo", observacao: "" },
+    { nome: "Maria Tereza", classe: "Vencedores por Cristo", status: "Ativo", observacao: "" },
+    { nome: "Fernanda", classe: "Vencedores por Cristo", status: "Ativo", observacao: "" },
+    { nome: "Graziele", classe: "Vencedores por Cristo", status: "Ativo", observacao: "" },
+    { nome: "Noeme", classe: "Vivendo em Cristo", status: "Ativo", observacao: "" },
+    { nome: "Suely", classe: "Vivendo em Cristo", status: "Ativo", observacao: "" },
+    { nome: "Emanuela", classe: "Testemunhas de Cristo", status: "Ativo", observacao: "" },
+    { nome: "Lucas", classe: "Testemunhas de Cristo", status: "Ativo", observacao: "" },
+    { nome: "Ronan", classe: "Testemunhas de Cristo", status: "Ativo", observacao: "Suporte quando não estiver escalado em classe" },
+    { nome: "Joceli", classe: "Sara", status: "Ativo", observacao: "" },
+    { nome: "Samella", classe: "Sara", status: "Ativo", observacao: "" },
+    { nome: "Ana Cardoso", classe: "Sara", status: "Ativo", observacao: "" },
+    { nome: "Pb Elias", classe: "Heróis da Fé", status: "Ativo", observacao: "" },
+    { nome: "Pb Felipe", classe: "Heróis da Fé", status: "Ativo", observacao: "" },
+    { nome: "Pb Claudinei", classe: "Heróis da Fé", status: "Ativo", observacao: "" },
+    { nome: "Pb Adriano", classe: "Heróis da Fé", status: "Ativo", observacao: "" },
+    { nome: "Dc João Paulo", classe: "Heróis da Fé", status: "Ativo", observacao: "" }
+  ];
+
+  function escapeHtmlAdmin(valor) {
+    return String(valor ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function listaUnicaAdmin(lista) {
+    const vistos = new Set();
+    return (lista || [])
+      .map((item) => String(item || "").trim())
+      .filter((item) => {
+        if (!item || vistos.has(item)) {
+          return false;
+        }
+        vistos.add(item);
+        return true;
+      });
+  }
+
+  function ehColunaNaoClasseAdmin(nome) {
+    return ["Data", "data", "Suporte", "suporte", "Apoio", "apoio"].includes(String(nome || "").trim());
+  }
+
+  function atualizarClassesCacheAdmin(extras = []) {
+    classesCache = ordenarClassesEBD(listaUnicaAdmin([
+      ...ordemClassesEBD,
+      ...(classesCache || []),
+      ...(extras || [])
+    ]).filter((classe) => !ehColunaNaoClasseAdmin(classe)));
+
+    return classesCache;
+  }
+
+  function extrairClassesDaEscalaAdmin(linhas) {
+    const classesEncontradas = [];
+
+    (linhas || []).forEach((linha) => {
+      Object.keys(linha || {}).forEach((coluna) => {
+        if (!ehColunaNaoClasseAdmin(coluna)) {
+          classesEncontradas.push(coluna);
+        }
+      });
+    });
+
+    return ordenarClassesEBD(listaUnicaAdmin(classesEncontradas));
+  }
+
+  function normalizarProfessorAdmin(professor) {
+    if (!professor || typeof professor !== "object") {
+      return null;
+    }
+
+    const nome = String(
+      professor.nome ||
+      professor.Nome ||
+      professor.professor ||
+      professor.Professor ||
+      ""
+    ).trim();
+
+    if (!nome) {
+      return null;
+    }
+
+    return {
+      nome,
+      classe: String(professor.classe || professor.Classe || professor.turma || professor.Turma || "").trim(),
+      status: String(professor.status || professor.Status || "Ativo").trim() || "Ativo",
+      observacao: String(professor.observacao || professor.observação || professor.Observacao || professor["Observação"] || professor.obs || professor.Obs || "").trim(),
+      atualizadoEm: String(professor.atualizadoEm || professor.AtualizadoEm || professor["Atualizado em"] || "").trim()
+    };
+  }
+
+  function obterProfessoresDaEscalaAdmin() {
+    const nomes = [];
+
+    (escalaCache || []).forEach((linha) => {
+      (classesCache || ordemClassesEBD).forEach((classe) => {
+        const valor = String((linha || {})[classe] || "").trim();
+        if (valor && valor !== "—") {
+          nomes.push(valor);
+        }
+      });
+    });
+
+    return listaUnicaAdmin(nomes).map((nome) => ({
+      nome,
+      classe: "",
+      status: "Ativo",
+      observacao: "",
+      atualizadoEm: ""
+    }));
+  }
+
+  function garantirMenusAdmin() {
+    atualizarClassesCacheAdmin();
+    preencherSelectsEscala();
+
+    if (!professoresCache || !professoresCache.length) {
+      professoresCache = obterProfessoresDaEscalaAdmin();
+
+      if (!professoresCache.length) {
+        professoresCache = professoresPadraoEBD.map((prof) => ({ ...prof }));
+      }
+    }
+
+    preencherSelectsProfessores();
+    renderizarTabelaProfessores();
+  }
+
+  async function carregarEscala() {
+    try {
+      const r = await chamarAppsScript({
+        acao: "listar",
+        cache: "nao",
+        _nocache: Date.now()
+      });
+
+      if (!r || !r.sucesso) {
+        throw new Error((r && r.mensagem) || "Não foi possível carregar a escala.");
+      }
+
+      escalaCache = Array.isArray(r.escala) ? r.escala : [];
+      atualizarClassesCacheAdmin(extrairClassesDaEscalaAdmin(escalaCache));
+      preencherSelectsEscala();
+      renderizarTabelaEscala();
+      preencherProfessorAtual();
+    } catch (erro) {
+      console.warn("Erro ao carregar escala:", erro);
+      atualizarClassesCacheAdmin();
+      preencherSelectsEscala();
+      renderizarTabelaEscala();
+      mostrarStatus("error", "Não foi possível carregar a escala agora. Mantive as classes padrão nos menus para conferência.");
+    }
+  }
+
+  function preencherSelectsEscala() {
+    atualizarClassesCacheAdmin();
+
+    preencherSelect("escalaDataEditar", (escalaCache || []).map((linha) => linha.Data || linha.data || "").filter(Boolean));
+    preencherSelect("dataRemover", (escalaCache || []).map((linha) => linha.Data || linha.data || "").filter(Boolean));
+    preencherSelect("escalaClasseEditar", classesCache);
+    preencherSelect("classeRenomear", classesCache);
+    preencherSelect("profNovaClasse", classesCache);
+    preencherSelect("profEditarClasse", classesCache);
+    preencherSelect("profMudarClasse", classesCache);
+    preencherSelect("profSubClasse", ["Todas as classes", ...classesCache]);
+    renderizarCamposNovaData();
+  }
+
+  function preencherSelect(id, itens) {
+    const select = document.getElementById(id);
+
+    if (!select) {
+      return;
+    }
+
+    const valorAtual = select.value;
+    const lista = listaUnicaAdmin(itens || []);
+
+    select.innerHTML = lista.map((item) => {
+      const seguro = escapeHtmlAdmin(item);
+      return `<option value="${seguro}">${seguro}</option>`;
+    }).join("");
+
+    if (valorAtual && lista.includes(valorAtual)) {
+      select.value = valorAtual;
+    }
+  }
+
+  function renderizarTabelaEscala() {
+    const tabela = document.getElementById("tabelaEscalaAdmin");
+
+    if (!tabela) {
+      return;
+    }
+
+    const thead = tabela.querySelector("thead");
+    const tbody = tabela.querySelector("tbody");
+    const colunas = ["Data", ...classesCache, "Suporte"];
+
+    if (thead) {
+      thead.innerHTML = "<tr>" + colunas.map((coluna) => `<th>${escapeHtmlAdmin(coluna)}</th>`).join("") + "</tr>";
+    }
+
+    if (!tbody) {
+      return;
+    }
+
+    if (!escalaCache || !escalaCache.length) {
+      tbody.innerHTML = `<tr><td colspan="${colunas.length}">Nenhum dado carregado ainda.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = escalaCache.map((linha) => {
+      return "<tr>" + colunas.map((coluna) => {
+        const valor = coluna === "Data"
+          ? (linha.Data || linha.data || "")
+          : (linha[coluna] || "");
+
+        return `<td>${escapeHtmlAdmin(valor)}</td>`;
+      }).join("") + "</tr>";
+    }).join("");
+  }
+
+  function renderizarCamposNovaData() {
+    const cont = document.getElementById("camposNovaData");
+
+    if (!cont) {
+      return;
+    }
+
+    atualizarClassesCacheAdmin();
+
+    cont.innerHTML = classesCache.map((classe) => `
+      <div>
+        <label>${escapeHtmlAdmin(classe)}</label>
+        <input type="text" data-classe-nova="${escapeHtmlAdmin(classe)}" placeholder="Professor">
+      </div>
+    `).join("");
+  }
+
+  async function adminSalvarProfessor() {
+    try {
+      const s = obterSenhaObrigatoria();
+      const data = document.getElementById("escalaDataEditar").value;
+      const classe = document.getElementById("escalaClasseEditar").value;
+      const prof = document.getElementById("escalaProfessorEditar").value.trim();
+
+      if (!data || !classe || !prof) {
+        return mostrarStatus("error", "Preencha data, classe e professor.");
+      }
+
+      const r = await chamarAppsScript({ acao: "adminSalvarProfessor", senha: s, data, classe, professor: prof, _nocache: Date.now() });
+
+      if (r && r.sucesso) {
+        mostrarStatus("success", "Professor alterado na escala.");
+        await carregarEscala();
+        await carregarHistorico();
+      } else {
+        mostrarStatus("error", (r && r.mensagem) || "Não foi possível salvar a alteração.");
+      }
+    } catch (erro) {
+      mostrarStatus("error", erro.message || "Erro ao salvar professor.");
+    }
+  }
+
   function formatarDataBR(valor) {
     if (!valor) {
       return "";
@@ -1791,18 +2104,347 @@
     return partes[2] + "/" + partes[1] + "/" + partes[0];
   }
 
-  async function adminAdicionarData() { let s=obterSenhaSessao(); let data = formatarDataBR(document.getElementById("novaDataEscala").value); if(!data) return; let campos={}; document.querySelectorAll("[data-classe-nova]").forEach(i=>campos[i.dataset.classeNova]=i.value.trim()); let r = await chamarAppsScript({acao:"adminAdicionarData", senha:s, data, campos:JSON.stringify(campos)}); if(r.sucesso){ mostrarStatus("success","Data adicionada"); carregarEscala(); carregarHistorico(); } else mostrarStatus("error",r.mensagem); }
-  async function adminRemoverData() { let s=obterSenhaSessao(); let data=document.getElementById("dataRemover").value; if(!data||!confirm("Remover esta data?")) return; let r=await chamarAppsScript({acao:"adminRemoverData", senha:s, data}); if(r.sucesso){ mostrarStatus("success","Removida"); carregarEscala(); carregarHistorico(); } }
-  async function adminRenomearClasse() { let s=obterSenhaSessao(); let antiga=document.getElementById("classeRenomear").value, nova=document.getElementById("novoNomeClasse").value.trim(); if(!antiga||!nova) return; let r=await chamarAppsScript({acao:"adminRenomearClasse", senha:s, classeAntiga:antiga, classeNova:nova}); if(r.sucesso){ mostrarStatus("success","Renomeada"); carregarEscala(); carregarHistorico(); } }
-  async function carregarProfessores() { let r=await chamarAppsScript({acao:"listarProfessores"}); if(r.sucesso){ professoresCache=r.professores; preencherSelectsProfessores(); renderizarTabelaProfessores(); } }
-  function preencherSelectsProfessores() { let nomes=professoresCache.map(p=>p.nome); preencherSelect("profSelecionado",nomes); preencherSelect("profSubAntigo",nomes); preencherSelect("profMudarNome",nomes); let dl=document.getElementById("listaProfessoresDatalist"); if(dl) dl.innerHTML=nomes.map(n=>`<option>${n}</option>`).join(""); preencherProfessorSelecionado(); }
-  function preencherProfessorSelecionado() { let nome=document.getElementById("profSelecionado").value; let p=professoresCache.find(pr=>pr.nome===nome); if(p){ document.getElementById("profEditarNome").value=p.nome; document.getElementById("profEditarClasse").value=p.classe; document.getElementById("profEditarStatus").value=p.status; document.getElementById("profEditarObs").value=p.observacao||""; } }
-  function renderizarTabelaProfessores() { let t=document.getElementById("tabelaProfessores"); t.querySelector("thead").innerHTML="<tr><th>Nome</th><th>Classe</th><th>Status</th><th>Obs</th><th>Atualizado</th></tr>"; t.querySelector("tbody").innerHTML=professoresCache.map(p=>`<tr><td>${p.nome}</td><td>${p.classe}</td><td>${p.status}</td><td>${p.observacao||""}</td><td>${p.atualizadoEm||""}</td></tr>`).join(""); }
-  async function adicionarProfessorAdmin() { let s=obterSenhaSessao(); let nome=document.getElementById("profNovoNome").value.trim(); if(!nome) return; let r=await chamarAppsScript({acao:"adicionarProfessor", senha:s, nome, classe:document.getElementById("profNovaClasse").value, status:document.getElementById("profNovoStatus").value, observacao:document.getElementById("profNovaObs").value}); if(r.sucesso){ mostrarStatus("success","Professor adicionado"); carregarProfessores(); carregarHistorico(); } }
-  async function atualizarProfessorAdmin() { let s=obterSenhaSessao(); let nomeOrig=document.getElementById("profSelecionado").value; if(!nomeOrig) return; let r=await chamarAppsScript({acao:"atualizarProfessor", senha:s, nomeOriginal:nomeOrig, nome:document.getElementById("profEditarNome").value, classe:document.getElementById("profEditarClasse").value, status:document.getElementById("profEditarStatus").value, observacao:document.getElementById("profEditarObs").value}); if(r.sucesso){ mostrarStatus("success","Atualizado"); carregarProfessores(); carregarHistorico(); } }
-  async function inativarProfessorAdmin() { let s=obterSenhaSessao(); let nome=document.getElementById("profSelecionado").value; if(!nome||!confirm("Inativar?")) return; let r=await chamarAppsScript({acao:"inativarProfessor", senha:s, nome, observacao:document.getElementById("profEditarObs").value}); if(r.sucesso){ mostrarStatus("success","Inativado"); carregarProfessores(); carregarHistorico(); } }
-  async function substituirProfessorAdmin() { let s=obterSenhaSessao(); let antigo=document.getElementById("profSubAntigo").value, novo=document.getElementById("profSubNovo").value.trim(); if(!antigo||!novo) return; let r=await chamarAppsScript({acao:"substituirProfessor", senha:s, professorAntigo:antigo, professorNovo:novo, classe:document.getElementById("profSubClasse").value, alcance:document.getElementById("profSubAlcance").value, inativarAntigo:document.getElementById("profSubInativar").value}); if(r.sucesso){ mostrarStatus("success","Substituição feita"); carregarEscala(); carregarProfessores(); carregarHistorico(); } }
-  async function mudarProfessorClasseAdmin() { let s=obterSenhaSessao(); let prof=document.getElementById("profMudarNome").value, classeNova=document.getElementById("profMudarClasse").value; if(!prof||!classeNova) return; let r=await chamarAppsScript({acao:"mudarProfessorClasse", senha:s, professor:prof, classeNova, aplicarEscala:document.getElementById("profMudarAplicar").value}); if(r.sucesso){ mostrarStatus("success","Classe alterada"); carregarEscala(); carregarProfessores(); carregarHistorico(); } }
+  async function adminAdicionarData() {
+    try {
+      const s = obterSenhaObrigatoria();
+      const data = formatarDataBR(document.getElementById("novaDataEscala").value);
+
+      if (!data) {
+        return mostrarStatus("error", "Informe a nova data da escala.");
+      }
+
+      const campos = {};
+      document.querySelectorAll("[data-classe-nova]").forEach((input) => {
+        campos[input.dataset.classeNova] = input.value.trim();
+      });
+
+      const r = await chamarAppsScript({ acao: "adminAdicionarData", senha: s, data, campos: JSON.stringify(campos), _nocache: Date.now() });
+
+      if (r && r.sucesso) {
+        mostrarStatus("success", "Data adicionada à escala.");
+        await carregarEscala();
+        await carregarHistorico();
+      } else {
+        mostrarStatus("error", (r && r.mensagem) || "Não foi possível adicionar a data.");
+      }
+    } catch (erro) {
+      mostrarStatus("error", erro.message || "Erro ao adicionar data.");
+    }
+  }
+
+  async function adminRemoverData() {
+    try {
+      const s = obterSenhaObrigatoria();
+      const data = document.getElementById("dataRemover").value;
+
+      if (!data || !confirm("Remover esta data?")) {
+        return;
+      }
+
+      const r = await chamarAppsScript({ acao: "adminRemoverData", senha: s, data, _nocache: Date.now() });
+
+      if (r && r.sucesso) {
+        mostrarStatus("success", "Data removida.");
+        await carregarEscala();
+        await carregarHistorico();
+      } else {
+        mostrarStatus("error", (r && r.mensagem) || "Não foi possível remover a data.");
+      }
+    } catch (erro) {
+      mostrarStatus("error", erro.message || "Erro ao remover data.");
+    }
+  }
+
+  async function adminRenomearClasse() {
+    try {
+      const s = obterSenhaObrigatoria();
+      const antiga = document.getElementById("classeRenomear").value;
+      const nova = document.getElementById("novoNomeClasse").value.trim();
+
+      if (!antiga || !nova) {
+        return mostrarStatus("error", "Escolha a classe atual e informe o novo nome.");
+      }
+
+      const r = await chamarAppsScript({ acao: "adminRenomearClasse", senha: s, classeAntiga: antiga, classeNova: nova, _nocache: Date.now() });
+
+      if (r && r.sucesso) {
+        mostrarStatus("success", "Classe renomeada.");
+        await carregarEscala();
+        await carregarHistorico();
+      } else {
+        mostrarStatus("error", (r && r.mensagem) || "Não foi possível renomear a classe.");
+      }
+    } catch (erro) {
+      mostrarStatus("error", erro.message || "Erro ao renomear classe.");
+    }
+  }
+
+  async function carregarProfessores() {
+    try {
+      const r = await chamarAppsScript({ acao: "listarProfessores", cache: "nao", _nocache: Date.now() });
+
+      if (!r || !r.sucesso) {
+        throw new Error((r && r.mensagem) || "Não foi possível carregar os professores.");
+      }
+
+      const listaBruta = Array.isArray(r.professores) ? r.professores : [];
+      professoresCache = listaBruta.map(normalizarProfessorAdmin).filter(Boolean);
+
+      if (!professoresCache.length) {
+        professoresCache = obterProfessoresDaEscalaAdmin();
+      }
+
+      if (!professoresCache.length) {
+        professoresCache = professoresPadraoEBD.map((prof) => ({ ...prof }));
+      }
+
+      atualizarClassesCacheAdmin(professoresCache.map((prof) => prof.classe));
+      preencherSelectsEscala();
+      preencherSelectsProfessores();
+      renderizarTabelaProfessores();
+    } catch (erro) {
+      console.warn("Erro ao carregar professores:", erro);
+
+      if (!professoresCache || !professoresCache.length) {
+        professoresCache = obterProfessoresDaEscalaAdmin();
+      }
+
+      if (!professoresCache.length) {
+        professoresCache = professoresPadraoEBD.map((prof) => ({ ...prof }));
+      }
+
+      atualizarClassesCacheAdmin(professoresCache.map((prof) => prof.classe));
+      preencherSelectsEscala();
+      preencherSelectsProfessores();
+      renderizarTabelaProfessores();
+      mostrarStatus("error", "Não foi possível carregar a lista da planilha agora. Mantive uma lista de apoio nos menus.");
+    }
+  }
+
+  function preencherSelectsProfessores() {
+    const nomes = listaUnicaAdmin((professoresCache || []).map((p) => p.nome));
+
+    preencherSelect("profSelecionado", nomes);
+    preencherSelect("profSubAntigo", nomes);
+    preencherSelect("profMudarNome", nomes);
+
+    const dl = document.getElementById("listaProfessoresDatalist");
+    if (dl) {
+      dl.innerHTML = nomes.map((nome) => `<option value="${escapeHtmlAdmin(nome)}"></option>`).join("");
+    }
+
+    preencherProfessorSelecionado();
+  }
+
+  function preencherProfessorSelecionado() {
+    const select = document.getElementById("profSelecionado");
+    const nome = select ? select.value : "";
+    const p = (professoresCache || []).find((pr) => pr.nome === nome);
+
+    const campoNome = document.getElementById("profEditarNome");
+    const campoClasse = document.getElementById("profEditarClasse");
+    const campoStatus = document.getElementById("profEditarStatus");
+    const campoObs = document.getElementById("profEditarObs");
+
+    if (!p) {
+      if (campoNome) campoNome.value = "";
+      if (campoClasse) campoClasse.value = "";
+      if (campoStatus) campoStatus.value = "Ativo";
+      if (campoObs) campoObs.value = "";
+      return;
+    }
+
+    if (campoNome) campoNome.value = p.nome;
+    if (campoClasse) campoClasse.value = p.classe || classesCache[0] || "";
+    if (campoStatus) campoStatus.value = p.status || "Ativo";
+    if (campoObs) campoObs.value = p.observacao || "";
+  }
+
+  function renderizarTabelaProfessores() {
+    const tabela = document.getElementById("tabelaProfessores");
+
+    if (!tabela) {
+      return;
+    }
+
+    const thead = tabela.querySelector("thead");
+    const tbody = tabela.querySelector("tbody");
+
+    if (thead) {
+      thead.innerHTML = "<tr><th>Nome</th><th>Classe</th><th>Status</th><th>Obs</th><th>Atualizado</th></tr>";
+    }
+
+    if (!tbody) {
+      return;
+    }
+
+    if (!professoresCache || !professoresCache.length) {
+      tbody.innerHTML = "<tr><td colspan=\"5\">Nenhum professor carregado ainda.</td></tr>";
+      return;
+    }
+
+    tbody.innerHTML = professoresCache.map((p) => `
+      <tr>
+        <td>${escapeHtmlAdmin(p.nome)}</td>
+        <td>${escapeHtmlAdmin(p.classe)}</td>
+        <td>${escapeHtmlAdmin(p.status)}</td>
+        <td>${escapeHtmlAdmin(p.observacao || "")}</td>
+        <td>${escapeHtmlAdmin(p.atualizadoEm || "")}</td>
+      </tr>
+    `).join("");
+  }
+
+  async function adicionarProfessorAdmin() {
+    try {
+      const s = obterSenhaObrigatoria();
+      const nome = document.getElementById("profNovoNome").value.trim();
+
+      if (!nome) {
+        return mostrarStatus("error", "Digite o nome do professor.");
+      }
+
+      const r = await chamarAppsScript({
+        acao: "adicionarProfessor",
+        senha: s,
+        nome,
+        classe: document.getElementById("profNovaClasse").value,
+        status: document.getElementById("profNovoStatus").value,
+        observacao: document.getElementById("profNovaObs").value,
+        _nocache: Date.now()
+      });
+
+      if (r && r.sucesso) {
+        mostrarStatus("success", "Professor adicionado.");
+        await carregarProfessores();
+        await carregarHistorico();
+      } else {
+        mostrarStatus("error", (r && r.mensagem) || "Não foi possível adicionar o professor.");
+      }
+    } catch (erro) {
+      mostrarStatus("error", erro.message || "Erro ao adicionar professor.");
+    }
+  }
+
+  async function atualizarProfessorAdmin() {
+    try {
+      const s = obterSenhaObrigatoria();
+      const nomeOrig = document.getElementById("profSelecionado").value;
+
+      if (!nomeOrig) {
+        return mostrarStatus("error", "Escolha um professor para editar.");
+      }
+
+      const r = await chamarAppsScript({
+        acao: "atualizarProfessor",
+        senha: s,
+        nomeOriginal: nomeOrig,
+        nome: document.getElementById("profEditarNome").value,
+        classe: document.getElementById("profEditarClasse").value,
+        status: document.getElementById("profEditarStatus").value,
+        observacao: document.getElementById("profEditarObs").value,
+        _nocache: Date.now()
+      });
+
+      if (r && r.sucesso) {
+        mostrarStatus("success", "Professor atualizado.");
+        await carregarProfessores();
+        await carregarHistorico();
+      } else {
+        mostrarStatus("error", (r && r.mensagem) || "Não foi possível atualizar o professor.");
+      }
+    } catch (erro) {
+      mostrarStatus("error", erro.message || "Erro ao atualizar professor.");
+    }
+  }
+
+  async function inativarProfessorAdmin() {
+    try {
+      const s = obterSenhaObrigatoria();
+      const nome = document.getElementById("profSelecionado").value;
+
+      if (!nome || !confirm("Inativar este professor?")) {
+        return;
+      }
+
+      const r = await chamarAppsScript({ acao: "inativarProfessor", senha: s, nome, observacao: document.getElementById("profEditarObs").value, _nocache: Date.now() });
+
+      if (r && r.sucesso) {
+        mostrarStatus("success", "Professor inativado.");
+        await carregarProfessores();
+        await carregarHistorico();
+      } else {
+        mostrarStatus("error", (r && r.mensagem) || "Não foi possível inativar o professor.");
+      }
+    } catch (erro) {
+      mostrarStatus("error", erro.message || "Erro ao inativar professor.");
+    }
+  }
+
+  async function substituirProfessorAdmin() {
+    try {
+      const s = obterSenhaObrigatoria();
+      const antigo = document.getElementById("profSubAntigo").value;
+      const novo = document.getElementById("profSubNovo").value.trim();
+
+      if (!antigo || !novo) {
+        return mostrarStatus("error", "Escolha o professor que saiu e informe o novo professor.");
+      }
+
+      const r = await chamarAppsScript({
+        acao: "substituirProfessor",
+        senha: s,
+        professorAntigo: antigo,
+        professorNovo: novo,
+        classe: document.getElementById("profSubClasse").value,
+        alcance: document.getElementById("profSubAlcance").value,
+        inativarAntigo: document.getElementById("profSubInativar").value,
+        _nocache: Date.now()
+      });
+
+      if (r && r.sucesso) {
+        mostrarStatus("success", "Substituição feita.");
+        await carregarEscala();
+        await carregarProfessores();
+        await carregarHistorico();
+      } else {
+        mostrarStatus("error", (r && r.mensagem) || "Não foi possível substituir o professor.");
+      }
+    } catch (erro) {
+      mostrarStatus("error", erro.message || "Erro ao substituir professor.");
+    }
+  }
+
+  async function mudarProfessorClasseAdmin() {
+    try {
+      const s = obterSenhaObrigatoria();
+      const prof = document.getElementById("profMudarNome").value;
+      const classeNova = document.getElementById("profMudarClasse").value;
+
+      if (!prof || !classeNova) {
+        return mostrarStatus("error", "Escolha o professor e a nova classe.");
+      }
+
+      const r = await chamarAppsScript({
+        acao: "mudarProfessorClasse",
+        senha: s,
+        professor: prof,
+        classeNova,
+        aplicarEscala: document.getElementById("profMudarAplicar").value,
+        _nocache: Date.now()
+      });
+
+      if (r && r.sucesso) {
+        mostrarStatus("success", "Classe alterada.");
+        await carregarEscala();
+        await carregarProfessores();
+        await carregarHistorico();
+      } else {
+        mostrarStatus("error", (r && r.mensagem) || "Não foi possível mudar a classe do professor.");
+      }
+    } catch (erro) {
+      mostrarStatus("error", erro.message || "Erro ao mudar professor de classe.");
+    }
+  }
 
 
 

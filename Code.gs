@@ -11,6 +11,95 @@ const NOME_ABA_QUIZZES = "Quizzes";
 */
 const SENHA_ADMIN = "troque-esta-senha";
 
+const CLASSES_ESCALA_EBD = [
+  "Cordeirinhos de Cristo",
+  "Soldadinhos de Cristo",
+  "Heróis e Amigos",
+  "Vencedores por Cristo",
+  "Vivendo em Cristo",
+  "Testemunhas de Cristo",
+  "Sara",
+  "Heróis da Fé"
+];
+
+const COLUNA_SUPORTE_EBD = "Suporte";
+
+const MAPA_CLASSES_ANTIGAS_EBD = {
+  "Crianças 1 a 5 anos": "Cordeirinhos de Cristo",
+  "Crianças 6 a 10 anos": "Soldadinhos de Cristo",
+  "Pré-Adolescentes": "Heróis e Amigos",
+  "Adolescentes": "Vencedores por Cristo",
+  "Discipulado": "Vivendo em Cristo",
+  "Jovens": "Testemunhas de Cristo",
+  "Irmãs": "Sara",
+  "Irmãos": "Heróis da Fé"
+};
+
+const ORDEM_COLUNAS_ESCALA_EBD = ["Data"]
+  .concat(CLASSES_ESCALA_EBD)
+  .concat([COLUNA_SUPORTE_EBD]);
+
+function normalizarNomeClasseEBD(nome) {
+  const texto = String(nome || "").trim();
+
+  if (!texto) {
+    return "";
+  }
+
+  return MAPA_CLASSES_ANTIGAS_EBD[texto] || texto;
+}
+
+function ehColunaClasseEBD(nome) {
+  const texto = String(nome || "").trim();
+
+  if (!texto || texto === "Data" || texto === COLUNA_SUPORTE_EBD) {
+    return false;
+  }
+
+  return CLASSES_ESCALA_EBD.indexOf(normalizarNomeClasseEBD(texto)) !== -1;
+}
+
+function encontrarIndiceClasseEscalaEBD(cabecalhos, classe) {
+  const classeNormalizada = normalizarNomeClasseEBD(classe);
+
+  for (let i = 0; i < cabecalhos.length; i++) {
+    if (normalizarNomeClasseEBD(cabecalhos[i]) === classeNormalizada) {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
+function obterValorLinhaEscalaEBD(linha, cabecalhos, colunaDesejada) {
+  const colunaNormalizada = normalizarNomeClasseEBD(colunaDesejada);
+
+  for (let i = 0; i < cabecalhos.length; i++) {
+    if (colunaDesejada === "Data" && cabecalhos[i] === "Data") {
+      return linha[i];
+    }
+
+    if (colunaDesejada === COLUNA_SUPORTE_EBD && cabecalhos[i] === COLUNA_SUPORTE_EBD) {
+      return linha[i];
+    }
+
+    if (normalizarNomeClasseEBD(cabecalhos[i]) === colunaNormalizada) {
+      return linha[i];
+    }
+  }
+
+  return "";
+}
+
+function formatarValorEscalaEBD(valor) {
+  if (valor instanceof Date) {
+    return Utilities.formatDate(valor, Session.getScriptTimeZone(), "dd/MM/yyyy");
+  }
+
+  return valor === undefined || valor === null ? "" : String(valor).trim();
+}
+
+
 function doGet(e) {
   const parametros = e.parameter || {};
   const acao = parametros.acao || "";
@@ -174,27 +263,16 @@ function prepararPlanilhaEscalaEBD() {
 
   aba.clear();
 
-  const cabecalhos = [
-    "Data",
-    "Crianças 1 a 5 anos",
-    "Crianças 6 a 10 anos",
-    "Pré-Adolescentes",
-    "Adolescentes",
-    "Discipulado",
-    "Jovens",
-    "Irmãos",
-    "Irmãs",
-    "Suporte"
-  ];
+  const cabecalhos = ORDEM_COLUNAS_ESCALA_EBD.slice();
 
   const dados = [
-    ["17/05/2026", "Rosilene", "Rita", "Oseas Junior", "Maria Tereza", "Noeme", "Emanuela", "Pb Elias", "Pastora", "Ronan"],
-    ["24/05/2026", "Alessandra", "Thaís", "Igor", "Fernanda", "Suely", "Lucas", "Pb Felipe", "Samella", "Ronan"],
-    ["31/05/2026", "Edivania", "Vitória", "Oseas Junior", "Graziele", "Noeme", "Ronan", "Pb Claudinei", "Ana Cardoso", "Ronan"],
-    ["07/06/2026", "Rosângela", "Larissa", "Igor", "Maria Tereza", "Suely", "Emanuela", "Pb Adriano", "Pastora", "Ronan"],
-    ["14/06/2026", "Rosilene", "Rita", "Oseas Junior", "Fernanda", "Noeme", "Lucas", "Dc João Paulo", "Samella", "Ronan"],
-    ["21/06/2026", "Alessandra", "Thaís", "Igor", "Graziele", "Suely", "Ronan", "Pb Elias", "Ana Cardoso", "Ronan"],
-    ["28/06/2026", "Edivania", "Vitória", "Oseas Junior", "Maria Tereza", "Noeme", "Emanuela", "Pb Felipe", "Pastora", "Ronan"]
+    ["17/05/2026", "Rosilene", "Rita", "Oseas Junior", "Maria Tereza", "Noeme", "Emanuela", "Pastora", "Pb Elias", "Ronan"],
+    ["24/05/2026", "Alessandra", "Thaís", "Igor", "Fernanda", "Suely", "Lucas", "Samella", "Pb Felipe", "Ronan"],
+    ["31/05/2026", "Edivania", "Vitória", "Oseas Junior", "Graziele", "Noeme", "Ronan", "Ana Cardoso", "Pb Claudinei", "Ronan"],
+    ["07/06/2026", "Rosângela", "Larissa", "Igor", "Maria Tereza", "Suely", "Emanuela", "Pastora", "Pb Adriano", "Ronan"],
+    ["14/06/2026", "Rosilene", "Rita", "Oseas Junior", "Fernanda", "Noeme", "Lucas", "Samella", "Dc João Paulo", "Ronan"],
+    ["21/06/2026", "Alessandra", "Thaís", "Igor", "Graziele", "Suely", "Ronan", "Ana Cardoso", "Pb Elias", "Ronan"],
+    ["28/06/2026", "Edivania", "Vitória", "Oseas Junior", "Maria Tereza", "Noeme", "Emanuela", "Pastora", "Pb Felipe", "Ronan"]
   ];
 
   aba.getRange(1, 1, 1, cabecalhos.length).setValues([cabecalhos]);
@@ -388,14 +466,14 @@ function listarEscala() {
 
     const item = {};
 
-    cabecalhos.forEach(function (cabecalho, indice) {
-      let valor = linha[indice];
+    ORDEM_COLUNAS_ESCALA_EBD.forEach(function (cabecalho) {
+      let valor = obterValorLinhaEscalaEBD(linha, cabecalhos, cabecalho);
 
-      if (valor instanceof Date) {
-        valor = Utilities.formatDate(valor, Session.getScriptTimeZone(), "dd/MM/yyyy");
+      if (cabecalho === COLUNA_SUPORTE_EBD && !valor) {
+        valor = "Ronan";
       }
 
-      item[cabecalho] = valor === undefined || valor === null ? "" : String(valor).trim();
+      item[cabecalho] = formatarValorEscalaEBD(valor);
     });
 
     escala.push(item);
@@ -440,7 +518,7 @@ function trocarProfessor(parametros) {
   });
 
   const indiceData = cabecalhos.indexOf("Data");
-  const indiceClasse = cabecalhos.indexOf(classe);
+  const indiceClasse = encontrarIndiceClasseEscalaEBD(cabecalhos, classe);
 
   if (indiceData === -1) {
     throw new Error("A coluna 'Data' não foi encontrada.");
@@ -541,7 +619,7 @@ function adminSalvarProfessor(parametros) {
   });
 
   const indiceData = cabecalhos.indexOf("Data");
-  const indiceClasse = cabecalhos.indexOf(classe);
+  const indiceClasse = encontrarIndiceClasseEscalaEBD(cabecalhos, classe);
 
   if (indiceClasse === -1) {
     throw new Error("Classe não encontrada: " + classe);
@@ -641,7 +719,11 @@ function adminAdicionarData(parametros) {
       return data;
     }
 
-    return campos[cabecalho] || "";
+    if (cabecalho === COLUNA_SUPORTE_EBD) {
+      return campos[cabecalho] || "Ronan";
+    }
+
+    return campos[cabecalho] || campos[normalizarNomeClasseEBD(cabecalho)] || "";
   });
 
   aba.appendRow(novaLinha);
@@ -741,6 +823,10 @@ function adminRenomearClasse(parametros) {
     throw new Error("A coluna Data não pode ser renomeada.");
   }
 
+  if (classeAntiga === COLUNA_SUPORTE_EBD) {
+    throw new Error("Suporte é uma função, não uma classe para renomear.");
+  }
+
   const planilha = SpreadsheetApp.getActiveSpreadsheet();
   const aba = planilha.getSheetByName(NOME_ABA_ESCALA);
 
@@ -752,13 +838,13 @@ function adminRenomearClasse(parametros) {
     return String(item).trim();
   });
 
-  const indiceAntigo = cabecalhos.indexOf(classeAntiga);
+  const indiceAntigo = encontrarIndiceClasseEscalaEBD(cabecalhos, classeAntiga);
 
   if (indiceAntigo === -1) {
     throw new Error("Classe não encontrada: " + classeAntiga);
   }
 
-  if (cabecalhos.indexOf(classeNova) !== -1) {
+  if (encontrarIndiceClasseEscalaEBD(cabecalhos, classeNova) !== -1 && normalizarNomeClasseEBD(classeAntiga) !== normalizarNomeClasseEBD(classeNova)) {
     throw new Error("Já existe uma classe com o nome: " + classeNova);
   }
 
@@ -1183,7 +1269,11 @@ function popularProfessoresDaEscala(abaProfessores) {
   const agora = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss");
 
   for (let col = 1; col < cabecalhos.length; col++) {
-    const classe = cabecalhos[col];
+    const classe = normalizarNomeClasseEBD(cabecalhos[col]);
+
+    if (!ehColunaClasseEBD(classe)) {
+      continue;
+    }
 
     for (let lin = 1; lin < dados.length; lin++) {
       const valor = String(dados[lin][col] || "").trim();
@@ -1501,7 +1591,7 @@ function substituirProfessor(parametros) {
   const indiceData = cabecalhos.indexOf("Data");
   const classesParaAlterar = classe && classe !== "Todas as classes"
     ? [classe]
-    : cabecalhos.filter(function (item) { return item !== "Data"; });
+    : cabecalhos.filter(function (item) { return ehColunaClasseEBD(item); });
 
   let alteracoes = 0;
 
@@ -1519,7 +1609,7 @@ function substituirProfessor(parametros) {
     }
 
     classesParaAlterar.forEach(function (classeAtual) {
-      const indiceClasse = cabecalhos.indexOf(classeAtual);
+      const indiceClasse = encontrarIndiceClasseEscalaEBD(cabecalhos, classeAtual);
 
       if (indiceClasse === -1) {
         return;
@@ -1633,7 +1723,7 @@ function mudarProfessorClasse(parametros) {
     });
 
     const indiceData = cabecalhos.indexOf("Data");
-    const indiceClasseNova = cabecalhos.indexOf(classeNova);
+    const indiceClasseNova = encontrarIndiceClasseEscalaEBD(cabecalhos, classeNova);
 
     if (indiceClasseNova === -1) {
       throw new Error("A nova classe não existe na escala: " + classeNova);
@@ -1653,7 +1743,7 @@ function mudarProfessorClasse(parametros) {
       }
 
       for (let col = 1; col < cabecalhos.length; col++) {
-        if (col === indiceClasseNova) {
+        if (col === indiceClasseNova || !ehColunaClasseEBD(cabecalhos[col])) {
           continue;
         }
 

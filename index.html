@@ -1,6 +1,3 @@
-
-
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -11,7 +8,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_MOBILE_CLASSE_DESTAQUE_PROF_SUPORTE_2026_06_09" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_DATAS_PROFESSORES_TRIMESTRE_2026_06_09" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -3933,6 +3930,158 @@
       }
     }
 
+
+    /* EBD 2026-06-09 — Datas em que cada professor deu aula no trimestre */
+    .teacher-dates-section {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .teacher-dates-note {
+      max-width: 900px;
+      margin: 0 auto 20px;
+      padding: 12px 16px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #eef6ff, #ffffff);
+      border: 1px solid rgba(31, 78, 121, 0.14);
+      color: #475569;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .teacher-dates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .teacher-date-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 22px;
+      background: linear-gradient(135deg, #ffffff, #f8fbff);
+      border: 1px solid rgba(31, 78, 121, 0.14);
+      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.07);
+      padding: 16px;
+    }
+
+    .teacher-date-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 5px;
+      background: linear-gradient(180deg, var(--dourado), var(--azul));
+    }
+
+    .teacher-date-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding-left: 2px;
+    }
+
+    .teacher-date-name {
+      margin: 0;
+      color: #102f4d;
+      font-size: 1.05rem;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .teacher-date-count {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 34px;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: rgba(31, 78, 121, 0.10);
+      color: #1f4e79;
+      font-size: 0.8rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .teacher-date-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .teacher-date-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 14px;
+      background: rgba(241, 245, 249, 0.88);
+      color: #334155;
+      font-size: 0.88rem;
+    }
+
+    .teacher-date-list strong {
+      color: #0b2f4a;
+      white-space: nowrap;
+    }
+
+    .teacher-date-class {
+      text-align: right;
+      color: #64748b;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .teacher-dates-empty {
+      text-align: center;
+      padding: 18px;
+      border-radius: 18px;
+      background: #ffffff;
+      border: 1px dashed rgba(31, 78, 121, 0.24);
+      color: #64748b;
+      font-weight: 700;
+    }
+
+    @media (max-width: 760px) {
+      .teacher-dates-section {
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+      }
+
+      .teacher-dates-note {
+        font-size: 0.86rem;
+        text-align: left;
+        margin-bottom: 14px;
+      }
+
+      .teacher-dates-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .teacher-date-card {
+        border-radius: 18px;
+        padding: 14px;
+      }
+
+      .teacher-date-name {
+        font-size: 1rem;
+      }
+
+      .teacher-date-list li {
+        align-items: flex-start;
+        font-size: 0.84rem;
+      }
+    }
+
 </style>
 </head>
 
@@ -4010,6 +4159,24 @@
             Escala do trimestre
           </button>
         </div>
+      </div>
+    </section>
+
+
+
+    <section id="datas-professores" class="premium-card teacher-dates-section">
+      <div class="premium-section-title">
+        <span class="eyebrow">🗓️ Trimestre</span>
+        <h2>Datas por professor</h2>
+        <p>Veja em quais domingos cada professor ficou escalado para dar aula neste trimestre.</p>
+      </div>
+
+      <div class="teacher-dates-note">
+        Conta somente quando o nome aparece em uma classe. A função <strong>Suporte</strong> fica separada da escala de aulas; se Ronan substituir alguém em uma classe, basta atualizar a escala daquele dia e ele aparecerá aqui como professor.
+      </div>
+
+      <div id="datasProfessoresTrimestre" class="teacher-dates-grid" aria-live="polite">
+        <div class="teacher-dates-empty">Carregando datas dos professores...</div>
       </div>
     </section>
 
@@ -4237,7 +4404,6 @@
           <ul>
             <li>Prof. Emanuela</li>
             <li>Prof. Lucas</li>
-            <li>Prof. Ronan</li>
           </ul>
         </div>
 
@@ -4668,7 +4834,7 @@
       "Heróis e Amigos": ["Oseas Junior", "Igor"],
       "Vencedores por Cristo": ["Maria Tereza", "Fernanda", "Graziele"],
       "Vivendo em Cristo": ["Noeme", "Suely"],
-      "Testemunhas de Cristo": ["Emanuela", "Lucas", "Ronan"],
+      "Testemunhas de Cristo": ["Emanuela", "Lucas"],
       "Sara": ["Pastora", "Samella", "Ana Cardoso"],
       "Heróis da Fé": ["Pb Elias", "Pb Felipe", "Pb Claudinei", "Pb Adriano", "Dc João Paulo"]
     };
@@ -4905,6 +5071,78 @@
       });
     }
 
+
+
+    function renderizarDatasProfessoresTrimestre(linhas) {
+      const container = document.getElementById("datasProfessoresTrimestre");
+
+      if (!container) {
+        return;
+      }
+
+      const mapaProfessores = new Map();
+
+      linhas.map(normalizarLinha).forEach((linha) => {
+        classesEscala.forEach((classe) => {
+          const nomeOriginal = String(linha[classe] || "").trim();
+          const nomeLimpo = removerTratamentoDoNome(nomeOriginal);
+
+          if (!nomeLimpo || nomeLimpo === "—") {
+            return;
+          }
+
+          const chave = nomeLimpo.toLocaleLowerCase("pt-BR");
+
+          if (!mapaProfessores.has(chave)) {
+            mapaProfessores.set(chave, {
+              nome: formatarNomeProfessor(nomeLimpo),
+              registros: []
+            });
+          }
+
+          mapaProfessores.get(chave).registros.push({
+            data: linha.Data,
+            classe: classe
+          });
+        });
+      });
+
+      const professores = Array.from(mapaProfessores.values())
+        .map((professor) => {
+          professor.registros.sort((a, b) => converterDataEscala(a.data) - converterDataEscala(b.data));
+          return professor;
+        })
+        .sort((a, b) => removerTratamentoDoNome(a.nome).localeCompare(removerTratamentoDoNome(b.nome), "pt-BR"));
+
+      if (!professores.length) {
+        container.innerHTML = '<div class="teacher-dates-empty">Nenhuma data encontrada para o trimestre.</div>';
+        return;
+      }
+
+      container.innerHTML = professores.map((professor) => {
+        const total = professor.registros.length;
+        const textoTotal = total === 1 ? "1 aula" : total + " aulas";
+        const itens = professor.registros.map((registro) => `
+          <li>
+            <strong>${registro.data}</strong>
+            <span class="teacher-date-class">${registro.classe}</span>
+          </li>
+        `).join("");
+
+        return `
+          <article class="teacher-date-card">
+            <div class="teacher-date-head">
+              <h3 class="teacher-date-name">${professor.nome}</h3>
+              <span class="teacher-date-count">${textoTotal}</span>
+            </div>
+            <ul class="teacher-date-list">
+              ${itens}
+            </ul>
+          </article>
+        `;
+      }).join("");
+    }
+
     function converterDataEscala(dataTexto) {
       const partes = String(dataTexto || "").trim().split("/");
 
@@ -5001,6 +5239,7 @@
       renderizarTabela(linhasParaExibir);
       renderizarCards(linhasParaExibir);
       renderizarEscalaDestaque(linhasParaExibir);
+      renderizarDatasProfessoresTrimestre(linhasEscala);
       atualizarBotaoEscala();
 
       const secaoEscala = document.getElementById("escala");
@@ -5021,6 +5260,7 @@
       renderizarTabela(linhasParaExibir);
       renderizarCards(linhasParaExibir);
       renderizarEscalaDestaque(linhasParaExibir);
+      renderizarDatasProfessoresTrimestre(linhasEscala);
       atualizarBotaoEscala();
     }
 

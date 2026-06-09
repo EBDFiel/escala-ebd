@@ -23,6 +23,12 @@ const CLASSES_ESCALA_EBD = [
 ];
 
 const COLUNA_SUPORTE_EBD = "Suporte";
+const PROFESSOR_APOIO_RONAN_EBD = "Ronan";
+const VALOR_APOIO_RONAN_EBD = "__RONAN_APOIO__";
+const CLASSES_APOIO_RONAN_EBD = [
+  "Testemunhas de Cristo",
+  "Heróis da Fé"
+];
 
 const MAPA_CLASSES_ANTIGAS_EBD = {
   "Crianças 1 a 5 anos": "Cordeirinhos de Cristo",
@@ -57,6 +63,61 @@ function ehColunaClasseEBD(nome) {
   }
 
   return CLASSES_ESCALA_EBD.indexOf(normalizarNomeClasseEBD(texto)) !== -1;
+}
+
+function classePermiteApoioRonanEBD(classe) {
+  const classeNormalizada = normalizarNomeClasseEBD(classe);
+  return CLASSES_APOIO_RONAN_EBD.indexOf(classeNormalizada) !== -1;
+}
+
+function ehSolicitacaoApoioRonanEBD(valor) {
+  return String(valor || "").trim() === VALOR_APOIO_RONAN_EBD;
+}
+
+function montarCampoComApoioRonanEBD(valorAtual, professorAtual) {
+  const valorTexto = String(valorAtual || "").trim();
+  const professorTexto = String(professorAtual || "").trim();
+
+  if (!valorTexto || !professorTexto) {
+    throw new Error("Não foi possível identificar o professor atual para aplicar o apoio do Ronan.");
+  }
+
+  if (valorTexto.toLowerCase() === professorTexto.toLowerCase()) {
+    return PROFESSOR_APOIO_RONAN_EBD;
+  }
+
+  const partes = valorTexto
+    .split("/")
+    .map(function (nome) {
+      return nome.trim();
+    })
+    .filter(Boolean);
+
+  let encontrouProfessor = false;
+  const atualizados = [];
+
+  partes.forEach(function (nome) {
+    let novoNome = nome;
+
+    if (nome.toLowerCase() === professorTexto.toLowerCase()) {
+      novoNome = PROFESSOR_APOIO_RONAN_EBD;
+      encontrouProfessor = true;
+    }
+
+    const jaExiste = atualizados.some(function (item) {
+      return item.toLowerCase() === novoNome.toLowerCase();
+    });
+
+    if (!jaExiste) {
+      atualizados.push(novoNome);
+    }
+  });
+
+  if (!encontrouProfessor) {
+    throw new Error("O professor selecionado não está mais nesta data. Atualize a página e tente novamente.");
+  }
+
+  return atualizados.join(" / ");
 }
 
 function encontrarIndiceClasseEscalaEBD(cabecalhos, classe) {
@@ -496,6 +557,10 @@ function trocarProfessor(parametros) {
     throw new Error("Dados incompletos para realizar a troca.");
   }
 
+  if (ehSolicitacaoApoioRonanEBD(novaData)) {
+    return trocarProfessorComApoioRonan(parametros);
+  }
+
   if (dataAtual === novaData) {
     throw new Error("A nova data precisa ser diferente da data atual.");
   }
@@ -594,6 +659,112 @@ function trocarProfessor(parametros) {
     classe: classe
   };
 }
+
+function trocarProfessorComApoioRonan(parametros) {
+  const classe = String(parametros.classe || "").trim();
+  const professor = String(parametros.professor || "").trim();
+  const dataAtual = String(parametros.dataAtual || "").trim();
+  const origem = parametros.origem || "Site Escala EBD";
+
+  if (!classe || !professor || !dataAtual) {
+    throw new Error("Dados incompletos para solicitar apoio do Ronan.");
+  }
+
+  if (!classePermiteApoioRonanEBD(classe)) {
+    throw new Error("O apoio do Ronan pela página pública está disponível apenas para Testemunhas de Cristo e Heróis da Fé.");
+  }
+
+  if (professor.toLowerCase() === PROFESSOR_APOIO_RONAN_EBD.toLowerCase()) {
+    throw new Error("O Ronan já está selecionado como professor. Escolha o professor que precisa do apoio.");
+  }
+
+  const planilha = SpreadsheetApp.getActiveSpreadsheet();
+  const aba = planilha.getSheetByName(NOME_ABA_ESCALA);
+
+  if (!aba) {
+    throw new Error("A aba '" + NOME_ABA_ESCALA + "' não foi encontrada.");
+  }
+
+  const dados = aba.getDataRange().getValues();
+
+  if (dados.length < 2) {
+    throw new Error("A escala está vazia.");
+  }
+
+  const cabecalhos = dados[0].map(function (item) {
+    return String(item).trim();
+  });
+
+  const indiceData = cabecalhos.indexOf("Data");
+  const indiceClasse = encontrarIndiceClasseEscalaEBD(cabecalhos, classe);
+
+  if (indiceData === -1) {
+    throw new Error("A coluna 'Data' não foi encontrada.");
+  }
+
+  if (indiceClasse === -1) {
+    throw new Error("A coluna da classe '" + classe + "' não foi encontrada.");
+  }
+
+  let linhaDataAtual = -1;
+
+  for (let i = 1; i < dados.length; i++) {
+    let dataLinha = dados[i][indiceData];
+
+    if (dataLinha instanceof Date) {
+      dataLinha = Utilities.formatDate(dataLinha, Session.getScriptTimeZone(), "dd/MM/yyyy");
+    } else {
+      dataLinha = String(dataLinha).trim();
+    }
+
+    if (dataLinha === dataAtual) {
+      linhaDataAtual = i + 1;
+      break;
+    }
+  }
+
+  if (linhaDataAtual === -1) {
+    throw new Error("A data atual não foi encontrada na escala.");
+  }
+
+  const valorAtual = String(
+    aba.getRange(linhaDataAtual, indiceClasse + 1).getValue() || ""
+  ).trim();
+
+  const novoValor = montarCampoComApoioRonanEBD(valorAtual, professor);
+
+  aba.getRange(linhaDataAtual, indiceClasse + 1).setValue(novoValor);
+
+  garantirProfessorAtivo(
+    PROFESSOR_APOIO_RONAN_EBD,
+    normalizarNomeClasseEBD(classe),
+    "Apoio disponível para substituição pela página pública"
+  );
+
+  registrarHistorico({
+    dataHora: new Date(),
+    classe: normalizarNomeClasseEBD(classe),
+    professorSolicitante: professor,
+    dataAntiga: dataAtual,
+    novaData: dataAtual,
+    professorTrocado: PROFESSOR_APOIO_RONAN_EBD + " assumiu como apoio no lugar de " + professor + ".",
+    origem: origem + " - Apoio Ronan"
+  });
+
+  SpreadsheetApp.flush();
+
+  return {
+    sucesso: true,
+    mensagem: "Apoio do Ronan aplicado com sucesso.",
+    tipo: "apoioRonan",
+    professorSolicitante: professor,
+    professorTrocado: PROFESSOR_APOIO_RONAN_EBD,
+    dataAntiga: dataAtual,
+    novaData: dataAtual,
+    classe: normalizarNomeClasseEBD(classe)
+  };
+}
+
 
 function adminSalvarProfessor(parametros) {
   validarSenhaAdmin(parametros);

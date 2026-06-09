@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -742,6 +743,158 @@
       margin: 16px 0;
     }
 
+    .manual-panel {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .manual-hero {
+      background:
+        radial-gradient(circle at top right, rgba(212,175,55,0.22), transparent 34%),
+        linear-gradient(135deg, #0b2b3f, #1a5a7a);
+      color: #ffffff;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .manual-hero h2 {
+      margin: 0 0 8px;
+      color: #ffffff;
+      font-size: 1.7rem;
+    }
+
+    .manual-hero p {
+      margin: 0;
+      color: rgba(255,255,255,0.88);
+      line-height: 1.6;
+      max-width: 900px;
+    }
+
+    .manual-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .manual-alert {
+      background: linear-gradient(135deg, #fff8e1, #ffffff);
+      border: 1px solid rgba(212, 175, 55, 0.45);
+      border-left: 6px solid var(--accent-gold);
+      border-radius: 20px;
+      padding: 16px;
+      color: #6b4d00;
+      font-weight: 700;
+    }
+
+    .manual-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+
+    .manual-card {
+      background: #ffffff;
+      border: 1px solid var(--gray-300);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .manual-card h3 {
+      margin: 0 0 10px;
+      color: var(--primary-deep);
+      font-size: 1.05rem;
+    }
+
+    .manual-card p,
+    .manual-card li {
+      color: var(--gray-700);
+      line-height: 1.55;
+      font-size: 0.95rem;
+    }
+
+    .manual-card ol,
+    .manual-card ul {
+      margin: 0;
+      padding-left: 1.2rem;
+    }
+
+    .manual-section {
+      background: #ffffff;
+      border: 1px solid var(--gray-300);
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .manual-section h3 {
+      margin: 0 0 12px;
+      color: var(--primary-deep);
+      font-size: 1.18rem;
+    }
+
+    .manual-section h4 {
+      margin: 18px 0 8px;
+      color: var(--primary-dark);
+      font-size: 1rem;
+    }
+
+    .manual-section p,
+    .manual-section li {
+      color: var(--gray-700);
+      line-height: 1.6;
+    }
+
+    .manual-section ol,
+    .manual-section ul {
+      padding-left: 1.25rem;
+      margin-top: 0;
+    }
+
+    .manual-class-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 10px;
+      list-style: none;
+      padding-left: 0 !important;
+      margin: 0;
+    }
+
+    .manual-class-list li {
+      background: var(--primary-light);
+      border: 1px solid rgba(26, 90, 122, 0.16);
+      border-radius: 16px;
+      padding: 10px 12px;
+      font-weight: 700;
+      color: var(--primary-deep);
+    }
+
+    .manual-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #dcfce7;
+      color: #166534;
+      font-size: 0.78rem;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .manual-link-line {
+      word-break: break-word;
+      background: #f8fafc;
+      border: 1px solid var(--gray-300);
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.86rem;
+      color: var(--primary-deep);
+    }
+
   </style>
 </head>
 <body>
@@ -824,6 +977,7 @@
         <button id="abaProfessoresBtn" class="nav-btn" onclick="abrirPainel('professores')">👥 Professores</button>
         <button id="abaQuizzesBtn" class="nav-btn" onclick="abrirPainel('quizzes')">🧠 Quizzes</button>
         <button id="abaMapaBtn" class="nav-btn" onclick="abrirPainel('mapa')">🗺️ Mapa do Site</button>
+        <button id="abaManualBtn" class="nav-btn" onclick="abrirPainel('manual')">📘 Manual do painel</button>
         <button id="abaHistoricoBtn" class="nav-btn" onclick="abrirPainel('historico')">📜 Histórico</button>
       </aside>
 
@@ -993,6 +1147,263 @@
 
           <div class="mapa-automatico-frame">
             <iframe id="iframeMapaAutomatico" src="./mapa-site.html?v=1" title="Mapa automático do site Escala EBD"></iframe>
+          </div>
+        </div>
+
+
+
+        <div id="painelManual" class="admin-panel card">
+          <div class="manual-panel">
+            <div class="manual-hero">
+              <span class="manual-badge">📘 Manual interno do painel</span>
+              <h2>Manual de uso — Escala EBD</h2>
+              <p>
+                Use este guia sempre que precisar atualizar lições, escala, professores, quizzes,
+                mapa do site ou conferir o histórico. As alterações comuns feitas aqui no admin
+                são salvas no Google Sheets e aparecem na página pública depois da atualização.
+              </p>
+              <div class="manual-actions">
+                <button type="button" onclick="window.print()">🖨️ Imprimir manual</button>
+                <button class="secondary" type="button" onclick="window.open('./index.html', '_blank', 'noopener')">🌐 Abrir site público</button>
+                <button class="gray" type="button" onclick="abrirPainel('mapa')">🗺️ Ver mapa do site</button>
+              </div>
+            </div>
+
+            <div class="manual-alert">
+              Regra principal: antes de salvar qualquer alteração, confira se escolheu a data certa,
+              a classe certa, o professor certo e depois confirme no site público usando Ctrl + F5.
+            </div>
+
+            <div class="manual-grid">
+              <div class="manual-card">
+                <h3>🔐 Como entrar no painel</h3>
+                <ol>
+                  <li>Acesse <strong>admin.html</strong>.</li>
+                  <li>Digite a senha administrativa.</li>
+                  <li>Clique em <strong>Acessar painel</strong>.</li>
+                  <li>Use o menu lateral para navegar pelas áreas.</li>
+                </ol>
+              </div>
+
+              <div class="manual-card">
+                <h3>🌐 Página pública</h3>
+                <p>Depois de qualquer alteração, confira a página pública:</p>
+                <div class="manual-link-line">https://ebdfiel.github.io/escala-ebd/</div>
+                <p>Se algo não aparecer, atualize com <strong>Ctrl + F5</strong> ou teste em aba anônima.</p>
+              </div>
+
+              <div class="manual-card">
+                <h3>📌 Quando usar o GitHub?</h3>
+                <p>Use o GitHub somente quando for alterar arquivos do projeto, como:</p>
+                <ul>
+                  <li>index.html</li>
+                  <li>admin.html</li>
+                  <li>Code.gs</li>
+                  <li>scripts do mapa automático</li>
+                </ul>
+              </div>
+
+              <div class="manual-card">
+                <h3>⚙️ Quando usar Apps Script?</h3>
+                <p>Use o Google Apps Script somente quando o arquivo <strong>Code.gs</strong> for alterado.</p>
+                <p>Depois de alterar o Code.gs, sempre implante como <strong>Nova versão</strong>.</p>
+              </div>
+            </div>
+
+            <div class="manual-section">
+              <h3>📚 1. Como atualizar a lição da semana</h3>
+              <ol>
+                <li>Clique em <strong>Lições interativas</strong>.</li>
+                <li>Escolha <strong>Jovens e Adultos</strong> ou <strong>Adolescentes</strong>.</li>
+                <li>Clique em <strong>HTML avançado</strong>, se for colar uma lição pronta em HTML.</li>
+                <li>Apague o conteúdo antigo, se quiser substituir tudo.</li>
+                <li>Cole o novo conteúdo da lição.</li>
+                <li>Clique em <strong>Sincronizar</strong>.</li>
+                <li>Clique em <strong>Salvar lições</strong>.</li>
+                <li>Abra o site público e confira os botões da lição.</li>
+              </ol>
+              <h4>Chaves usadas pelo sistema</h4>
+              <ul>
+                <li><strong>adultos</strong> = Jovens e Adultos</li>
+                <li><strong>jovens</strong> = Adolescentes</li>
+              </ul>
+            </div>
+
+            <div class="manual-section">
+              <h3>📅 2. Como alterar professor em uma data da escala</h3>
+              <ol>
+                <li>Clique em <strong>Gerenciar escala</strong>.</li>
+                <li>Na área <strong>Alterar professor por data</strong>, escolha a data.</li>
+                <li>Escolha a classe.</li>
+                <li>Digite o nome correto do professor.</li>
+                <li>Clique em <strong>Salvar alteração</strong>.</li>
+                <li>Confira a tabela da escala no admin.</li>
+                <li>Abra o site público e confira a alteração.</li>
+              </ol>
+            </div>
+
+            <div class="manual-section">
+              <h3>➕ 3. Como adicionar uma nova data na escala</h3>
+              <ol>
+                <li>Clique em <strong>Gerenciar escala</strong>.</li>
+                <li>Vá até <strong>Nova data na escala</strong>.</li>
+                <li>Escolha a data do domingo.</li>
+                <li>Preencha o professor de cada classe.</li>
+                <li>Clique em <strong>Adicionar data</strong>.</li>
+                <li>Confira a tabela da escala e depois o site público.</li>
+              </ol>
+              <h4>Ordem correta das classes</h4>
+              <ol class="manual-class-list">
+                <li>1. Cordeirinhos de Cristo</li>
+                <li>2. Soldadinhos de Cristo</li>
+                <li>3. Heróis e Amigos</li>
+                <li>4. Vencedores por Cristo</li>
+                <li>5. Vivendo em Cristo</li>
+                <li>6. Testemunhas de Cristo</li>
+                <li>7. Sara</li>
+                <li>8. Heróis da Fé</li>
+              </ol>
+              <p><strong>Atenção:</strong> Suporte não é classe. Suporte é apenas uma função do Ronan.</p>
+            </div>
+
+            <div class="manual-section">
+              <h3>🗑️ 4. Como remover uma data</h3>
+              <ol>
+                <li>Clique em <strong>Gerenciar escala</strong>.</li>
+                <li>Vá até <strong>Remover data</strong>.</li>
+                <li>Escolha a data que deseja remover.</li>
+                <li>Clique em <strong>Remover</strong>.</li>
+                <li>Confirme somente se tiver certeza.</li>
+                <li>Confira se a data saiu da tabela e do site público.</li>
+              </ol>
+              <p><strong>Cuidado:</strong> remover data apaga aquela linha da escala.</p>
+            </div>
+
+            <div class="manual-section">
+              <h3>🏷️ 5. Como renomear uma classe</h3>
+              <ol>
+                <li>Clique em <strong>Gerenciar escala</strong>.</li>
+                <li>Vá até <strong>Renomear classe</strong>.</li>
+                <li>Escolha a classe atual.</li>
+                <li>Digite o novo nome.</li>
+                <li>Clique em <strong>Renomear</strong>.</li>
+                <li>Confira a tabela e o site público.</li>
+              </ol>
+              <p>Evite renomear classes sem necessidade, para não confundir a escala e os cadastros.</p>
+            </div>
+
+            <div class="manual-section">
+              <h3>👥 6. Como adicionar ou editar professor</h3>
+              <h4>Adicionar professor</h4>
+              <ol>
+                <li>Clique em <strong>Professores</strong>.</li>
+                <li>Na área <strong>Novo professor</strong>, digite o nome.</li>
+                <li>Escolha a classe preferencial.</li>
+                <li>Escolha o status: <strong>Ativo</strong> ou <strong>Inativo</strong>.</li>
+                <li>Adicione uma observação, se necessário.</li>
+                <li>Clique em <strong>Adicionar</strong>.</li>
+              </ol>
+              <h4>Editar ou inativar professor</h4>
+              <ol>
+                <li>Na área <strong>Editar / Inativar</strong>, selecione o professor.</li>
+                <li>Altere nome, classe, status ou observação.</li>
+                <li>Clique em <strong>Salvar alterações</strong>.</li>
+                <li>Para deixar de usar o professor, altere para <strong>Inativo</strong> ou clique em <strong>Inativar</strong>.</li>
+              </ol>
+            </div>
+
+            <div class="manual-section">
+              <h3>🔄 7. Como substituir professor na escala</h3>
+              <ol>
+                <li>Clique em <strong>Professores</strong>.</li>
+                <li>Na área <strong>Substituir professor na escala</strong>, escolha o professor que saiu.</li>
+                <li>Digite ou escolha o novo professor.</li>
+                <li>Escolha a classe, se quiser limitar a substituição.</li>
+                <li>Escolha se a troca vale para datas futuras ou para toda a escala.</li>
+                <li>Escolha se deseja inativar o professor antigo.</li>
+                <li>Clique em <strong>Substituir</strong>.</li>
+              </ol>
+            </div>
+
+            <div class="manual-section">
+              <h3>📌 8. Como mudar professor de classe</h3>
+              <ol>
+                <li>Clique em <strong>Professores</strong>.</li>
+                <li>Na área <strong>Mudar professor de classe</strong>, escolha o professor.</li>
+                <li>Escolha a nova classe.</li>
+                <li>Escolha se deseja aplicar também na escala.</li>
+                <li>Clique em <strong>Mudar classe</strong>.</li>
+              </ol>
+            </div>
+
+            <div class="manual-section">
+              <h3>🧠 9. Como atualizar os quizzes</h3>
+              <ol>
+                <li>Clique em <strong>Quizzes</strong>.</li>
+                <li>Cole o link do quiz de <strong>Jovens e Adultos</strong>.</li>
+                <li>Cole o link do quiz dos <strong>Adolescentes</strong>.</li>
+                <li>Clique em <strong>Salvar links dos quizzes</strong>.</li>
+                <li>Use <strong>Testar links</strong> para abrir os quizzes.</li>
+                <li>Confira os botões na página pública.</li>
+              </ol>
+              <h4>Chaves usadas pelo sistema</h4>
+              <ul>
+                <li><strong>adultos</strong> = Quiz Jovens e Adultos</li>
+                <li><strong>jovens</strong> = Quiz Adolescentes</li>
+              </ul>
+            </div>
+
+            <div class="manual-section">
+              <h3>🗺️ 10. Como usar o Mapa do Site</h3>
+              <ol>
+                <li>Clique em <strong>Mapa do Site</strong>.</li>
+                <li>Aguarde o arquivo <strong>mapa-site.html</strong> carregar.</li>
+                <li>Use <strong>Recarregar mapa</strong>, se necessário.</li>
+                <li>Use <strong>Abrir em nova aba</strong>, se quiser visualizar separado.</li>
+              </ol>
+              <p>O mapa é atualizado pelo GitHub Actions quando arquivos importantes são alterados no GitHub.</p>
+            </div>
+
+            <div class="manual-section">
+              <h3>📜 11. Como consultar o histórico</h3>
+              <ol>
+                <li>Clique em <strong>Histórico</strong>.</li>
+                <li>Veja os registros de alterações.</li>
+                <li>Clique em <strong>Atualizar</strong>, se quiser recarregar a lista.</li>
+              </ol>
+              <p>O histórico ajuda a conferir alterações de professor, data, classe, origem da ação e trocas feitas pelo site público.</p>
+            </div>
+
+            <div class="manual-section">
+              <h3>🧯 12. Problemas comuns</h3>
+              <h4>Alterei no admin, mas não apareceu no site público</h4>
+              <ol>
+                <li>Abra a página pública.</li>
+                <li>Aperte <strong>Ctrl + F5</strong>.</li>
+                <li>Teste em aba anônima.</li>
+                <li>Aguarde alguns minutos e tente de novo.</li>
+              </ol>
+
+              <h4>Botão do admin não responde</h4>
+              <ol>
+                <li>Aperte <strong>F12</strong>.</li>
+                <li>Abra a aba <strong>Console</strong>.</li>
+                <li>Veja se aparece algum erro em vermelho.</li>
+                <li>Atualize com <strong>Ctrl + F5</strong> e tente novamente.</li>
+              </ol>
+
+              <h4>Lição ou quiz não atualizou</h4>
+              <ol>
+                <li>Volte na aba correta do admin.</li>
+                <li>Carregue as informações atuais.</li>
+                <li>Salve novamente.</li>
+                <li>Atualize a página pública com <strong>Ctrl + F5</strong>.</li>
+              </ol>
+            </div>
+
+            <div class="manual-alert">
+              Checklist final: aba certa, data certa, classe certa, professor correto, salvamento concluído e conferência feita no site público.
+            </div>
           </div>
         </div>
 
@@ -1480,7 +1891,7 @@
   async function carregarHistorico() { let r=await chamarAppsScript({acao:"historico",limite:"50"}); let div=document.getElementById("listaHistorico"); if(r.sucesso && r.historico?.length) div.innerHTML=r.historico.map(i=>`<div class="history-item"><strong>${i.dataHora}</strong><br>Classe: ${i.classe}<br>Alteração: ${i.professorTrocado||i.novaData}<br>Origem: ${i.origem}</div>`).join(""); else div.innerHTML="<p class='help'>Nenhum registro</p>"; }
   function preencherProfessorAtual() { let data=document.getElementById("escalaDataEditar").value, classe=document.getElementById("escalaClasseEditar").value, linha=escalaCache.find(l=>l.Data===data); document.getElementById("escalaProfessorEditar").value = linha && classe ? linha[classe] : ""; }
   function abrirPainel(nome) {
-    ["licoes", "escala", "professores", "quizzes", "mapa", "historico"].forEach((p) => {
+    ["licoes", "escala", "professores", "quizzes", "mapa", "manual", "historico"].forEach((p) => {
       const painel = document.getElementById(`painel${p.charAt(0).toUpperCase() + p.slice(1)}`);
       const botao = document.getElementById(`aba${p.charAt(0).toUpperCase() + p.slice(1)}Btn`);
 

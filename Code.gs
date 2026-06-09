@@ -9,7 +9,7 @@ const NOME_ABA_QUIZZES = "Quizzes";
   Exemplo:
   const SENHA_ADMIN = "ebd2026";
 */
-const SENHA_ADMIN = "troque-esta-senha";
+const SENHA_ADMIN = "ebd2026";
 
 const CLASSES_ESCALA_EBD = [
   "Cordeirinhos de Cristo",

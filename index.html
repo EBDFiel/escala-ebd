@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -8,7 +9,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_QUIZZES_DINAMICOS_2026_06_09" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_APOIO_RONAN_2026_06_09" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -1709,6 +1710,23 @@
 
     .preview-box strong {
       color: var(--azul-escuro);
+    }
+
+    .support-note {
+      display: none;
+      margin: 8px 0 0;
+      padding: 11px 13px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #fff8e1, #ffffff);
+      border: 1px solid rgba(197, 155, 53, 0.32);
+      color: #7a5312;
+      font-size: 0.9rem;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .support-note.show {
+      display: block;
     }
 
     .status {
@@ -4747,10 +4765,13 @@
           </div>
 
           <div class="form-group">
-            <label for="novaData">Nova data desejada ✨</label>
+            <label for="novaData">Nova data desejada ou apoio ✨</label>
             <select id="novaData" required disabled>
               <option value="">Selecione primeiro sua data atual</option>
             </select>
+            <p class="support-note" id="apoioRonanInfo">
+              Nas classes Testemunhas de Cristo e Heróis da Fé, você também pode escolher o Prof. Ronan como apoio para assumir a aula na data selecionada.
+            </p>
           </div>
 
           <div class="preview-box" id="resumoTroca">
@@ -4869,6 +4890,18 @@
       "Sara": ["Sara", "Irmãs"],
       "Heróis da Fé": ["Heróis da Fé", "Irmãos"]
     };
+
+    const VALOR_APOIO_RONAN = "__RONAN_APOIO__";
+    const PROFESSOR_APOIO_RONAN = "Ronan";
+    const classesComApoioRonan = ["Testemunhas de Cristo", "Heróis da Fé"];
+
+    function classePermiteApoioRonan(classe) {
+      return classesComApoioRonan.includes(classe);
+    }
+
+    function valorEhApoioRonan(valor) {
+      return String(valor || "") === VALOR_APOIO_RONAN;
+    }
 
     function lerClasseLinha(linha, classe) {
       const opcoes = aliasesClassesEscala[classe] || [classe];
@@ -5105,6 +5138,7 @@
     const resumoTroca = document.getElementById("resumoTroca");
     const statusMensagem = document.getElementById("statusMensagem");
     const btnConfirmar = document.getElementById("btnConfirmar");
+    const apoioRonanInfo = document.getElementById("apoioRonanInfo");
     const loadingBox = document.getElementById("loadingBox");
     const historicoAlteracoes = document.getElementById("historicoAlteracoes");
 
@@ -6004,8 +6038,22 @@
       return item ? item.professor : "";
     }
 
+    function atualizarAvisoApoioRonan(classe) {
+      if (!apoioRonanInfo) {
+        return;
+      }
+
+      if (classePermiteApoioRonan(classe)) {
+        apoioRonanInfo.classList.add("show");
+      } else {
+        apoioRonanInfo.classList.remove("show");
+      }
+    }
+
     function carregarProfessores() {
       const classe = classeSelect.value;
+
+      atualizarAvisoApoioRonan(classe);
 
       limparSelect(professorSelect, "Selecione seu nome");
       limparSelect(dataAtualSelect, "Selecione primeiro seu nome");
@@ -6077,9 +6125,10 @@
 
     function carregarNovasDatas() {
       const classe = classeSelect.value;
+      const professor = professorSelect.value;
       const dataAtual = dataAtualSelect.value;
 
-      limparSelect(novaDataSelect, "Selecione a nova data desejada");
+      limparSelect(novaDataSelect, "Selecione a nova data desejada ou o apoio do Ronan");
       novaDataSelect.disabled = true;
 
       if (!classe || !dataAtual) {
@@ -6093,6 +6142,13 @@
           value: linha.data,
           label: linha.data + " — " + formatarNomeProfessor(linha.professor)
         }));
+
+      if (classePermiteApoioRonan(classe) && professor && normalizarNomeExibicao(professor).toLowerCase() !== "ronan") {
+        novasDatas.push({
+          value: VALOR_APOIO_RONAN,
+          label: "Prof. Ronan assumir esta aula como apoio"
+        });
+      }
 
       preencherSelect(novaDataSelect, novasDatas);
       novaDataSelect.disabled = false;
@@ -6114,8 +6170,18 @@
         return;
       }
 
-      const professorNaNovaData = encontrarProfessorNaData(classe, novaData);
       const classeComEmoji = nomesClassesComEmoji[classe] || classe;
+
+      if (valorEhApoioRonan(novaData)) {
+        resumoTroca.innerHTML =
+          "<strong>Resumo da alteração:</strong><br>" +
+          "Classe: <strong>" + classeComEmoji + "</strong><br>" +
+          formatarNomeProfessor(professor) + " será substituído(a) no dia <strong>" + dataAtual + "</strong>.<br>" +
+          formatarNomeProfessor(PROFESSOR_APOIO_RONAN) + " assumirá esta aula como apoio. Não haverá troca de datas.";
+        return;
+      }
+
+      const professorNaNovaData = encontrarProfessorNaData(classe, novaData);
 
       resumoTroca.innerHTML =
         "<strong>Resumo da alteração:</strong><br>" +
@@ -6444,6 +6510,7 @@
             btnConfirmar.disabled = false;
             btnConfirmar.textContent = "Confirmar alteração";
             form.reset();
+            atualizarAvisoApoioRonan("");
 
             limparSelect(professorSelect, "Selecione primeiro a classe");
             limparSelect(dataAtualSelect, "Selecione primeiro seu nome");

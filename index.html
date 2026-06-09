@@ -1,3 +1,6 @@
+
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -8,7 +11,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_REDESIGN_PREMIUM_SENHA_ALTERACAO_2026_05_19" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_MOBILE_CLASSE_DESTAQUE_PROF_SUPORTE_2026_06_09" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -3738,15 +3741,14 @@
 
     .featured-teacher-card {
       position: relative !important;
-      display: grid !important;
-      grid-template-columns: 54px minmax(0, 1fr) !important;
-      align-items: center !important;
-      gap: 14px !important;
-      min-height: 104px !important;
-      padding: 16px 18px 16px 20px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      min-height: 126px !important;
+      padding: 0 !important;
       border-radius: 22px !important;
-      background: linear-gradient(135deg, #ffffff, #f9fbff) !important;
-      border: 1px solid rgba(31, 78, 121, 0.14) !important;
+      background: linear-gradient(135deg, #ffffff, #f8fbff) !important;
+      border: 1px solid rgba(31, 78, 121, 0.16) !important;
       box-shadow: 0 10px 24px rgba(15, 23, 42, 0.075) !important;
       overflow: hidden !important;
     }
@@ -3755,11 +3757,11 @@
       content: "" !important;
       position: absolute !important;
       left: 0 !important;
-      top: 16px !important;
-      bottom: 16px !important;
-      width: 5px !important;
-      border-radius: 999px !important;
-      background: linear-gradient(180deg, #d4af37, #1f4e79) !important;
+      top: 0 !important;
+      width: 100% !important;
+      height: 5px !important;
+      border-radius: 0 !important;
+      background: linear-gradient(90deg, #d4af37, #1f4e79) !important;
     }
 
     .featured-teacher-card::after {
@@ -3775,67 +3777,94 @@
     }
 
     .featured-teacher-icon {
-      position: relative !important;
-      z-index: 2 !important;
-      width: 54px !important;
-      height: 54px !important;
+      position: absolute !important;
+      z-index: 3 !important;
+      top: 18px !important;
+      right: 18px !important;
+      width: 42px !important;
+      height: 42px !important;
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
-      border-radius: 18px !important;
-      background: linear-gradient(135deg, rgba(31, 78, 121, 0.12), rgba(197, 155, 53, 0.16)) !important;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.95) !important;
-      font-size: 1.25rem !important;
+      border-radius: 14px !important;
+      background: rgba(255, 255, 255, 0.78) !important;
+      box-shadow: inset 0 0 0 1px rgba(31, 78, 121, 0.10), 0 6px 14px rgba(15, 23, 42, 0.06) !important;
+      font-size: 1.05rem !important;
     }
 
     .featured-teacher-text {
       position: relative !important;
       z-index: 2 !important;
       min-width: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      height: 100% !important;
     }
 
     .featured-teacher-class {
-      display: block !important;
-      margin-bottom: 7px !important;
-      color: #607086 !important;
-      font-size: 0.72rem !important;
-      font-weight: 900 !important;
-      letter-spacing: 0.04em !important;
-      text-transform: uppercase !important;
-      line-height: 1.15 !important;
+      display: flex !important;
+      align-items: center !important;
+      min-height: 64px !important;
+      padding: 17px 68px 15px 18px !important;
+      color: #0b2f4a !important;
+      font-size: clamp(1.14rem, 2.2vw, 1.42rem) !important;
+      font-weight: 950 !important;
+      letter-spacing: -0.025em !important;
+      text-transform: none !important;
+      line-height: 1.14 !important;
+      overflow-wrap: anywhere !important;
+      background: linear-gradient(135deg, rgba(31, 78, 121, 0.10), rgba(212, 175, 55, 0.13)) !important;
+      border-bottom: 1px solid rgba(31, 78, 121, 0.10) !important;
     }
 
     .featured-teacher-name {
       display: block !important;
-      color: #102f4d !important;
-      font-size: clamp(1.42rem, 2.6vw, 1.85rem) !important;
-      font-weight: 950 !important;
-      line-height: 1.03 !important;
-      letter-spacing: -0.045em !important;
+      width: auto !important;
+      max-width: 100% !important;
+      margin: 12px 18px 17px !important;
+      color: #1e293b !important;
+      font-size: clamp(0.98rem, 1.7vw, 1.10rem) !important;
+      font-weight: 760 !important;
+      line-height: 1.18 !important;
+      letter-spacing: -0.012em !important;
       overflow-wrap: anywhere !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+
+    .featured-teacher-name::before {
+      content: none !important;
+      display: none !important;
     }
 
     .featured-support-card {
       margin-top: 14px !important;
-      min-height: 82px !important;
+      min-height: 104px !important;
       border-style: dashed !important;
       background: linear-gradient(135deg, #f8fafc, #ffffff) !important;
       box-shadow: none !important;
-      opacity: 0.88 !important;
+      opacity: 0.92 !important;
     }
 
     .featured-support-card .featured-teacher-icon {
-      width: 46px !important;
-      height: 46px !important;
-      border-radius: 16px !important;
-      background: #eef2f7 !important;
+      background: rgba(238, 242, 247, 0.88) !important;
       color: #475569 !important;
-      font-size: 1.05rem !important;
+    }
+
+    .featured-support-card .featured-teacher-class {
+      background: linear-gradient(135deg, rgba(100, 116, 139, 0.10), rgba(226, 232, 240, 0.74)) !important;
+      color: #334155 !important;
     }
 
     .featured-support-card .featured-teacher-name {
-      font-size: clamp(1.08rem, 2vw, 1.3rem) !important;
       color: #475569 !important;
+    }
+
+    .featured-support-card .featured-teacher-name::before {
+      content: none !important;
+      display: none !important;
     }
 
     @media (max-width: 760px) {
@@ -3859,43 +3888,48 @@
       }
 
       .featured-teacher-card {
-        grid-template-columns: 46px minmax(0, 1fr) !important;
-        min-height: 84px !important;
-        padding: 12px 13px 12px 16px !important;
+        min-height: 108px !important;
         border-radius: 18px !important;
       }
 
       .featured-teacher-icon {
-        width: 46px !important;
-        height: 46px !important;
-        border-radius: 15px !important;
-        font-size: 1.05rem !important;
+        top: 14px !important;
+        right: 14px !important;
+        width: 38px !important;
+        height: 38px !important;
+        border-radius: 13px !important;
+        font-size: 0.98rem !important;
       }
 
       .featured-teacher-class {
-        margin-bottom: 4px !important;
-        font-size: 0.66rem !important;
-        letter-spacing: 0.03em !important;
+        min-height: 58px !important;
+        padding: 15px 58px 13px 15px !important;
+        font-size: 1.08rem !important;
+        letter-spacing: -0.02em !important;
       }
 
       .featured-teacher-name {
-        font-size: 1.3rem !important;
+        margin: 10px 15px 14px !important;
+        font-size: 0.95rem !important;
       }
     }
 
     @media (max-width: 390px) {
       .featured-teacher-card {
-        grid-template-columns: 42px minmax(0, 1fr) !important;
-        min-height: 78px !important;
+        min-height: 102px !important;
       }
 
       .featured-teacher-icon {
-        width: 42px !important;
-        height: 42px !important;
+        width: 36px !important;
+        height: 36px !important;
+      }
+
+      .featured-teacher-class {
+        font-size: 1.02rem !important;
       }
 
       .featured-teacher-name {
-        font-size: 1.18rem !important;
+        font-size: 0.92rem !important;
       }
     }
 
@@ -3957,7 +3991,7 @@
               <th>Testemunhas de Cristo 🔥</th>
               <th>Sara 🌸</th>
               <th>Heróis da Fé 👔</th>
-              <th>Suporte técnico 🤝</th>
+              <th>Suporte 🤝</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -4689,7 +4723,16 @@
 
     function formatarNomeSuporte(nome) {
       const nomeLimpo = removerTratamentoDoNome(nome);
-      return nomeLimpo || "—";
+
+      if (!nomeLimpo || nomeLimpo === "—") {
+        return "—";
+      }
+
+      if (/^prof\.?\s+/i.test(nomeLimpo)) {
+        return nomeLimpo.replace(/^prof\.?\s+/i, "Prof. ");
+      }
+
+      return "Prof. " + nomeLimpo;
     }
 
     function atualizarEscalaLocal(linhas) {
@@ -4777,7 +4820,7 @@
           <article class="weekly-teacher-card weekly-support-card">
             <div class="weekly-teacher-icon" aria-hidden="true">🛠️</div>
             <div class="weekly-teacher-info">
-              <span class="weekly-teacher-class">Suporte técnico</span>
+              <span class="weekly-teacher-class">Suporte</span>
               <strong class="weekly-teacher-name">${formatarNomeSuporte(linha["Suporte"])}</strong>
             </div>
           </article>
@@ -4842,7 +4885,7 @@
           <div class="featured-teacher-card featured-support-card">
             <div class="featured-teacher-icon" aria-hidden="true">🛠️</div>
             <div class="featured-teacher-text">
-              <span class="featured-teacher-class">Suporte técnico</span>
+              <span class="featured-teacher-class">Suporte</span>
               <strong class="featured-teacher-name">${formatarNomeSuporte(linha["Suporte"])}</strong>
             </div>
           </div>

@@ -1010,6 +1010,43 @@
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec";
   const modeloPadrao = `<div style="font-family:system-ui; background:#fef9e6; border-radius:2rem; padding:1.4rem;"><div style="background:#0b2b3f; color:white; padding:1rem; border-radius:1.5rem;"><h3>Conteúdo da lição</h3></div><div style="padding:1rem;"><p>Adicione aqui o conteúdo da aula...</p></div></div>`;
   let escalaCache = [], classesCache = [], professoresCache = [];
+  const ordemClassesEBD = [
+    "Cordeirinhos de Cristo",
+    "Soldadinhos de Cristo",
+    "Heróis e Amigos",
+    "Vencedores por Cristo",
+    "Vivendo em Cristo",
+    "Testemunhas de Cristo",
+    "Sara",
+    "Heróis da Fé"
+  ];
+
+  const colunasNaoClasseEBD = ["Data", "Suporte"];
+
+  function ordenarClassesEBD(classes) {
+    const lista = (classes || []).filter((classe) => !colunasNaoClasseEBD.includes(classe));
+
+    return lista.sort((a, b) => {
+      const posA = ordemClassesEBD.indexOf(a);
+      const posB = ordemClassesEBD.indexOf(b);
+
+      if (posA === -1 && posB === -1) {
+        return a.localeCompare(b, "pt-BR");
+      }
+
+      if (posA === -1) {
+        return 1;
+      }
+
+      if (posB === -1) {
+        return -1;
+      }
+
+      return posA - posB;
+    });
+  }
+
+
   let salvandoLicoesEBD = false;
   let timerSalvarLicoesEBD = null;
 
@@ -1224,10 +1261,10 @@
     }
   });
 
-  async function carregarEscala() { let r = await chamarAppsScript({acao:"listar"}); if(r.sucesso) { escalaCache=r.escala||[]; classesCache=escalaCache.length?Object.keys(escalaCache[0]).filter(k=>k!=="Data"):[]; preencherSelectsEscala(); renderizarTabelaEscala(); } }
+  async function carregarEscala() { let r = await chamarAppsScript({acao:"listar"}); if(r.sucesso) { escalaCache=r.escala||[]; classesCache=escalaCache.length?ordenarClassesEBD(Object.keys(escalaCache[0])):[]; preencherSelectsEscala(); renderizarTabelaEscala(); } }
   function preencherSelectsEscala() { preencherSelect("escalaDataEditar", escalaCache.map(l=>l.Data)); preencherSelect("dataRemover", escalaCache.map(l=>l.Data)); preencherSelect("escalaClasseEditar", classesCache); preencherSelect("classeRenomear", classesCache); preencherSelect("profNovaClasse", classesCache); preencherSelect("profEditarClasse", classesCache); preencherSelect("profMudarClasse", classesCache); preencherSelect("profSubClasse", ["Todas as classes",...classesCache]); renderizarCamposNovaData(); }
   function preencherSelect(id, itens) { let s=document.getElementById(id); if(!s) return; s.innerHTML=itens.map(i=>`<option>${i}</option>`).join(""); }
-  function renderizarTabelaEscala() { let t = document.getElementById("tabelaEscalaAdmin"); if(!escalaCache.length) { t.querySelector("tbody").innerHTML="<tr><td colspan=10>Nenhum dado</td></tr>"; return; } let cols = Object.keys(escalaCache[0]); t.querySelector("thead").innerHTML="<tr>"+cols.map(c=>`<th>${c}</th>`).join("")+"</tr>"; t.querySelector("tbody").innerHTML=escalaCache.map(l=>"<tr>"+cols.map(c=>`<td>${l[c]||""}</td>`).join("")+"</tr>").join(""); }
+  function renderizarTabelaEscala() { let t = document.getElementById("tabelaEscalaAdmin"); if(!escalaCache.length) { t.querySelector("tbody").innerHTML="<tr><td colspan=10>Nenhum dado</td></tr>"; return; } let cols = ["Data", ...ordemClassesEBD, "Suporte"].filter(c => Object.prototype.hasOwnProperty.call(escalaCache[0], c)); t.querySelector("thead").innerHTML="<tr>"+cols.map(c=>`<th>${c}</th>`).join("")+"</tr>"; t.querySelector("tbody").innerHTML=escalaCache.map(l=>"<tr>"+cols.map(c=>`<td>${l[c]||""}</td>`).join("")+"</tr>").join(""); }
   function renderizarCamposNovaData() { let cont = document.getElementById("camposNovaData"); cont.innerHTML = classesCache.map(c => `<div><label>${c}</label><input type="text" data-classe-nova="${c}" placeholder="Professor"></div>`).join(""); }
   async function adminSalvarProfessor() { let s=obterSenhaSessao(); let data=document.getElementById("escalaDataEditar").value, classe=document.getElementById("escalaClasseEditar").value, prof=document.getElementById("escalaProfessorEditar").value.trim(); if(!data||!classe||!prof) return mostrarStatus("error","Preencha todos"); let r=await chamarAppsScript({acao:"adminSalvarProfessor", senha:s, data, classe, professor:prof}); if(r.sucesso){ mostrarStatus("success","Alterado"); carregarEscala(); carregarHistorico(); } else mostrarStatus("error",r.mensagem); }
   function formatarDataBR(valor) {

@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -4032,7 +4034,7 @@
 
           <div class="mini-leader">
             <strong>👥 Superintendentes</strong>
-            Coop. Ronan e Pb Elias
+            Coop. Ronan e Elias
           </div>
 
           <div class="mini-leader">
@@ -4156,74 +4158,74 @@
         <div class="class-card">
           <h3>Cordeirinhos de Cristo 🐑</h3>
           <ul>
-            <li>Rosilene</li>
-            <li>Alessandra</li>
-            <li>Edivania</li>
-            <li>Rosângela</li>
+            <li>Prof. Rosilene</li>
+            <li>Prof. Alessandra</li>
+            <li>Prof. Edivania</li>
+            <li>Prof. Rosângela</li>
           </ul>
         </div>
 
         <div class="class-card">
           <h3>Soldadinhos de Cristo 🛡️</h3>
           <ul>
-            <li>Rita</li>
-            <li>Thaís</li>
-            <li>Vitória</li>
-            <li>Larissa</li>
+            <li>Prof. Rita</li>
+            <li>Prof. Thaís</li>
+            <li>Prof. Vitória</li>
+            <li>Prof. Larissa</li>
           </ul>
         </div>
 
         <div class="class-card">
           <h3>Heróis e Amigos 🤝</h3>
           <ul>
-            <li>Oseas Junior</li>
-            <li>Igor</li>
+            <li>Prof. Oseas Junior</li>
+            <li>Prof. Igor</li>
           </ul>
         </div>
 
         <div class="class-card">
           <h3>Vencedores por Cristo 🏆</h3>
           <ul>
-            <li>Maria Tereza</li>
-            <li>Fernanda</li>
-            <li>Graziele — apoio</li>
+            <li>Prof. Maria Tereza</li>
+            <li>Prof. Fernanda</li>
+            <li>Prof. Graziele — apoio</li>
           </ul>
         </div>
 
         <div class="class-card">
           <h3>Vivendo em Cristo 📖</h3>
           <ul>
-            <li>Noeme</li>
-            <li>Suely</li>
+            <li>Prof. Noeme</li>
+            <li>Prof. Suely</li>
           </ul>
         </div>
 
         <div class="class-card">
           <h3>Testemunhas de Cristo 🔥</h3>
           <ul>
-            <li>Emanuela</li>
-            <li>Lucas</li>
-            <li>Ronan</li>
+            <li>Prof. Emanuela</li>
+            <li>Prof. Lucas</li>
+            <li>Prof. Ronan</li>
           </ul>
         </div>
 
         <div class="class-card">
           <h3>Sara 🌸</h3>
           <ul>
-            <li>Pastora</li>
-            <li>Samella</li>
-            <li>Ana Cardoso</li>
+            <li>Prof. Pastora</li>
+            <li>Prof. Samella</li>
+            <li>Prof. Ana Cardoso</li>
           </ul>
         </div>
 
         <div class="class-card">
           <h3>Heróis da Fé 👔</h3>
           <ul>
-            <li>Pb Elias</li>
-            <li>Pb Felipe</li>
-            <li>Pb Claudinei</li>
-            <li>Pb Adriano</li>
-            <li>Dc João Paulo</li>
+            <li>Prof. Elias</li>
+            <li>Prof. Felipe</li>
+            <li>Prof. Claudinei</li>
+            <li>Prof. Adriano</li>
+            <li>Prof. João Paulo</li>
           </ul>
         </div>
       </div>
@@ -4240,7 +4242,7 @@
 
       <div class="leadership-card">
         <strong>Superintendentes 👥</strong>
-        Coop. Ronan e Pb Elias
+        Coop. Ronan e Elias
       </div>
 
       <div class="leadership-card">
@@ -4666,6 +4668,32 @@
       };
     }
 
+    function removerTratamentoDoNome(nome) {
+      return String(nome || "")
+        .trim()
+        .replace(/^(Pb\.?|Pr\.?|Dc\.?|Diácono|Diacono|Presbítero|Presbitero)\s+/i, "")
+        .trim();
+    }
+
+    function formatarNomeProfessor(nome) {
+      const nomeLimpo = removerTratamentoDoNome(nome);
+
+      if (!nomeLimpo || nomeLimpo === "—") {
+        return "—";
+      }
+
+      if (/^prof\.?\s+/i.test(nomeLimpo)) {
+        return nomeLimpo.replace(/^prof\.?\s+/i, "Prof. ");
+      }
+
+      return "Prof. " + nomeLimpo;
+    }
+
+    function formatarNomeSuporte(nome) {
+      const nomeLimpo = removerTratamentoDoNome(nome);
+      return nomeLimpo || "—";
+    }
+
     function atualizarEscalaLocal(linhas) {
       linhasEscala = linhas.map(normalizarLinha);
 
@@ -4692,15 +4720,15 @@
 
         tr.innerHTML = `
           <td class="date"><span class="date-badge">📅 ${linha.Data}</span></td>
-          <td>${linha["Cordeirinhos de Cristo"]}</td>
-          <td>${linha["Soldadinhos de Cristo"]}</td>
-          <td>${linha["Heróis e Amigos"]}</td>
-          <td>${linha["Vencedores por Cristo"]}</td>
-          <td>${linha["Vivendo em Cristo"]}</td>
-          <td>${linha["Testemunhas de Cristo"]}</td>
-          <td>${linha["Sara"]}</td>
-          <td>${linha["Heróis da Fé"]}</td>
-          <td class="super">${linha["Suporte"]}</td>
+          <td>${formatarNomeProfessor(linha["Cordeirinhos de Cristo"])}</td>
+          <td>${formatarNomeProfessor(linha["Soldadinhos de Cristo"])}</td>
+          <td>${formatarNomeProfessor(linha["Heróis e Amigos"])}</td>
+          <td>${formatarNomeProfessor(linha["Vencedores por Cristo"])}</td>
+          <td>${formatarNomeProfessor(linha["Vivendo em Cristo"])}</td>
+          <td>${formatarNomeProfessor(linha["Testemunhas de Cristo"])}</td>
+          <td>${formatarNomeProfessor(linha["Sara"])}</td>
+          <td>${formatarNomeProfessor(linha["Heróis da Fé"])}</td>
+          <td class="super">${formatarNomeSuporte(linha["Suporte"])}</td>
         `;
 
         tbody.appendChild(tr);
@@ -4734,7 +4762,7 @@
         card.style.animationDelay = (index * 0.06) + "s";
 
         const cardsProfessores = classesDaEscala.map((classe) => {
-          const professor = linha[classe.nome] || "—";
+          const professor = formatarNomeProfessor(linha[classe.nome] || "—");
 
           return `
             <article class="weekly-teacher-card">
@@ -4752,7 +4780,7 @@
             <div class="weekly-teacher-icon" aria-hidden="true">🛠️</div>
             <div class="weekly-teacher-info">
               <span class="weekly-teacher-class">Suporte técnico</span>
-              <strong class="weekly-teacher-name">${linha["Suporte"]}</strong>
+              <strong class="weekly-teacher-name">${formatarNomeSuporte(linha["Suporte"])}</strong>
             </div>
           </article>
         ` : "";
@@ -4799,7 +4827,7 @@
         bloco.className = "featured-week-block";
 
         const cardsProfessores = classesDaEscala.map((classe) => {
-          const professor = linha[classe.nome] || "—";
+          const professor = formatarNomeProfessor(linha[classe.nome] || "—");
 
           return `
             <div class="featured-teacher-card">
@@ -4817,7 +4845,7 @@
             <div class="featured-teacher-icon" aria-hidden="true">🛠️</div>
             <div class="featured-teacher-text">
               <span class="featured-teacher-class">Suporte técnico</span>
-              <strong class="featured-teacher-name">${linha["Suporte"]}</strong>
+              <strong class="featured-teacher-name">${formatarNomeSuporte(linha["Suporte"])}</strong>
             </div>
           </div>
         ` : "";
@@ -5477,7 +5505,7 @@
 
       const professores = professoresUnicos.map((nome) => ({
         value: nome,
-        label: nome
+        label: formatarNomeProfessor(nome)
       }));
 
       preencherSelect(professorSelect, professores);
@@ -5504,7 +5532,7 @@
         .filter((linha) => linha.professor === professor)
         .map((linha) => ({
           value: linha.data,
-          label: linha.data + " — " + linha.professor
+          label: linha.data + " — " + formatarNomeProfessor(linha.professor)
         }));
 
       if (datasDoProfessor.length === 0) {
@@ -5537,7 +5565,7 @@
         .filter((linha) => linha.data !== dataAtual)
         .map((linha) => ({
           value: linha.data,
-          label: linha.data + " — " + linha.professor
+          label: linha.data + " — " + formatarNomeProfessor(linha.professor)
         }));
 
       preencherSelect(novaDataSelect, novasDatas);
@@ -5566,8 +5594,8 @@
       resumoTroca.innerHTML =
         "<strong>Resumo da alteração:</strong><br>" +
         "Classe: <strong>" + classeComEmoji + "</strong><br>" +
-        professor + " sairá do dia <strong>" + dataAtual + "</strong> e irá para o dia <strong>" + novaData + "</strong>.<br>" +
-        professorNaNovaData + " sairá do dia <strong>" + novaData + "</strong> e irá para o dia <strong>" + dataAtual + "</strong>.";
+        formatarNomeProfessor(professor) + " sairá do dia <strong>" + dataAtual + "</strong> e irá para o dia <strong>" + novaData + "</strong>.<br>" +
+        formatarNomeProfessor(professorNaNovaData) + " sairá do dia <strong>" + novaData + "</strong> e irá para o dia <strong>" + dataAtual + "</strong>.";
     }
 
     async function enviarAlteracao(payload) {

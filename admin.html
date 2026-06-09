@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1635,6 +1636,82 @@
     }
   }
 
+  function restaurarBotaoSalvarLicoes() {
+    const botaoSalvar = document.getElementById("btnSalvarLicoes");
+
+    if (botaoSalvar) {
+      botaoSalvar.disabled = false;
+      botaoSalvar.textContent = botaoSalvar.dataset.textoOriginal || "💾 Sincronizar e salvar lições";
+    }
+  }
+
+  function normalizarHtmlParaComparar(valor) {
+    return String(valor || "")
+      .replace(/\r\n/g, "\n")
+      .trim();
+  }
+
+  async function conferirSeLicoesForamSalvas(adultosEsperado, jovensEsperado) {
+    try {
+      const resposta = await chamarAppsScript({
+        acao: "licoes",
+        cache: "nao",
+        _nocache: Date.now()
+      });
+
+      if (!resposta || !resposta.sucesso || !resposta.licoes) {
+        throw new Error((resposta && resposta.mensagem) || "O Apps Script não retornou as lições salvas.");
+      }
+
+      const adultosSalvo = normalizarHtmlParaComparar(resposta.licoes.adultos);
+      const jovensSalvo = normalizarHtmlParaComparar(resposta.licoes.jovens);
+      const adultosAtual = normalizarHtmlParaComparar(adultosEsperado);
+      const jovensAtual = normalizarHtmlParaComparar(jovensEsperado);
+
+      const adultosOk = !adultosAtual || adultosSalvo === adultosAtual;
+      const jovensOk = !jovensAtual || jovensSalvo === jovensAtual;
+
+      if (adultosOk && jovensOk) {
+        document.getElementById("adultos").value = resposta.licoes.adultos || adultosEsperado;
+        document.getElementById("jovens").value = resposta.licoes.jovens || jovensEsperado;
+        sincronizarVisual("adultos", false);
+        sincronizarVisual("jovens", false);
+        return true;
+      }
+
+      return false;
+    } catch (erro) {
+      console.warn("Não foi possível conferir se as lições foram salvas:", erro);
+      return false;
+    }
+  }
+
+  async function tratarConfirmacaoAusenteLicoes(adultosValor, jovensValor) {
+    if (!salvandoLicoesEBD) {
+      return;
+    }
+
+    mostrarStatus("info", "O Apps Script demorou para confirmar. Conferindo diretamente se as lições já foram salvas...");
+
+    const salvouMesmoSemConfirmacao = await conferirSeLicoesForamSalvas(adultosValor, jovensValor);
+
+    salvandoLicoesEBD = false;
+    restaurarBotaoSalvarLicoes();
+
+    if (salvouMesmoSemConfirmacao) {
+      mostrarStatus(
+        "success",
+        "Lições salvas com sucesso. O painel não recebeu a confirmação automática do Apps Script, mas conferiu a planilha e encontrou o conteúdo atualizado. Abra o site público e use Ctrl + F5 para conferir."
+      );
+      return;
+    }
+
+    mostrarStatus(
+      "error",
+      "As lições foram enviadas, mas o painel não conseguiu confirmar o salvamento. Confira se a senha do painel é a mesma do SENHA_ADMIN, se o Apps Script foi implantado como Nova versão e se a ação ?acao=licoes está respondendo."
+    );
+  }
+
   function salvarLicoes() {
     const s = obterSenhaSessao();
 
@@ -1672,14 +1749,7 @@
 
     clearTimeout(timerSalvarLicoesEBD);
     timerSalvarLicoesEBD = setTimeout(() => {
-      if (salvandoLicoesEBD) {
-        salvandoLicoesEBD = false;
-        if (botaoSalvar) {
-          botaoSalvar.disabled = false;
-          botaoSalvar.textContent = botaoSalvar.dataset.textoOriginal || "💾 Sincronizar e salvar lições";
-        }
-        mostrarStatus("error", "As lições foram enviadas, mas o painel não recebeu confirmação do Apps Script. Confira se a senha está correta, se a implantação está em Nova versão e se o Apps Script tem .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL).");
-      }
+      tratarConfirmacaoAusenteLicoes(adultosValor, jovensValor);
     }, 15000);
 
     form.submit();
@@ -1691,12 +1761,7 @@
     if (e.data?.origem === "appsScriptSalvarLicoes") {
       salvandoLicoesEBD = false;
       clearTimeout(timerSalvarLicoesEBD);
-
-      const botaoSalvar = document.getElementById("btnSalvarLicoes");
-      if (botaoSalvar) {
-        botaoSalvar.disabled = false;
-        botaoSalvar.textContent = botaoSalvar.dataset.textoOriginal || "💾 Sincronizar e salvar lições";
-      }
+      restaurarBotaoSalvarLicoes();
 
       if (e.data.sucesso) {
         mostrarStatus("success", e.data.mensagem || "Lições sincronizadas e salvas com sucesso. Abra o site público e use Ctrl + F5 para conferir.");

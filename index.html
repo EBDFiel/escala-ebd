@@ -1,3 +1,6 @@
+
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -8,7 +11,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_DATAS_PROFESSORES_TRIMESTRE_2026_06_09" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_HISTORICO_CONFERENCIA_VISIVEL_2026_06_09" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -3684,9 +3687,14 @@
     }
 
 
-    /* EBD 2026-06-09 — Layout definitivo da escala em cards com professor em destaque */
-    .scale-premium .table-wrap,
-    .scale-premium #cardsEscala {
+    /* EBD 2026-06-09 — Layout seguro da escala.
+       A tabela/cards antigos só ficam ocultos depois que os cards principais renderizam com sucesso. */
+    .scale-premium.has-featured-scale .table-wrap,
+    .scale-premium.has-featured-scale #cardsEscala {
+      display: none !important;
+    }
+
+    .scale-premium:not(.has-featured-scale) .featured-weekly-scale {
       display: none !important;
     }
 
@@ -3931,154 +3939,285 @@
     }
 
 
-    /* EBD 2026-06-09 — Datas em que cada professor deu aula no trimestre */
-    .teacher-dates-section {
-      position: relative;
-      overflow: hidden;
+    .history-compact-section {
+      background: rgba(255, 255, 255, 0.92);
+      border-top: 4px solid rgba(197, 155, 53, 0.70);
     }
 
-    .teacher-dates-note {
-      max-width: 900px;
-      margin: 0 auto 20px;
-      padding: 12px 16px;
-      border-radius: 18px;
-      background: linear-gradient(135deg, #eef6ff, #ffffff);
+    .history-compact-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 18px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, rgba(234, 243, 251, 0.86), rgba(255,255,255,0.96));
       border: 1px solid rgba(31, 78, 121, 0.14);
-      color: #475569;
+      box-shadow: 0 8px 20px rgba(31, 78, 121, 0.08);
+    }
+
+    .history-compact-text h3 {
+      margin: 0 0 6px;
+      color: var(--azul-profundo);
+      font-size: 1.15rem;
+    }
+
+    .history-compact-text p {
+      margin: 0;
+      color: #64748b;
+      font-weight: 700;
+      line-height: 1.5;
       font-size: 0.95rem;
+    }
+
+    .btn-history-compact {
+      flex: 0 0 auto;
+      background: #ffffff;
+      color: var(--azul-profundo);
+      border: 1px solid rgba(31, 78, 121, 0.22);
+      box-shadow: 0 6px 14px rgba(31, 78, 121, 0.10);
+      animation: none;
+      padding: 11px 18px;
+      font-size: 0.92rem;
+    }
+
+    .btn-history-compact:hover {
+      background: var(--azul-claro);
+      box-shadow: 0 10px 20px rgba(31, 78, 121, 0.14);
+    }
+
+    .history-trimester-modal {
+      max-width: 880px;
+    }
+
+    .history-trimester-modal .modal-body {
+      max-height: min(72vh, 720px);
+      overflow-y: auto;
+      background: linear-gradient(135deg, #f8fbff, #ffffff);
+    }
+
+    .history-modal-intro {
+      margin: 0 0 16px;
+      color: #64748b;
+      font-weight: 700;
+      line-height: 1.5;
       text-align: center;
     }
 
-    .teacher-dates-grid {
+    .history-trimester-list {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 14px;
-      margin-top: 18px;
     }
 
-    .teacher-date-card {
-      position: relative;
-      overflow: hidden;
-      border-radius: 22px;
-      background: linear-gradient(135deg, #ffffff, #f8fbff);
+    .history-teacher-card {
+      background: #ffffff;
       border: 1px solid rgba(31, 78, 121, 0.14);
-      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.07);
-      padding: 16px;
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 8px 18px rgba(31, 78, 121, 0.08);
     }
 
-    .teacher-date-card::before {
-      content: "";
-      position: absolute;
-      inset: 0 auto 0 0;
-      width: 5px;
-      background: linear-gradient(180deg, var(--dourado), var(--azul));
-    }
-
-    .teacher-date-head {
+    .history-teacher-head {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: center;
       gap: 12px;
-      margin-bottom: 12px;
-      padding-left: 2px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed rgba(148, 163, 184, 0.42);
+      margin-bottom: 10px;
     }
 
-    .teacher-date-name {
-      margin: 0;
-      color: #102f4d;
-      font-size: 1.05rem;
-      font-weight: 900;
-      line-height: 1.2;
+    .history-teacher-head strong {
+      color: var(--azul-profundo);
+      font-size: 1rem;
     }
 
-    .teacher-date-count {
-      flex: 0 0 auto;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 34px;
-      height: 28px;
-      padding: 0 10px;
-      border-radius: 999px;
-      background: rgba(31, 78, 121, 0.10);
-      color: #1f4e79;
-      font-size: 0.8rem;
-      font-weight: 900;
+    .history-count-badge {
       white-space: nowrap;
+      border-radius: 999px;
+      padding: 5px 10px;
+      background: rgba(31, 78, 121, 0.10);
+      color: var(--azul-escuro);
+      font-size: 0.78rem;
+      font-weight: 900;
     }
 
-    .teacher-date-list {
-      display: flex;
-      flex-direction: column;
+    .history-date-row {
+      display: grid;
+      grid-template-columns: 92px 1fr;
       gap: 8px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .teacher-date-list li {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      padding: 9px 10px;
-      border-radius: 14px;
-      background: rgba(241, 245, 249, 0.88);
-      color: #334155;
+      align-items: start;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(226, 232, 240, 0.92);
       font-size: 0.88rem;
     }
 
-    .teacher-date-list strong {
-      color: #0b2f4a;
-      white-space: nowrap;
+    .history-date-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
     }
 
-    .teacher-date-class {
-      text-align: right;
-      color: #64748b;
+    .history-date-row b {
+      color: var(--azul-profundo);
+      font-weight: 900;
+    }
+
+    .history-date-row span {
+      color: #475569;
       font-weight: 700;
-      line-height: 1.2;
+      text-align: right;
     }
 
-    .teacher-dates-empty {
-      text-align: center;
+    .history-empty-box {
       padding: 18px;
       border-radius: 18px;
       background: #ffffff;
-      border: 1px dashed rgba(31, 78, 121, 0.24);
+      border: 1px dashed rgba(31, 78, 121, 0.25);
       color: #64748b;
+      text-align: center;
       font-weight: 700;
     }
 
     @media (max-width: 760px) {
-      .teacher-dates-section {
-        padding-left: 14px !important;
-        padding-right: 14px !important;
+      .history-compact-section {
+        margin-top: 18px;
       }
 
-      .teacher-dates-note {
-        font-size: 0.86rem;
-        text-align: left;
-        margin-bottom: 14px;
+      .history-compact-box {
+        display: block;
+        padding: 16px;
+        text-align: center;
       }
 
-      .teacher-dates-grid {
+      .history-compact-text h3 {
+        font-size: 1.05rem;
+      }
+
+      .history-compact-text p {
+        font-size: 0.88rem;
+      }
+
+      .btn-history-compact {
+        width: 100%;
+        justify-content: center;
+        margin-top: 14px;
+        padding: 12px 16px;
+      }
+
+      .history-trimester-list {
         grid-template-columns: 1fr;
-        gap: 10px;
       }
 
-      .teacher-date-card {
-        border-radius: 18px;
-        padding: 14px;
+      .history-date-row {
+        grid-template-columns: 84px 1fr;
+      }
+    }
+
+
+    /* Histórico de conferência no final da página pública */
+    #historicoConferencia.history-check-section {
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      margin-top: 26px !important;
+      background: rgba(255, 255, 255, 0.94) !important;
+      border-top: 4px solid rgba(197, 155, 53, 0.72) !important;
+    }
+
+    .history-check-card {
+      display: grid !important;
+      grid-template-columns: auto 1fr auto !important;
+      align-items: center !important;
+      gap: 18px !important;
+      padding: 18px !important;
+      border-radius: 24px !important;
+      background: linear-gradient(135deg, rgba(234, 243, 251, 0.88), rgba(255, 255, 255, 0.98)) !important;
+      border: 1px solid rgba(31, 78, 121, 0.14) !important;
+      box-shadow: 0 8px 20px rgba(31, 78, 121, 0.08) !important;
+    }
+
+    .history-check-icon {
+      width: 48px !important;
+      height: 48px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border-radius: 18px !important;
+      background: linear-gradient(135deg, #fff8e1, #ffffff) !important;
+      border: 1px solid rgba(197, 155, 53, 0.35) !important;
+      box-shadow: 0 8px 18px rgba(197, 155, 53, 0.12) !important;
+      font-size: 1.35rem !important;
+    }
+
+    .history-check-content .eyebrow {
+      margin: 0 0 6px !important;
+    }
+
+    .history-check-content h2 {
+      margin: 0 !important;
+      color: var(--azul-profundo) !important;
+      font-size: 1.22rem !important;
+      line-height: 1.2 !important;
+    }
+
+    .history-check-content p {
+      margin: 6px 0 0 !important;
+      color: #64748b !important;
+      font-weight: 700 !important;
+      line-height: 1.45 !important;
+      font-size: 0.95rem !important;
+    }
+
+    .history-check-button {
+      border: 1px solid rgba(31, 78, 121, 0.22) !important;
+      background: #ffffff !important;
+      color: var(--azul-profundo) !important;
+      border-radius: 999px !important;
+      padding: 12px 20px !important;
+      font-weight: 900 !important;
+      cursor: pointer !important;
+      box-shadow: 0 8px 18px rgba(31, 78, 121, 0.10) !important;
+      white-space: nowrap !important;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important;
+    }
+
+    .history-check-button:hover {
+      transform: translateY(-2px) !important;
+      background: var(--azul-claro) !important;
+      box-shadow: 0 12px 24px rgba(31, 78, 121, 0.16) !important;
+    }
+
+    .history-trimester-modal .history-modal-intro {
+      display: none !important;
+    }
+
+    @media (max-width: 760px) {
+      #historicoConferencia.history-check-section {
+        margin-top: 18px !important;
       }
 
-      .teacher-date-name {
-        font-size: 1rem;
+      .history-check-card {
+        grid-template-columns: 1fr !important;
+        text-align: center !important;
+        padding: 18px 16px !important;
       }
 
-      .teacher-date-list li {
-        align-items: flex-start;
-        font-size: 0.84rem;
+      .history-check-icon {
+        margin: 0 auto !important;
+      }
+
+      .history-check-content h2 {
+        font-size: 1.08rem !important;
+      }
+
+      .history-check-content p {
+        font-size: 0.88rem !important;
+      }
+
+      .history-check-button {
+        width: 100% !important;
+        justify-content: center !important;
       }
     }
 
@@ -4162,24 +4301,6 @@
       </div>
     </section>
 
-
-
-    <section id="datas-professores" class="premium-card teacher-dates-section">
-      <div class="premium-section-title">
-        <span class="eyebrow">🗓️ Trimestre</span>
-        <h2>Datas por professor</h2>
-        <p>Veja em quais domingos cada professor ficou escalado para dar aula neste trimestre.</p>
-      </div>
-
-      <div class="teacher-dates-note">
-        Conta somente quando o nome aparece em uma classe. A função <strong>Suporte</strong> fica separada da escala de aulas; se Ronan substituir alguém em uma classe, basta atualizar a escala daquele dia e ele aparecerá aqui como professor.
-      </div>
-
-      <div id="datasProfessoresTrimestre" class="teacher-dates-grid" aria-live="polite">
-        <div class="teacher-dates-empty">Carregando datas dos professores...</div>
-      </div>
-    </section>
-
     <section class="premium-card quick-access" aria-label="Acesso rápido">
       <div class="premium-section-title quick-access-title">
         <span class="eyebrow">⚡ Acesso rápido</span>
@@ -4210,6 +4331,12 @@
           <span class="quick-icon">🧠</span>
           <h3>Quiz interativo</h3>
           <p>Compartilhe com a classe e incentive a participação.</p>
+        </a>
+
+        <a class="quick-card" href="#historicoConferencia">
+          <span class="quick-icon">🗓️</span>
+          <h3>Histórico</h3>
+          <p>Confira as datas do trimestre quando precisar.</p>
         </a>
       </div>
     </section>
@@ -4404,13 +4531,14 @@
           <ul>
             <li>Prof. Emanuela</li>
             <li>Prof. Lucas</li>
+            <li>Prof. Ronan</li>
           </ul>
         </div>
 
         <div class="class-card">
           <h3>Sara 🌸</h3>
           <ul>
-            <li>Prof. Pastora</li>
+            <li>Prof. Joceli</li>
             <li>Prof. Samella</li>
             <li>Prof. Ana Cardoso</li>
           </ul>
@@ -4428,7 +4556,22 @@
         </div>
       </div>
     </section>
-  </main>
+
+    <section id="historicoConferencia" class="premium-card history-check-section">
+      <div class="history-check-card">
+        <div class="history-check-icon" aria-hidden="true">🗓️</div>
+        <div class="history-check-content">
+          <span class="eyebrow">Conferência</span>
+          <h2>Histórico do trimestre</h2>
+          <p>Consulte as datas por professor quando precisar.</p>
+        </div>
+        <button class="history-check-button" type="button" onclick="abrirHistoricoTrimestre()">
+          Ver histórico
+        </button>
+      </div>
+    </section>
+
+</main>
 
 
   <footer>
@@ -4550,6 +4693,23 @@
     </div>
   </div>
 
+
+  <div class="modal-overlay" id="modalHistoricoTrimestre">
+    <div class="modal history-trimester-modal">
+      <div class="modal-header">
+        <h2>Histórico do trimestre</h2>
+        <button class="close-btn" type="button" onclick="fecharHistoricoTrimestre()" aria-label="Fechar">
+          Fechar
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p class="history-modal-intro">Conferência das datas do trimestre.</p>
+        <div id="conteudoHistoricoTrimestre" class="history-trimester-list"></div>
+      </div>
+    </div>
+  </div>
+
   <script>
 
     function ajustarSubtituloAoTitulo() {
@@ -4634,7 +4794,7 @@
         "Vencedores por Cristo": "Maria Tereza",
         "Vivendo em Cristo": "Noeme",
         "Testemunhas de Cristo": "Emanuela",
-        "Sara": "Pastora",
+        "Sara": "Joceli",
         "Heróis da Fé": "Pb Elias",
         "Suporte": "Ronan"
       },
@@ -4670,7 +4830,7 @@
         "Vencedores por Cristo": "Maria Tereza",
         "Vivendo em Cristo": "Suely",
         "Testemunhas de Cristo": "Emanuela",
-        "Sara": "Pastora",
+        "Sara": "Joceli",
         "Heróis da Fé": "Pb Adriano",
         "Suporte": "Ronan"
       },
@@ -4706,7 +4866,7 @@
         "Vencedores por Cristo": "Maria Tereza",
         "Vivendo em Cristo": "Noeme",
         "Testemunhas de Cristo": "Emanuela",
-        "Sara": "Pastora",
+        "Sara": "Joceli",
         "Heróis da Fé": "Pb Felipe",
         "Suporte": "Ronan"
       }
@@ -4834,8 +4994,8 @@
       "Heróis e Amigos": ["Oseas Junior", "Igor"],
       "Vencedores por Cristo": ["Maria Tereza", "Fernanda", "Graziele"],
       "Vivendo em Cristo": ["Noeme", "Suely"],
-      "Testemunhas de Cristo": ["Emanuela", "Lucas"],
-      "Sara": ["Pastora", "Samella", "Ana Cardoso"],
+      "Testemunhas de Cristo": ["Emanuela", "Lucas", "Ronan"],
+      "Sara": ["Joceli", "Samella", "Ana Cardoso"],
       "Heróis da Fé": ["Pb Elias", "Pb Felipe", "Pb Claudinei", "Pb Adriano", "Dc João Paulo"]
     };
 
@@ -4873,8 +5033,22 @@
         .trim();
     }
 
-    function formatarNomeProfessor(nome) {
+    function normalizarNomeExibicao(nome) {
       const nomeLimpo = removerTratamentoDoNome(nome);
+
+      if (!nomeLimpo || nomeLimpo === "—") {
+        return nomeLimpo || "";
+      }
+
+      if (/^pastora$/i.test(nomeLimpo)) {
+        return "Joceli";
+      }
+
+      return nomeLimpo;
+    }
+
+    function formatarNomeProfessor(nome) {
+      const nomeLimpo = normalizarNomeExibicao(nome);
 
       if (!nomeLimpo || nomeLimpo === "—") {
         return "—";
@@ -4888,7 +5062,7 @@
     }
 
     function formatarNomeSuporte(nome) {
-      const nomeLimpo = removerTratamentoDoNome(nome);
+      const nomeLimpo = normalizarNomeExibicao(nome);
 
       if (!nomeLimpo || nomeLimpo === "—") {
         return "—";
@@ -5010,8 +5184,19 @@
 
     function renderizarEscalaDestaque(linhas) {
       const container = document.getElementById("escalaDestaque");
+      const secaoEscala = document.getElementById("escala");
 
       if (!container) {
+        return;
+      }
+
+      container.innerHTML = "";
+
+      if (secaoEscala) {
+        secaoEscala.classList.remove("has-featured-scale");
+      }
+
+      if (!Array.isArray(linhas) || linhas.length === 0) {
         return;
       }
 
@@ -5026,121 +5211,66 @@
         { nome: "Heróis da Fé", icone: "📘" }
       ];
 
-      container.innerHTML = "";
+      try {
+        const fragmento = document.createDocumentFragment();
 
-      linhas.forEach((linhaOriginal) => {
-        const linha = normalizarLinha(linhaOriginal);
-        const bloco = document.createElement("article");
-        bloco.className = "featured-week-block";
+        linhas.forEach((linhaOriginal) => {
+          const linha = normalizarLinha(linhaOriginal);
+          const bloco = document.createElement("article");
+          bloco.className = "featured-week-block";
 
-        const cardsProfessores = classesDaEscala.map((classe) => {
-          const professor = formatarNomeProfessor(linha[classe.nome] || "—");
+          const cardsProfessores = classesDaEscala.map((classe) => {
+            const professor = formatarNomeProfessor(linha[classe.nome] || "—");
 
-          return `
-            <div class="featured-teacher-card">
-              <div class="featured-teacher-icon" aria-hidden="true">${classe.icone}</div>
+            return `
+              <div class="featured-teacher-card">
+                <div class="featured-teacher-icon" aria-hidden="true">${classe.icone}</div>
+                <div class="featured-teacher-text">
+                  <span class="featured-teacher-class">${classe.nome}</span>
+                  <strong class="featured-teacher-name">${professor}</strong>
+                </div>
+              </div>
+            `;
+          }).join("");
+
+          const suporte = String(linha["Suporte"] || "").trim();
+          const suporteCard = suporte ? `
+            <div class="featured-teacher-card featured-support-card">
+              <div class="featured-teacher-icon" aria-hidden="true">🛠️</div>
               <div class="featured-teacher-text">
-                <span class="featured-teacher-class">${classe.nome}</span>
-                <strong class="featured-teacher-name">${professor}</strong>
+                <span class="featured-teacher-class">Suporte</span>
+                <strong class="featured-teacher-name">${formatarNomeSuporte(suporte)}</strong>
               </div>
             </div>
+          ` : "";
+
+          bloco.innerHTML = `
+            <div class="featured-week-date">
+              <span>📅 ${linha.Data}</span>
+            </div>
+            <div class="featured-teachers-grid">
+              ${cardsProfessores}
+            </div>
+            ${suporteCard}
           `;
-        }).join("");
 
-        const suporteTecnico = linha["Suporte"] ? `
-          <div class="featured-teacher-card featured-support-card">
-            <div class="featured-teacher-icon" aria-hidden="true">🛠️</div>
-            <div class="featured-teacher-text">
-              <span class="featured-teacher-class">Suporte</span>
-              <strong class="featured-teacher-name">${formatarNomeSuporte(linha["Suporte"])}</strong>
-            </div>
-          </div>
-        ` : "";
-
-        bloco.innerHTML = `
-          <div class="featured-week-date">
-            <span>📅 ${linha.Data}</span>
-          </div>
-          <div class="featured-teachers-grid">
-            ${cardsProfessores}
-          </div>
-          ${suporteTecnico}
-        `;
-
-        container.appendChild(bloco);
-      });
-    }
-
-
-
-    function renderizarDatasProfessoresTrimestre(linhas) {
-      const container = document.getElementById("datasProfessoresTrimestre");
-
-      if (!container) {
-        return;
-      }
-
-      const mapaProfessores = new Map();
-
-      linhas.map(normalizarLinha).forEach((linha) => {
-        classesEscala.forEach((classe) => {
-          const nomeOriginal = String(linha[classe] || "").trim();
-          const nomeLimpo = removerTratamentoDoNome(nomeOriginal);
-
-          if (!nomeLimpo || nomeLimpo === "—") {
-            return;
-          }
-
-          const chave = nomeLimpo.toLocaleLowerCase("pt-BR");
-
-          if (!mapaProfessores.has(chave)) {
-            mapaProfessores.set(chave, {
-              nome: formatarNomeProfessor(nomeLimpo),
-              registros: []
-            });
-          }
-
-          mapaProfessores.get(chave).registros.push({
-            data: linha.Data,
-            classe: classe
-          });
+          fragmento.appendChild(bloco);
         });
-      });
 
-      const professores = Array.from(mapaProfessores.values())
-        .map((professor) => {
-          professor.registros.sort((a, b) => converterDataEscala(a.data) - converterDataEscala(b.data));
-          return professor;
-        })
-        .sort((a, b) => removerTratamentoDoNome(a.nome).localeCompare(removerTratamentoDoNome(b.nome), "pt-BR"));
+        container.appendChild(fragmento);
 
-      if (!professores.length) {
-        container.innerHTML = '<div class="teacher-dates-empty">Nenhuma data encontrada para o trimestre.</div>';
-        return;
+        if (container.children.length > 0 && secaoEscala) {
+          secaoEscala.classList.add("has-featured-scale");
+        }
+
+      } catch (erro) {
+        console.error("Erro ao renderizar escala em destaque:", erro);
+        container.innerHTML = "";
+
+        if (secaoEscala) {
+          secaoEscala.classList.remove("has-featured-scale");
+        }
       }
-
-      container.innerHTML = professores.map((professor) => {
-        const total = professor.registros.length;
-        const textoTotal = total === 1 ? "1 aula" : total + " aulas";
-        const itens = professor.registros.map((registro) => `
-          <li>
-            <strong>${registro.data}</strong>
-            <span class="teacher-date-class">${registro.classe}</span>
-          </li>
-        `).join("");
-
-        return `
-          <article class="teacher-date-card">
-            <div class="teacher-date-head">
-              <h3 class="teacher-date-name">${professor.nome}</h3>
-              <span class="teacher-date-count">${textoTotal}</span>
-            </div>
-            <ul class="teacher-date-list">
-              ${itens}
-            </ul>
-          </article>
-        `;
-      }).join("");
     }
 
     function converterDataEscala(dataTexto) {
@@ -5239,7 +5369,6 @@
       renderizarTabela(linhasParaExibir);
       renderizarCards(linhasParaExibir);
       renderizarEscalaDestaque(linhasParaExibir);
-      renderizarDatasProfessoresTrimestre(linhasEscala);
       atualizarBotaoEscala();
 
       const secaoEscala = document.getElementById("escala");
@@ -5260,7 +5389,6 @@
       renderizarTabela(linhasParaExibir);
       renderizarCards(linhasParaExibir);
       renderizarEscalaDestaque(linhasParaExibir);
-      renderizarDatasProfessoresTrimestre(linhasEscala);
       atualizarBotaoEscala();
     }
 
@@ -6007,6 +6135,102 @@
       }
     }
 
+
+    function obterDadosHistoricoTrimestre() {
+      const linhas = Array.isArray(linhasEscala) && linhasEscala.length > 0 ? linhasEscala : escalaReserva;
+      const mapa = new Map();
+
+      linhas.forEach((linhaOriginal) => {
+        const linha = normalizarLinha(linhaOriginal);
+        const data = linha.Data || "";
+
+        classesEscala.forEach((classe) => {
+          const nomeOriginal = String(linha[classe] || "").trim();
+          const nomeLimpo = normalizarNomeExibicao(nomeOriginal);
+
+          if (!nomeLimpo || nomeLimpo === "—") {
+            return;
+          }
+
+          if (!mapa.has(nomeLimpo)) {
+            mapa.set(nomeLimpo, []);
+          }
+
+          mapa.get(nomeLimpo).push({
+            data: data,
+            classe: classe
+          });
+        });
+      });
+
+      return Array.from(mapa.entries())
+        .map(([nome, aulas]) => ({ nome, aulas }))
+        .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+    }
+
+    function renderizarHistoricoTrimestre() {
+      const container = document.getElementById("conteudoHistoricoTrimestre");
+
+      if (!container) {
+        return;
+      }
+
+      const historico = obterDadosHistoricoTrimestre();
+
+      if (!historico.length) {
+        container.className = "";
+        container.innerHTML = `
+          <div class="history-empty-box">
+            Nenhuma data encontrada para exibir no momento.
+          </div>
+        `;
+        return;
+      }
+
+      container.className = "history-trimester-list";
+      container.innerHTML = historico.map((item) => {
+        const total = item.aulas.length;
+        const textoAulas = total === 1 ? "1 aula" : total + " aulas";
+        const linhas = item.aulas.map((aula) => `
+          <div class="history-date-row">
+            <b>${aula.data}</b>
+            <span>${aula.classe}</span>
+          </div>
+        `).join("");
+
+        return `
+          <article class="history-teacher-card">
+            <div class="history-teacher-head">
+              <strong>${formatarNomeProfessor(item.nome)}</strong>
+              <span class="history-count-badge">${textoAulas}</span>
+            </div>
+            ${linhas}
+          </article>
+        `;
+      }).join("");
+    }
+
+    function abrirHistoricoTrimestre() {
+      const modalHistorico = document.getElementById("modalHistoricoTrimestre");
+
+      renderizarHistoricoTrimestre();
+
+      if (modalHistorico) {
+        modalHistorico.classList.add("active");
+        document.body.style.overflow = "hidden";
+      }
+    }
+
+    function fecharHistoricoTrimestre() {
+      const modalHistorico = document.getElementById("modalHistoricoTrimestre");
+
+      if (modalHistorico) {
+        modalHistorico.classList.remove("active");
+      }
+
+      document.body.style.overflow = "";
+    }
+
     function fecharLicao() {
       const modalLicao = document.getElementById("modalLicao");
 
@@ -6125,10 +6349,21 @@
       });
     }
 
+    const modalHistoricoTrimestreInicial = document.getElementById("modalHistoricoTrimestre");
+
+    if (modalHistoricoTrimestreInicial) {
+      modalHistoricoTrimestreInicial.addEventListener("click", function (event) {
+        if (event.target === modalHistoricoTrimestreInicial) {
+          fecharHistoricoTrimestre();
+        }
+      });
+    }
+
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape") {
         fecharModal();
         fecharLicao();
+        fecharHistoricoTrimestre();
       }
     });
 

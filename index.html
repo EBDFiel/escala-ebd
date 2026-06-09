@@ -4076,6 +4076,90 @@
       font-weight: 700;
     }
 
+
+
+    .history-class-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .history-class-card {
+      background: #ffffff;
+      border: 1px solid rgba(31, 78, 121, 0.14);
+      border-radius: 22px;
+      padding: 16px;
+      box-shadow: 0 10px 22px rgba(31, 78, 121, 0.08);
+    }
+
+    .history-class-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(226, 232, 240, 0.95);
+    }
+
+    .history-class-title {
+      margin: 0;
+      color: var(--azul-profundo);
+      font-size: 1.08rem;
+      line-height: 1.25;
+      font-weight: 900;
+    }
+
+    .history-class-badge {
+      white-space: nowrap;
+      border-radius: 999px;
+      padding: 6px 11px;
+      background: rgba(197, 155, 53, 0.13);
+      color: #7a5312;
+      font-size: 0.78rem;
+      font-weight: 900;
+    }
+
+    .history-class-teachers {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+    }
+
+    .history-class-teacher {
+      border-radius: 18px;
+      background: linear-gradient(135deg, #f8fbff, #ffffff);
+      border: 1px solid rgba(31, 78, 121, 0.10);
+      padding: 13px;
+    }
+
+    .history-class-teacher strong {
+      display: block;
+      color: var(--azul-escuro);
+      font-size: 0.98rem;
+      margin-bottom: 9px;
+      line-height: 1.25;
+    }
+
+    .history-date-chip-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .history-date-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 6px 9px;
+      background: #ffffff;
+      border: 1px solid rgba(31, 78, 121, 0.14);
+      color: #334155;
+      font-size: 0.82rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
     @media (max-width: 760px) {
       .history-compact-section {
         margin-top: 18px;
@@ -4109,6 +4193,22 @@
       .history-date-row {
         grid-template-columns: 84px 1fr;
       }
+
+      .history-class-card {
+        padding: 14px;
+        border-radius: 20px;
+      }
+
+      .history-class-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .history-class-teachers {
+        grid-template-columns: 1fr;
+      }
+
     }
 
 
@@ -6135,34 +6235,41 @@
 
     function obterDadosHistoricoTrimestre() {
       const linhas = Array.isArray(linhasEscala) && linhasEscala.length > 0 ? linhasEscala : escalaReserva;
-      const mapa = new Map();
 
-      linhas.forEach((linhaOriginal) => {
-        const linha = normalizarLinha(linhaOriginal);
-        const data = linha.Data || "";
+      return classesEscala
+        .map((classe) => {
+          const mapaProfessores = new Map();
 
-        classesEscala.forEach((classe) => {
-          const nomeOriginal = String(linha[classe] || "").trim();
-          const nomeLimpo = normalizarNomeExibicao(nomeOriginal);
+          linhas.forEach((linhaOriginal) => {
+            const linha = normalizarLinha(linhaOriginal);
+            const data = linha.Data || "";
+            const nomeOriginal = String(linha[classe] || "").trim();
+            const nomeLimpo = normalizarNomeExibicao(nomeOriginal);
 
-          if (!nomeLimpo || nomeLimpo === "—") {
-            return;
-          }
+            if (!nomeLimpo || nomeLimpo === "—") {
+              return;
+            }
 
-          if (!mapa.has(nomeLimpo)) {
-            mapa.set(nomeLimpo, []);
-          }
+            if (!mapaProfessores.has(nomeLimpo)) {
+              mapaProfessores.set(nomeLimpo, []);
+            }
 
-          mapa.get(nomeLimpo).push({
-            data: data,
-            classe: classe
+            mapaProfessores.get(nomeLimpo).push(data);
           });
-        });
-      });
 
-      return Array.from(mapa.entries())
-        .map(([nome, aulas]) => ({ nome, aulas }))
-        .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+          const professores = Array.from(mapaProfessores.entries())
+            .map(([nome, datas]) => ({
+              nome: nome,
+              datas: [...new Set(datas.filter(Boolean))]
+            }))
+            .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+
+          return {
+            classe: classe,
+            professores: professores
+          };
+        })
+        .filter((item) => item.professores.length > 0);
     }
 
     function renderizarHistoricoTrimestre() {
@@ -6184,25 +6291,39 @@
         return;
       }
 
-      container.className = "history-trimester-list";
-      container.innerHTML = historico.map((item) => {
-        const total = item.aulas.length;
-        const textoAulas = total === 1 ? "1 aula" : total + " aulas";
-        const linhas = item.aulas.map((aula) => `
-          <div class="history-date-row">
-            <b>${aula.data}</b>
-            <span>${aula.classe}</span>
-          </div>
-        `).join("");
+      container.className = "history-class-list";
+      container.innerHTML = historico.map((grupo) => {
+        const totalProfessores = grupo.professores.length;
+        const textoProfessores = totalProfessores === 1 ? "1 professor" : totalProfessores + " professores";
+        const classeNome = nomesClassesComEmoji[grupo.classe] || grupo.classe;
+
+        const professoresHtml = grupo.professores.map((professor) => {
+          const totalAulas = professor.datas.length;
+          const textoAulas = totalAulas === 1 ? "1 aula" : totalAulas + " aulas";
+          const datasHtml = professor.datas.map((data) => `
+            <span class="history-date-chip">${data}</span>
+          `).join("");
+
+          return `
+            <article class="history-class-teacher">
+              <strong>${formatarNomeProfessor(professor.nome)} · ${textoAulas}</strong>
+              <div class="history-date-chip-wrap">
+                ${datasHtml}
+              </div>
+            </article>
+          `;
+        }).join("");
 
         return `
-          <article class="history-teacher-card">
-            <div class="history-teacher-head">
-              <strong>${formatarNomeProfessor(item.nome)}</strong>
-              <span class="history-count-badge">${textoAulas}</span>
+          <section class="history-class-card">
+            <div class="history-class-header">
+              <h3 class="history-class-title">${classeNome}</h3>
+              <span class="history-class-badge">${textoProfessores}</span>
             </div>
-            ${linhas}
-          </article>
+            <div class="history-class-teachers">
+              ${professoresHtml}
+            </div>
+          </section>
         `;
       }).join("");
     }

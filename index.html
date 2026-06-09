@@ -8,7 +8,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_HISTORICO_CONFERENCIA_VISIVEL_2026_06_09" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_QUIZZES_DINAMICOS_2026_06_09" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -5744,8 +5744,29 @@
           return false;
         }
 
-        quizLinks.adultos = dados.quizzes.adultos || "";
-        quizLinks.jovens = dados.quizzes.jovens || "";
+        const quizzesRecebidos = dados.quizzes || {};
+
+        const adultosRecebido =
+          quizzesRecebidos.adultos ||
+          quizzesRecebidos.jovensAdultos ||
+          quizzesRecebidos.jovens_e_adultos ||
+          quizzesRecebidos["jovens-e-adultos"] ||
+          quizzesRecebidos["Jovens e Adultos"] ||
+          quizzesRecebidos["Quiz Jovens e Adultos"] ||
+          quizzesRecebidos["Quiz Jovens+Adultos"] ||
+          quizzesRecebidos["Jovens+Adultos"] ||
+          "";
+
+        const jovensRecebido =
+          quizzesRecebidos.jovens ||
+          quizzesRecebidos.adolescentes ||
+          quizzesRecebidos["Adolescentes"] ||
+          quizzesRecebidos["Quiz Adolescentes"] ||
+          quizzesRecebidos["Quiz dos Adolescentes"] ||
+          "";
+
+        quizLinks.adultos = String(adultosRecebido || "").trim();
+        quizLinks.jovens = String(jovensRecebido || "").trim();
 
         atualizarBotoesQuiz();
         return true;
@@ -5879,7 +5900,6 @@
         await carregarEscalaDaPlanilha(true);
         await carregarLicoesDaPlanilha();
         await carregarQuizzesDaPlanilha(true);
-      await carregarQuizzesDaPlanilha();
       }
     }
 
@@ -6496,6 +6516,7 @@
 
       await carregarEscalaDaPlanilha();
       await carregarLicoesDaPlanilha();
+      await carregarQuizzesDaPlanilha(true);
 
       if (SITE_PUBLICADO) {
         ultimaVersaoEscala = await obterVersaoAtual();

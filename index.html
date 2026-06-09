@@ -1570,6 +1570,40 @@
       margin-bottom: 4px;
     }
 
+    .admin-footer-action {
+      margin: 18px auto 12px;
+      text-align: center;
+    }
+
+    .admin-access-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 22px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #102f4d, #1f4e79);
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 0.92rem;
+      border: 1px solid rgba(197, 155, 53, 0.38);
+      box-shadow: 0 8px 20px rgba(16, 47, 77, 0.18);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+
+    .admin-access-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+      box-shadow: 0 12px 26px rgba(16, 47, 77, 0.25);
+    }
+
+    .admin-access-note {
+      margin: 8px 0 0;
+      color: #7a8794;
+      font-size: 0.82rem;
+    }
+
     .modal-overlay {
       display: none;
       position: fixed;
@@ -2936,6 +2970,13 @@
       </div>
     </div>
 
+    <div class="admin-footer-action">
+      <a class="admin-access-btn" href="admin.html" aria-label="Acessar painel administrativo restrito">
+        🔐 Administrativo restrito
+      </a>
+      <p class="admin-access-note">Acesso exclusivo para responsáveis autorizados.</p>
+    </div>
+
     <p>
       Escala EBD — Escola Bíblica Dominical | 2º Trimestre 2026 📚
     </p>
@@ -3050,15 +3091,9 @@
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec";
     const SENHA_ALTERAR_DIA = "1234";
 
-    const DOMINIOS_PUBLICADOS = [
-      "ebdfiel.github.io",
-      "escala.ebdfiel.com.br"
-    ];
-
     const SITE_PUBLICADO =
-      location.protocol !== "file:" &&
-      (DOMINIOS_PUBLICADOS.includes(location.hostname) ||
-        location.hostname.endsWith(".github.io"));
+      location.hostname === "ebdfiel.github.io" ||
+      location.hostname.endsWith(".github.io");
 
     const classesEscala = [
       "Cordeirinhos de Cristo",

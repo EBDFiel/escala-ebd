@@ -1059,29 +1059,28 @@
       }
 
       .sidebar {
-        position: sticky;
-        top: 0;
-        z-index: 20;
-        display: flex;
-        gap: 0.45rem;
-        overflow-x: auto;
-        padding: 0.65rem;
-        border-radius: 18px;
-        scrollbar-width: thin;
+        position: static;
+        display: block;
+        padding: 0.85rem;
+        border-radius: 20px;
+        overflow: visible;
       }
 
       .sidebar-title {
-        display: none;
+        display: block;
+        padding: 0.35rem 0.55rem 0.75rem;
+        font-size: 0.78rem;
       }
 
       .nav-btn {
-        flex: 0 0 auto;
-        width: auto;
-        white-space: nowrap;
-        padding: 0.72rem 0.9rem;
-        margin: 0;
-        border-radius: 999px;
-        font-size: 0.82rem;
+        width: 100%;
+        min-height: 44px;
+        white-space: normal;
+        justify-content: flex-start;
+        padding: 0.78rem 0.85rem;
+        margin: 0.25rem 0;
+        border-radius: 16px;
+        font-size: 0.86rem;
       }
 
       .dashboard-grid {
@@ -1194,6 +1193,14 @@
 
       .aviso-card-top {
         align-items: center;
+      }
+
+      .aviso-card {
+        padding: 0.95rem;
+      }
+
+      .aviso-card-title strong {
+        font-size: 0.98rem;
       }
     }
 
@@ -3053,20 +3060,65 @@
     return `A paz do Senhor, ${nome}!\n\nPassando para lembrar que você está escalado(a) na EBD neste domingo, dia ${data}, na classe ${classe}.\n\nPedimos que prepare sua aula com antecedência e, se houver qualquer imprevisto, avise a coordenação.\n\nDeus abençoe seu ministério! 📚🙏`;
   }
 
+  function obterColunasAvisoData() {
+    const fixas = ordemClassesEBD.slice();
+    const dinamicas = (classesCache || []).filter(Boolean);
+
+    return listaUnicaAdmin([
+      ...fixas,
+      ...dinamicas,
+      "Suporte"
+    ]).filter((coluna) => {
+      return String(coluna || "").trim() && String(coluna || "").trim().toLowerCase() !== "data";
+    });
+  }
+
+  function obterValorEscalaParaAviso(linha, coluna) {
+    if (!linha || !coluna) {
+      return "";
+    }
+
+    const aliases = {
+      "Cordeirinhos de Cristo": ["Cordeirinhos de Cristo", "Crianças 1 a 5 anos"],
+      "Soldadinhos de Cristo": ["Soldadinhos de Cristo", "Crianças 6 a 10 anos"],
+      "Heróis e Amigos": ["Heróis e Amigos", "Pré-Adolescentes", "Pre-Adolescentes"],
+      "Vencedores por Cristo": ["Vencedores por Cristo", "Adolescentes"],
+      "Vivendo em Cristo": ["Vivendo em Cristo", "Discipulado"],
+      "Testemunhas de Cristo": ["Testemunhas de Cristo", "Jovens"],
+      "Sara": ["Sara", "Irmãs", "Irmas"],
+      "Heróis da Fé": ["Heróis da Fé", "Herois da Fe", "Irmãos", "Irmaos"],
+      "Suporte": ["Suporte", "Apoio"]
+    };
+
+    const opcoes = aliases[coluna] || [coluna];
+
+    for (const nome of opcoes) {
+      if (linha[nome] !== undefined && linha[nome] !== null && String(linha[nome]).trim() !== "") {
+        return linha[nome];
+      }
+    }
+
+    const chaveNormalizada = normalizarNomeBuscaAviso(coluna);
+    const chaveEncontrada = Object.keys(linha).find((chave) => normalizarNomeBuscaAviso(chave) === chaveNormalizada);
+
+    return chaveEncontrada ? linha[chaveEncontrada] : "";
+  }
+
   function obterAvisosDaDataSelecionada() {
     const data = document.getElementById("avisoDataEscala")?.value || "";
     const filtroProfessor = document.getElementById("avisoFiltroProfessor")?.value || "";
-    const linha = (escalaCache || []).find((item) => (item.Data || item.data || "") === data);
+    const linha = (escalaCache || []).find((item) => String(item.Data || item.data || "").trim() === String(data).trim());
 
     if (!data || !linha) {
       return [];
     }
 
-    const colunas = [...(classesCache || ordemClassesEBD), "Suporte"];
+    const colunas = obterColunasAvisoData();
     const avisos = [];
 
     colunas.forEach((classe) => {
-      const valor = linha[classe];
+      const valor = obterValorEscalaParaAviso(linha, classe);
+
       dividirNomesProfessorAviso(valor).forEach((nome) => {
         if (filtroProfessor && normalizarNomeBuscaAviso(nome) !== normalizarNomeBuscaAviso(filtroProfessor)) {
           return;

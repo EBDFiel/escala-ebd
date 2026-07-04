@@ -895,6 +895,308 @@
       color: var(--primary-deep);
     }
 
+
+
+    /* Ajustes V2: avisos por data e admin otimizado para celular */
+    .mobile-admin-note {
+      display: none;
+      margin: 0 0 0.8rem;
+      padding: 0.75rem 0.9rem;
+      border-radius: 16px;
+      background: var(--primary-light);
+      color: var(--primary-deep);
+      font-weight: 700;
+      font-size: 0.86rem;
+      border: 1px solid rgba(26, 90, 122, 0.14);
+    }
+
+    .aviso-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin-top: 1rem;
+      align-items: center;
+    }
+
+    .aviso-select-cell {
+      width: 42px;
+      text-align: center;
+    }
+
+    .aviso-check {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary-main);
+      cursor: pointer;
+    }
+
+    .aviso-card-list {
+      display: none;
+      gap: 0.9rem;
+    }
+
+    .aviso-card {
+      background: #ffffff;
+      border: 1px solid rgba(203, 213, 225, 0.95);
+      border-radius: 18px;
+      padding: 1rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .aviso-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.8rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .aviso-card-title strong {
+      display: block;
+      color: var(--primary-deep);
+      font-size: 1rem;
+    }
+
+    .aviso-card-title span {
+      display: block;
+      color: var(--gray-500);
+      font-size: 0.82rem;
+      margin-top: 0.15rem;
+    }
+
+    .aviso-card-meta {
+      display: grid;
+      gap: 0.35rem;
+      margin: 0.7rem 0;
+      font-size: 0.88rem;
+      color: var(--gray-700);
+    }
+
+    .aviso-card-meta b {
+      color: var(--primary-deep);
+    }
+
+    .aviso-status-ok {
+      color: #166534;
+      font-weight: 800;
+    }
+
+    .aviso-status-alerta {
+      color: #b45309;
+      font-weight: 800;
+    }
+
+    .aviso-card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin-top: 0.85rem;
+    }
+
+    @media (max-width: 880px) {
+      :root {
+        --radius-card: 20px;
+        --radius-element: 16px;
+      }
+
+      body {
+        font-size: 15px;
+      }
+
+      .hero {
+        padding: 1.25rem 1rem 1.35rem;
+      }
+
+      .hero-inner {
+        align-items: flex-start;
+      }
+
+      .hero h1 {
+        font-size: 1.32rem;
+        line-height: 1.2;
+      }
+
+      .hero p {
+        font-size: 0.9rem;
+      }
+
+      .hero-badge {
+        width: 100%;
+        text-align: center;
+        padding: 0.55rem 0.9rem;
+        font-size: 0.82rem;
+      }
+
+      main {
+        margin: 1rem auto;
+        padding: 0 0.75rem;
+      }
+
+      .mobile-admin-note {
+        display: block;
+      }
+
+      .card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 20px;
+      }
+
+      .subcard {
+        padding: 1rem;
+        border-radius: 18px;
+        margin-top: 1rem;
+      }
+
+      .subcard-header {
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+
+      .panel-shell {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: flex;
+        gap: 0.45rem;
+        overflow-x: auto;
+        padding: 0.65rem;
+        border-radius: 18px;
+        scrollbar-width: thin;
+      }
+
+      .sidebar-title {
+        display: none;
+      }
+
+      .nav-btn {
+        flex: 0 0 auto;
+        width: auto;
+        white-space: nowrap;
+        padding: 0.72rem 0.9rem;
+        margin: 0;
+        border-radius: 999px;
+        font-size: 0.82rem;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.65rem;
+        margin-bottom: 1rem;
+      }
+
+      .metric-card {
+        padding: 0.85rem;
+        border-radius: 16px;
+      }
+
+      .metric-card span {
+        font-size: 0.66rem;
+      }
+
+      .metric-card strong {
+        font-size: 0.95rem;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+      }
+
+      input, select, textarea {
+        min-height: 44px;
+        font-size: 16px;
+        border-radius: 14px;
+      }
+
+      button, .link-btn {
+        min-height: 44px;
+        justify-content: center;
+      }
+
+      .actions,
+      .aviso-toolbar {
+        display: grid !important;
+        grid-template-columns: 1fr;
+        gap: 0.65rem !important;
+      }
+
+      .actions button,
+      .actions .link-btn,
+      .aviso-toolbar button,
+      .aviso-card-actions button {
+        width: 100%;
+      }
+
+      .lesson-toolbar {
+        align-items: stretch;
+      }
+
+      .lesson-tabs {
+        flex-direction: column;
+        gap: 0.55rem;
+      }
+
+      .tab-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .visual-lesson-editor {
+        min-height: 320px;
+        max-height: 430px;
+        padding: 1rem;
+      }
+
+      .table-wrap {
+        border-radius: 16px;
+      }
+
+      th, td {
+        padding: 0.68rem;
+      }
+
+      #painelAvisos .table-wrap {
+        display: none;
+      }
+
+      #listaAvisosMobile {
+        display: grid;
+      }
+
+      #painelAvisos h2,
+      #painelProfessores h2,
+      #painelEscala h2,
+      #painelHistoricoEscalas h2 {
+        font-size: 1.24rem;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chip {
+        width: 100%;
+        text-align: center;
+      }
+
+      .compact-btn {
+        padding: 0.62rem 0.9rem;
+        font-size: 0.82rem;
+      }
+
+      .aviso-card-top {
+        align-items: center;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -968,6 +1270,8 @@
       <div class="metric-card"><span>👥 Corpo docente</span><strong>Cadastro e substituição</strong></div>
       <div class="metric-card"><span>📅 Escala</span><strong>Histórico + alterações</strong></div>
     </div>
+
+    <div class="mobile-admin-note">📱 No celular, deslize o menu horizontalmente para acessar todas as áreas do painel.</div>
 
     <div class="panel-shell">
       <aside class="sidebar">
@@ -1140,35 +1444,40 @@
             <span class="chip">WhatsApp manual seguro</span>
           </div>
 
+          <div class="mobile-admin-note">📱 Menu otimizado: deslize os botões do menu para acessar as áreas do painel.</div>
+
           <div class="subcard">
             <div class="subcard-header">
-              <h3>🔔 Gerar avisos da escala</h3>
-              <span class="chip">mensagem pronta</span>
+              <h3>🔔 Gerar avisos por data</h3>
+              <span class="chip">todos os professores do dia</span>
             </div>
-            <p class="help" style="margin-bottom:1rem;">Escolha a data da escala, selecione o modelo de mensagem e clique em gerar. Se o professor tiver telefone cadastrado, o botão do WhatsApp abrirá a conversa com o texto pronto.</p>
+            <p class="help" style="margin-bottom:1rem;">Escolha a data da escala. O sistema mostrará todos os professores escalados naquele domingo. Depois selecione para quem deseja copiar a mensagem ou abrir o WhatsApp.</p>
             <div class="form-grid">
-              <div><label>Data da escala</label><select id="avisoDataEscala"></select></div>
-              <div><label>Modelo de mensagem</label><select id="avisoModelo">
+              <div><label>Data da escala</label><select id="avisoDataEscala" onchange="renderizarAvisosProfessores(true)"></select></div>
+              <div><label>Modelo de mensagem</label><select id="avisoModelo" onchange="renderizarAvisosProfessores(true)">
                 <option value="lembrete">Lembrete da aula</option>
                 <option value="confirmacao">Confirmação de presença</option>
                 <option value="troca">Aviso de troca de escala</option>
                 <option value="agradecimento">Agradecimento pela participação</option>
               </select></div>
-              <div><label>Filtrar professor</label><select id="avisoFiltroProfessor"><option value="">Todos</option></select></div>
+              <div><label>Professor específico (opcional)</label><select id="avisoFiltroProfessor" onchange="renderizarAvisosProfessores(true)"><option value="">Todos</option></select></div>
             </div>
-            <div class="actions" style="margin-top:1rem;">
-              <button onclick="renderizarAvisosProfessores()">📋 Gerar avisos</button>
-              <button class="secondary" onclick="copiarMensagensDaDataAviso()">📄 Copiar mensagens da data</button>
+            <div class="aviso-toolbar">
+              <button onclick="renderizarAvisosProfessores()">📋 Mostrar professores da data</button>
+              <button class="secondary" onclick="selecionarAvisosComTelefone()">✅ Selecionar todos com telefone</button>
+              <button class="secondary" onclick="copiarMensagensSelecionadasAviso()">📄 Copiar selecionados</button>
+              <button class="gray" onclick="limparSelecaoAvisos()">🧹 Limpar seleção</button>
               <button class="gray" onclick="carregarEscala(); carregarProfessores();">🔄 Atualizar dados</button>
             </div>
           </div>
 
           <div class="subcard">
             <div class="subcard-header">
-              <h3>📞 Telefones cadastrados</h3>
+              <h3>👥 Professores encontrados na data</h3>
               <span id="avisosResumo" class="chip">Nenhum aviso gerado</span>
             </div>
             <p class="help" style="margin-bottom:1rem;">Cadastre ou atualize o telefone na aba <strong>Professores</strong>, usando apenas DDD e número, sem precisar colocar 55. Exemplo: <strong>(31) 99999-9999</strong> ou <strong>31999999999</strong>. O sistema coloca o código 55 automaticamente ao abrir o WhatsApp.</p>
+            <div id="listaAvisosMobile" class="aviso-card-list"></div>
             <div class="table-wrap"><table id="tabelaAvisosProfessores"><thead></thead><tbody></tbody></table></div>
           </div>
 
@@ -2787,6 +3096,7 @@
     preencherSelectsAvisos();
 
     const tabela = document.getElementById("tabelaAvisosProfessores");
+    const listaMobile = document.getElementById("listaAvisosMobile");
     const resumo = document.getElementById("avisosResumo");
     const preview = document.getElementById("avisoMensagemPreview");
     const modelo = document.getElementById("avisoModelo")?.value || "lembrete";
@@ -2797,7 +3107,7 @@
     const tbody = tabela.querySelector("tbody");
 
     if (thead) {
-      thead.innerHTML = "<tr><th>Data</th><th>Classe</th><th>Professor</th><th>Telefone</th><th>Status</th><th>Ações</th></tr>";
+      thead.innerHTML = "<tr><th class='aviso-select-cell'>Enviar?</th><th>Data</th><th>Classe</th><th>Professor</th><th>Telefone</th><th>Status</th><th>Ações</th></tr>";
     }
 
     avisosProfessoresCache = obterAvisosDaDataSelecionada().map((item) => ({
@@ -2808,7 +3118,8 @@
     if (!tbody) return;
 
     if (!avisosProfessoresCache.length) {
-      tbody.innerHTML = '<tr><td colspan="6">Nenhum professor encontrado para a data selecionada.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7">Nenhum professor encontrado para a data selecionada.</td></tr>';
+      if (listaMobile) listaMobile.innerHTML = '<div class="aviso-card">Nenhum professor encontrado para a data selecionada.</div>';
       if (resumo) resumo.textContent = "0 avisos";
       if (preview) preview.value = "";
       if (!modoSilencioso) mostrarStatus("info", "Nenhum professor encontrado para a data selecionada.");
@@ -2819,9 +3130,11 @@
       const telefoneWhatsapp = telefoneParaWhatsAppAviso(item.telefone);
       const statusTelefone = telefoneWhatsapp ? "Telefone OK" : "Sem telefone cadastrado";
       const disabled = telefoneWhatsapp ? "" : "disabled";
+      const checked = telefoneWhatsapp ? "checked" : "";
 
       return `
         <tr>
+          <td class="aviso-select-cell"><input class="aviso-check aviso-checkbox" type="checkbox" data-index="${index}" ${checked} ${disabled}></td>
           <td>${escapeHtmlAdmin(item.data)}</td>
           <td>${escapeHtmlAdmin(item.classe)}</td>
           <td>${escapeHtmlAdmin(item.professor)}</td>
@@ -2835,10 +3148,91 @@
       `;
     }).join("");
 
+    if (listaMobile) {
+      listaMobile.innerHTML = avisosProfessoresCache.map((item, index) => {
+        const telefoneWhatsapp = telefoneParaWhatsAppAviso(item.telefone);
+        const statusTelefone = telefoneWhatsapp ? "Telefone OK" : "Sem telefone cadastrado";
+        const disabled = telefoneWhatsapp ? "" : "disabled";
+        const checked = telefoneWhatsapp ? "checked" : "";
+        const statusClass = telefoneWhatsapp ? "aviso-status-ok" : "aviso-status-alerta";
+
+        return `
+          <div class="aviso-card">
+            <div class="aviso-card-top">
+              <label style="display:flex; align-items:center; gap:0.5rem; margin:0;">
+                <input class="aviso-check aviso-checkbox" type="checkbox" data-index="${index}" ${checked} ${disabled}>
+                <span>Selecionar</span>
+              </label>
+              <span class="${statusClass}">${escapeHtmlAdmin(statusTelefone)}</span>
+            </div>
+            <div class="aviso-card-title">
+              <strong>${escapeHtmlAdmin(item.professor)}</strong>
+              <span>${escapeHtmlAdmin(item.classe)}</span>
+            </div>
+            <div class="aviso-card-meta">
+              <div><b>Data:</b> ${escapeHtmlAdmin(item.data)}</div>
+              <div><b>Telefone:</b> ${escapeHtmlAdmin(item.telefone || "—")}</div>
+            </div>
+            <div class="aviso-card-actions">
+              <button class="compact-btn secondary" onclick="copiarMensagemAviso(${index})">Copiar mensagem</button>
+              <button class="compact-btn" onclick="abrirWhatsAppAviso(${index})" ${disabled}>Abrir WhatsApp</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    sincronizarCheckboxesAvisos();
+
     const comTelefone = avisosProfessoresCache.filter((item) => telefoneParaWhatsAppAviso(item.telefone)).length;
     if (resumo) resumo.textContent = `${avisosProfessoresCache.length} aviso(s) • ${comTelefone} com telefone`;
     if (preview) preview.value = avisosProfessoresCache[0].mensagem || "";
-    if (!modoSilencioso) mostrarStatus("success", "Avisos gerados com sucesso.");
+    if (!modoSilencioso) mostrarStatus("success", "Professores da data carregados. Marque quem deseja avisar ou use o WhatsApp individual.");
+  }
+
+  function sincronizarCheckboxesAvisos() {
+    document.querySelectorAll(".aviso-checkbox").forEach((checkbox) => {
+      checkbox.addEventListener("change", () => {
+        const indice = checkbox.getAttribute("data-index");
+        document.querySelectorAll(`.aviso-checkbox[data-index="${indice}"]`).forEach((outro) => {
+          if (outro !== checkbox && !outro.disabled) {
+            outro.checked = checkbox.checked;
+          }
+        });
+      });
+    });
+  }
+
+  function obterIndicesAvisosSelecionados() {
+    const indices = new Set();
+    document.querySelectorAll(".aviso-checkbox:checked").forEach((checkbox) => {
+      const indice = Number(checkbox.getAttribute("data-index"));
+      if (!Number.isNaN(indice) && avisosProfessoresCache[indice]) {
+        indices.add(indice);
+      }
+    });
+    return Array.from(indices).sort((a, b) => a - b);
+  }
+
+  function selecionarAvisosComTelefone() {
+    if (!avisosProfessoresCache || !avisosProfessoresCache.length) {
+      renderizarAvisosProfessores(true);
+    }
+
+    document.querySelectorAll(".aviso-checkbox").forEach((checkbox) => {
+      const indice = Number(checkbox.getAttribute("data-index"));
+      const item = avisosProfessoresCache[indice];
+      checkbox.checked = !!(item && telefoneParaWhatsAppAviso(item.telefone));
+    });
+
+    mostrarStatus("success", "Professores com telefone foram selecionados.");
+  }
+
+  function limparSelecaoAvisos() {
+    document.querySelectorAll(".aviso-checkbox").forEach((checkbox) => {
+      checkbox.checked = false;
+    });
+    mostrarStatus("info", "Seleção de avisos limpa.");
   }
 
   async function copiarTextoAreaTransferencia(texto) {
@@ -2884,6 +3278,26 @@
 
     await copiarTextoAreaTransferencia(texto);
     mostrarStatus("success", "Todas as mensagens da data foram copiadas.");
+  }
+
+  async function copiarMensagensSelecionadasAviso() {
+    if (!avisosProfessoresCache || !avisosProfessoresCache.length) {
+      renderizarAvisosProfessores(true);
+    }
+
+    const indices = obterIndicesAvisosSelecionados();
+
+    if (!indices.length) {
+      return mostrarStatus("info", "Selecione pelo menos um professor para copiar a mensagem.");
+    }
+
+    const selecionados = indices.map((indice) => avisosProfessoresCache[indice]).filter(Boolean);
+    const texto = selecionados.map((item) => item.mensagem).join("\n\n------------------------------\n\n");
+    const preview = document.getElementById("avisoMensagemPreview");
+    if (preview) preview.value = texto;
+
+    await copiarTextoAreaTransferencia(texto);
+    mostrarStatus("success", `${selecionados.length} mensagem(ns) selecionada(s) foram copiadas.`);
   }
 
   function abrirWhatsAppAviso(index) {

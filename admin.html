@@ -1168,7 +1168,7 @@
               <h3>📞 Telefones cadastrados</h3>
               <span id="avisosResumo" class="chip">Nenhum aviso gerado</span>
             </div>
-            <p class="help" style="margin-bottom:1rem;">Cadastre ou atualize o telefone na aba <strong>Professores</strong>, usando DDD e número. Exemplo: <strong>5531999999999</strong>.</p>
+            <p class="help" style="margin-bottom:1rem;">Cadastre ou atualize o telefone na aba <strong>Professores</strong>, usando apenas DDD e número, sem precisar colocar 55. Exemplo: <strong>(31) 99999-9999</strong> ou <strong>31999999999</strong>. O sistema coloca o código 55 automaticamente ao abrir o WhatsApp.</p>
             <div class="table-wrap"><table id="tabelaAvisosProfessores"><thead></thead><tbody></tbody></table></div>
           </div>
 
@@ -1181,8 +1181,8 @@
         <!-- PAINEL PROFESSORES -->
         <div id="painelProfessores" class="admin-panel card">
           <div><h2>👥 Corpo docente</h2><p>Cadastro, status e substituições</p></div>
-          <div class="subcard"><h3>➕ Novo professor</h3><div class="form-grid"><div><label>Nome</label><input id="profNovoNome" /></div><div><label>Classe preferencial</label><select id="profNovaClasse"></select></div><div><label>Status</label><select id="profNovoStatus"><option>Ativo</option><option>Inativo</option></select></div><div><label>Telefone WhatsApp</label><input id="profNovoTelefone" placeholder="5531999999999" /></div><div><label>Obs</label><input id="profNovaObs" /></div></div><div class="actions"><button onclick="adicionarProfessorAdmin()">Adicionar</button></div></div>
-          <div class="subcard"><h3>✏️ Editar / Inativar</h3><div class="form-grid"><div><label>Professor</label><select id="profSelecionado" onchange="preencherProfessorSelecionado()"></select></div><div><label>Nome</label><input id="profEditarNome" /></div><div><label>Classe</label><select id="profEditarClasse"></select></div><div><label>Status</label><select id="profEditarStatus"><option>Ativo</option><option>Inativo</option></select></div><div><label>Telefone WhatsApp</label><input id="profEditarTelefone" placeholder="5531999999999" /></div><div><label>Obs</label><input id="profEditarObs" /></div></div><div class="actions"><button onclick="atualizarProfessorAdmin()">Salvar alterações</button><button class="red" onclick="inativarProfessorAdmin()">Inativar</button></div></div>
+          <div class="subcard"><h3>➕ Novo professor</h3><div class="form-grid"><div><label>Nome</label><input id="profNovoNome" /></div><div><label>Classe preferencial</label><select id="profNovaClasse"></select></div><div><label>Status</label><select id="profNovoStatus"><option>Ativo</option><option>Inativo</option></select></div><div><label>Telefone WhatsApp</label><input id="profNovoTelefone" placeholder="(31) 99999-9999" /></div><div><label>Obs</label><input id="profNovaObs" /></div></div><div class="actions"><button onclick="adicionarProfessorAdmin()">Adicionar</button></div></div>
+          <div class="subcard"><h3>✏️ Editar / Inativar</h3><div class="form-grid"><div><label>Professor</label><select id="profSelecionado" onchange="preencherProfessorSelecionado()"></select></div><div><label>Nome</label><input id="profEditarNome" /></div><div><label>Classe</label><select id="profEditarClasse"></select></div><div><label>Status</label><select id="profEditarStatus"><option>Ativo</option><option>Inativo</option></select></div><div><label>Telefone WhatsApp</label><input id="profEditarTelefone" placeholder="(31) 99999-9999" /></div><div><label>Obs</label><input id="profEditarObs" /></div></div><div class="actions"><button onclick="atualizarProfessorAdmin()">Salvar alterações</button><button class="red" onclick="inativarProfessorAdmin()">Inativar</button></div></div>
 
           <div class="subcard"><h3>🔄 Substituir professor na escala</h3><div class="form-grid"><div><label>Professor que saiu</label><select id="profSubAntigo"></select></div><div><label>Novo professor</label><input id="profSubNovo" list="listaProfessoresDatalist" /></div><div><label>Classe (opcional)</label><select id="profSubClasse"></select></div><div><label>Aplicar em</label><select id="profSubAlcance"><option value="futuras">Somente futuras</option><option value="toda">Toda escala</option></select></div><div><label>Inativar antigo?</label><select id="profSubInativar"><option value="sim">Sim, inativar</option><option value="nao">Manter ativo</option></select></div></div><div class="actions"><button class="purple" onclick="substituirProfessorAdmin()">Substituir</button></div></div>
 
@@ -2659,11 +2659,23 @@
       return "";
     }
 
+    // Aceita cadastro com zero antes do DDD, exemplo: 031999999999.
+    if ((digitos.length === 11 || digitos.length === 12) && digitos.startsWith("0")) {
+      digitos = digitos.slice(1);
+    }
+
+    // Aceita cadastro sem código do país: 31999999999 ou 3133334444.
     if ((digitos.length === 10 || digitos.length === 11) && !digitos.startsWith("55")) {
       digitos = "55" + digitos;
     }
 
-    return digitos;
+    // Aceita cadastro já com 55: 5531999999999.
+    if ((digitos.length === 12 || digitos.length === 13) && digitos.startsWith("55")) {
+      return digitos;
+    }
+
+    // Se faltar DDD ou houver número incompleto, não abre WhatsApp.
+    return "";
   }
 
   function encontrarProfessorPorNomeAviso(nome) {

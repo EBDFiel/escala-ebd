@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -977,6 +978,7 @@
         <button id="abaQuizzesBtn" class="nav-btn" onclick="abrirPainel('quizzes')">🧠 Quizzes</button>
         <button id="abaMapaBtn" class="nav-btn" onclick="abrirPainel('mapa')">🗺️ Mapa do Site</button>
         <button id="abaManualBtn" class="nav-btn" onclick="abrirPainel('manual')">📘 Manual do painel</button>
+        <button id="abaHistoricoEscalasBtn" class="nav-btn" onclick="abrirPainel('historicoEscalas')">📚 Escalas salvas</button>
         <button id="abaHistoricoBtn" class="nav-btn" onclick="abrirPainel('historico')">📜 Histórico</button>
       </aside>
 
@@ -1071,6 +1073,58 @@
 
           <div class="subcard"><div class="subcard-header"><h3>📋 Escala completa</h3><button class="secondary compact-btn" onclick="carregarEscala()">Atualizar tabela</button></div>
             <div class="table-wrap"><table id="tabelaEscalaAdmin"><thead></thead><tbody></tbody></table></div>
+          </div>
+        </div>
+
+
+
+        <!-- PAINEL HISTÓRICO DE ESCALAS -->
+        <div id="painelHistoricoEscalas" class="admin-panel card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+            <div>
+              <h2>📚 Histórico de escalas</h2>
+              <p>Arquive a escala atual antes de trocar o trimestre e consulte registros antigos por ano, trimestre, classe ou professor.</p>
+            </div>
+            <span class="chip">Backup permanente no Google Sheets</span>
+          </div>
+
+          <div class="subcard">
+            <div class="subcard-header">
+              <h3>💾 Arquivar escala atual</h3>
+              <span class="chip">use antes de mudar o trimestre</span>
+            </div>
+            <p class="help" style="margin-bottom:1rem;">Esta ação lê a escala atual da planilha e salva cada classe em linhas separadas na aba <strong>Historico_Escalas</strong>.</p>
+            <div class="form-grid">
+              <div><label>Ano</label><input id="histEscalaAnoArquivo" type="number" value="2026" min="2020" max="2100" /></div>
+              <div><label>Trimestre</label><select id="histEscalaTrimestreArquivo"><option>1º Trimestre</option><option>2º Trimestre</option><option selected>3º Trimestre</option><option>4º Trimestre</option></select></div>
+              <div><label>Observação</label><input id="histEscalaObservacaoArquivo" value="Escala arquivada pelo painel admin." /></div>
+            </div>
+            <div class="actions" style="margin-top:1rem;">
+              <button class="purple" onclick="arquivarEscalaAtualAdmin()">📦 Arquivar escala atual</button>
+              <button class="secondary" onclick="consultarHistoricoEscalasAdmin()">🔎 Atualizar consulta</button>
+            </div>
+          </div>
+
+          <div class="subcard">
+            <div class="subcard-header"><h3>🔎 Consultar escalas salvas</h3></div>
+            <div class="form-grid">
+              <div><label>Ano</label><input id="histFiltroAno" type="number" value="2026" min="2020" max="2100" /></div>
+              <div><label>Trimestre</label><select id="histFiltroTrimestre"><option value="">Todos</option><option>1º Trimestre</option><option>2º Trimestre</option><option>3º Trimestre</option><option>4º Trimestre</option></select></div>
+              <div><label>Classe</label><select id="histFiltroClasse"><option value="">Todas</option></select></div>
+              <div><label>Professor</label><select id="histFiltroProfessor"><option value="">Todos</option></select></div>
+            </div>
+            <div class="actions" style="margin-top:1rem;">
+              <button onclick="consultarHistoricoEscalasAdmin()">🔍 Consultar histórico</button>
+              <button class="secondary" onclick="exportarHistoricoEscalasCSVAdmin()">⬇️ Exportar CSV</button>
+            </div>
+          </div>
+
+          <div class="subcard">
+            <div class="subcard-header">
+              <h3>📊 Resultado da consulta</h3>
+              <span id="histEscalasResumo" class="chip">Nenhum dado carregado</span>
+            </div>
+            <div class="table-wrap"><table id="tabelaHistoricoEscalasAdmin"><thead></thead><tbody></tbody></table></div>
           </div>
         </div>
 
@@ -1421,6 +1475,7 @@
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec";
   const modeloPadrao = `<div style="font-family:system-ui; background:#fef9e6; border-radius:2rem; padding:1.4rem;"><div style="background:#0b2b3f; color:white; padding:1rem; border-radius:1.5rem;"><h3>Conteúdo da lição</h3></div><div style="padding:1rem;"><p>Adicione aqui o conteúdo da aula...</p></div></div>`;
   let escalaCache = [], classesCache = [], professoresCache = [];
+  let historicoEscalasCache = [];
   const ordemClassesEBD = [
     "Cordeirinhos de Cristo",
     "Soldadinhos de Cristo",
@@ -2058,6 +2113,7 @@
     preencherSelect("profMudarClasse", classesCache);
     preencherSelect("profSubClasse", ["Todas as classes", ...classesCache]);
     renderizarCamposNovaData();
+    preencherFiltrosHistoricoEscalas();
   }
 
   function preencherSelect(id, itens) {
@@ -2301,6 +2357,7 @@
     }
 
     preencherProfessorSelecionado();
+    preencherFiltrosHistoricoEscalas();
   }
 
   function preencherProfessorSelecionado() {
@@ -2698,10 +2755,192 @@
     mostrarStatus("success", "Abrindo links dos quizzes em outra página.");
   }
 
+
+
+  function preencherFiltrosHistoricoEscalas() {
+    const classes = ["", ...listaUnicaAdmin(classesCache || [])];
+    const professores = ["", ...listaUnicaAdmin((professoresCache || []).map((p) => p.nome).filter(Boolean))];
+
+    const classeAtual = document.getElementById("histFiltroClasse")?.value || "";
+    const professorAtual = document.getElementById("histFiltroProfessor")?.value || "";
+
+    preencherSelect("histFiltroClasse", classes);
+    preencherSelect("histFiltroProfessor", professores);
+
+    const classeSelect = document.getElementById("histFiltroClasse");
+    const professorSelect = document.getElementById("histFiltroProfessor");
+
+    if (classeSelect) {
+      classeSelect.options[0].textContent = "Todas";
+      if (classeAtual && classes.includes(classeAtual)) classeSelect.value = classeAtual;
+    }
+
+    if (professorSelect) {
+      professorSelect.options[0].textContent = "Todos";
+      if (professorAtual && professores.includes(professorAtual)) professorSelect.value = professorAtual;
+    }
+  }
+
+  function obterFiltrosHistoricoEscalas() {
+    return {
+      ano: document.getElementById("histFiltroAno")?.value || "",
+      trimestre: document.getElementById("histFiltroTrimestre")?.value || "",
+      classe: document.getElementById("histFiltroClasse")?.value || "",
+      professor: document.getElementById("histFiltroProfessor")?.value || ""
+    };
+  }
+
+  function colunasHistoricoEscalas() {
+    return ["Ano", "Trimestre", "Data", "Classe", "Professor", "Suporte", "Origem", "Data do Arquivamento", "Observação"];
+  }
+
+  function renderizarHistoricoEscalas(registros) {
+    const tabela = document.getElementById("tabelaHistoricoEscalasAdmin");
+    const resumo = document.getElementById("histEscalasResumo");
+
+    if (!tabela) return;
+
+    const thead = tabela.querySelector("thead");
+    const tbody = tabela.querySelector("tbody");
+    const colunas = colunasHistoricoEscalas();
+
+    if (thead) {
+      thead.innerHTML = "<tr>" + colunas.map((coluna) => `<th>${escapeHtmlAdmin(coluna)}</th>`).join("") + "</tr>";
+    }
+
+    if (!tbody) return;
+
+    if (!registros || !registros.length) {
+      tbody.innerHTML = `<tr><td colspan="${colunas.length}">Nenhuma escala arquivada para os filtros selecionados.</td></tr>`;
+      if (resumo) resumo.textContent = "0 registros";
+      return;
+    }
+
+    tbody.innerHTML = registros.map((item) => {
+      return "<tr>" + colunas.map((coluna) => `<td>${escapeHtmlAdmin(item[coluna] || "")}</td>`).join("") + "</tr>";
+    }).join("");
+
+    const datas = listaUnicaAdmin(registros.map((item) => item.Data).filter(Boolean));
+    const classes = listaUnicaAdmin(registros.map((item) => item.Classe).filter(Boolean));
+    if (resumo) resumo.textContent = `${registros.length} registros • ${datas.length} datas • ${classes.length} classes`;
+  }
+
+  async function consultarHistoricoEscalasAdmin(modoSilencioso = false) {
+    try {
+      const filtros = obterFiltrosHistoricoEscalas();
+      const r = await chamarAppsScript({
+        acao: "consultarHistoricoEscalas",
+        ...filtros,
+        limite: "1000",
+        _nocache: Date.now()
+      });
+
+      if (!r || !r.sucesso) {
+        throw new Error((r && r.mensagem) || "Não foi possível consultar o histórico de escalas.");
+      }
+
+      historicoEscalasCache = Array.isArray(r.registros) ? r.registros : [];
+      renderizarHistoricoEscalas(historicoEscalasCache);
+
+      if (!modoSilencioso) {
+        mostrarStatus("success", `Histórico carregado: ${historicoEscalasCache.length} registro(s).`);
+      }
+    } catch (erro) {
+      console.warn("Erro ao consultar histórico de escalas:", erro);
+      renderizarHistoricoEscalas([]);
+      if (!modoSilencioso) mostrarStatus("error", erro.message || "Erro ao consultar histórico de escalas.");
+    }
+  }
+
+  async function arquivarEscalaAtualAdmin() {
+    try {
+      const senha = obterSenhaObrigatoria();
+      const ano = document.getElementById("histEscalaAnoArquivo")?.value || "";
+      const trimestre = document.getElementById("histEscalaTrimestreArquivo")?.value || "";
+      const observacao = document.getElementById("histEscalaObservacaoArquivo")?.value || "Escala arquivada pelo painel admin.";
+
+      if (!ano || !trimestre) {
+        return mostrarStatus("error", "Informe ano e trimestre para arquivar a escala.");
+      }
+
+      const confirmar = confirm(`Arquivar a escala atual como ${trimestre} de ${ano}?\n\nEsta ação salva uma cópia permanente na aba Historico_Escalas.`);
+      if (!confirmar) return;
+
+      mostrarStatus("info", "Arquivando escala atual... Aguarde.");
+
+      const r = await chamarAppsScript({
+        acao: "arquivarEscalaAtual",
+        senha,
+        ano,
+        trimestre,
+        observacao,
+        origem: "Painel Admin - Histórico de Escalas",
+        _nocache: Date.now()
+      }, { timeoutMs: 60000, tentativas: 2 });
+
+      if (!r || !r.sucesso) {
+        throw new Error((r && r.mensagem) || "Não foi possível arquivar a escala.");
+      }
+
+      mostrarStatus("success", `Escala arquivada: ${r.inseridos || 0} novo(s) registro(s), ${r.duplicados || 0} duplicado(s) ignorado(s).`);
+
+      const filtroAno = document.getElementById("histFiltroAno");
+      const filtroTri = document.getElementById("histFiltroTrimestre");
+      if (filtroAno) filtroAno.value = ano;
+      if (filtroTri) filtroTri.value = trimestre;
+
+      await consultarHistoricoEscalasAdmin(true);
+    } catch (erro) {
+      console.warn("Erro ao arquivar escala:", erro);
+      mostrarStatus("error", erro.message || "Erro ao arquivar escala atual.");
+    }
+  }
+
+  function montarCsvHistoricoEscalas(registros) {
+    const colunas = ["ID", ...colunasHistoricoEscalas()];
+    const linhas = [colunas, ...(registros || []).map((item) => colunas.map((coluna) => item[coluna] || ""))];
+
+    return linhas.map((linha) => linha.map((valor) => {
+      const texto = String(valor ?? "");
+      return /[";\n,]/.test(texto) ? `"${texto.replace(/"/g, '""')}"` : texto;
+    }).join(";")).join("\n");
+  }
+
+  function baixarTextoComoArquivo(nomeArquivo, conteudo, tipo = "text/csv;charset=utf-8") {
+    const blob = new Blob(["\ufeff" + conteudo], { type: tipo });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = nomeArquivo;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  async function exportarHistoricoEscalasCSVAdmin() {
+    try {
+      if (!historicoEscalasCache || !historicoEscalasCache.length) {
+        await consultarHistoricoEscalasAdmin(true);
+      }
+
+      if (!historicoEscalasCache || !historicoEscalasCache.length) {
+        return mostrarStatus("info", "Não há registros para exportar com os filtros atuais.");
+      }
+
+      const filtros = obterFiltrosHistoricoEscalas();
+      const nome = `historico_escalas_${filtros.ano || "todos"}_${(filtros.trimestre || "todos").replace(/\s+/g, "_")}.csv`;
+      baixarTextoComoArquivo(nome, montarCsvHistoricoEscalas(historicoEscalasCache));
+      mostrarStatus("success", "CSV do histórico gerado no navegador.");
+    } catch (erro) {
+      mostrarStatus("error", erro.message || "Erro ao exportar CSV do histórico.");
+    }
+  }
+
   async function carregarHistorico() { let r=await chamarAppsScript({acao:"historico",limite:"50"}); let div=document.getElementById("listaHistorico"); if(r.sucesso && r.historico?.length) div.innerHTML=r.historico.map(i=>`<div class="history-item"><strong>${i.dataHora}</strong><br>Classe: ${i.classe}<br>Alteração: ${i.professorTrocado||i.novaData}<br>Origem: ${i.origem}</div>`).join(""); else div.innerHTML="<p class='help'>Nenhum registro</p>"; }
   function preencherProfessorAtual() { let data=document.getElementById("escalaDataEditar").value, classe=document.getElementById("escalaClasseEditar").value, linha=escalaCache.find(l=>l.Data===data); document.getElementById("escalaProfessorEditar").value = linha && classe ? linha[classe] : ""; }
   function abrirPainel(nome) {
-    ["licoes", "escala", "professores", "quizzes", "mapa", "manual", "historico"].forEach((p) => {
+    ["licoes", "escala", "historicoEscalas", "professores", "quizzes", "mapa", "manual", "historico"].forEach((p) => {
       const painel = document.getElementById(`painel${p.charAt(0).toUpperCase() + p.slice(1)}`);
       const botao = document.getElementById(`aba${p.charAt(0).toUpperCase() + p.slice(1)}Btn`);
 
@@ -2715,6 +2954,7 @@
     });
 
     if (nome === "escala") carregarEscala();
+    if (nome === "historicoEscalas") { preencherFiltrosHistoricoEscalas(); consultarHistoricoEscalasAdmin(true); }
     if (nome === "professores") carregarProfessores();
     if (nome === "quizzes") carregarQuizzesAdmin();
     if (nome === "mapa") carregarAtualizacoesMapa();

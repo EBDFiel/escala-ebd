@@ -8,7 +8,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_ESCALA_3T_2026_07_04" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_MOBILE_TELAS_ACESSO_RAPIDO_2026_07_05" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -4389,6 +4389,125 @@
       }
     }
 
+
+
+    /* Acesso rápido em telas internas no mobile */
+    .mobile-quick-back {
+      display: none;
+      width: 100%;
+      border: 0;
+      cursor: pointer;
+      margin: 0 0 14px;
+      padding: 12px 16px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #1f4e79, #163a5c);
+      color: #ffffff;
+      font-weight: 900;
+      font-size: 0.95rem;
+      box-shadow: 0 8px 18px rgba(31, 78, 121, 0.22);
+    }
+
+    .quick-panel-screen {
+      display: none;
+    }
+
+    .quick-panel-screen.mobile-active-screen {
+      display: block;
+    }
+
+    .quick-screen-content {
+      display: grid;
+      gap: 14px;
+    }
+
+    .quick-info-card {
+      padding: 18px;
+      border-radius: 22px;
+      background: #ffffff;
+      border: 1px solid rgba(31, 78, 121, 0.14);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
+    }
+
+    .quick-info-card h3 {
+      margin: 0 0 8px;
+      color: var(--premium-navy, #102f4d);
+      font-size: 1.08rem;
+    }
+
+    .quick-info-card p {
+      margin: 0;
+      color: #475569;
+      line-height: 1.55;
+      font-weight: 650;
+    }
+
+    .quick-info-highlight {
+      background: linear-gradient(135deg, #fff8e1, #ffffff);
+      border-color: rgba(197, 155, 53, 0.35);
+    }
+
+    @media (max-width: 760px) {
+      body:not(.mobile-section-open) #licoes,
+      body:not(.mobile-section-open) .instructions,
+      body:not(.mobile-section-open) .teachers-premium,
+      body:not(.mobile-section-open) #historicoConferencia,
+      body:not(.mobile-section-open) .quick-panel-screen {
+        display: none !important;
+      }
+
+      body.mobile-section-open header,
+      body.mobile-section-open #escala,
+      body.mobile-section-open .quick-access,
+      body.mobile-section-open .instructions,
+      body.mobile-section-open .teachers-premium,
+      body.mobile-section-open #historicoConferencia,
+      body.mobile-section-open .quick-panel-screen,
+      body.mobile-section-open #licoes {
+        display: none !important;
+      }
+
+      body.mobile-section-open #licoes.mobile-active-screen,
+      body.mobile-section-open .quick-panel-screen.mobile-active-screen {
+        display: block !important;
+      }
+
+      body.mobile-section-open main {
+        padding-top: 10px;
+      }
+
+      .mobile-quick-back {
+        display: block;
+      }
+
+      .quick-access-note {
+        display: none;
+      }
+
+      .lesson-section.mobile-active-screen,
+      .quick-panel-screen.mobile-active-screen {
+        margin-top: 0;
+        padding: 14px 12px 18px;
+        border-radius: 18px;
+      }
+
+      .quick-screen-content {
+        gap: 10px;
+      }
+
+      .quick-info-card {
+        padding: 14px;
+        border-radius: 18px;
+      }
+
+      .quick-info-card h3 {
+        font-size: 1rem;
+      }
+
+      .quick-info-card p {
+        font-size: 0.9rem;
+        line-height: 1.45;
+      }
+    }
 </style>
 </head>
 
@@ -4483,34 +4602,34 @@
           <p>Troque sua data pelo app para que tudo fique registrado.</p>
         </button>
 
-        <a class="quick-card" href="#licoes">
+        <button class="quick-card quick-card-button" type="button" onclick="abrirTelaRapida('licoes')">
           <span class="quick-icon">📖</span>
           <h3>Lição da semana</h3>
           <p>Acesse o material de apoio da aula.</p>
-        </a>
+        </button>
 
-        <a class="quick-card" href="#quiz">
+        <button class="quick-card quick-card-button" type="button" onclick="abrirTelaRapida('licoes', 'quiz')">
           <span class="quick-icon">🧩</span>
           <h3>Quizzes</h3>
           <p>Abra ou compartilhe os quizzes das classes.</p>
-        </a>
+        </button>
 
-        <button class="quick-card quick-card-button" type="button" onclick="document.getElementById('escala').scrollIntoView({ behavior: 'smooth' }); if (typeof mostrarEscalaCompleta !== 'undefined' && !mostrarEscalaCompleta) { alternarEscalaCompleta(); }">
+        <button class="quick-card quick-card-button" type="button" onclick="abrirTelaRapida('escalaTrimestre')">
           <span class="quick-icon">🗓️</span>
           <h3>Escala do trimestre</h3>
           <p>Veja todas as datas do trimestre.</p>
         </button>
 
-        <a class="quick-card" href="#orientacoesCompactas">
+        <button class="quick-card quick-card-button" type="button" onclick="abrirTelaRapida('instalarApp')">
           <span class="quick-icon">📲</span>
           <h3>Instalar app</h3>
           <p>Veja a orientação rápida para Android e iPhone.</p>
-        </a>
+        </button>
 
-        <button class="quick-card quick-card-button" type="button" onclick="window.open('https://wa.me/?text=' + encodeURIComponent('A paz do Senhor! Preciso de ajuda com o App da EBD.'), '_blank')">
-          <span class="quick-icon">📞</span>
-          <h3>Coordenação</h3>
-          <p>Peça ajuda sobre escala, lição ou acesso.</p>
+        <button class="quick-card quick-card-button" type="button" onclick="abrirTelaRapida('sobreApp')">
+          <span class="quick-icon">ℹ️</span>
+          <h3>Sobre e suporte</h3>
+          <p>Veja orientações e fale com a coordenação.</p>
         </button>
       </div>
 
@@ -4527,7 +4646,60 @@
       </div>
     </section>
 
+    <section id="instalarApp" class="premium-card quick-panel-screen" aria-label="Instalar app no celular">
+      <button class="mobile-quick-back" type="button" onclick="fecharTelaRapida()">← Voltar ao início</button>
+      <div class="premium-section-title">
+        <span class="eyebrow">📲 Instalação</span>
+        <h2>Instalar o App da EBD</h2>
+        <p>Adicione o app à tela inicial do celular para acessar a escala com rapidez.</p>
+      </div>
+
+      <div class="quick-screen-content">
+        <article class="quick-info-card">
+          <h3>Android</h3>
+          <p>Abra o app no <strong>Google Chrome</strong>, toque nos três pontinhos e escolha <strong>Adicionar à tela inicial</strong> ou <strong>Instalar app</strong>.</p>
+        </article>
+
+        <article class="quick-info-card">
+          <h3>iPhone</h3>
+          <p>Abra o app no <strong>Safari</strong>, toque em compartilhar <strong>□ ↑</strong> e escolha <strong>Adicionar à Tela de Início</strong>.</p>
+        </article>
+
+        <article class="quick-info-card quick-info-highlight">
+          <h3>Endereço do app</h3>
+          <p><strong>https://escala.ebdfiel.com.br/</strong></p>
+        </article>
+      </div>
+    </section>
+
+    <section id="sobreApp" class="premium-card quick-panel-screen" aria-label="Sobre o app e suporte">
+      <button class="mobile-quick-back" type="button" onclick="fecharTelaRapida()">← Voltar ao início</button>
+      <div class="premium-section-title">
+        <span class="eyebrow">ℹ️ Igreja Sede</span>
+        <h2>Sobre o App da EBD</h2>
+        <p>Ferramenta exclusiva da Igreja Sede para apoiar professores e coordenação.</p>
+      </div>
+
+      <div class="quick-screen-content">
+        <article class="quick-info-card">
+          <h3>Para que serve?</h3>
+          <p>Consultar a escala, alterar datas, acessar a lição da semana e compartilhar os quizzes das classes.</p>
+        </article>
+
+        <article class="quick-info-card quick-info-highlight">
+          <h3>Alteração de data</h3>
+          <p>Caso precise alterar alguma data, faça diretamente pelo app para que a mudança fique registrada corretamente.</p>
+          <span class="app-password-pill">🔐 Senha padrão: 1234</span>
+        </article>
+
+        <button class="btn" type="button" onclick="window.open('https://wa.me/?text=' + encodeURIComponent('A paz do Senhor! Preciso de ajuda com o App da EBD.'), '_blank')">
+          📞 Falar com a coordenação
+        </button>
+      </div>
+    </section>
+
     <section id="licoes" class="premium-card lesson-section">
+      <button class="mobile-quick-back" type="button" onclick="fecharTelaRapida()">← Voltar ao início</button>
       <div class="premium-section-title">
         <span class="eyebrow">📖 Ensino</span>
         <h2>Lição da Semana</h2>
@@ -6683,6 +6855,79 @@
         fecharHistoricoTrimestre();
       }
     });
+
+
+
+    function ehMobileAcessoRapido() {
+      return window.matchMedia && window.matchMedia("(max-width: 760px)").matches;
+    }
+
+    function limparTelasRapidasAtivas() {
+      document.querySelectorAll(".mobile-active-screen").forEach(function (elemento) {
+        elemento.classList.remove("mobile-active-screen");
+      });
+    }
+
+    function fecharTelaRapida() {
+      document.body.classList.remove("mobile-section-open");
+      limparTelasRapidasAtivas();
+
+      const escala = document.getElementById("escala");
+      if (escala) {
+        escala.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    function abrirTelaRapida(tela, alvoInterno) {
+      if (tela === "escalaTrimestre") {
+        document.body.classList.remove("mobile-section-open");
+        limparTelasRapidasAtivas();
+
+        if (typeof mostrarEscalaCompleta !== "undefined" && !mostrarEscalaCompleta) {
+          alternarEscalaCompleta();
+        } else {
+          const escala = document.getElementById("escala");
+          if (escala) {
+            escala.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }
+        return;
+      }
+
+      const destino = document.getElementById(tela);
+      if (!destino) {
+        return;
+      }
+
+      if (!ehMobileAcessoRapido()) {
+        destino.style.display = destino.classList.contains("quick-panel-screen") ? "block" : destino.style.display;
+        destino.scrollIntoView({ behavior: "smooth", block: "start" });
+
+        if (alvoInterno) {
+          setTimeout(function () {
+            const alvo = document.getElementById(alvoInterno);
+            if (alvo) {
+              alvo.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+          }, 260);
+        }
+        return;
+      }
+
+      limparTelasRapidasAtivas();
+      document.body.classList.add("mobile-section-open");
+      destino.classList.add("mobile-active-screen");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      if (alvoInterno) {
+        setTimeout(function () {
+          const alvo = document.getElementById(alvoInterno);
+          if (alvo) {
+            alvo.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }, 220);
+      }
+    }
 
     document.addEventListener("DOMContentLoaded", async function () {
       ajustarSubtituloAoTitulo();

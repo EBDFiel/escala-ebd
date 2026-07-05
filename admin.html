@@ -895,6 +895,107 @@
       color: var(--primary-deep);
     }
 
+  
+
+    /* Compartilhamento da escala semanal */
+    .weekly-share-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) minmax(320px, 1.2fr);
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .weekly-share-card {
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid rgba(203, 213, 225, 0.9);
+      background: #ffffff;
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.10);
+    }
+
+    .weekly-share-header {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-main));
+      color: #ffffff;
+      padding: 1.25rem;
+      text-align: center;
+      border-bottom: 5px solid var(--accent-gold);
+    }
+
+    .weekly-share-header h3 {
+      margin: 0;
+      color: #fff4c2;
+      font-size: 1.35rem;
+      letter-spacing: -0.02em;
+    }
+
+    .weekly-share-header p {
+      margin: 0.4rem 0 0;
+      color: rgba(255,255,255,0.86);
+      font-weight: 600;
+    }
+
+    .weekly-share-body {
+      padding: 1rem;
+      display: grid;
+      gap: 0.65rem;
+    }
+
+    .weekly-share-row {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 0.65rem;
+      align-items: center;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 0.75rem 0.85rem;
+      background: linear-gradient(135deg, #f8fafc, #ffffff);
+    }
+
+    .weekly-share-row strong {
+      color: var(--primary-deep);
+      font-size: 0.9rem;
+    }
+
+    .weekly-share-row span {
+      color: var(--gray-900);
+      font-weight: 800;
+    }
+
+    .weekly-share-footer {
+      padding: 0.8rem 1rem 1rem;
+      color: #64748b;
+      font-size: 0.84rem;
+      text-align: center;
+    }
+
+    .weekly-share-empty {
+      padding: 1rem;
+      border: 1px dashed var(--gray-300);
+      border-radius: 18px;
+      background: #f8fafc;
+      color: var(--gray-500);
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .weekly-share-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 880px) {
+      .weekly-share-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .weekly-share-row {
+        grid-template-columns: 1fr;
+        gap: 0.25rem;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -974,6 +1075,7 @@
         <div class="sidebar-title">⚙️ MENU ADMIN</div>
         <button id="abaLicoesBtn" class="nav-btn active" onclick="abrirPainel('licoes')">📚 Lições interativas</button>
         <button id="abaEscalaBtn" class="nav-btn" onclick="abrirPainel('escala')">📅 Gerenciar escala</button>
+        <button id="abaCompartilharEscalaBtn" class="nav-btn" onclick="abrirPainel('compartilharEscala')">📤 Escala da semana</button>
         <button id="abaProfessoresBtn" class="nav-btn" onclick="abrirPainel('professores')">👥 Professores</button>
         <button id="abaQuizzesBtn" class="nav-btn" onclick="abrirPainel('quizzes')">🧠 Quizzes</button>
         <button id="abaMapaBtn" class="nav-btn" onclick="abrirPainel('mapa')">🗺️ Mapa do Site</button>
@@ -1457,6 +1559,44 @@
 
             <div class="manual-alert">
               Checklist final: aba certa, data certa, classe certa, professor correto, salvamento concluído e conferência feita no site público.
+            </div>
+          </div>
+        </div>
+
+
+        <div id="painelCompartilharEscala" class="admin-panel card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+            <div>
+              <h2>📤 Compartilhar escala da semana</h2>
+              <p>Gere uma imagem ou impressão em PDF somente com os professores escalados na data escolhida.</p>
+            </div>
+            <span class="chip">Formato: Escala EBD — data</span>
+          </div>
+
+          <div class="weekly-share-layout">
+            <div class="subcard">
+              <div class="subcard-header">
+                <h3>📅 Escolha a data</h3>
+                <span class="chip">PNG / PDF</span>
+              </div>
+              <div class="form-grid">
+                <div>
+                  <label>Data da escala</label>
+                  <select id="escalaSemanaDataCompartilhar" onchange="renderizarEscalaSemanaCompartilhar()"></select>
+                </div>
+              </div>
+              <div class="weekly-share-actions">
+                <button class="secondary" type="button" onclick="carregarEscala().then(() => { preencherDatasCompartilharEscalaAdmin(); renderizarEscalaSemanaCompartilhar(); })">🔄 Atualizar escala</button>
+                <button class="purple" type="button" onclick="baixarImagemEscalaSemana()">🖼️ Baixar imagem PNG</button>
+                <button class="gray" type="button" onclick="imprimirEscalaSemanaPDF()">📄 Gerar PDF / imprimir</button>
+                <button class="outline-btn" type="button" onclick="copiarTextoEscalaSemana()">📋 Copiar texto</button>
+              </div>
+              <p class="help" style="margin-top:1rem;">Use a imagem PNG para enviar no WhatsApp. Para PDF, o navegador abrirá a tela de impressão; escolha “Salvar como PDF”.</p>
+            </div>
+
+            <div>
+              <div id="escalaSemanaPreview" class="weekly-share-card"></div>
+              <div id="escalaSemanaStatus" class="weekly-share-empty" style="display:none; margin-top:1rem;"></div>
             </div>
           </div>
         </div>
@@ -2114,6 +2254,7 @@
     preencherSelect("profSubClasse", ["Todas as classes", ...classesCache]);
     renderizarCamposNovaData();
     preencherFiltrosHistoricoEscalas();
+    preencherDatasCompartilharEscalaAdmin();
   }
 
   function preencherSelect(id, itens) {
@@ -2939,8 +3080,338 @@
 
   async function carregarHistorico() { let r=await chamarAppsScript({acao:"historico",limite:"50"}); let div=document.getElementById("listaHistorico"); if(r.sucesso && r.historico?.length) div.innerHTML=r.historico.map(i=>`<div class="history-item"><strong>${i.dataHora}</strong><br>Classe: ${i.classe}<br>Alteração: ${i.professorTrocado||i.novaData}<br>Origem: ${i.origem}</div>`).join(""); else div.innerHTML="<p class='help'>Nenhum registro</p>"; }
   function preencherProfessorAtual() { let data=document.getElementById("escalaDataEditar").value, classe=document.getElementById("escalaClasseEditar").value, linha=escalaCache.find(l=>l.Data===data); document.getElementById("escalaProfessorEditar").value = linha && classe ? linha[classe] : ""; }
+
+
+  function obterDatasEscalaSemanaAdmin() {
+    return listaUnicaAdmin((escalaCache || [])
+      .map((linha) => String((linha && (linha.Data || linha.data)) || "").trim())
+      .filter(Boolean));
+  }
+
+  function preencherDatasCompartilharEscalaAdmin() {
+    const select = document.getElementById("escalaSemanaDataCompartilhar");
+    if (!select) {
+      return;
+    }
+
+    const valorAtual = select.value;
+    const datas = obterDatasEscalaSemanaAdmin();
+    select.innerHTML = datas.map((data) => `<option value="${escapeHtmlAdmin(data)}">${escapeHtmlAdmin(data)}</option>`).join("");
+
+    if (valorAtual && datas.includes(valorAtual)) {
+      select.value = valorAtual;
+    }
+  }
+
+  function obterLinhaEscalaSemanaAdmin(dataSelecionada) {
+    const dataBusca = String(dataSelecionada || "").trim();
+    return (escalaCache || []).find((linha) => {
+      const dataLinha = String((linha && (linha.Data || linha.data)) || "").trim();
+      return dataLinha === dataBusca;
+    }) || null;
+  }
+
+  function obterValorEscalaSemanaAdmin(linha, classe) {
+    if (!linha) {
+      return "";
+    }
+
+    const chaves = Object.keys(linha || {});
+    const chaveDireta = chaves.find((chave) => chave === classe);
+    if (chaveDireta) {
+      return String(linha[chaveDireta] || "").trim();
+    }
+
+    const alvo = String(classe || "").trim().toLowerCase();
+    const chaveFlexivel = chaves.find((chave) => String(chave || "").trim().toLowerCase() === alvo);
+    return chaveFlexivel ? String(linha[chaveFlexivel] || "").trim() : "";
+  }
+
+  function obterItensEscalaSemanaAdmin() {
+    const select = document.getElementById("escalaSemanaDataCompartilhar");
+    const dataSelecionada = select ? select.value : "";
+    const linha = obterLinhaEscalaSemanaAdmin(dataSelecionada);
+    const classes = listaUnicaAdmin([...(classesCache || []), ...ordemClassesEBD]);
+    const itens = [];
+
+    classes.forEach((classe) => {
+      const professor = obterValorEscalaSemanaAdmin(linha, classe);
+      if (professor && professor !== "—") {
+        itens.push({ classe, professor });
+      }
+    });
+
+    const suporte = obterValorEscalaSemanaAdmin(linha, "Suporte") || obterValorEscalaSemanaAdmin(linha, "suporte");
+    if (suporte && suporte !== "—") {
+      itens.push({ classe: "Suporte", professor: suporte });
+    }
+
+    return {
+      data: dataSelecionada,
+      linha,
+      itens
+    };
+  }
+
+  function montarHtmlEscalaSemanaAdmin(data, itens) {
+    if (!data) {
+      return `<div class="weekly-share-empty">Carregue a escala e escolha uma data.</div>`;
+    }
+
+    if (!itens || !itens.length) {
+      return `
+        <div class="weekly-share-header">
+          <h3>Escala EBD — ${escapeHtmlAdmin(data)}</h3>
+          <p>Igreja Sede</p>
+        </div>
+        <div class="weekly-share-body">
+          <div class="weekly-share-empty">Nenhum professor encontrado para esta data.</div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="weekly-share-header">
+        <h3>Escala EBD — ${escapeHtmlAdmin(data)}</h3>
+        <p>Igreja Sede • Escola Bíblica Dominical</p>
+      </div>
+      <div class="weekly-share-body">
+        ${itens.map((item) => `
+          <div class="weekly-share-row">
+            <strong>${escapeHtmlAdmin(item.classe)}</strong>
+            <span>${escapeHtmlAdmin(item.professor)}</span>
+          </div>
+        `).join("")}
+      </div>
+      <div class="weekly-share-footer">Tudo seja feito com decência e ordem. 1 Coríntios 14:40</div>
+    `;
+  }
+
+  function renderizarEscalaSemanaCompartilhar() {
+    const preview = document.getElementById("escalaSemanaPreview");
+    const status = document.getElementById("escalaSemanaStatus");
+
+    if (!preview) {
+      return;
+    }
+
+    const dados = obterItensEscalaSemanaAdmin();
+    preview.innerHTML = montarHtmlEscalaSemanaAdmin(dados.data, dados.itens);
+
+    if (status) {
+      if (!dados.data) {
+        status.style.display = "block";
+        status.textContent = "Nenhuma data carregada. Clique em Atualizar escala.";
+      } else if (!dados.itens.length) {
+        status.style.display = "block";
+        status.textContent = "A data foi encontrada, mas não há professores preenchidos nas classes.";
+      } else {
+        status.style.display = "block";
+        status.textContent = `${dados.itens.length} item(ns) pronto(s) para compartilhar.`;
+      }
+    }
+  }
+
+  function quebrarTextoCanvas(ctx, texto, x, y, larguraMaxima, alturaLinha) {
+    const palavras = String(texto || "").split(" ");
+    let linha = "";
+    let linhas = [];
+
+    palavras.forEach((palavra) => {
+      const teste = linha ? linha + " " + palavra : palavra;
+      if (ctx.measureText(teste).width > larguraMaxima && linha) {
+        linhas.push(linha);
+        linha = palavra;
+      } else {
+        linha = teste;
+      }
+    });
+
+    if (linha) {
+      linhas.push(linha);
+    }
+
+    linhas.forEach((conteudo, indice) => {
+      ctx.fillText(conteudo, x, y + indice * alturaLinha);
+    });
+
+    return linhas.length;
+  }
+
+  function criarCanvasEscalaSemana() {
+    const dados = obterItensEscalaSemanaAdmin();
+
+    if (!dados.data || !dados.itens.length) {
+      mostrarStatus("error", "Escolha uma data com professores preenchidos antes de gerar a imagem.");
+      return null;
+    }
+
+    const largura = 1080;
+    const alturaLinha = 92;
+    const altura = Math.max(1180, 300 + dados.itens.length * alturaLinha + 160);
+    const canvas = document.createElement("canvas");
+    canvas.width = largura;
+    canvas.height = altura;
+    const ctx = canvas.getContext("2d");
+
+    ctx.fillStyle = "#f8fafc";
+    ctx.fillRect(0, 0, largura, altura);
+
+    const grad = ctx.createLinearGradient(0, 0, largura, 0);
+    grad.addColorStop(0, "#0b2b3f");
+    grad.addColorStop(1, "#1a5a7a");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, largura, 230);
+
+    ctx.fillStyle = "#d4af37";
+    ctx.fillRect(0, 220, largura, 10);
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#fff4c2";
+    ctx.font = "bold 54px Arial, sans-serif";
+    ctx.fillText(`Escala EBD — ${dados.data}`, largura / 2, 95);
+    ctx.fillStyle = "rgba(255,255,255,0.9)";
+    ctx.font = "bold 28px Arial, sans-serif";
+    ctx.fillText("Igreja Sede • Escola Bíblica Dominical", largura / 2, 145);
+
+    let y = 280;
+    dados.itens.forEach((item, indice) => {
+      const x = 70;
+      const w = largura - 140;
+      const h = 70;
+      const r = 22;
+
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+      ctx.fillStyle = indice % 2 === 0 ? "#ffffff" : "#eef4fc";
+      ctx.fill();
+      ctx.strokeStyle = "#dbe4ef";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.textAlign = "left";
+      ctx.fillStyle = "#124263";
+      ctx.font = "bold 26px Arial, sans-serif";
+      ctx.fillText(item.classe, x + 28, y + 44);
+
+      ctx.fillStyle = "#1e293b";
+      ctx.font = "bold 30px Arial, sans-serif";
+      quebrarTextoCanvas(ctx, item.professor, x + 465, y + 43, w - 500, 32);
+
+      y += alturaLinha;
+    });
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#64748b";
+    ctx.font = "22px Arial, sans-serif";
+    ctx.fillText("Tudo seja feito com decência e ordem. 1 Coríntios 14:40", largura / 2, altura - 62);
+    ctx.fillText("Escala gerada pelo Admin EBD", largura / 2, altura - 32);
+
+    return canvas;
+  }
+
+  function baixarImagemEscalaSemana() {
+    const canvas = criarCanvasEscalaSemana();
+    if (!canvas) {
+      return;
+    }
+
+    const dados = obterItensEscalaSemanaAdmin();
+    const nomeArquivo = `escala-ebd-${String(dados.data || "sem-data").replace(/\//g, "-")}.png`;
+    const link = document.createElement("a");
+    link.href = canvas.toDataURL("image/png");
+    link.download = nomeArquivo;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    mostrarStatus("success", "Imagem da escala gerada com sucesso.");
+  }
+
+  function imprimirEscalaSemanaPDF() {
+    const dados = obterItensEscalaSemanaAdmin();
+
+    if (!dados.data || !dados.itens.length) {
+      mostrarStatus("error", "Escolha uma data com professores preenchidos antes de gerar o PDF.");
+      return;
+    }
+
+    const htmlCard = montarHtmlEscalaSemanaAdmin(dados.data, dados.itens);
+    const janela = window.open("", "_blank", "width=900,height=1100");
+
+    if (!janela) {
+      mostrarStatus("error", "O navegador bloqueou a janela de impressão. Permita pop-ups para este site.");
+      return;
+    }
+
+    janela.document.write(`
+      <!DOCTYPE html>
+      <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8">
+        <title>Escala EBD — ${escapeHtmlAdmin(dados.data)}</title>
+        <style>
+          @page { size: A4; margin: 14mm; }
+          * { box-sizing: border-box; }
+          body { margin: 0; font-family: Arial, sans-serif; background: #f8fafc; color: #1e293b; }
+          .weekly-share-card { border-radius: 28px; overflow: hidden; border: 1px solid #cbd5e1; background: #ffffff; }
+          .weekly-share-header { background: linear-gradient(135deg, #0b2b3f, #1a5a7a); color: white; padding: 28px 22px; text-align: center; border-bottom: 6px solid #d4af37; }
+          .weekly-share-header h3 { margin: 0; color: #fff4c2; font-size: 30px; }
+          .weekly-share-header p { margin: 8px 0 0; font-weight: 700; opacity: 0.9; }
+          .weekly-share-body { padding: 18px; display: grid; gap: 10px; }
+          .weekly-share-row { display: grid; grid-template-columns: 1fr 1.1fr; gap: 12px; border: 1px solid #e2e8f0; border-radius: 16px; padding: 12px 14px; }
+          .weekly-share-row strong { color: #124263; }
+          .weekly-share-row span { font-weight: 800; color: #1e293b; }
+          .weekly-share-footer { padding: 12px 18px 18px; color: #64748b; text-align: center; font-size: 13px; }
+          .print-actions { text-align: center; padding: 18px; }
+          .print-actions button { background:#1a5a7a; color:#fff; border:0; border-radius:999px; padding:12px 22px; font-weight:700; cursor:pointer; }
+          @media print { .print-actions { display:none; } body { background:#fff; } }
+        </style>
+      </head>
+      <body>
+        <div class="weekly-share-card">${htmlCard}</div>
+        <div class="print-actions"><button onclick="window.print()">Salvar como PDF / Imprimir</button></div>
+        <script>setTimeout(function(){ window.focus(); }, 300);<\/script>
+      </body>
+      </html>
+    `);
+    janela.document.close();
+  }
+
+  async function copiarTextoEscalaSemana() {
+    const dados = obterItensEscalaSemanaAdmin();
+
+    if (!dados.data || !dados.itens.length) {
+      mostrarStatus("error", "Escolha uma data com professores preenchidos antes de copiar o texto.");
+      return;
+    }
+
+    const texto = [
+      `📚 Escala EBD — ${dados.data}`,
+      "",
+      ...dados.itens.map((item) => `${item.classe}: ${item.professor}`),
+      "",
+      "Igreja Sede"
+    ].join("\n");
+
+    try {
+      await navigator.clipboard.writeText(texto);
+      mostrarStatus("success", "Texto da escala copiado para a área de transferência.");
+    } catch (erro) {
+      mostrarStatus("error", "Não foi possível copiar automaticamente. Selecione o texto manualmente.");
+    }
+  }
+
   function abrirPainel(nome) {
-    ["licoes", "escala", "historicoEscalas", "professores", "quizzes", "mapa", "manual", "historico"].forEach((p) => {
+    ["licoes", "escala", "compartilharEscala", "historicoEscalas", "professores", "quizzes", "mapa", "manual", "historico"].forEach((p) => {
       const painel = document.getElementById(`painel${p.charAt(0).toUpperCase() + p.slice(1)}`);
       const botao = document.getElementById(`aba${p.charAt(0).toUpperCase() + p.slice(1)}Btn`);
 
@@ -2954,6 +3425,14 @@
     });
 
     if (nome === "escala") carregarEscala();
+    if (nome === "compartilharEscala") {
+      if (!escalaCache || !escalaCache.length) {
+        carregarEscala().then(() => { preencherDatasCompartilharEscalaAdmin(); renderizarEscalaSemanaCompartilhar(); });
+      } else {
+        preencherDatasCompartilharEscalaAdmin();
+        renderizarEscalaSemanaCompartilhar();
+      }
+    }
     if (nome === "historicoEscalas") { preencherFiltrosHistoricoEscalas(); consultarHistoricoEscalasAdmin(true); }
     if (nome === "professores") carregarProfessores();
     if (nome === "quizzes") carregarQuizzesAdmin();

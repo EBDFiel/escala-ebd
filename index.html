@@ -4692,9 +4692,15 @@
           <span class="app-password-pill">🔐 Senha padrão: 1234</span>
         </article>
 
-        <button class="btn" type="button" onclick="window.open('https://wa.me/?text=' + encodeURIComponent('A paz do Senhor! Preciso de ajuda com o App da EBD.'), '_blank')">
-          📞 Falar com a coordenação
-        </button>
+        <div class="actions-center" style="justify-content:flex-start; margin-top: 10px;">
+          <button class="btn" type="button" onclick="abrirWhatsAppCoordenacao('5532988246140', 'Pb. Elias')">
+            <i class="fab fa-whatsapp" aria-hidden="true"></i> Falar com Pb. Elias
+          </button>
+
+          <button class="btn btn-secondary-scale" type="button" onclick="abrirWhatsAppCoordenacao('5531992103407', 'Coop. Ronan')">
+            <i class="fab fa-whatsapp" aria-hidden="true"></i> Falar com Coop. Ronan
+          </button>
+        </div>
       </div>
     </section>
 
@@ -5985,6 +5991,12 @@
 
     function abrirWhatsAppComMensagem(mensagem) {
       const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(mensagem);
+      window.open(url, "_blank", "noopener");
+    }
+
+    function abrirWhatsAppCoordenacao(numero, nome) {
+      const mensagem = `A paz do Senhor, ${nome}! Preciso de ajuda com o App da EBD.`;
+      const url = "https://wa.me/" + numero + "?text=" + encodeURIComponent(mensagem);
       window.open(url, "_blank", "noopener");
     }
 

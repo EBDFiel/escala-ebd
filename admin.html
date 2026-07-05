@@ -1590,8 +1590,9 @@
                 <button class="purple" type="button" onclick="baixarImagemEscalaSemana()">🖼️ Baixar imagem PNG</button>
                 <button class="gray" type="button" onclick="imprimirEscalaSemanaPDF()">📄 Gerar PDF / imprimir</button>
                 <button class="outline-btn" type="button" onclick="copiarTextoEscalaSemana()">📋 Copiar texto</button>
+                <button class="secondary" type="button" onclick="compartilharWhatsappEscalaSemana()"><i class="fab fa-whatsapp"></i> Compartilhar no WhatsApp</button>
               </div>
-              <p class="help" style="margin-top:1rem;">Use a imagem PNG para enviar no WhatsApp. Para PDF, o navegador abrirá a tela de impressão; escolha “Salvar como PDF”.</p>
+              <p class="help" style="margin-top:1rem;">No celular, o botão de WhatsApp tenta compartilhar a imagem da semana com uma saudação pronta. Se o navegador não permitir, use a opção de baixar PNG e enviar manualmente.</p>
             </div>
 
             <div>
@@ -3127,11 +3128,31 @@
     return chaveFlexivel ? String(linha[chaveFlexivel] || "").trim() : "";
   }
 
+  function nomeEhCampoTecnicoEscalaSemana(nome) {
+    const texto = String(nome || "").trim();
+    const normalizado = texto.toLowerCase();
+
+    if (!texto) {
+      return true;
+    }
+
+    return normalizado === "data" ||
+      normalizado === "suporte" ||
+      normalizado === "_abaescalausada" ||
+      normalizado === "__abaescalausada" ||
+      normalizado === "abaescalausada" ||
+      normalizado.indexOf("abaescala") !== -1 ||
+      texto.indexOf("__") === 0;
+  }
+
   function obterItensEscalaSemanaAdmin() {
     const select = document.getElementById("escalaSemanaDataCompartilhar");
     const dataSelecionada = select ? select.value : "";
     const linha = obterLinhaEscalaSemanaAdmin(dataSelecionada);
-    const classes = listaUnicaAdmin([...(classesCache || []), ...ordemClassesEBD]);
+    const classesBase = (ordemClassesEBD && ordemClassesEBD.length)
+      ? ordemClassesEBD.slice()
+      : (classesCache || []).slice();
+    const classes = listaUnicaAdmin(classesBase).filter((classe) => !nomeEhCampoTecnicoEscalaSemana(classe));
     const itens = [];
 
     classes.forEach((classe) => {
@@ -3407,6 +3428,79 @@
       mostrarStatus("success", "Texto da escala copiado para a área de transferência.");
     } catch (erro) {
       mostrarStatus("error", "Não foi possível copiar automaticamente. Selecione o texto manualmente.");
+    }
+  }
+
+  function montarSaudacaoEscalaSemanaWhatsApp(dados, incluirLista) {
+    const linhas = [
+      "A paz do Senhor, irmãos!",
+      "",
+      "Segue a escala da EBD desta semana.",
+      "Deus abençoe a todos! 🙏📚"
+    ];
+
+    if (incluirLista && dados && dados.data && dados.itens && dados.itens.length) {
+      linhas.push("", `📚 Escala EBD — ${dados.data}`, "");
+      dados.itens.forEach((item) => {
+        linhas.push(`${item.classe}: ${item.professor}`);
+      });
+    }
+
+    return linhas.join("\n");
+  }
+
+  function converterCanvasParaBlobEscalaSemana(canvas) {
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => resolve(blob), "image/png");
+    });
+  }
+
+  async function compartilharWhatsappEscalaSemana() {
+    const dados = obterItensEscalaSemanaAdmin();
+
+    if (!dados.data || !dados.itens.length) {
+      mostrarStatus("error", "Escolha uma data com professores preenchidos antes de compartilhar no WhatsApp.");
+      return;
+    }
+
+    const canvas = criarCanvasEscalaSemana();
+    if (!canvas) {
+      return;
+    }
+
+    const saudacao = montarSaudacaoEscalaSemanaWhatsApp(dados, false);
+    const textoFallback = montarSaudacaoEscalaSemanaWhatsApp(dados, true);
+    const nomeArquivo = `escala-ebd-${String(dados.data || "sem-data").replace(/\//g, "-")}.png`;
+
+    try {
+      if (navigator.share && window.File) {
+        const blob = await converterCanvasParaBlobEscalaSemana(canvas);
+        if (blob) {
+          const arquivo = new File([blob], nomeArquivo, { type: "image/png" });
+          const pacoteCompartilhamento = {
+            title: `Escala EBD — ${dados.data}`,
+            text: saudacao,
+            files: [arquivo]
+          };
+
+          if (!navigator.canShare || navigator.canShare({ files: [arquivo] })) {
+            await navigator.share(pacoteCompartilhamento);
+            mostrarStatus("success", "Compartilhamento aberto. Escolha o WhatsApp e envie a imagem da escala.");
+            return;
+          }
+        }
+      }
+
+      window.open(`https://wa.me/?text=${encodeURIComponent(textoFallback)}`, "_blank");
+      mostrarStatus("info", "Este navegador não permitiu anexar a imagem automaticamente. O WhatsApp foi aberto com o texto pronto; use também o botão de baixar PNG, se desejar enviar a imagem.");
+    } catch (erro) {
+      if (erro && (erro.name === "AbortError" || erro.name === "NotAllowedError")) {
+        mostrarStatus("info", "Compartilhamento cancelado ou não permitido pelo navegador.");
+        return;
+      }
+
+      window.open(`https://wa.me/?text=${encodeURIComponent(textoFallback)}`, "_blank");
+      mostrarStatus("info", "Não foi possível anexar a imagem automaticamente. O WhatsApp foi aberto com o texto pronto.");
     }
   }
 

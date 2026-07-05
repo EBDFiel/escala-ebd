@@ -2995,14 +2995,26 @@
 
     .quiz-btn.adultos,
     .quiz-btn.jovens {
-      background: #ffffff !important;
-      color: var(--premium-navy) !important;
-      border: 1px solid rgba(31, 78, 121, 0.24) !important;
+      color: #ffffff !important;
+      border: 1px solid rgba(255, 255, 255, 0.32) !important;
+      box-shadow: 0 12px 26px rgba(217, 119, 6, 0.30) !important;
+      font-weight: 950 !important;
+      animation: quizPulse 2.4s ease-in-out infinite !important;
+    }
+
+    .quiz-btn.adultos {
+      background: linear-gradient(135deg, #f97316, #c2410c) !important;
+    }
+
+    .quiz-btn.jovens {
+      background: linear-gradient(135deg, #f59e0b, #b45309) !important;
     }
 
     .quiz-btn.adultos:hover,
     .quiz-btn.jovens:hover {
-      background: #f0f7ff !important;
+      filter: brightness(1.06) !important;
+      transform: translateY(-2px) scale(1.02) !important;
+      box-shadow: 0 16px 34px rgba(217, 119, 6, 0.38) !important;
     }
 
     .whatsapp-share-btn {
@@ -3017,6 +3029,11 @@
 
     .whatsapp-share-btn:hover {
       background: #dcfce7 !important;
+    }
+
+    .whatsapp-share-btn .fab.fa-whatsapp {
+      font-size: 1.08rem;
+      line-height: 1;
     }
 
     @media (max-width: 700px) {
@@ -4550,21 +4567,23 @@
 
         <div class="quiz-buttons">
           <a id="quizAdultos" class="quiz-btn adultos" href="https://ebdfiel.github.io/Quizzes-ClaseAdultos-2026/trimestre-02/licao-07/" target="_blank" rel="noopener">
-            <span>Quiz Jovens e Adultos</span>
+            <span>🧩 Acessar Quiz Jovens e Adultos</span>
           </a>
 
           <a id="quizJovens" class="quiz-btn jovens" href="https://ebdfiel.github.io/Quizzes-ConectarJovens-/trimestre-02/licao-07/index.html" target="_blank" rel="noopener">
-            <span>Quiz Adolescentes</span>
+            <span>🧩 Acessar Quiz Adolescentes</span>
           </a>
         </div>
 
         <div class="quiz-share-buttons">
           <button id="shareQuizAdultos" class="whatsapp-share-btn" type="button" onclick="compartilharQuizWhatsApp('adultos')">
-            Compartilhar Adultos
+            <i class="fab fa-whatsapp" aria-hidden="true"></i>
+            Compartilhar Quiz Jovens e Adultos
           </button>
 
           <button id="shareQuizJovens" class="whatsapp-share-btn" type="button" onclick="compartilharQuizWhatsApp('jovens')">
-            Compartilhar Adolescentes
+            <i class="fab fa-whatsapp" aria-hidden="true"></i>
+            Compartilhar Quiz Adolescentes
           </button>
         </div>
       </div>

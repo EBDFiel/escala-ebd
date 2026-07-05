@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <!-- ADMIN_EBD_ATALHO_MINIATURA_20260705 -->
+  <!-- ADMIN_EBD_MOBILE_EDITOR_AMPLO_20260705 -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Admin EBD — Igreja Sede</title>
@@ -1011,6 +1011,296 @@
       .weekly-share-row {
         grid-template-columns: 1fr;
         gap: 0.25rem;
+      }
+    }
+
+
+    /* AJUSTE MOBILE 20260705 — editor e páginas menos espremidos */
+    @media (max-width: 760px) {
+      html,
+      body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      body {
+        font-size: 15px;
+        line-height: 1.45;
+      }
+
+      .hero {
+        padding: 1.05rem 0.75rem 1.1rem;
+      }
+
+      .hero-inner {
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+
+      .hero h1 {
+        font-size: 1.18rem;
+        line-height: 1.2;
+      }
+
+      .hero p {
+        font-size: 0.82rem;
+      }
+
+      .hero-badge {
+        padding: 0.45rem 0.8rem;
+        font-size: 0.76rem;
+      }
+
+      main {
+        width: 100%;
+        max-width: 100%;
+        margin: 0.75rem auto 1.4rem;
+        padding: 0 0.45rem;
+      }
+
+      .card,
+      .subcard,
+      .lesson-editor-card,
+      .manual-section,
+      .mapa-section {
+        border-radius: 18px;
+        padding: 0.85rem;
+      }
+
+      .card {
+        margin-bottom: 0.9rem;
+      }
+
+      .dashboard-grid {
+        gap: 0.65rem;
+        margin-bottom: 0.85rem;
+      }
+
+      .metric-card {
+        padding: 0.78rem;
+        border-radius: 16px;
+      }
+
+      .metric-card strong {
+        font-size: 0.98rem;
+      }
+
+      .panel-shell {
+        display: block;
+        width: 100%;
+      }
+
+      .sidebar {
+        position: static;
+        width: 100%;
+        border-radius: 18px;
+        padding: 0.7rem;
+        margin-bottom: 0.85rem;
+      }
+
+      .sidebar-title {
+        padding: 0.35rem 0.55rem 0.7rem;
+        margin-bottom: 0.45rem;
+        font-size: 0.78rem;
+      }
+
+      .nav-btn {
+        min-height: 42px;
+        padding: 0.65rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.86rem;
+        margin: 0.16rem 0;
+      }
+
+      .content-area,
+      .admin-panel,
+      .editor-panel,
+      .lesson-workspace,
+      .lesson-editor-card {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+      }
+
+      .lesson-tabs {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        margin-bottom: 0.8rem;
+      }
+
+      .tab-btn {
+        width: 100%;
+        justify-content: center;
+        min-height: 42px;
+      }
+
+      .lesson-toolbar,
+      .actions,
+      .manual-actions,
+      .weekly-share-actions {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.55rem;
+        align-items: stretch;
+      }
+
+      .lesson-toolbar > div,
+      .actions > div {
+        display: contents;
+      }
+
+      button,
+      .link-btn,
+      .compact-btn {
+        width: 100%;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0.62rem 0.72rem;
+        font-size: 0.78rem;
+        line-height: 1.2;
+        white-space: normal;
+      }
+
+      input,
+      select,
+      textarea {
+        min-height: 42px;
+        font-size: 16px;
+        border-radius: 14px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.72rem;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 16px;
+      }
+
+      table {
+        min-width: 760px;
+      }
+
+      th,
+      td {
+        padding: 0.65rem;
+        font-size: 0.78rem;
+      }
+
+      .visual-lesson-editor {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        min-height: 520px;
+        max-height: 72vh;
+        padding: 0.62rem;
+        border-radius: 16px;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        font-size: 0.96rem;
+      }
+
+      .visual-lesson-editor,
+      .visual-lesson-editor * {
+        box-sizing: border-box !important;
+        max-width: 100% !important;
+      }
+
+      .visual-lesson-editor [style*="width"],
+      .visual-lesson-editor [style*="max-width"],
+      .visual-lesson-editor table,
+      .visual-lesson-editor section,
+      .visual-lesson-editor article,
+      .visual-lesson-editor div {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+      }
+
+      .visual-lesson-editor img,
+      .visual-lesson-editor video,
+      .visual-lesson-editor iframe {
+        height: auto !important;
+        max-width: 100% !important;
+      }
+
+      .visual-lesson-editor h1,
+      .visual-lesson-editor h2,
+      .visual-lesson-editor h3 {
+        font-size: clamp(1.28rem, 8vw, 1.85rem) !important;
+        line-height: 1.16 !important;
+        word-break: normal;
+        overflow-wrap: anywhere;
+      }
+
+      .visual-lesson-editor h4 {
+        font-size: 1.05rem !important;
+      }
+
+      .visual-lesson-editor p,
+      .visual-lesson-editor li,
+      .visual-lesson-editor blockquote,
+      .visual-lesson-editor strong,
+      .visual-lesson-editor span {
+        font-size: 0.98rem !important;
+        line-height: 1.58 !important;
+        overflow-wrap: anywhere;
+      }
+
+      .visual-lesson-editor blockquote {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding: 0.75rem !important;
+      }
+
+      .visual-lesson-editor ol,
+      .visual-lesson-editor ul {
+        padding-left: 1.05rem !important;
+      }
+
+      .html-editor-wrap textarea {
+        min-height: 260px;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .weekly-share-layout,
+      .mapa-grid,
+      .manual-grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      .weekly-share-card,
+      .weekly-share-row {
+        border-radius: 16px;
+      }
+    }
+
+    @media (max-width: 390px) {
+      main {
+        padding: 0 0.32rem;
+      }
+
+      .card,
+      .subcard,
+      .lesson-editor-card {
+        padding: 0.68rem;
+      }
+
+      .lesson-toolbar,
+      .actions,
+      .manual-actions,
+      .weekly-share-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .visual-lesson-editor {
+        padding: 0.48rem;
       }
     }
 

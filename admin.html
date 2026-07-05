@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1301,6 +1300,131 @@
 
       .visual-lesson-editor {
         padding: 0.48rem;
+      }
+    }
+
+
+    /* HOTFIX MOBILE 20260705-B — lição realmente ampla no editor visual */
+    @media (max-width: 760px) {
+      #painelLicoes {
+        width: calc(100vw - 10px) !important;
+        max-width: calc(100vw - 10px) !important;
+        margin-left: 50% !important;
+        transform: translateX(-50%) !important;
+        padding-left: 0.45rem !important;
+        padding-right: 0.45rem !important;
+      }
+
+      #painelLicoes form,
+      #painelLicoes .editor-panel,
+      #painelLicoes .lesson-workspace,
+      #painelLicoes .lesson-editor-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+      }
+
+      #painelLicoes .lesson-editor-card {
+        padding: 0.5rem !important;
+      }
+
+      .visual-lesson-editor {
+        width: calc(100vw - 24px) !important;
+        max-width: calc(100vw - 24px) !important;
+        min-width: 0 !important;
+        margin-left: 50% !important;
+        transform: translateX(-50%) !important;
+        padding: 0.45rem !important;
+        overflow-x: hidden !important;
+      }
+
+      .visual-lesson-editor > *,
+      .visual-lesson-editor > [style],
+      .visual-lesson-editor div,
+      .visual-lesson-editor section,
+      .visual-lesson-editor article,
+      .visual-lesson-editor main,
+      .visual-lesson-editor header,
+      .visual-lesson-editor footer,
+      .visual-lesson-editor aside {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        box-sizing: border-box !important;
+      }
+
+      .visual-lesson-editor [style*="max-width"],
+      .visual-lesson-editor [style*="width"] {
+        max-width: 100% !important;
+        min-width: 0 !important;
+      }
+
+      .visual-lesson-editor table {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        display: block !important;
+        overflow-x: auto !important;
+      }
+
+      .visual-lesson-editor img,
+      .visual-lesson-editor svg,
+      .visual-lesson-editor video,
+      .visual-lesson-editor iframe {
+        max-width: 100% !important;
+        height: auto !important;
+      }
+
+      .visual-lesson-editor h1,
+      .visual-lesson-editor h2,
+      .visual-lesson-editor h3 {
+        font-size: clamp(1.1rem, 6.1vw, 1.55rem) !important;
+        line-height: 1.18 !important;
+        letter-spacing: 0 !important;
+        overflow-wrap: break-word !important;
+        word-break: normal !important;
+      }
+
+      .visual-lesson-editor h4 {
+        font-size: clamp(0.98rem, 4.8vw, 1.12rem) !important;
+        line-height: 1.25 !important;
+      }
+
+      .visual-lesson-editor p,
+      .visual-lesson-editor li,
+      .visual-lesson-editor blockquote,
+      .visual-lesson-editor span,
+      .visual-lesson-editor strong,
+      .visual-lesson-editor em {
+        font-size: clamp(0.9rem, 4vw, 0.98rem) !important;
+        line-height: 1.52 !important;
+        overflow-wrap: break-word !important;
+        word-break: normal !important;
+      }
+
+      .visual-lesson-editor blockquote {
+        padding: 0.65rem !important;
+        margin: 0.65rem 0 !important;
+      }
+
+      .visual-lesson-editor ol,
+      .visual-lesson-editor ul {
+        padding-left: 1rem !important;
+      }
+    }
+
+    @media (max-width: 390px) {
+      #painelLicoes {
+        width: calc(100vw - 6px) !important;
+        max-width: calc(100vw - 6px) !important;
+      }
+
+      .visual-lesson-editor {
+        width: calc(100vw - 14px) !important;
+        max-width: calc(100vw - 14px) !important;
+        padding: 0.35rem !important;
       }
     }
 

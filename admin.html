@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1428,6 +1429,77 @@
       }
     }
 
+
+    /* HOTFIX MOBILE 20260705-C — exibir campo HTML avançado no celular */
+    @media (max-width: 760px) {
+      #painelLicoes .html-editor-wrap.show {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: relative !important;
+        z-index: 20 !important;
+        width: calc(100vw - 24px) !important;
+        max-width: calc(100vw - 24px) !important;
+        min-width: 0 !important;
+        margin-top: 1rem !important;
+        margin-left: 50% !important;
+        margin-right: 0 !important;
+        transform: translateX(-50%) !important;
+        clear: both !important;
+        overflow: visible !important;
+      }
+
+      #painelLicoes .html-editor-wrap.show label {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 0 0.45rem !important;
+        font-size: 0.95rem !important;
+        line-height: 1.25 !important;
+        color: var(--gray-900) !important;
+      }
+
+      #painelLicoes .html-editor-wrap.show textarea {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        min-height: 420px !important;
+        max-height: 70vh !important;
+        overflow: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        resize: vertical !important;
+        box-sizing: border-box !important;
+        padding: 0.85rem !important;
+        border-radius: 16px !important;
+        font-size: 13px !important;
+        line-height: 1.45 !important;
+        color: #0f172a !important;
+        background: #ffffff !important;
+        font-family: Consolas, Monaco, 'Courier New', monospace !important;
+        white-space: pre !important;
+      }
+
+      #painelLicoes .lesson-editor-card,
+      #painelLicoes .lesson-workspace,
+      #painelLicoes .editor-panel.active {
+        overflow: visible !important;
+      }
+    }
+
+    @media (max-width: 390px) {
+      #painelLicoes .html-editor-wrap.show {
+        width: calc(100vw - 14px) !important;
+        max-width: calc(100vw - 14px) !important;
+      }
+
+      #painelLicoes .html-editor-wrap.show textarea {
+        min-height: 440px !important;
+        font-size: 12.5px !important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -2333,6 +2405,13 @@
     if (vaiAbrir) {
       textarea.value = editor.innerHTML.trim();
       wrap.classList.add("show");
+      setTimeout(function () {
+        try {
+          wrap.scrollIntoView({ behavior: "smooth", block: "start" });
+        } catch (erroScroll) {
+          wrap.scrollIntoView();
+        }
+      }, 80);
       mostrarStatus("success", "Editor HTML avançado aberto com sucesso.");
     } else {
       editor.innerHTML = textarea.value.trim() || "<p>Sem lição</p>";

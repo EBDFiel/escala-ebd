@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -2283,6 +2281,43 @@
       line-height: 1.45;
     }
 
+
+
+    .quick-access-note {
+      margin-top: 16px;
+      padding: 16px 18px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, #fff8e1, #ffffff);
+      border: 1px solid rgba(197, 155, 53, 0.35);
+      color: #334155;
+      box-shadow: 0 10px 24px rgba(197, 155, 53, 0.10);
+    }
+
+    .quick-access-note strong {
+      color: var(--premium-navy);
+      font-weight: 950;
+    }
+
+    .quick-access-note p {
+      margin: 0;
+      line-height: 1.55;
+      font-weight: 650;
+    }
+
+    .quick-access-note .app-password-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid rgba(31, 78, 121, 0.14);
+      color: var(--premium-navy);
+      font-weight: 950;
+      box-shadow: 0 8px 18px rgba(31, 78, 121, 0.08);
+    }
+
     .notice-strip {
       display: grid;
       grid-template-columns: 1.4fr 1fr;
@@ -4437,177 +4472,58 @@
     <section class="premium-card quick-access" aria-label="Acesso rápido">
       <div class="premium-section-title quick-access-title">
         <span class="eyebrow">⚡ Acesso rápido</span>
-        <h2>O que você precisa fazer agora?</h2>
-        <p>Depois de conferir a escala, acesse rapidamente os recursos mais usados.</p>
+        <h2>Recursos principais</h2>
+        <p>A escala continua sendo o foco da página. Use os botões abaixo para acessar as demais funções sem procurar pelo site.</p>
       </div>
 
       <div class="quick-access-grid">
-        <a class="quick-card" href="#escala">
-          <span class="quick-icon">📅</span>
-          <h3>Escala</h3>
-          <p>Volte para a escala da semana e confira sua data.</p>
-        </a>
-
         <button class="quick-card quick-card-button" type="button" onclick="abrirModal()">
           <span class="quick-icon">🔄</span>
           <h3>Alterar meu dia</h3>
-          <p>Solicite a troca dentro da mesma classe com segurança.</p>
+          <p>Troque sua data pelo app para que tudo fique registrado.</p>
         </button>
 
         <a class="quick-card" href="#licoes">
           <span class="quick-icon">📖</span>
           <h3>Lição da semana</h3>
-          <p>Acesse o conteúdo atualizado para preparar sua aula.</p>
+          <p>Acesse o material de apoio da aula.</p>
         </a>
 
         <a class="quick-card" href="#quiz">
-          <span class="quick-icon">🧠</span>
-          <h3>Quiz interativo</h3>
-          <p>Compartilhe com a classe e incentive a participação.</p>
+          <span class="quick-icon">🧩</span>
+          <h3>Quizzes</h3>
+          <p>Abra ou compartilhe os quizzes das classes.</p>
         </a>
 
-        <a class="quick-card" href="#historicoConferencia">
+        <button class="quick-card quick-card-button" type="button" onclick="document.getElementById('escala').scrollIntoView({ behavior: 'smooth' }); if (typeof mostrarEscalaCompleta !== 'undefined' && !mostrarEscalaCompleta) { alternarEscalaCompleta(); }">
           <span class="quick-icon">🗓️</span>
-          <h3>Histórico</h3>
-          <p>Confira as datas do trimestre quando precisar.</p>
-        </a>
-
-        <a class="quick-card" href="#guiaProfessor">
-          <span class="quick-icon">📌</span>
-          <h3>Guia rápido</h3>
-          <p>Veja como usar o app, alterar sua data e instalar no celular.</p>
-        </a>
-
-        <a class="quick-card" href="#sobreApp">
-          <span class="quick-icon">ℹ️</span>
-          <h3>Sobre o app</h3>
-          <p>Conheça o objetivo e as funções disponíveis para a Igreja Sede.</p>
-        </a>
-      </div>
-    </section>
-
-    <section class="premium-card intro">
-      <div class="notice-strip">
-        <div class="notice-main">
-          <h2>Orientação aos professores 📖</h2>
-          <p>🙏 Paz do Senhor, professores!</p>
-          <p>
-            A escala aparece em primeiro lugar para facilitar a conferência. Caso precise mudar o dia de aula,
-            use o botão <strong>Alterar meu dia</strong>. A troca será feita somente dentro da mesma classe.
-          </p>
-        </div>
-
-        <div class="leadership-mini">
-          <div class="mini-leader">
-            <strong>⛪ Pastor Presidente</strong>
-            Pr. Oseas Valadares
-          </div>
-
-          <div class="mini-leader">
-            <strong>👥 Superintendentes</strong>
-            Coop. Ronan e Pb Elias
-          </div>
-
-          <div class="mini-leader">
-            <strong>📅 Período</strong>
-            3º Trimestre 2026
-          </div>
-        </div>
-        <p class="small-text" style="text-align:center; margin:10px 0 0; color:#64748b;">
-          Para evitar alterações acidentais, o botão de alteração pede a senha padrão <strong>1234</strong>.
-        </p>
-      </div>
-    </section>
-
-    <section id="orientacaoAlteracao" class="premium-card app-alert-card" aria-label="Aviso importante sobre alteração de escala">
-      <div class="alert-layout">
-        <span class="app-alert-icon" aria-hidden="true">📢</span>
-        <div>
-          <h2>Aviso importante</h2>
-          <p>
-            Caso precise alterar alguma data da escala, faça a alteração diretamente pelo App da EBD.
-            Assim, a mudança fica registrada corretamente e a coordenação consegue acompanhar tudo com segurança.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <section id="guiaProfessor" class="premium-card teacher-guide-section">
-      <div class="premium-section-title">
-        <span class="eyebrow">📌 Guia rápido</span>
-        <h2>Como usar o App da EBD</h2>
-        <p>Orientações simples para os professores consultarem os principais recursos.</p>
-      </div>
-
-      <div class="teacher-guide-grid">
-        <div class="teacher-guide-item">
-          <strong>1. Consultar a escala 📅</strong>
-          <p>Confira a data da sua aula, sua classe e os demais professores escalados no trimestre.</p>
-        </div>
-
-        <div class="teacher-guide-item">
-          <strong>2. Alterar sua data 🔄</strong>
-          <p>Use o botão <strong>Alterar meu dia</strong>, escolha classe, nome, data atual e nova data desejada.</p>
-          <span class="app-password-pill">🔐 Senha padrão: 1234</span>
-        </div>
-
-        <div class="teacher-guide-item">
-          <strong>3. Acessar a lição 📖</strong>
-          <p>Entre em <strong>Lição da Semana</strong> para consultar o material de apoio antes da aula.</p>
-        </div>
-
-        <div class="teacher-guide-item">
-          <strong>4. Compartilhar o quiz 🧩</strong>
-          <p>Use os botões do quiz para abrir ou compartilhar com as classes Jovens e Adultos ou Adolescentes.</p>
-        </div>
-
-        <div class="teacher-guide-item">
-          <strong>5. Instalar no celular 📲</strong>
-          <p>No Android, use o Chrome e toque em <strong>Adicionar à tela inicial</strong>. No iPhone, use o Safari e toque em <strong>Adicionar à Tela de Início</strong>.</p>
-        </div>
-
-        <div class="teacher-guide-item">
-          <strong>6. Acompanhar com frequência ✅</strong>
-          <p>Abra o app durante a semana para conferir escala, lição, quizzes e possíveis atualizações.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="sobreApp" class="premium-card about-app-section">
-      <div class="premium-section-title">
-        <span class="eyebrow">ℹ️ Sobre o App</span>
-        <h2>App EBD — Igreja Sede</h2>
-        <p>Ferramenta criada para ajudar a Escola Bíblica Dominical a trabalhar com mais organização, registro e clareza.</p>
-      </div>
-
-      <div class="about-app-badge">🔒 Uso exclusivo da Igreja Sede</div>
-
-      <div class="about-app-grid">
-        <div class="about-app-item">
-          <strong>Objetivo</strong>
-          <p>Centralizar escala, lição da semana, quizzes e orientações em um único lugar de fácil acesso.</p>
-        </div>
-
-        <div class="about-app-item">
-          <strong>Organização da escala</strong>
-          <p>Ajuda professores e coordenação a consultar datas, classes, alterações e histórico do trimestre.</p>
-        </div>
-
-        <div class="about-app-item">
-          <strong>Materiais de apoio</strong>
-          <p>Reúne lição da semana e quizzes das classes Jovens e Adultos e Adolescentes.</p>
-        </div>
-
-        <div class="about-app-item">
-          <strong>Princípio de uso</strong>
-          <p>O app apoia a organização, mas o diálogo entre professores e coordenação continua sendo essencial.</p>
-        </div>
-      </div>
-
-      <div class="support-action-wrap">
-        <button class="btn btn-secondary-scale" type="button" onclick="window.open('https://wa.me/?text=' + encodeURIComponent('A paz do Senhor! Preciso de ajuda com o App da EBD.'), '_blank')">
-          📞 Falar com a coordenação
+          <h3>Escala do trimestre</h3>
+          <p>Veja todas as datas do trimestre.</p>
         </button>
+
+        <a class="quick-card" href="#orientacoesCompactas">
+          <span class="quick-icon">📲</span>
+          <h3>Instalar app</h3>
+          <p>Veja a orientação rápida para Android e iPhone.</p>
+        </a>
+
+        <button class="quick-card quick-card-button" type="button" onclick="window.open('https://wa.me/?text=' + encodeURIComponent('A paz do Senhor! Preciso de ajuda com o App da EBD.'), '_blank')">
+          <span class="quick-icon">📞</span>
+          <h3>Coordenação</h3>
+          <p>Peça ajuda sobre escala, lição ou acesso.</p>
+        </button>
+      </div>
+
+      <div id="orientacoesCompactas" class="quick-access-note">
+        <p>
+          <strong>App exclusivo da Igreja Sede.</strong>
+          Use para consultar a escala, alterar sua data, acessar a lição da semana e compartilhar os quizzes.
+          Caso precise alterar alguma data, faça diretamente pelo app para que a mudança fique registrada corretamente.
+        </p>
+        <span class="app-password-pill">🔐 Senha padrão para alteração: 1234</span>
+        <p style="margin-top:10px; color:#64748b; font-size:0.94rem;">
+          Para instalar: no Android, abra no Chrome e toque em <strong>Adicionar à tela inicial</strong>. No iPhone, abra no Safari e toque em <strong>Adicionar à Tela de Início</strong>.
+        </p>
       </div>
     </section>
 

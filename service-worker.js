@@ -1,4 +1,4 @@
-const CACHE_NAME = "escala-ebd-v2";
+const CACHE_NAME = "escala-ebd-v3-mensageiros";
 
 const ARQUIVOS_CACHE = [
   "./",

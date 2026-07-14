@@ -1,20 +1,25 @@
 const NOME_ABA_ESCALA = "Escala EBD";
 const NOME_ABA_HISTORICO = "Histórico";
+const NOME_ABA_HISTORICO_ESCALAS = "Historico_Escalas";
 const NOME_ABA_LICOES = "Licoes";
 const NOME_ABA_PROFESSORES = "Professores";
 const NOME_ABA_QUIZZES = "Quizzes";
+const TIMEZONE_EBD = "America/Sao_Paulo";
 
-/*
-  Altere esta senha para a senha que você deseja usar no painel admin.html.
-  Exemplo:
-  const SENHA_ADMIN = "ebd2026";
-*/
-const SENHA_ADMIN = "ebd2026";
+// Configure em Configurações do projeto > Propriedades do script:
+// EBD_SENHA_ADMIN e EBD_SENHA_TROCA.
+const PROP_SENHA_ADMIN_EBD = "EBD_SENHA_ADMIN";
+const PROP_SENHA_TROCA_EBD = "EBD_SENHA_TROCA";
+const TTL_TOKEN_ADMIN_EBD = 1800;
+const TTL_TOKEN_TROCA_EBD = 900;
+const LIMITE_FALHAS_LOGIN_EBD = 8;
+const TTL_FALHAS_LOGIN_EBD = 600;
 
 const CLASSES_ESCALA_EBD = [
   "Cordeirinhos de Cristo",
   "Soldadinhos de Cristo",
   "Heróis e Amigos",
+  "Mensageiros de Cristo",
   "Vencedores por Cristo",
   "Vivendo em Cristo",
   "Testemunhas de Cristo",
@@ -25,10 +30,7 @@ const CLASSES_ESCALA_EBD = [
 const COLUNA_SUPORTE_EBD = "Suporte";
 const PROFESSOR_APOIO_RONAN_EBD = "Ronan";
 const VALOR_APOIO_RONAN_EBD = "__RONAN_APOIO__";
-const CLASSES_APOIO_RONAN_EBD = [
-  "Testemunhas de Cristo",
-  "Heróis da Fé"
-];
+const CLASSES_APOIO_RONAN_EBD = ["Testemunhas de Cristo", "Heróis da Fé"];
 
 const MAPA_CLASSES_ANTIGAS_EBD = {
   "Crianças 1 a 5 anos": "Cordeirinhos de Cristo",
@@ -41,9 +43,90 @@ const MAPA_CLASSES_ANTIGAS_EBD = {
   "Irmãos": "Heróis da Fé"
 };
 
-const ORDEM_COLUNAS_ESCALA_EBD = ["Data"]
-  .concat(CLASSES_ESCALA_EBD)
-  .concat([COLUNA_SUPORTE_EBD]);
+const ORDEM_COLUNAS_ESCALA_EBD = ["Data"].concat(CLASSES_ESCALA_EBD).concat([COLUNA_SUPORTE_EBD]);
+const ACOES_ESCRITA_EBD = {
+  trocar:true, salvarLicoes:true, adminSalvarProfessor:true, adminAdicionarData:true,
+  adminRemoverData:true, adminRenomearClasse:true, salvarQuizzes:true,
+  adicionarProfessor:true, atualizarProfessor:true, inativarProfessor:true,
+  substituirProfessor:true, mudarProfessorClasse:true, arquivarEscalaAtual:true
+};
+
+function agoraFormatadoEBD() {
+  return Utilities.formatDate(new Date(), TIMEZONE_EBD, "dd/MM/yyyy HH:mm:ss");
+}
+
+function obterPropriedadeSeguraEBD(chave, descricao) {
+  const valor = String(PropertiesService.getScriptProperties().getProperty(chave) || "").trim();
+  if (!valor) throw new Error("Configuração de segurança ausente: defina a propriedade do script " + chave + " (" + descricao + ").");
+  return valor;
+}
+
+function hashCurtoEBD(valor) {
+  const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(valor || ""));
+  return Utilities.base64EncodeWebSafe(bytes).replace(/=+$/g, "");
+}
+
+function compararSeguroEBD(a, b) {
+  const x = hashCurtoEBD(a), y = hashCurtoEBD(b);
+  if (x.length !== y.length) return false;
+  let diferenca = 0;
+  for (let i = 0; i < x.length; i++) diferenca |= x.charCodeAt(i) ^ y.charCodeAt(i);
+  return diferenca === 0;
+}
+
+function chaveTokenEBD(tipo, token) { return "EBD_TOKEN_" + tipo + "_" + hashCurtoEBD(token); }
+function gerarTokenEBD(tipo, ttl) {
+  const token = Utilities.getUuid() + "." + Utilities.getUuid();
+  CacheService.getScriptCache().put(chaveTokenEBD(tipo, token), "1", ttl);
+  return token;
+}
+function tokenValidoEBD(tipo, token) {
+  return Boolean(token) && CacheService.getScriptCache().get(chaveTokenEBD(tipo, token)) === "1";
+}
+function verificarLimiteLoginEBD(tipo) {
+  const cache = CacheService.getScriptCache(), chave = "EBD_LOGIN_FALHAS_" + tipo;
+  const falhas = Number(cache.get(chave) || 0);
+  if (falhas >= LIMITE_FALHAS_LOGIN_EBD) throw new Error("Muitas tentativas incorretas. Aguarde alguns minutos e tente novamente.");
+  return {cache:cache, chave:chave, falhas:falhas};
+}
+function registrarFalhaLoginEBD(c) { c.cache.put(c.chave, String(c.falhas + 1), TTL_FALHAS_LOGIN_EBD); Utilities.sleep(350); }
+function limparFalhasLoginEBD(c) { c.cache.remove(c.chave); }
+
+function validarAcessoAdmin(parametros) {
+  const controle = verificarLimiteLoginEBD("ADMIN");
+  const configurada = obterPropriedadeSeguraEBD(PROP_SENHA_ADMIN_EBD, "senha do painel administrativo");
+  if (!compararSeguroEBD(parametros.senha || "", configurada)) {
+    registrarFalhaLoginEBD(controle);
+    return {sucesso:false, autenticado:false, mensagem:"Senha administrativa incorreta."};
+  }
+  limparFalhasLoginEBD(controle);
+  return {sucesso:true, autenticado:true, tokenAdmin:gerarTokenEBD("ADMIN", TTL_TOKEN_ADMIN_EBD), expiraEmSegundos:TTL_TOKEN_ADMIN_EBD};
+}
+
+function validarAcessoTroca(parametros) {
+  const controle = verificarLimiteLoginEBD("TROCA");
+  const configurada = obterPropriedadeSeguraEBD(PROP_SENHA_TROCA_EBD, "senha pública para solicitar troca");
+  if (!compararSeguroEBD(parametros.senha || "", configurada)) {
+    registrarFalhaLoginEBD(controle);
+    return {sucesso:false, autenticado:false, mensagem:"Senha de alteração incorreta."};
+  }
+  limparFalhasLoginEBD(controle);
+  return {sucesso:true, autenticado:true, tokenTroca:gerarTokenEBD("TROCA", TTL_TOKEN_TROCA_EBD), expiraEmSegundos:TTL_TOKEN_TROCA_EBD};
+}
+
+function validarSenhaAdmin(parametros) {
+  const token = String(parametros.tokenAdmin || parametros.token || parametros.senha || "").trim();
+  if (!tokenValidoEBD("ADMIN", token)) throw new Error("Sessão administrativa expirada ou inválida. Entre novamente no painel.");
+}
+function validarTokenTrocaEBD(parametros) {
+  const token = String(parametros.tokenTroca || parametros.token || "").trim();
+  if (!tokenValidoEBD("TROCA", token)) throw new Error("Autorização de troca expirada ou inválida. Digite a senha novamente.");
+}
+function executarComLockEBD(funcao) {
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(15000)) throw new Error("Outra alteração está sendo processada. Tente novamente em alguns segundos.");
+  try { return funcao(); } finally { lock.releaseLock(); }
+}
 
 function normalizarNomeClasseEBD(nome) {
   const texto = String(nome || "").trim();
@@ -154,7 +237,7 @@ function obterValorLinhaEscalaEBD(linha, cabecalhos, colunaDesejada) {
 
 function formatarValorEscalaEBD(valor) {
   if (valor instanceof Date) {
-    return Utilities.formatDate(valor, Session.getScriptTimeZone(), "dd/MM/yyyy");
+    return Utilities.formatDate(valor, TIMEZONE_EBD, "dd/MM/yyyy");
   }
 
   return valor === undefined || valor === null ? "" : String(valor).trim();
@@ -162,111 +245,56 @@ function formatarValorEscalaEBD(valor) {
 
 
 function doGet(e) {
-  const parametros = e.parameter || {};
-  const acao = parametros.acao || "";
+  const parametros = e && e.parameter ? e.parameter : {};
+  const acao = String(parametros.acao || "").trim();
   const callback = parametros.callback || "";
-
   let resposta;
-
   try {
-    if (acao === "listar") {
-      resposta = listarEscala();
-
-    } else if (acao === "trocar") {
-      resposta = trocarProfessor(parametros);
-
-    } else if (acao === "historico") {
-      resposta = listarHistorico(parametros);
-
-    } else if (acao === "versao") {
-      resposta = obterVersaoEscala();
-
-    } else if (acao === "licoes") {
-      resposta = listarLicoes();
-
-    } else if (acao === "salvarLicoes") {
-      resposta = salvarLicoes(parametros);
-
-    } else if (acao === "preparar") {
-      resposta = prepararPlanilhaEscalaEBD();
-
-    } else if (acao === "adminSalvarProfessor") {
-      resposta = adminSalvarProfessor(parametros);
-
-    } else if (acao === "adminAdicionarData") {
-      resposta = adminAdicionarData(parametros);
-
-    } else if (acao === "adminRemoverData") {
-      resposta = adminRemoverData(parametros);
-
-    } else if (acao === "adminRenomearClasse") {
-      resposta = adminRenomearClasse(parametros);
-
-    } else if (acao === "quizzes") {
-      resposta = listarQuizzes();
-
-    } else if (acao === "salvarQuizzes") {
-      resposta = salvarQuizzes(parametros);
-
-    } else if (acao === "listarProfessores") {
-      resposta = listarProfessores();
-
-    } else if (acao === "adicionarProfessor") {
-      resposta = adicionarProfessor(parametros);
-
-    } else if (acao === "atualizarProfessor") {
-      resposta = atualizarProfessor(parametros);
-
-    } else if (acao === "inativarProfessor") {
-      resposta = inativarProfessor(parametros);
-
-    } else if (acao === "substituirProfessor") {
-      resposta = substituirProfessor(parametros);
-
-    } else if (acao === "mudarProfessorClasse") {
-      resposta = mudarProfessorClasse(parametros);
-
-    } else {
-      resposta = {
-        sucesso: false,
-        mensagem: "Ação inválida."
-      };
-    }
-
+    const executar = function () { return processarAcaoEBD(acao, parametros); };
+    resposta = ACOES_ESCRITA_EBD[acao] ? executarComLockEBD(executar) : executar();
   } catch (erro) {
-    resposta = {
-      sucesso: false,
-      mensagem: erro.message || "Erro inesperado no Apps Script."
-    };
+    resposta = {sucesso:false, mensagem:erro.message || "Erro inesperado no Apps Script."};
   }
-
   return responderSaida(resposta, callback);
 }
 
 function doPost(e) {
   let resposta;
-
   try {
     const parametros = e && e.parameter ? e.parameter : {};
-    const acao = parametros.acao || "";
-
-    if (acao === "salvarLicoes") {
-      resposta = salvarLicoes(parametros);
-    } else {
-      resposta = {
-        sucesso: false,
-        mensagem: "Ação POST inválida ou não informada."
-      };
-    }
-
+    const acao = String(parametros.acao || "").trim();
+    const executar = function () { return processarAcaoEBD(acao, parametros); };
+    resposta = ACOES_ESCRITA_EBD[acao] ? executarComLockEBD(executar) : executar();
   } catch (erro) {
-    resposta = {
-      sucesso: false,
-      mensagem: erro.message || "Erro inesperado ao salvar."
-    };
+    resposta = {sucesso:false, mensagem:erro.message || "Erro inesperado ao salvar."};
   }
-
   return responderHtmlParaAdmin(resposta);
+}
+
+function processarAcaoEBD(acao, parametros) {
+  if (acao === "listar") return listarEscala();
+  if (acao === "validarAcessoAdmin") return validarAcessoAdmin(parametros);
+  if (acao === "validarAcessoTroca") return validarAcessoTroca(parametros);
+  if (acao === "trocar") { validarTokenTrocaEBD(parametros); return trocarProfessor(parametros); }
+  if (acao === "historico") return listarHistorico(parametros);
+  if (acao === "versao") return obterVersaoEscala();
+  if (acao === "licoes") return listarLicoes();
+  if (acao === "salvarLicoes") return salvarLicoes(parametros);
+  if (acao === "adminSalvarProfessor") return adminSalvarProfessor(parametros);
+  if (acao === "adminAdicionarData") return adminAdicionarData(parametros);
+  if (acao === "adminRemoverData") return adminRemoverData(parametros);
+  if (acao === "adminRenomearClasse") return adminRenomearClasse(parametros);
+  if (acao === "quizzes") return listarQuizzes();
+  if (acao === "salvarQuizzes") return salvarQuizzes(parametros);
+  if (acao === "listarProfessores") { validarSenhaAdmin(parametros); return listarProfessores(); }
+  if (acao === "adicionarProfessor") return adicionarProfessor(parametros);
+  if (acao === "atualizarProfessor") return atualizarProfessor(parametros);
+  if (acao === "inativarProfessor") return inativarProfessor(parametros);
+  if (acao === "substituirProfessor") return substituirProfessor(parametros);
+  if (acao === "mudarProfessorClasse") return mudarProfessorClasse(parametros);
+  if (acao === "arquivarEscalaAtual") return arquivarEscalaAtual(parametros);
+  if (acao === "consultarHistoricoEscalas") { validarSenhaAdmin(parametros); return consultarHistoricoEscalas(parametros); }
+  return {sucesso:false, mensagem:"Ação inválida."};
 }
 
 function responderSaida(resposta, callback) {
@@ -305,80 +333,8 @@ function responderHtmlParaAdmin(resposta) {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
-function validarSenhaAdmin(parametros) {
-  const senha = parametros.senha || "";
-
-  if (senha !== SENHA_ADMIN) {
-    throw new Error("Senha administrativa incorreta.");
-  }
-}
-
 function prepararPlanilhaEscalaEBD() {
-  const planilha = SpreadsheetApp.getActiveSpreadsheet();
-
-  let aba = planilha.getSheetByName(NOME_ABA_ESCALA);
-
-  if (!aba) {
-    aba = planilha.insertSheet(NOME_ABA_ESCALA);
-  }
-
-  aba.clear();
-
-  const cabecalhos = ORDEM_COLUNAS_ESCALA_EBD.slice();
-
-  const dados = [
-    ["17/05/2026", "Rosilene", "Rita", "Oseas Junior", "Maria Tereza", "Noeme", "Emanuela", "Pastora", "Pb Elias", "Ronan"],
-    ["24/05/2026", "Alessandra", "Thaís", "Igor", "Fernanda", "Suely", "Lucas", "Samella", "Pb Felipe", "Ronan"],
-    ["31/05/2026", "Edivania", "Vitória", "Oseas Junior", "Graziele", "Noeme", "Ronan", "Ana Cardoso", "Pb Claudinei", "Ronan"],
-    ["07/06/2026", "Rosângela", "Larissa", "Igor", "Maria Tereza", "Suely", "Emanuela", "Pastora", "Pb Adriano", "Ronan"],
-    ["14/06/2026", "Rosilene", "Rita", "Oseas Junior", "Fernanda", "Noeme", "Lucas", "Samella", "Dc João Paulo", "Ronan"],
-    ["21/06/2026", "Alessandra", "Thaís", "Igor", "Graziele", "Suely", "Ronan", "Ana Cardoso", "Pb Elias", "Ronan"],
-    ["28/06/2026", "Edivania", "Vitória", "Oseas Junior", "Maria Tereza", "Noeme", "Emanuela", "Pastora", "Pb Felipe", "Ronan"]
-  ];
-
-  aba.getRange(1, 1, 1, cabecalhos.length).setValues([cabecalhos]);
-  aba.getRange(2, 1, dados.length, cabecalhos.length).setValues(dados);
-
-  const intervaloCabecalho = aba.getRange(1, 1, 1, cabecalhos.length);
-
-  intervaloCabecalho
-    .setFontWeight("bold")
-    .setFontColor("#ffffff")
-    .setBackground("#1f4e79")
-    .setHorizontalAlignment("center")
-    .setVerticalAlignment("middle");
-
-  const intervaloDados = aba.getRange(2, 1, dados.length, cabecalhos.length);
-
-  intervaloDados
-    .setHorizontalAlignment("center")
-    .setVerticalAlignment("middle")
-    .setWrap(true);
-
-  aba.setFrozenRows(1);
-  aba.autoResizeColumns(1, cabecalhos.length);
-  aba.getRange("A:A").setNumberFormat("@");
-
-  aba.getRange(1, 1, dados.length + 1, cabecalhos.length).setBorder(
-    true,
-    true,
-    true,
-    true,
-    true,
-    true
-  );
-
-  criarOuPrepararHistorico();
-  criarOuPrepararLicoes();
-  criarOuPrepararProfessores();
-  criarOuPrepararQuizzes();
-
-  SpreadsheetApp.flush();
-
-  return {
-    sucesso: true,
-    mensagem: "Planilha Escala EBD preparada com sucesso."
-  };
+  throw new Error("A preparação automática foi desativada para proteger a escala atual. Use a aba Escala EBD existente.");
 }
 
 function criarOuPrepararHistorico() {
@@ -437,13 +393,13 @@ function criarOuPrepararLicoes() {
     aba.appendRow([
       "adultos",
       obterLicaoPadraoAdultos(),
-      Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss")
+      Utilities.formatDate(new Date(), TIMEZONE_EBD, "dd/MM/yyyy HH:mm:ss")
     ]);
 
     aba.appendRow([
       "jovens",
       obterLicaoPadraoJovens(),
-      Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss")
+      Utilities.formatDate(new Date(), TIMEZONE_EBD, "dd/MM/yyyy HH:mm:ss")
     ]);
   }
 
@@ -491,7 +447,7 @@ function garantirLinhaLicao(classe, conteudoPadrao) {
   aba.appendRow([
     classe,
     conteudoPadrao,
-    Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss")
+    Utilities.formatDate(new Date(), TIMEZONE_EBD, "dd/MM/yyyy HH:mm:ss")
   ]);
 }
 
@@ -600,7 +556,7 @@ function trocarProfessor(parametros) {
     let dataLinha = dados[i][indiceData];
 
     if (dataLinha instanceof Date) {
-      dataLinha = Utilities.formatDate(dataLinha, Session.getScriptTimeZone(), "dd/MM/yyyy");
+      dataLinha = Utilities.formatDate(dataLinha, TIMEZONE_EBD, "dd/MM/yyyy");
     } else {
       dataLinha = String(dataLinha).trim();
     }
@@ -712,7 +668,7 @@ function trocarProfessorComApoioRonan(parametros) {
     let dataLinha = dados[i][indiceData];
 
     if (dataLinha instanceof Date) {
-      dataLinha = Utilities.formatDate(dataLinha, Session.getScriptTimeZone(), "dd/MM/yyyy");
+      dataLinha = Utilities.formatDate(dataLinha, TIMEZONE_EBD, "dd/MM/yyyy");
     } else {
       dataLinha = String(dataLinha).trim();
     }
@@ -802,7 +758,7 @@ function adminSalvarProfessor(parametros) {
     let dataLinha = dados[i][indiceData];
 
     if (dataLinha instanceof Date) {
-      dataLinha = Utilities.formatDate(dataLinha, Session.getScriptTimeZone(), "dd/MM/yyyy");
+      dataLinha = Utilities.formatDate(dataLinha, TIMEZONE_EBD, "dd/MM/yyyy");
     } else {
       dataLinha = String(dataLinha).trim();
     }
@@ -875,7 +831,7 @@ function adminAdicionarData(parametros) {
     let dataLinha = dados[i][indiceData];
 
     if (dataLinha instanceof Date) {
-      dataLinha = Utilities.formatDate(dataLinha, Session.getScriptTimeZone(), "dd/MM/yyyy");
+      dataLinha = Utilities.formatDate(dataLinha, TIMEZONE_EBD, "dd/MM/yyyy");
     } else {
       dataLinha = String(dataLinha).trim();
     }
@@ -945,7 +901,7 @@ function adminRemoverData(parametros) {
     let dataLinha = dados[i][indiceData];
 
     if (dataLinha instanceof Date) {
-      dataLinha = Utilities.formatDate(dataLinha, Session.getScriptTimeZone(), "dd/MM/yyyy");
+      dataLinha = Utilities.formatDate(dataLinha, TIMEZONE_EBD, "dd/MM/yyyy");
     } else {
       dataLinha = String(dataLinha).trim();
     }
@@ -1059,7 +1015,7 @@ function registrarHistorico(dados) {
   }
 
   aba.appendRow([
-    Utilities.formatDate(dados.dataHora, Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss"),
+    Utilities.formatDate(dados.dataHora, TIMEZONE_EBD, "dd/MM/yyyy HH:mm:ss"),
     dados.classe,
     dados.professorSolicitante,
     dados.dataAntiga,
@@ -1191,11 +1147,21 @@ function listarLicoes() {
   };
 }
 
+function sanitizarHtmlLicaoEBD(html) {
+  let conteudo = String(html || "");
+  conteudo = conteudo.replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, "");
+  conteudo = conteudo.replace(/<(iframe|object|embed|applet|base|form)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, "");
+  conteudo = conteudo.replace(/<(iframe|object|embed|applet|base|form)\b[^>]*\/?>/gi, "");
+  conteudo = conteudo.replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "");
+  conteudo = conteudo.replace(/(href|src)\s*=\s*(["'])\s*javascript:[\s\S]*?\2/gi, '$1="#"');
+  return conteudo.trim();
+}
+
 function salvarLicoes(parametros) {
   validarSenhaAdmin(parametros);
 
-  const adultos = parametros.adultos || "";
-  const jovens = parametros.jovens || "";
+  const adultos = sanitizarHtmlLicaoEBD(parametros.adultos || "");
+  const jovens = sanitizarHtmlLicaoEBD(parametros.jovens || "");
 
   if (!adultos && !jovens) {
     throw new Error("Nenhuma lição foi recebida para salvar.");
@@ -1223,13 +1189,13 @@ function salvarLicoes(parametros) {
   return {
     sucesso: true,
     mensagem: "Lições salvas com sucesso na aba Licoes.",
-    atualizadoEm: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss")
+    atualizadoEm: Utilities.formatDate(new Date(), TIMEZONE_EBD, "dd/MM/yyyy HH:mm:ss")
   };
 }
 
 function salvarLicaoNaAba(aba, classe, conteudo) {
   const dados = aba.getDataRange().getValues();
-  const agora = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss");
+  const agora = Utilities.formatDate(new Date(), TIMEZONE_EBD, "dd/MM/yyyy HH:mm:ss");
 
   for (let i = 1; i < dados.length; i++) {
     const classeLinha = String(dados[i][0] || "").trim().toLowerCase();
@@ -1262,7 +1228,7 @@ function criarOuPrepararQuizzes() {
   const cabecalhos = ["Classe", "Link", "AtualizadoEm"];
 
   if (aba.getLastRow() === 0) {
-    const agora = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss");
+    const agora = Utilities.formatDate(new Date(), TIMEZONE_EBD, "dd/MM/yyyy HH:mm:ss");
 
     aba.appendRow(cabecalhos);
     aba.appendRow([
@@ -1327,7 +1293,7 @@ function salvarQuizzes(parametros) {
 
   const planilha = SpreadsheetApp.getActiveSpreadsheet();
   const aba = planilha.getSheetByName(NOME_ABA_QUIZZES);
-  const agora = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss");
+  const agora = Utilities.formatDate(new Date(), TIMEZONE_EBD, "dd/MM/yyyy HH:mm:ss");
 
   const dados = aba.getDataRange().getValues();
   const linhas = {};
@@ -1377,95 +1343,72 @@ function salvarQuizzes(parametros) {
 
 function criarOuPrepararProfessores() {
   const planilha = SpreadsheetApp.getActiveSpreadsheet();
-
   let aba = planilha.getSheetByName(NOME_ABA_PROFESSORES);
+  if (!aba) aba = planilha.insertSheet(NOME_ABA_PROFESSORES);
 
-  if (!aba) {
-    aba = planilha.insertSheet(NOME_ABA_PROFESSORES);
-  }
-
-  const cabecalhos = [
-    "Nome",
-    "Classe",
-    "Status",
-    "Observacao",
-    "AtualizadoEm"
-  ];
-
-  if (aba.getLastRow() === 0) {
-    aba.appendRow(cabecalhos);
+  const headers = ["Nome", "Classe", "Status", "Telefone", "Observacao", "AtualizadoEm"];
+  const dados = aba.getLastRow() ? aba.getDataRange().getValues() : [];
+  if (!dados.length) {
+    aba.getRange(1, 1, 1, headers.length).setValues([headers]);
     popularProfessoresDaEscala(aba);
+  } else {
+    const antigos = dados[0].map(function(v){ return String(v || "").trim(); });
+    function indice(nome, ocorrencia) {
+      let vistos = 0;
+      for (let i = 0; i < antigos.length; i++) {
+        if (antigos[i].toLowerCase() === nome.toLowerCase()) {
+          vistos++;
+          if (!ocorrencia || vistos === ocorrencia) return i;
+        }
+      }
+      return -1;
+    }
+    const iNome=indice("Nome"), iClasse=indice("Classe"), iStatus=indice("Status"), iTel=indice("Telefone"), iObs=indice("Observacao"), iAt1=indice("AtualizadoEm",1), iAt2=indice("AtualizadoEm",2);
+    const linhas=[];
+    for (let r=1; r<dados.length; r++) {
+      const nome=String(iNome>=0 ? dados[r][iNome] || "" : "").trim();
+      if (!nome) continue;
+      let atualizado=iAt1>=0 ? dados[r][iAt1] : "";
+      if (!atualizado && iAt2>=0) atualizado=dados[r][iAt2];
+      linhas.push([
+        nome,
+        normalizarNomeClasseEBD(iClasse>=0 ? dados[r][iClasse] : ""),
+        String(iStatus>=0 ? dados[r][iStatus] || "Ativo" : "Ativo").trim() || "Ativo",
+        normalizarTelefoneEBD(iTel>=0 ? dados[r][iTel] : ""),
+        String(iObs>=0 ? dados[r][iObs] || "" : "").trim(),
+        atualizado || agoraFormatadoEBD()
+      ]);
+    }
+    aba.clearContents();
+    aba.getRange(1,1,1,headers.length).setValues([headers]);
+    if (linhas.length) aba.getRange(2,1,linhas.length,headers.length).setValues(linhas);
   }
-
-  aba.getRange(1, 1, 1, cabecalhos.length).setValues([cabecalhos]);
-
-  aba.getRange(1, 1, 1, cabecalhos.length)
-    .setFontWeight("bold")
-    .setFontColor("#ffffff")
-    .setBackground("#1f4e79")
-    .setHorizontalAlignment("center");
-
+  aba.getRange(1,1,1,headers.length).setFontWeight("bold").setFontColor("#ffffff").setBackground("#1f4e79").setHorizontalAlignment("center");
   aba.setFrozenRows(1);
-  aba.setColumnWidths(1, 1, 220);
-  aba.setColumnWidths(2, 1, 180);
-  aba.setColumnWidths(3, 1, 110);
-  aba.setColumnWidths(4, 1, 320);
-  aba.setColumnWidths(5, 1, 180);
+  [220,220,110,170,320,180].forEach(function(w,i){ aba.setColumnWidth(i+1,w); });
+  aba.getRange(1,1,Math.max(aba.getLastRow(),2),headers.length).setVerticalAlignment("top").setWrap(true);
+}
 
-  const ultimaLinha = Math.max(aba.getLastRow(), 2);
-  aba.getRange(1, 1, ultimaLinha, cabecalhos.length)
-    .setVerticalAlignment("top")
-    .setWrap(true);
+function normalizarTelefoneEBD(valor) {
+  let digitos=String(valor || "").replace(/\D/g, "");
+  if ((digitos.length===10 || digitos.length===11) && digitos.indexOf("55")!==0) digitos="55"+digitos;
+  return digitos;
 }
 
 function popularProfessoresDaEscala(abaProfessores) {
-  const planilha = SpreadsheetApp.getActiveSpreadsheet();
-  const abaEscala = planilha.getSheetByName(NOME_ABA_ESCALA);
-
-  if (!abaEscala) {
-    return;
-  }
-
-  const dados = abaEscala.getDataRange().getValues();
-
-  if (dados.length < 2) {
-    return;
-  }
-
-  const cabecalhos = dados[0].map(function (item) {
-    return String(item).trim();
-  });
-
-  const vistos = {};
-  const agora = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss");
-
-  for (let col = 1; col < cabecalhos.length; col++) {
-    const classe = normalizarNomeClasseEBD(cabecalhos[col]);
-
-    if (!ehColunaClasseEBD(classe)) {
-      continue;
-    }
-
-    for (let lin = 1; lin < dados.length; lin++) {
-      const valor = String(dados[lin][col] || "").trim();
-
-      if (!valor) {
-        continue;
-      }
-
-      const nomes = valor.split("/").map(function (nome) {
-        return nome.trim();
-      }).filter(Boolean);
-
-      nomes.forEach(function (nome) {
-        const chave = nome.toLowerCase();
-
-        if (vistos[chave]) {
-          return;
-        }
-
-        vistos[chave] = true;
-        abaProfessores.appendRow([nome, classe, "Ativo", "Importado da escala atual", agora]);
+  const aba=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(NOME_ABA_ESCALA);
+  if (!aba) return;
+  const dados=aba.getDataRange().getValues();
+  if (dados.length<2) return;
+  const headers=dados[0].map(function(v){ return String(v || "").trim(); });
+  const vistos={}, agora=agoraFormatadoEBD();
+  for (let c=1;c<headers.length;c++) {
+    const classe=normalizarNomeClasseEBD(headers[c]);
+    if (!ehColunaClasseEBD(classe)) continue;
+    for (let r=1;r<dados.length;r++) {
+      String(dados[r][c] || "").split("/").map(function(v){return v.trim();}).filter(Boolean).forEach(function(nome){
+        const k=nome.toLowerCase(); if (vistos[k]) return; vistos[k]=true;
+        abaProfessores.appendRow([nome,classe,"Ativo","","Importado da escala atual",agora]);
       });
     }
   }
@@ -1473,221 +1416,62 @@ function popularProfessoresDaEscala(abaProfessores) {
 
 function listarProfessores() {
   criarOuPrepararProfessores();
-
-  const planilha = SpreadsheetApp.getActiveSpreadsheet();
-  const aba = planilha.getSheetByName(NOME_ABA_PROFESSORES);
-
-  if (!aba) {
-    throw new Error("A aba '" + NOME_ABA_PROFESSORES + "' não foi encontrada.");
+  const dados=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(NOME_ABA_PROFESSORES).getDataRange().getValues();
+  const professores=[];
+  for (let i=1;i<dados.length;i++) {
+    const nome=String(dados[i][0] || "").trim(); if (!nome) continue;
+    professores.push({nome:nome,classe:String(dados[i][1] || "").trim(),status:String(dados[i][2] || "Ativo").trim(),telefone:String(dados[i][3] || "").trim(),observacao:String(dados[i][4] || "").trim(),atualizadoEm:formatarValorEscalaEBD(dados[i][5])});
   }
-
-  const dados = aba.getDataRange().getValues();
-  const professores = [];
-
-  for (let i = 1; i < dados.length; i++) {
-    const nome = String(dados[i][0] || "").trim();
-
-    if (!nome) {
-      continue;
-    }
-
-    professores.push({
-      nome: nome,
-      classe: String(dados[i][1] || "").trim(),
-      status: String(dados[i][2] || "Ativo").trim(),
-      observacao: String(dados[i][3] || "").trim(),
-      atualizadoEm: String(dados[i][4] || "").trim()
-    });
-  }
-
-  professores.sort(function (a, b) {
-    return a.nome.localeCompare(b.nome, "pt-BR");
-  });
-
-  return {
-    sucesso: true,
-    professores: professores
-  };
+  professores.sort(function(a,b){return a.nome.localeCompare(b.nome,"pt-BR");});
+  return {sucesso:true,professores:professores};
 }
 
-function encontrarLinhaProfessor(aba, nome) {
-  const dados = aba.getDataRange().getValues();
-  const nomeBusca = String(nome || "").trim().toLowerCase();
-
-  for (let i = 1; i < dados.length; i++) {
-    const nomeLinha = String(dados[i][0] || "").trim().toLowerCase();
-
-    if (nomeLinha === nomeBusca) {
-      return i + 1;
-    }
-  }
-
+function encontrarLinhaProfessor(aba,nome) {
+  const dados=aba.getDataRange().getValues(), busca=String(nome || "").trim().toLowerCase();
+  for (let i=1;i<dados.length;i++) if (String(dados[i][0] || "").trim().toLowerCase()===busca) return i+1;
   return -1;
 }
 
 function adicionarProfessor(parametros) {
-  validarSenhaAdmin(parametros);
-  criarOuPrepararProfessores();
-
-  const nome = String(parametros.nome || "").trim();
-  const classe = String(parametros.classe || "").trim();
-  const status = String(parametros.status || "Ativo").trim() || "Ativo";
-  const observacao = String(parametros.observacao || "").trim();
-
-  if (!nome) {
-    throw new Error("Informe o nome do professor.");
-  }
-
-  const planilha = SpreadsheetApp.getActiveSpreadsheet();
-  const aba = planilha.getSheetByName(NOME_ABA_PROFESSORES);
-  const linhaExistente = encontrarLinhaProfessor(aba, nome);
-  const agora = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss");
-
-  if (linhaExistente > -1) {
-    throw new Error("Este professor já está cadastrado: " + nome);
-  }
-
-  aba.appendRow([nome, classe, status, observacao, agora]);
-
-  registrarHistorico({
-    dataHora: new Date(),
-    classe: "Professores",
-    professorSolicitante: "Administrador",
-    dataAntiga: "",
-    novaData: "",
-    professorTrocado: "Adicionou professor: " + nome + (classe ? " | Classe: " + classe : ""),
-    origem: "Painel Admin - Professores"
-  });
-
-  SpreadsheetApp.flush();
-
-  return {
-    sucesso: true,
-    mensagem: "Professor cadastrado com sucesso."
-  };
+  validarSenhaAdmin(parametros); criarOuPrepararProfessores();
+  const nome=String(parametros.nome || "").trim(); if (!nome) throw new Error("Informe o nome do professor.");
+  const aba=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(NOME_ABA_PROFESSORES);
+  if (encontrarLinhaProfessor(aba,nome)>-1) throw new Error("Este professor já está cadastrado: "+nome);
+  aba.appendRow([nome,normalizarNomeClasseEBD(parametros.classe || ""),String(parametros.status || "Ativo").trim() || "Ativo",normalizarTelefoneEBD(parametros.telefone || ""),String(parametros.observacao || "").trim(),agoraFormatadoEBD()]);
+  registrarHistorico({dataHora:new Date(),classe:"Professores",professorSolicitante:"Administrador",dataAntiga:"",novaData:"",professorTrocado:"Adicionou professor: "+nome,origem:"Painel Admin - Professores"});
+  SpreadsheetApp.flush(); return {sucesso:true,mensagem:"Professor cadastrado com sucesso."};
 }
 
 function atualizarProfessor(parametros) {
-  validarSenhaAdmin(parametros);
-  criarOuPrepararProfessores();
-
-  const nomeOriginal = String(parametros.nomeOriginal || "").trim();
-  const nome = String(parametros.nome || "").trim();
-  const classe = String(parametros.classe || "").trim();
-  const status = String(parametros.status || "Ativo").trim() || "Ativo";
-  const observacao = String(parametros.observacao || "").trim();
-
-  if (!nomeOriginal || !nome) {
-    throw new Error("Informe o professor para atualizar.");
-  }
-
-  const planilha = SpreadsheetApp.getActiveSpreadsheet();
-  const aba = planilha.getSheetByName(NOME_ABA_PROFESSORES);
-  const linha = encontrarLinhaProfessor(aba, nomeOriginal);
-
-  if (linha === -1) {
-    throw new Error("Professor não encontrado: " + nomeOriginal);
-  }
-
-  if (nomeOriginal.toLowerCase() !== nome.toLowerCase()) {
-    const linhaNomeNovo = encontrarLinhaProfessor(aba, nome);
-    if (linhaNomeNovo > -1) {
-      throw new Error("Já existe outro professor com o nome: " + nome);
-    }
-  }
-
-  const agora = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss");
-
-  aba.getRange(linha, 1).setValue(nome);
-  aba.getRange(linha, 2).setValue(classe);
-  aba.getRange(linha, 3).setValue(status);
-  aba.getRange(linha, 4).setValue(observacao);
-  aba.getRange(linha, 5).setValue(agora);
-
-  registrarHistorico({
-    dataHora: new Date(),
-    classe: "Professores",
-    professorSolicitante: "Administrador",
-    dataAntiga: nomeOriginal,
-    novaData: nome,
-    professorTrocado: "Atualizou cadastro: " + nome + " | Classe: " + classe + " | Status: " + status,
-    origem: "Painel Admin - Professores"
-  });
-
-  SpreadsheetApp.flush();
-
-  return {
-    sucesso: true,
-    mensagem: "Cadastro do professor atualizado com sucesso."
-  };
+  validarSenhaAdmin(parametros); criarOuPrepararProfessores();
+  const original=String(parametros.nomeOriginal || "").trim(), nome=String(parametros.nome || "").trim();
+  if (!original || !nome) throw new Error("Informe o professor para atualizar.");
+  const aba=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(NOME_ABA_PROFESSORES), linha=encontrarLinhaProfessor(aba,original);
+  if (linha===-1) throw new Error("Professor não encontrado: "+original);
+  if (original.toLowerCase()!==nome.toLowerCase() && encontrarLinhaProfessor(aba,nome)>-1) throw new Error("Já existe outro professor com o nome: "+nome);
+  aba.getRange(linha,1,1,6).setValues([[nome,normalizarNomeClasseEBD(parametros.classe || ""),String(parametros.status || "Ativo").trim() || "Ativo",normalizarTelefoneEBD(parametros.telefone || ""),String(parametros.observacao || "").trim(),agoraFormatadoEBD()]]);
+  registrarHistorico({dataHora:new Date(),classe:"Professores",professorSolicitante:"Administrador",dataAntiga:original,novaData:nome,professorTrocado:"Atualizou cadastro: "+nome,origem:"Painel Admin - Professores"});
+  SpreadsheetApp.flush(); return {sucesso:true,mensagem:"Cadastro do professor atualizado com sucesso."};
 }
 
+function inativarProfessorInternoEBD(nome,observacao) {
+  criarOuPrepararProfessores();
+  const aba=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(NOME_ABA_PROFESSORES), linha=encontrarLinhaProfessor(aba,nome);
+  if (linha===-1) throw new Error("Professor não encontrado: "+nome);
+  aba.getRange(linha,3).setValue("Inativo"); aba.getRange(linha,5).setValue(observacao || "Professor inativado pelo administrador."); aba.getRange(linha,6).setValue(agoraFormatadoEBD());
+}
 function inativarProfessor(parametros) {
-  validarSenhaAdmin(parametros);
-  criarOuPrepararProfessores();
-
-  const nome = String(parametros.nome || "").trim();
-  const observacao = String(parametros.observacao || "Professor inativado pelo administrador.").trim();
-
-  if (!nome) {
-    throw new Error("Informe o professor para inativar.");
-  }
-
-  const planilha = SpreadsheetApp.getActiveSpreadsheet();
-  const aba = planilha.getSheetByName(NOME_ABA_PROFESSORES);
-  const linha = encontrarLinhaProfessor(aba, nome);
-
-  if (linha === -1) {
-    throw new Error("Professor não encontrado: " + nome);
-  }
-
-  const agora = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss");
-
-  aba.getRange(linha, 3).setValue("Inativo");
-  aba.getRange(linha, 4).setValue(observacao);
-  aba.getRange(linha, 5).setValue(agora);
-
-  registrarHistorico({
-    dataHora: new Date(),
-    classe: "Professores",
-    professorSolicitante: "Administrador",
-    dataAntiga: "Ativo",
-    novaData: "Inativo",
-    professorTrocado: "Inativou professor: " + nome,
-    origem: "Painel Admin - Professores"
-  });
-
-  SpreadsheetApp.flush();
-
-  return {
-    sucesso: true,
-    mensagem: "Professor inativado com sucesso."
-  };
+  validarSenhaAdmin(parametros); const nome=String(parametros.nome || "").trim(); if (!nome) throw new Error("Informe o professor para inativar.");
+  inativarProfessorInternoEBD(nome,String(parametros.observacao || "").trim());
+  registrarHistorico({dataHora:new Date(),classe:"Professores",professorSolicitante:"Administrador",dataAntiga:"Ativo",novaData:"Inativo",professorTrocado:"Inativou professor: "+nome,origem:"Painel Admin - Professores"});
+  SpreadsheetApp.flush(); return {sucesso:true,mensagem:"Professor inativado com sucesso."};
 }
 
-function garantirProfessorAtivo(nome, classe, observacao) {
-  if (!nome) {
-    return;
-  }
-
-  criarOuPrepararProfessores();
-
-  const planilha = SpreadsheetApp.getActiveSpreadsheet();
-  const aba = planilha.getSheetByName(NOME_ABA_PROFESSORES);
-  const linha = encontrarLinhaProfessor(aba, nome);
-  const agora = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss");
-
-  if (linha === -1) {
-    aba.appendRow([nome, classe || "", "Ativo", observacao || "Criado automaticamente pelo painel", agora]);
-    return;
-  }
-
-  aba.getRange(linha, 3).setValue("Ativo");
-  aba.getRange(linha, 5).setValue(agora);
-
-  if (classe) {
-    aba.getRange(linha, 2).setValue(classe);
-  }
+function garantirProfessorAtivo(nome,classe,observacao) {
+  if (!nome) return; criarOuPrepararProfessores();
+  const aba=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(NOME_ABA_PROFESSORES), linha=encontrarLinhaProfessor(aba,nome);
+  if (linha===-1) { aba.appendRow([nome,normalizarNomeClasseEBD(classe || ""),"Ativo","",observacao || "Criado automaticamente pelo painel",agoraFormatadoEBD()]); return; }
+  aba.getRange(linha,3).setValue("Ativo"); aba.getRange(linha,6).setValue(agoraFormatadoEBD()); if (classe) aba.getRange(linha,2).setValue(normalizarNomeClasseEBD(classe));
 }
 
 function dataEhFuturaOuHoje(dataTexto) {
@@ -1770,7 +1554,7 @@ function substituirProfessor(parametros) {
     let dataLinha = dados[i][indiceData];
 
     if (dataLinha instanceof Date) {
-      dataLinha = Utilities.formatDate(dataLinha, Session.getScriptTimeZone(), "dd/MM/yyyy");
+      dataLinha = Utilities.formatDate(dataLinha, TIMEZONE_EBD, "dd/MM/yyyy");
     } else {
       dataLinha = String(dataLinha).trim();
     }
@@ -1799,11 +1583,7 @@ function substituirProfessor(parametros) {
   garantirProfessorAtivo(professorNovo, classe && classe !== "Todas as classes" ? classe : "", "Substituiu " + professorAntigo);
 
   if (inativarAntigo === "sim") {
-    inativarProfessor({
-      senha: SENHA_ADMIN,
-      nome: professorAntigo,
-      observacao: "Substituído por " + professorNovo
-    });
+    inativarProfessorInternoEBD(professorAntigo, "Substituído por " + professorNovo);
   }
 
   registrarHistorico({
@@ -1869,14 +1649,14 @@ function mudarProfessorClasse(parametros) {
   const planilha = SpreadsheetApp.getActiveSpreadsheet();
   const abaProfessores = planilha.getSheetByName(NOME_ABA_PROFESSORES);
   const linhaProfessor = encontrarLinhaProfessor(abaProfessores, professor);
-  const agora = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss");
+  const agora = Utilities.formatDate(new Date(), TIMEZONE_EBD, "dd/MM/yyyy HH:mm:ss");
 
   if (linhaProfessor === -1) {
-    abaProfessores.appendRow([professor, classeNova, "Ativo", "Criado ao mudar professor de classe", agora]);
+    abaProfessores.appendRow([professor, classeNova, "Ativo", "", "Criado ao mudar professor de classe", agora]);
   } else {
     abaProfessores.getRange(linhaProfessor, 2).setValue(classeNova);
     abaProfessores.getRange(linhaProfessor, 3).setValue("Ativo");
-    abaProfessores.getRange(linhaProfessor, 5).setValue(agora);
+    abaProfessores.getRange(linhaProfessor, 6).setValue(agora);
   }
 
   let alteracoes = 0;
@@ -1904,7 +1684,7 @@ function mudarProfessorClasse(parametros) {
       let dataLinha = dados[i][indiceData];
 
       if (dataLinha instanceof Date) {
-        dataLinha = Utilities.formatDate(dataLinha, Session.getScriptTimeZone(), "dd/MM/yyyy");
+        dataLinha = Utilities.formatDate(dataLinha, TIMEZONE_EBD, "dd/MM/yyyy");
       } else {
         dataLinha = String(dataLinha).trim();
       }
@@ -1955,6 +1735,56 @@ function mudarProfessorClasse(parametros) {
   };
 }
 
+
+function criarOuPrepararHistoricoEscalasEBD() {
+  const planilha=SpreadsheetApp.getActiveSpreadsheet();
+  let aba=planilha.getSheetByName(NOME_ABA_HISTORICO_ESCALAS);
+  if (!aba) aba=planilha.insertSheet(NOME_ABA_HISTORICO_ESCALAS);
+  const headers=["ID","Ano","Trimestre","Data","Classe","Professor","Suporte","Origem","Data do Arquivamento","Observação"];
+  if (aba.getLastRow()===0) aba.appendRow(headers);
+  aba.getRange(1,1,1,headers.length).setValues([headers]).setFontWeight("bold").setFontColor("#ffffff").setBackground("#1f4e79");
+  aba.setFrozenRows(1); return aba;
+}
+function codigoTrimestreEBD(trimestre) {
+  const texto=String(trimestre || "").trim(), n=(texto.match(/[1-4]/) || [""])[0];
+  return n ? n+"T" : texto.replace(/\s+/g,"-");
+}
+function arquivarEscalaAtual(parametros) {
+  validarSenhaAdmin(parametros);
+  const ano=String(parametros.ano || "").trim(), trimestre=String(parametros.trimestre || "").trim();
+  if (!/^\d{4}$/.test(ano) || !trimestre) throw new Error("Informe um ano válido e o trimestre.");
+  const planilha=SpreadsheetApp.getActiveSpreadsheet(), escala=planilha.getSheetByName(NOME_ABA_ESCALA);
+  if (!escala) throw new Error("A aba '"+NOME_ABA_ESCALA+"' não foi encontrada.");
+  const historico=criarOuPrepararHistoricoEscalasEBD(), existentes={}, dh=historico.getDataRange().getValues();
+  for (let i=1;i<dh.length;i++) existentes[String(dh[i][0] || "")]=true;
+  const dados=escala.getDataRange().getValues(), headers=dados[0].map(function(v){return String(v || "").trim();});
+  const iData=headers.indexOf("Data"), iSup=headers.indexOf(COLUNA_SUPORTE_EBD), linhas=[]; let duplicados=0;
+  for (let r=1;r<dados.length;r++) {
+    if (!dados[r][iData]) continue;
+    const data=formatarValorEscalaEBD(dados[r][iData]), suporte=iSup>=0 ? String(dados[r][iSup] || "").trim() : "";
+    CLASSES_ESCALA_EBD.forEach(function(classe){
+      const c=encontrarIndiceClasseEscalaEBD(headers,classe); if (c<0) return;
+      const id=ano+"-"+codigoTrimestreEBD(trimestre)+"-"+data+"-"+classe;
+      if (existentes[id]) {duplicados++; return;} existentes[id]=true;
+      linhas.push([id,Number(ano),trimestre,dados[r][iData],classe,String(dados[r][c] || "").trim(),suporte,String(parametros.origem || "Painel Admin"),agoraFormatadoEBD(),String(parametros.observacao || "")]);
+    });
+  }
+  if (linhas.length) historico.getRange(historico.getLastRow()+1,1,linhas.length,10).setValues(linhas);
+  SpreadsheetApp.flush(); return {sucesso:true,inseridos:linhas.length,duplicados:duplicados,mensagem:"Escala arquivada com segurança."};
+}
+function consultarHistoricoEscalas(parametros) {
+  const aba=criarOuPrepararHistoricoEscalasEBD(), dados=aba.getDataRange().getValues(), headers=dados[0].map(function(v){return String(v || "").trim();});
+  const limite=Math.min(Number(parametros.limite || 1000) || 1000,5000), registros=[];
+  for (let i=dados.length-1;i>=1 && registros.length<limite;i--) {
+    const item={}; headers.forEach(function(h,c){item[h]=formatarValorEscalaEBD(dados[i][c]);});
+    if (parametros.ano && String(item.Ano)!==String(parametros.ano)) continue;
+    if (parametros.trimestre && String(item.Trimestre)!==String(parametros.trimestre)) continue;
+    if (parametros.classe && String(item.Classe)!==String(parametros.classe)) continue;
+    if (parametros.professor && String(item.Professor).toLowerCase().indexOf(String(parametros.professor).toLowerCase())===-1) continue;
+    registros.push(item);
+  }
+  return {sucesso:true,registros:registros};
+}
 
 function obterLicaoPadraoAdultos() {
   return `

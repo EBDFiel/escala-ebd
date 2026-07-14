@@ -5,7 +5,7 @@
   <!-- ADMIN_EBD_MOBILE_EDITOR_AMPLO_20260705 -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Admin EBD — Igreja Sede</title>
+  <title>Admin EBD — Igreja Sede | Estabilização 1</title>
 
   <meta name="theme-color" content="#0b2b3f" />
   <meta name="application-name" content="Admin EBD" />
@@ -1535,7 +1535,7 @@
     </div>
     <label for="senha">Senha do painel</label>
     <input id="senha" type="password" placeholder="Insira a senha mestre" />
-    <p class="help" style="font-size:0.8rem; margin:0.5rem 0 1rem;">Utilize a mesma senha configurada no Apps Script (SENHA_ADMIN).</p>
+    <p class="help" style="font-size:0.8rem; margin:0.5rem 0 1rem;">A senha é validada pelo Apps Script e não fica armazenada no navegador.</p>
     <div class="actions" style="display:flex; gap:1rem; flex-wrap:wrap;">
       <button id="btnAcessarPainel" class="secondary" onclick="entrarNoPainel()">🔓 Acessar painel</button>
       <a class="link-btn secondary" href="./index.html" target="_blank" style="background:#5b6e8c;">🌐 Site público</a>
@@ -1580,6 +1580,7 @@
         <button id="abaLicoesBtn" class="nav-btn active" onclick="abrirPainel('licoes')">📚 Lições interativas</button>
         <button id="abaEscalaBtn" class="nav-btn" onclick="abrirPainel('escala')">📅 Gerenciar escala</button>
         <button id="abaCompartilharEscalaBtn" class="nav-btn" onclick="abrirPainel('compartilharEscala')">📤 Escala da semana</button>
+        <button id="abaAvisosBtn" class="nav-btn" onclick="abrirPainel('avisos')">📲 Avisos aos professores</button>
         <button id="abaProfessoresBtn" class="nav-btn" onclick="abrirPainel('professores')">👥 Professores</button>
         <button id="abaQuizzesBtn" class="nav-btn" onclick="abrirPainel('quizzes')">🧠 Quizzes</button>
         <button id="abaMapaBtn" class="nav-btn" onclick="abrirPainel('mapa')">🗺️ Mapa do Site</button>
@@ -1735,10 +1736,58 @@
         </div>
 
         <!-- PAINEL PROFESSORES -->
+        <div id="painelAvisos" class="admin-panel card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+            <div>
+              <h2>📲 Avisos aos professores</h2>
+              <p>Gere mensagens prontas para lembrar, confirmar ou agradecer os professores escalados. O envio é feito pelo WhatsApp, com revisão humana antes do disparo.</p>
+            </div>
+            <span class="chip">WhatsApp manual seguro</span>
+          </div>
+
+          <div class="subcard">
+            <div class="subcard-header">
+              <h3>🔔 Gerar avisos da escala</h3>
+              <span class="chip">mensagem pronta</span>
+            </div>
+            <p class="help" style="margin-bottom:1rem;">Escolha a data da escala, selecione o modelo de mensagem e clique em gerar. Se o professor tiver telefone cadastrado, o botão do WhatsApp abrirá a conversa com o texto pronto.</p>
+            <div class="form-grid">
+              <div><label>Data da escala</label><select id="avisoDataEscala"></select></div>
+              <div><label>Modelo de mensagem</label><select id="avisoModelo">
+                <option value="lembrete">Lembrete da aula</option>
+                <option value="confirmacao">Confirmação de presença</option>
+                <option value="troca">Aviso de troca de escala</option>
+                <option value="agradecimento">Agradecimento pela participação</option>
+              </select></div>
+              <div><label>Filtrar professor</label><select id="avisoFiltroProfessor"><option value="">Todos</option></select></div>
+            </div>
+            <div class="actions" style="margin-top:1rem;">
+              <button onclick="renderizarAvisosProfessores()">📋 Gerar avisos</button>
+              <button class="secondary" onclick="copiarMensagensDaDataAviso()">📄 Copiar mensagens da data</button>
+              <button class="gray" onclick="carregarEscala(); carregarProfessores();">🔄 Atualizar dados</button>
+            </div>
+          </div>
+
+          <div class="subcard">
+            <div class="subcard-header">
+              <h3>📞 Telefones cadastrados</h3>
+              <span id="avisosResumo" class="chip">Nenhum aviso gerado</span>
+            </div>
+            <p class="help" style="margin-bottom:1rem;">Cadastre ou atualize o telefone na aba <strong>Professores</strong>, usando DDD e número. Exemplo: <strong>5531999999999</strong>.</p>
+            <div class="table-wrap"><table id="tabelaAvisosProfessores"><thead></thead><tbody></tbody></table></div>
+          </div>
+
+          <div class="subcard">
+            <div class="subcard-header"><h3>📝 Prévia / mensagem copiada</h3></div>
+            <textarea id="avisoMensagemPreview" rows="8" readonly placeholder="Clique em Copiar mensagem ou Gerar avisos para ver a prévia aqui."></textarea>
+          </div>
+        </div>
+
+        <!-- PAINEL PROFESSORES -->
         <div id="painelProfessores" class="admin-panel card">
           <div><h2>👥 Corpo docente</h2><p>Cadastro, status e substituições</p></div>
-          <div class="subcard"><h3>➕ Novo professor</h3><div class="form-grid"><div><label>Nome</label><input id="profNovoNome" /></div><div><label>Classe preferencial</label><select id="profNovaClasse"></select></div><div><label>Status</label><select id="profNovoStatus"><option>Ativo</option><option>Inativo</option></select></div><div><label>Obs</label><input id="profNovaObs" /></div></div><div class="actions"><button onclick="adicionarProfessorAdmin()">Adicionar</button></div></div>
-          <div class="subcard"><h3>✏️ Editar / Inativar</h3><div class="form-grid"><div><label>Professor</label><select id="profSelecionado" onchange="preencherProfessorSelecionado()"></select></div><div><label>Nome</label><input id="profEditarNome" /></div><div><label>Classe</label><select id="profEditarClasse"></select></div><div><label>Status</label><select id="profEditarStatus"><option>Ativo</option><option>Inativo</option></select></div><div><label>Obs</label><input id="profEditarObs" /></div></div><div class="actions"><button onclick="atualizarProfessorAdmin()">Salvar alterações</button><button class="red" onclick="inativarProfessorAdmin()">Inativar</button></div></div>
+          <div class="subcard"><h3>➕ Novo professor</h3><div class="form-grid"><div><label>Nome</label><input id="profNovoNome" /></div><div><label>Classe preferencial</label><select id="profNovaClasse"></select></div><div><label>Status</label><select id="profNovoStatus"><option>Ativo</option><option>Inativo</option></select></div><div><label>Telefone WhatsApp</label><input id="profNovoTelefone" placeholder="5531999999999" /></div><div><label>Obs</label><input id="profNovaObs" /></div></div><div class="actions"><button onclick="adicionarProfessorAdmin()">Adicionar</button></div></div>
+          <div class="subcard"><h3>✏️ Editar / Inativar</h3><div class="form-grid"><div><label>Professor</label><select id="profSelecionado" onchange="preencherProfessorSelecionado()"></select></div><div><label>Nome</label><input id="profEditarNome" /></div><div><label>Classe</label><select id="profEditarClasse"></select></div><div><label>Status</label><select id="profEditarStatus"><option>Ativo</option><option>Inativo</option></select></div><div><label>Telefone WhatsApp</label><input id="profEditarTelefone" placeholder="5531999999999" /></div><div><label>Obs</label><input id="profEditarObs" /></div></div><div class="actions"><button onclick="atualizarProfessorAdmin()">Salvar alterações</button><button class="red" onclick="inativarProfessorAdmin()">Inativar</button></div></div>
 
           <div class="subcard"><h3>🔄 Substituir professor na escala</h3><div class="form-grid"><div><label>Professor que saiu</label><select id="profSubAntigo"></select></div><div><label>Novo professor</label><input id="profSubNovo" list="listaProfessoresDatalist" /></div><div><label>Classe (opcional)</label><select id="profSubClasse"></select></div><div><label>Aplicar em</label><select id="profSubAlcance"><option value="futuras">Somente futuras</option><option value="toda">Toda escala</option></select></div><div><label>Inativar antigo?</label><select id="profSubInativar"><option value="sim">Sim, inativar</option><option value="nao">Manter ativo</option></select></div></div><div class="actions"><button class="purple" onclick="substituirProfessorAdmin()">Substituir</button></div></div>
 
@@ -2216,13 +2265,13 @@
     }
   }
 
-  function obterSenhaSessao() { return sessionStorage.getItem("senhaAdminEBD") || ""; }
-  function salvarSenhaSessao(v) { sessionStorage.setItem("senhaAdminEBD", v); }
-  function limparSenhaSessao() { sessionStorage.removeItem("senhaAdminEBD"); }
+  function obterSenhaSessao() { return sessionStorage.getItem("tokenAdminEBD") || ""; }
+  function salvarSenhaSessao(v) { sessionStorage.setItem("tokenAdminEBD", v); }
+  function limparSenhaSessao() { sessionStorage.removeItem("tokenAdminEBD"); }
 
   function respostaIndicaSenhaIncorreta(resposta) {
     const mensagem = String((resposta && resposta.mensagem) || "").toLowerCase();
-    return Boolean(resposta && resposta.sucesso === false && mensagem.includes("senha administrativa incorreta"));
+    return Boolean(resposta && resposta.sucesso === false && mensagem.includes("senha administrativa incorreta") || mensagem.includes("sessão administrativa"));
   }
 
   function exibirTelaLoginAdmin(limparCampo = false) {
@@ -2240,11 +2289,11 @@
     if (senhaForm) senhaForm.value = "";
   }
 
-  function liberarInterfaceAdmin(senha) {
-    salvarSenhaSessao(senha);
+  function liberarInterfaceAdmin(tokenAdmin) {
+    salvarSenhaSessao(tokenAdmin);
 
     const senhaForm = document.getElementById("senhaForm");
-    if (senhaForm) senhaForm.value = senha;
+    if (senhaForm) senhaForm.value = tokenAdmin;
 
     document.getElementById("telaLogin").style.display = "none";
     document.getElementById("barraPainel").style.display = "block";
@@ -2261,28 +2310,11 @@
   }
 
   function obterSenhaObrigatoria() {
-    let senha = obterSenhaSessao();
-
-    if (!senha) {
-      const campoSenha = document.getElementById("senha");
-      senha = campoSenha ? campoSenha.value.trim() : "";
-    }
-
-    if (!senha) {
-      senha = window.prompt("Digite a senha administrativa para confirmar:") || "";
-      senha = senha.trim();
-    }
-
-    if (!senha) {
-      throw new Error("Sessão expirada. Entre novamente com a senha para continuar.");
-    }
-
+    const token = obterSenhaSessao();
+    if (!token) throw new Error("Sessão expirada. Entre novamente no painel.");
     const senhaForm = document.getElementById("senhaForm");
-    if (senhaForm) {
-      senhaForm.value = senha;
-    }
-
-    return senha;
+    if (senhaForm) senhaForm.value = token;
+    return token;
   }
 
   let autenticacaoAdminEmAndamento = false;
@@ -2324,8 +2356,11 @@
         return;
       }
 
-      liberarInterfaceAdmin(senha);
-      mostrarStatus("success", "Painel liberado com senha validada.");
+      const tokenAdmin = String(resposta.tokenAdmin || "").trim();
+      if (!tokenAdmin) throw new Error("O Apps Script não retornou o token administrativo.");
+      liberarInterfaceAdmin(tokenAdmin);
+      if (campoSenha) campoSenha.value = "";
+      mostrarStatus("success", "Painel liberado com sessão segura.");
       await carregarTudo();
     } catch (erro) {
       exibirTelaLoginAdmin(false);
@@ -2786,6 +2821,7 @@
       nome,
       classe: String(professor.classe || professor.Classe || professor.turma || professor.Turma || "").trim(),
       status: String(professor.status || professor.Status || "Ativo").trim() || "Ativo",
+      telefone: String(professor.telefone || professor.Telefone || professor.whatsapp || professor.WhatsApp || professor.celular || professor.Celular || "").trim(),
       observacao: String(professor.observacao || professor.observação || professor.Observacao || professor["Observação"] || professor.obs || professor.Obs || "").trim(),
       atualizadoEm: String(professor.atualizadoEm || professor.AtualizadoEm || professor["Atualizado em"] || "").trim()
     };
@@ -3058,7 +3094,7 @@
 
   async function carregarProfessores() {
     try {
-      const r = await chamarAppsScript({ acao: "listarProfessores", cache: "nao", _nocache: Date.now() });
+      const r = await chamarAppsScript({ acao: "listarProfessores", senha: obterSenhaObrigatoria(), cache: "nao", _nocache: Date.now() });
 
       if (!r || !r.sucesso) {
         throw new Error((r && r.mensagem) || "Não foi possível carregar os professores.");
@@ -3112,6 +3148,7 @@
 
     preencherProfessorSelecionado();
     preencherFiltrosHistoricoEscalas();
+    preencherSelectsAvisos();
   }
 
   function preencherProfessorSelecionado() {
@@ -3122,12 +3159,14 @@
     const campoNome = document.getElementById("profEditarNome");
     const campoClasse = document.getElementById("profEditarClasse");
     const campoStatus = document.getElementById("profEditarStatus");
+    const campoTelefone = document.getElementById("profEditarTelefone");
     const campoObs = document.getElementById("profEditarObs");
 
     if (!p) {
       if (campoNome) campoNome.value = "";
       if (campoClasse) campoClasse.value = "";
       if (campoStatus) campoStatus.value = "Ativo";
+      if (campoTelefone) campoTelefone.value = "";
       if (campoObs) campoObs.value = "";
       return;
     }
@@ -3135,6 +3174,7 @@
     if (campoNome) campoNome.value = p.nome;
     if (campoClasse) campoClasse.value = p.classe || classesCache[0] || "";
     if (campoStatus) campoStatus.value = p.status || "Ativo";
+    if (campoTelefone) campoTelefone.value = p.telefone || "";
     if (campoObs) campoObs.value = p.observacao || "";
   }
 
@@ -3149,7 +3189,7 @@
     const tbody = tabela.querySelector("tbody");
 
     if (thead) {
-      thead.innerHTML = "<tr><th>Nome</th><th>Classe</th><th>Status</th><th>Obs</th><th>Atualizado</th></tr>";
+      thead.innerHTML = "<tr><th>Nome</th><th>Classe</th><th>Status</th><th>Telefone</th><th>Obs</th><th>Atualizado</th></tr>";
     }
 
     if (!tbody) {
@@ -3166,6 +3206,7 @@
         <td>${escapeHtmlAdmin(p.nome)}</td>
         <td>${escapeHtmlAdmin(p.classe)}</td>
         <td>${escapeHtmlAdmin(p.status)}</td>
+        <td>${escapeHtmlAdmin(p.telefone || "")}</td>
         <td>${escapeHtmlAdmin(p.observacao || "")}</td>
         <td>${escapeHtmlAdmin(p.atualizadoEm || "")}</td>
       </tr>
@@ -3187,6 +3228,7 @@
         nome,
         classe: document.getElementById("profNovaClasse").value,
         status: document.getElementById("profNovoStatus").value,
+        telefone: document.getElementById("profNovoTelefone").value,
         observacao: document.getElementById("profNovaObs").value,
         _nocache: Date.now()
       });
@@ -3219,6 +3261,7 @@
         nome: document.getElementById("profEditarNome").value,
         classe: document.getElementById("profEditarClasse").value,
         status: document.getElementById("profEditarStatus").value,
+        telefone: document.getElementById("profEditarTelefone").value,
         observacao: document.getElementById("profEditarObs").value,
         _nocache: Date.now()
       });
@@ -3324,6 +3367,261 @@
     }
   }
 
+
+
+  let avisosProfessoresCache = [];
+
+  function normalizarNomeBuscaAviso(nome) {
+    return String(nome || "")
+      .trim()
+      .replace(/^(Pb\.?|Pr\.?|Dc\.?|Diác\.?|Diácono|Pastor|Pastora)\s+/i, "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  }
+
+  function dividirNomesProfessorAviso(valor) {
+    return String(valor || "")
+      .split("/")
+      .map((nome) => nome.trim())
+      .filter(Boolean);
+  }
+
+  function telefoneParaWhatsAppAviso(valor) {
+    let digitos = String(valor || "").replace(/\D/g, "");
+
+    if (!digitos) {
+      return "";
+    }
+
+    if ((digitos.length === 10 || digitos.length === 11) && !digitos.startsWith("55")) {
+      digitos = "55" + digitos;
+    }
+
+    return digitos;
+  }
+
+  function encontrarProfessorPorNomeAviso(nome) {
+    const chave = normalizarNomeBuscaAviso(nome);
+
+    return (professoresCache || []).find((prof) => {
+      return normalizarNomeBuscaAviso(prof.nome) === chave;
+    }) || null;
+  }
+
+  function preencherSelectsAvisos() {
+    preencherSelect("avisoDataEscala", (escalaCache || []).map((linha) => linha.Data || linha.data || "").filter(Boolean));
+
+    const profs = ["", ...listaUnicaAdmin((professoresCache || []).map((p) => p.nome).filter(Boolean))];
+    const filtroAtual = document.getElementById("avisoFiltroProfessor")?.value || "";
+    preencherSelect("avisoFiltroProfessor", profs);
+
+    const filtro = document.getElementById("avisoFiltroProfessor");
+    if (filtro) {
+      filtro.options[0].textContent = "Todos";
+      if (filtroAtual && profs.includes(filtroAtual)) filtro.value = filtroAtual;
+    }
+
+    selecionarProximaDataAviso();
+  }
+
+  function selecionarProximaDataAviso() {
+    const select = document.getElementById("avisoDataEscala");
+    if (!select || select.value) return;
+
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    let escolhida = "";
+    Array.from(select.options || []).some((opt) => {
+      const partes = String(opt.value || "").split("/");
+      if (partes.length !== 3) return false;
+      const data = new Date(Number(partes[2]), Number(partes[1]) - 1, Number(partes[0]));
+      if (data >= hoje) {
+        escolhida = opt.value;
+        return true;
+      }
+      return false;
+    });
+
+    if (escolhida) select.value = escolhida;
+  }
+
+  function montarMensagemAvisoProfessor(item, modelo) {
+    const nome = item.professor || "professor(a)";
+    const data = item.data || "data da escala";
+    const classe = item.classe || "classe da EBD";
+
+    if (modelo === "confirmacao") {
+      return `A paz do Senhor, ${nome}!\n\nPassando para confirmar se está tudo certo para você ministrar na EBD no dia ${data}, na classe ${classe}.\n\nPor gentileza, confirme sua presença com a coordenação. Deus abençoe! 📚🙏`;
+    }
+
+    if (modelo === "troca") {
+      return `A paz do Senhor, ${nome}!\n\nInformamos que houve ajuste na escala da EBD. Você consta na escala do dia ${data}, na classe ${classe}.\n\nQualquer dúvida ou impedimento, fale com a coordenação. Deus abençoe! 📚🙏`;
+    }
+
+    if (modelo === "agradecimento") {
+      return `A paz do Senhor, ${nome}!\n\nA direção da EBD agradece sua participação e dedicação na classe ${classe}, no dia ${data}.\n\nQue Deus continue abençoando seu ministério de ensino! 📚🙏`;
+    }
+
+    return `A paz do Senhor, ${nome}!\n\nPassando para lembrar que você está escalado(a) na EBD neste domingo, dia ${data}, na classe ${classe}.\n\nPedimos que prepare sua aula com antecedência e, se houver qualquer imprevisto, avise a coordenação.\n\nDeus abençoe seu ministério! 📚🙏`;
+  }
+
+  function obterAvisosDaDataSelecionada() {
+    const data = document.getElementById("avisoDataEscala")?.value || "";
+    const filtroProfessor = document.getElementById("avisoFiltroProfessor")?.value || "";
+    const linha = (escalaCache || []).find((item) => (item.Data || item.data || "") === data);
+
+    if (!data || !linha) {
+      return [];
+    }
+
+    const colunas = [...(classesCache || ordemClassesEBD), "Suporte"];
+    const avisos = [];
+
+    colunas.forEach((classe) => {
+      const valor = linha[classe];
+      dividirNomesProfessorAviso(valor).forEach((nome) => {
+        if (filtroProfessor && normalizarNomeBuscaAviso(nome) !== normalizarNomeBuscaAviso(filtroProfessor)) {
+          return;
+        }
+
+        const cadastro = encontrarProfessorPorNomeAviso(nome);
+        avisos.push({
+          data,
+          classe,
+          professor: nome,
+          telefone: cadastro ? (cadastro.telefone || "") : "",
+          status: cadastro ? (cadastro.status || "") : "Não localizado no cadastro"
+        });
+      });
+    });
+
+    const vistos = new Set();
+    return avisos.filter((item) => {
+      const chave = `${item.data}|${item.classe}|${normalizarNomeBuscaAviso(item.professor)}`;
+      if (vistos.has(chave)) return false;
+      vistos.add(chave);
+      return true;
+    });
+  }
+
+  function renderizarAvisosProfessores(modoSilencioso = false) {
+    preencherSelectsAvisos();
+
+    const tabela = document.getElementById("tabelaAvisosProfessores");
+    const resumo = document.getElementById("avisosResumo");
+    const preview = document.getElementById("avisoMensagemPreview");
+    const modelo = document.getElementById("avisoModelo")?.value || "lembrete";
+
+    if (!tabela) return;
+
+    const thead = tabela.querySelector("thead");
+    const tbody = tabela.querySelector("tbody");
+
+    if (thead) {
+      thead.innerHTML = "<tr><th>Data</th><th>Classe</th><th>Professor</th><th>Telefone</th><th>Status</th><th>Ações</th></tr>";
+    }
+
+    avisosProfessoresCache = obterAvisosDaDataSelecionada().map((item) => ({
+      ...item,
+      mensagem: montarMensagemAvisoProfessor(item, modelo)
+    }));
+
+    if (!tbody) return;
+
+    if (!avisosProfessoresCache.length) {
+      tbody.innerHTML = '<tr><td colspan="6">Nenhum professor encontrado para a data selecionada.</td></tr>';
+      if (resumo) resumo.textContent = "0 avisos";
+      if (preview) preview.value = "";
+      if (!modoSilencioso) mostrarStatus("info", "Nenhum professor encontrado para a data selecionada.");
+      return;
+    }
+
+    tbody.innerHTML = avisosProfessoresCache.map((item, index) => {
+      const telefoneWhatsapp = telefoneParaWhatsAppAviso(item.telefone);
+      const statusTelefone = telefoneWhatsapp ? "Telefone OK" : "Sem telefone cadastrado";
+      const disabled = telefoneWhatsapp ? "" : "disabled";
+
+      return `
+        <tr>
+          <td>${escapeHtmlAdmin(item.data)}</td>
+          <td>${escapeHtmlAdmin(item.classe)}</td>
+          <td>${escapeHtmlAdmin(item.professor)}</td>
+          <td>${escapeHtmlAdmin(item.telefone || "—")}</td>
+          <td>${escapeHtmlAdmin(statusTelefone)}</td>
+          <td style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+            <button class="compact-btn secondary" onclick="copiarMensagemAviso(${index})">Copiar</button>
+            <button class="compact-btn" onclick="abrirWhatsAppAviso(${index})" ${disabled}>WhatsApp</button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    const comTelefone = avisosProfessoresCache.filter((item) => telefoneParaWhatsAppAviso(item.telefone)).length;
+    if (resumo) resumo.textContent = `${avisosProfessoresCache.length} aviso(s) • ${comTelefone} com telefone`;
+    if (preview) preview.value = avisosProfessoresCache[0].mensagem || "";
+    if (!modoSilencioso) mostrarStatus("success", "Avisos gerados com sucesso.");
+  }
+
+  async function copiarTextoAreaTransferencia(texto) {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(texto);
+      return;
+    }
+
+    const area = document.createElement("textarea");
+    area.value = texto;
+    area.style.position = "fixed";
+    area.style.left = "-9999px";
+    document.body.appendChild(area);
+    area.focus();
+    area.select();
+    document.execCommand("copy");
+    document.body.removeChild(area);
+  }
+
+  async function copiarMensagemAviso(index) {
+    const item = avisosProfessoresCache[index];
+    if (!item) return;
+
+    const preview = document.getElementById("avisoMensagemPreview");
+    if (preview) preview.value = item.mensagem;
+
+    await copiarTextoAreaTransferencia(item.mensagem);
+    mostrarStatus("success", "Mensagem copiada para a área de transferência.");
+  }
+
+  async function copiarMensagensDaDataAviso() {
+    if (!avisosProfessoresCache || !avisosProfessoresCache.length) {
+      renderizarAvisosProfessores(true);
+    }
+
+    if (!avisosProfessoresCache.length) {
+      return mostrarStatus("info", "Não há mensagens para copiar.");
+    }
+
+    const texto = avisosProfessoresCache.map((item) => item.mensagem).join("\n\n------------------------------\n\n");
+    const preview = document.getElementById("avisoMensagemPreview");
+    if (preview) preview.value = texto;
+
+    await copiarTextoAreaTransferencia(texto);
+    mostrarStatus("success", "Todas as mensagens da data foram copiadas.");
+  }
+
+  function abrirWhatsAppAviso(index) {
+    const item = avisosProfessoresCache[index];
+    if (!item) return;
+
+    const telefone = telefoneParaWhatsAppAviso(item.telefone);
+    if (!telefone) {
+      return mostrarStatus("error", "Este professor ainda não tem telefone cadastrado na aba Professores.");
+    }
+
+    const url = `https://wa.me/${telefone}?text=${encodeURIComponent(item.mensagem)}`;
+    window.open(url, "_blank", "noopener");
+    mostrarStatus("success", "WhatsApp aberto com a mensagem pronta. Confira antes de enviar.");
+  }
 
 
   async function carregarAtualizacoesMapa() {
@@ -3584,6 +3882,7 @@
       const filtros = obterFiltrosHistoricoEscalas();
       const r = await chamarAppsScript({
         acao: "consultarHistoricoEscalas",
+        senha: obterSenhaObrigatoria(),
         ...filtros,
         limite: "1000",
         _nocache: Date.now()
@@ -4120,7 +4419,7 @@
   }
 
   function abrirPainel(nome) {
-    ["licoes", "escala", "compartilharEscala", "historicoEscalas", "professores", "quizzes", "mapa", "manual", "historico"].forEach((p) => {
+    ["licoes", "escala", "compartilharEscala", "avisos", "historicoEscalas", "professores", "quizzes", "mapa", "manual", "historico"].forEach((p) => {
       const painel = document.getElementById(`painel${p.charAt(0).toUpperCase() + p.slice(1)}`);
       const botao = document.getElementById(`aba${p.charAt(0).toUpperCase() + p.slice(1)}Btn`);
 
@@ -4141,6 +4440,10 @@
         preencherDatasCompartilharEscalaAdmin();
         renderizarEscalaSemanaCompartilhar();
       }
+    }
+    if (nome === "avisos") {
+      if (!escalaCache || !escalaCache.length) carregarEscala().then(() => renderizarAvisosProfessores(true));
+      else renderizarAvisosProfessores(true);
     }
     if (nome === "historicoEscalas") { preencherFiltrosHistoricoEscalas(); consultarHistoricoEscalasAdmin(true); }
     if (nome === "professores") carregarProfessores();
@@ -4163,8 +4466,8 @@
     const senhaSalva = obterSenhaSessao();
 
     if (senhaSalva) {
-      if (campoSenha) campoSenha.value = senhaSalva;
-      entrarNoPainel();
+      liberarInterfaceAdmin(senhaSalva);
+      carregarTudo().catch(() => invalidarSessaoAdmin("Sessão expirada. Entre novamente."));
     } else {
       exibirTelaLoginAdmin(false);
     }

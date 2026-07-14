@@ -5126,7 +5126,7 @@
     }
 
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec";
-    const SENHA_ALTERAR_DIA = "1234";
+    let tokenTrocaEBD = "";
 
     const SITE_PUBLICADO =
       (location.protocol === "https:" || location.protocol === "http:") &&
@@ -6374,32 +6374,41 @@
       }
     }
 
-    function pedirSenhaAlteracao() {
+    async function pedirSenhaAlteracao() {
+      if (tokenTrocaEBD) return true;
+
       const senhaDigitada = prompt("Digite a senha para alterar a escala:");
-
-      if (senhaDigitada === null) {
+      if (senhaDigitada === null) return false;
+      if (!String(senhaDigitada).trim()) {
+        alert("Digite a senha de alteração.");
         return false;
       }
 
-      if (String(senhaDigitada).trim() !== SENHA_ALTERAR_DIA) {
-        alert("Senha incorreta. A alteração da escala não foi liberada.");
+      try {
+        const resposta = await chamarAppsScript({
+          acao: "validarAcessoTroca",
+          senha: String(senhaDigitada).trim(),
+          _nocache: Date.now()
+        });
+
+        if (!resposta || !resposta.sucesso || !resposta.autenticado || !resposta.tokenTroca) {
+          alert((resposta && resposta.mensagem) || "A alteração da escala não foi autorizada.");
+          return false;
+        }
+
+        tokenTrocaEBD = String(resposta.tokenTroca);
+        return true;
+      } catch (erro) {
+        alert("Não foi possível validar a senha agora: " + (erro.message || "erro de conexão"));
         return false;
       }
-
-      return true;
     }
 
-    function abrirModal() {
-      if (!pedirSenhaAlteracao()) {
-        return;
-      }
+    async function abrirModal() {
+      if (!await pedirSenhaAlteracao()) return;
 
       formularioAberto = true;
-
-      if (modal) {
-        modal.classList.add("active");
-      }
-
+      if (modal) modal.classList.add("active");
       limparStatus();
       atualizarResumo();
     }
@@ -6638,11 +6647,14 @@
         professor: payload.professor,
         dataAtual: payload.dataAtual,
         novaData: payload.novaData,
-        origem: payload.origem
+        origem: payload.origem,
+        tokenTroca: tokenTrocaEBD
       });
 
       if (!dados || !dados.sucesso) {
-        throw new Error((dados && dados.mensagem) || "Erro ao salvar alteração.");
+        const mensagem = (dados && dados.mensagem) || "Erro ao salvar alteração.";
+        if (String(mensagem).toLowerCase().includes("autorização de troca")) tokenTrocaEBD = "";
+        throw new Error(mensagem);
       }
 
       return dados;

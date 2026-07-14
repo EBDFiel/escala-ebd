@@ -4600,7 +4600,7 @@
       <div class="premium-section-title">
         <span class="eyebrow">📅 Principal</span>
         <h2>Escala da semana</h2>
-        <p>A informação principal aparece primeiro: confira quem está escalado para a próxima aula.</p>
+        <p>Consulte de forma rápida e organizada os professores escalados para cada classe na próxima aula da EBD.</p>
       </div>
 
       <div class="loading-box" id="loadingBox">
@@ -5917,6 +5917,15 @@
       }
     }
 
+    function ocultarStatusEscala() {
+      if (!loadingBox) {
+        return;
+      }
+
+      loadingBox.className = "loading-box";
+      loadingBox.innerHTML = "";
+    }
+
     function mostrarFalhaInicialDaEscala(mensagem) {
       renderizarEscala([]);
 
@@ -6007,18 +6016,7 @@
 
         renderizarEscala(dados.escala);
 
-        const horario = new Date().toLocaleTimeString("pt-BR", {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit"
-        });
-
-        definirStatusEscala(
-          "success",
-          "Escala sincronizada diretamente com a planilha às " + horario +
-            " — " + dados.escala.length + " data(s) carregada(s).",
-          false
-        );
+        ocultarStatusEscala();
 
         return true;
       } catch (erro) {

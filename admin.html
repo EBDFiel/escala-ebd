@@ -1537,7 +1537,7 @@
     <input id="senha" type="password" placeholder="Insira a senha mestre" />
     <p class="help" style="font-size:0.8rem; margin:0.5rem 0 1rem;">Utilize a mesma senha configurada no Apps Script (SENHA_ADMIN).</p>
     <div class="actions" style="display:flex; gap:1rem; flex-wrap:wrap;">
-      <button class="secondary" onclick="entrarNoPainel()">🔓 Acessar painel</button>
+      <button id="btnAcessarPainel" class="secondary" onclick="entrarNoPainel()">🔓 Acessar painel</button>
       <a class="link-btn secondary" href="./index.html" target="_blank" style="background:#5b6e8c;">🌐 Site público</a>
     </div>
   </section>
@@ -2218,6 +2218,46 @@
   function salvarSenhaSessao(v) { sessionStorage.setItem("senhaAdminEBD", v); }
   function limparSenhaSessao() { sessionStorage.removeItem("senhaAdminEBD"); }
 
+  function respostaIndicaSenhaIncorreta(resposta) {
+    const mensagem = String((resposta && resposta.mensagem) || "").toLowerCase();
+    return Boolean(resposta && resposta.sucesso === false && mensagem.includes("senha administrativa incorreta"));
+  }
+
+  function exibirTelaLoginAdmin(limparCampo = false) {
+    const telaLogin = document.getElementById("telaLogin");
+    const barraPainel = document.getElementById("barraPainel");
+    const painelAdmin = document.getElementById("painelAdmin");
+    const campoSenha = document.getElementById("senha");
+    const senhaForm = document.getElementById("senhaForm");
+
+    if (telaLogin) telaLogin.style.display = "block";
+    if (barraPainel) barraPainel.style.display = "none";
+    if (painelAdmin) painelAdmin.style.display = "none";
+
+    if (limparCampo && campoSenha) campoSenha.value = "";
+    if (senhaForm) senhaForm.value = "";
+  }
+
+  function liberarInterfaceAdmin(senha) {
+    salvarSenhaSessao(senha);
+
+    const senhaForm = document.getElementById("senhaForm");
+    if (senhaForm) senhaForm.value = senha;
+
+    document.getElementById("telaLogin").style.display = "none";
+    document.getElementById("barraPainel").style.display = "block";
+    document.getElementById("painelAdmin").style.display = "block";
+  }
+
+  function invalidarSessaoAdmin(mensagem = "Senha administrativa incorreta. Entre novamente.") {
+    limparSenhaSessao();
+    exibirTelaLoginAdmin(true);
+    mostrarStatus("error", mensagem);
+
+    const campoSenha = document.getElementById("senha");
+    if (campoSenha) campoSenha.focus();
+  }
+
   function obterSenhaObrigatoria() {
     let senha = obterSenhaSessao();
 
@@ -2235,8 +2275,6 @@
       throw new Error("Sessão expirada. Entre novamente com a senha para continuar.");
     }
 
-    salvarSenhaSessao(senha);
-
     const senhaForm = document.getElementById("senhaForm");
     if (senhaForm) {
       senhaForm.value = senha;
@@ -2245,8 +2283,66 @@
     return senha;
   }
 
-  function entrarNoPainel() { let s = document.getElementById("senha").value.trim(); if(!s) return mostrarStatus("error","Digite a senha."); salvarSenhaSessao(s); document.getElementById("senhaForm").value = s; document.getElementById("telaLogin").style.display = "none"; document.getElementById("barraPainel").style.display = "block"; document.getElementById("painelAdmin").style.display = "block"; mostrarStatus("success","Painel liberado."); carregarTudo(); }
-  function sairDoPainel() { limparSenhaSessao(); document.getElementById("telaLogin").style.display = "block"; document.getElementById("barraPainel").style.display = "none"; document.getElementById("painelAdmin").style.display = "none"; mostrarStatus("info","Sessão finalizada."); }
+  let autenticacaoAdminEmAndamento = false;
+
+  async function entrarNoPainel() {
+    if (autenticacaoAdminEmAndamento) return;
+
+    const campoSenha = document.getElementById("senha");
+    const botaoAcesso = document.getElementById("btnAcessarPainel");
+    const senha = campoSenha ? campoSenha.value.trim() : "";
+
+    if (!senha) {
+      return mostrarStatus("error", "Digite a senha.");
+    }
+
+    autenticacaoAdminEmAndamento = true;
+
+    if (botaoAcesso) {
+      botaoAcesso.disabled = true;
+      botaoAcesso.textContent = "🔄 Validando...";
+    }
+
+    mostrarStatus("info", "Validando acesso administrativo...");
+
+    try {
+      const resposta = await chamarAppsScript({
+        acao: "validarAcessoAdmin",
+        senha,
+        _nocache: Date.now()
+      }, {
+        timeoutMs: 45000,
+        tentativas: 2
+      });
+
+      if (!resposta || !resposta.sucesso || !resposta.autenticado) {
+        if (!respostaIndicaSenhaIncorreta(resposta)) {
+          mostrarStatus("error", (resposta && resposta.mensagem) || "Não foi possível validar a senha administrativa.");
+        }
+        return;
+      }
+
+      liberarInterfaceAdmin(senha);
+      mostrarStatus("success", "Painel liberado com senha validada.");
+      await carregarTudo();
+    } catch (erro) {
+      exibirTelaLoginAdmin(false);
+      mostrarStatus("error", erro.message || "Erro ao validar o acesso administrativo.");
+    } finally {
+      autenticacaoAdminEmAndamento = false;
+
+      if (botaoAcesso) {
+        botaoAcesso.disabled = false;
+        botaoAcesso.textContent = "🔓 Acessar painel";
+      }
+    }
+  }
+
+  function sairDoPainel() {
+    limparSenhaSessao();
+    exibirTelaLoginAdmin(true);
+    mostrarStatus("info", "Sessão finalizada.");
+  }
 
   function aguardarEBD(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -2306,7 +2402,13 @@
 
     for (let tentativa = 1; tentativa <= tentativas; tentativa++) {
       try {
-        return await chamarAppsScriptUmaVez(params, timeoutMs);
+        const resposta = await chamarAppsScriptUmaVez(params, timeoutMs);
+
+        if (respostaIndicaSenhaIncorreta(resposta)) {
+          invalidarSessaoAdmin((resposta && resposta.mensagem) || "Senha administrativa incorreta. Entre novamente.");
+        }
+
+        return resposta;
       } catch (erro) {
         ultimoErro = erro;
         if (tentativa < tentativas) {
@@ -4059,7 +4161,15 @@
         }
       });
     }
- if(obterSenhaSessao()) { document.getElementById("senhaForm").value=obterSenhaSessao(); document.getElementById("telaLogin").style.display="none"; document.getElementById("barraPainel").style.display="block"; document.getElementById("painelAdmin").style.display="block"; carregarTudo(); } else { document.getElementById("telaLogin").style.display="block"; } });
+    const senhaSalva = obterSenhaSessao();
+
+    if (senhaSalva) {
+      if (campoSenha) campoSenha.value = senhaSalva;
+      entrarNoPainel();
+    } else {
+      exibirTelaLoginAdmin(false);
+    }
+  });
 </script>
 </body>
 </html>

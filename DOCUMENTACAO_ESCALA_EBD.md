@@ -1,81 +1,128 @@
 # Escala EBD — Documentação completa
 
 ## Versão
-Automação trimestral e continuidade da sequência — 14/07/2026.
+
+Versão 3 — armazenamento das lições atuais no Google Drive, automação trimestral e continuidade da sequência — 14/07/2026.
 
 ## Arquitetura
 
-- GitHub Pages: `index.html`, `admin.html`, PWA, imagens e mapa do site.
-- Google Apps Script: `Code.gs`.
-- Google Sheets: escala operacional, professores, lições, quizzes e históricos.
-- Aba operacional única: `Escala EBD`.
-- Histórico permanente: `Historico_Escalas`.
+- **GitHub Pages:** `index.html`, `admin.html`, recursos visuais, PWA e mapa do site.
+- **Google Apps Script:** API, autenticação, escala, histórico, automação trimestral e gerenciamento das lições.
+- **Google Planilhas:** escala, professores, histórico, quizzes e metadados das lições.
+- **Google Drive:** dois arquivos HTML privados contendo somente as lições atuais.
+
+## Armazenamento das lições
+
+O sistema mantém somente:
+
+- `licao-adultos.html`;
+- `licao-jovens.html`.
+
+Quando uma nova lição é salva, o conteúdo do arquivo correspondente é substituído. A versão anterior não é arquivada. Isso corresponde ao fluxo semanal da EBD e evita o limite de tamanho das células da planilha.
+
+A pasta criada automaticamente recebe o nome `Escala EBD - Licoes Atuais`. Os arquivos permanecem privados no Drive do proprietário do Apps Script. A página pública não acessa o Drive diretamente; ela recebe o conteúdo por meio da ação `licoes` do Aplicativo da Web.
+
+## Aba Licoes
+
+Depois da migração, a aba `Licoes` não armazena mais o HTML. Ela contém apenas:
+
+- classe;
+- ID do arquivo no Drive;
+- nome do arquivo;
+- data e hora da atualização;
+- tamanho em bytes;
+- hash de conferência;
+- tipo de armazenamento;
+- URL privada do arquivo.
+
+## Migração inicial
+
+Depois de substituir o `Code.gs`, execute uma vez no editor do Apps Script:
+
+```text
+migrarLicoesParaDriveEBD
+```
+
+A função solicita a autorização do Google Drive, cria a pasta e os dois arquivos, migra as lições que ainda estiverem na planilha, confere o conteúdo e somente então transforma a aba `Licoes` em uma tabela de metadados.
+
+Se a migração falhar antes da conferência, o HTML antigo permanece na planilha.
+
+## Salvamento semanal
+
+1. Entre no painel administrativo.
+2. Abra **Lições interativas**.
+3. Atualize Adultos e/ou Adolescentes.
+4. Clique em **Substituir lições atuais**.
+5. O Apps Script sanitiza o HTML.
+6. Os arquivos atuais são substituídos no Drive.
+7. O sistema lê novamente os arquivos e compara seus hashes.
+8. A mensagem de sucesso só é exibida após a conferência.
+9. A aba `Licoes` recebe os novos metadados.
+10. A página pública busca a nova versão diretamente pelo Apps Script.
+
+Se ocorrer falha durante uma atualização conjunta, o sistema tenta restaurar o conteúdo anterior dos arquivos já alterados.
 
 ## Segurança
-Configure nas Propriedades do script:
 
-- `EBD_SENHA_ADMIN`: senha administrativa.
-- `EBD_SENHA_TROCA`: senha usada pelos professores.
-
-O backend usa tokens temporários, limite de tentativas, validação de callback JSONP e `LockService` nas operações de escrita.
+- Operações administrativas exigem token temporário.
+- Escritas utilizam `LockService`.
+- Scripts, eventos HTML e elementos de incorporação perigosos são removidos do conteúdo das lições.
+- Os arquivos no Drive não precisam ser compartilhados publicamente.
+- O site público recebe somente o conteúdo sanitizado retornado pelo Apps Script.
 
 ## Automação trimestral
 
-A automação é instalada pelo painel em **Escalas salvas > Instalar / reparar automação**. Ela cria um gatilho diário para `verificarEncerramentoTrimestralEBD`, programado aproximadamente para 04:15 no fuso `America/Sao_Paulo`.
+O gatilho diário verifica a última data da aba `Escala EBD`. Após o encerramento:
 
-A verificação diária:
+1. identifica o trimestre e o ano;
+2. calcula os registros esperados;
+3. arquiva somente os registros ausentes em `Historico_Escalas`;
+4. impede duplicidade por identificador;
+5. grava o estado do arquivamento;
+6. libera a preparação do período seguinte no painel.
 
-1. lê a última data da aba `Escala EBD`;
-2. aguarda o dia seguinte à última aula;
-3. identifica ano e trimestre pelas datas;
-4. grava cada data e classe em `Historico_Escalas`;
-5. ignora IDs já arquivados;
-6. marca o trimestre como pronto para preparação.
-
-A automação nunca apaga nem substitui a escala atual.
+A escala atual não é substituída automaticamente.
 
 ## Preparação do trimestre seguinte
 
-A preparação é liberada somente quando:
+Depois do arquivamento validado, o administrador confirma a preparação. O sistema:
 
-- a última data já passou;
-- todos os registros esperados estão arquivados;
-- o administrador confirma a ação no painel e digita `PREPARAR`.
-
-Ao preparar, o sistema:
-
-1. cria um backup oculto da aba atual;
-2. calcula todos os domingos do próximo trimestre civil;
-3. mantém as nove classes e a coluna Suporte;
-4. distribui os professores ativos;
-5. reaplica listas suspensas e formatação;
-6. reconstrói a aba `Resumo`;
-7. registra a operação na aba `Histórico`.
+- cria um backup oculto da escala atual;
+- calcula todos os domingos do próximo trimestre;
+- preserva as classes;
+- continua a sequência de professores;
+- ignora professores inativos;
+- reaplica as listas suspensas;
+- reconstrói a aba `Resumo`;
+- preserva o histórico.
 
 ## Continuidade da sequência
 
-A ordem é lida de cima para baixo na aba `Professores`, separadamente para cada classe. O sistema identifica o último professor escalado no trimestre encerrado e inicia o trimestre seguinte pelo próximo professor ativo da ordem.
+A sequência é calculada separadamente para cada classe. O primeiro professor do novo trimestre é o próximo professor ativo depois daquele que encerrou o trimestre anterior.
 
-Regras:
+Exemplo:
 
-- professores com status `Inativo` são ignorados;
-- um professor único permanece em todas as datas;
-- a sequência de cada classe é independente;
-- o Suporte usa sua própria sequência;
-- para participar do Suporte, o cadastro pode usar a classe `Suporte` ou conter a palavra “suporte” na observação;
-- nomes compostos em uma célula são reconhecidos quando separados por `/`.
+```text
+Rita → Thaís → Alessandra
+```
 
-Exemplo: Rita → Thaís → Alessandra. Se Rita encerrou o trimestre, o seguinte começa com Thaís.
+Se Rita estiver no último domingo, o trimestre seguinte começa com Thaís.
 
 ## Recuperação
 
-Antes de substituir a escala, a preparação cria uma aba oculta com nome semelhante a `BACKUP 3T 2026 20260928-0415`. Para recuperar:
+Antes da preparação de um novo trimestre, o sistema cria uma aba oculta com nome iniciado por `BACKUP_ESCALA_`. Para recuperar:
 
-1. abra **Exibir > Abas ocultas**;
-2. mostre o backup correspondente;
-3. copie apenas os dados necessários;
-4. não exclua `Historico_Escalas`.
+1. abra a planilha;
+2. use **Exibir > Planilhas ocultas**;
+3. abra a aba de backup;
+4. copie os dados necessários para `Escala EBD`.
+
+Para as lições, não existe histórico semanal intencional. Cada salvamento substitui a versão anterior. Caso seja necessário preservar excepcionalmente uma lição, faça manualmente uma cópia do arquivo no Google Drive antes de substituí-lo.
 
 ## Operação de emergência
 
-No painel, o botão **Arquivar escala atual** força uma conferência manual. A operação identifica o período pelas datas e não duplica registros. Se a instalação do gatilho pelo painel pedir autorização, execute uma vez a função `instalarAutomacaoTrimestralEBD` diretamente no editor do Apps Script e autorize.
+- Arquivamento manual: painel **Escalas salvas**.
+- Verificação imediata: **Verificar e arquivar agora**.
+- Reparar gatilho: **Instalar / reparar automação**.
+- Reparar lições: botão **Preparar / reparar Google Drive** ou função `migrarLicoesParaDriveEBD`.
+- Conferir API: abrir a URL `/exec?acao=licoes`; a resposta deve indicar `armazenamento: google_drive`.

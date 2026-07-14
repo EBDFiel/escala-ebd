@@ -5,7 +5,7 @@ const NOME_ABA_LICOES = "Licoes";
 const NOME_ABA_PROFESSORES = "Professores";
 const NOME_ABA_QUIZZES = "Quizzes";
 const TIMEZONE_EBD = "America/Sao_Paulo";
-const VERSAO_BACKEND_EBD = "EBD_LICOES_DRIVE_2026_07_14";
+const VERSAO_BACKEND_EBD = "EBD_3_1_CORRETIVO_ROTAS_2026_07_15";
 
 // Configure em Configurações do projeto > Propriedades do script:
 // EBD_SENHA_ADMIN e EBD_SENHA_TROCA.
@@ -404,6 +404,660 @@ function criarOuPrepararHistorico() {
 
   aba.setFrozenRows(1);
   aba.autoResizeColumns(1, cabecalhos.length);
+}
+
+// Funções estáveis da escala restauradas na Atualização 3.1.
+function listarEscala() {
+  const planilha = SpreadsheetApp.getActiveSpreadsheet();
+  const aba = planilha.getSheetByName(NOME_ABA_ESCALA);
+
+  if (!aba) {
+    throw new Error("A aba '" + NOME_ABA_ESCALA + "' não foi encontrada.");
+  }
+
+  const dados = aba.getDataRange().getValues();
+
+  if (dados.length < 2) {
+    return {
+      sucesso: true,
+      escala: []
+    };
+  }
+
+  const cabecalhos = dados[0].map(function (item) {
+    return String(item).trim();
+  });
+
+  const escala = [];
+
+  for (let i = 1; i < dados.length; i++) {
+    const linha = dados[i];
+
+    if (!linha[0]) {
+      continue;
+    }
+
+    const item = {};
+
+    ORDEM_COLUNAS_ESCALA_EBD.forEach(function (cabecalho) {
+      let valor = obterValorLinhaEscalaEBD(linha, cabecalhos, cabecalho);
+
+      if (cabecalho === COLUNA_SUPORTE_EBD && !valor) {
+        valor = "Ronan";
+      }
+
+      item[cabecalho] = formatarValorEscalaEBD(valor);
+    });
+
+    escala.push(item);
+  }
+
+  return {
+    sucesso: true,
+    escala: escala
+  };
+}
+
+function trocarProfessor(parametros) {
+  const classe = parametros.classe || "";
+  const professor = parametros.professor || "";
+  const dataAtual = parametros.dataAtual || "";
+  const novaData = parametros.novaData || "";
+  const origem = parametros.origem || "Site Escala EBD";
+
+  if (!classe || !professor || !dataAtual || !novaData) {
+    throw new Error("Dados incompletos para realizar a troca.");
+  }
+
+  if (ehSolicitacaoApoioRonanEBD(novaData)) {
+    return trocarProfessorComApoioRonan(parametros);
+  }
+
+  if (dataAtual === novaData) {
+    throw new Error("A nova data precisa ser diferente da data atual.");
+  }
+
+  const planilha = SpreadsheetApp.getActiveSpreadsheet();
+  const aba = planilha.getSheetByName(NOME_ABA_ESCALA);
+
+  if (!aba) {
+    throw new Error("A aba '" + NOME_ABA_ESCALA + "' não foi encontrada.");
+  }
+
+  const dados = aba.getDataRange().getValues();
+
+  if (dados.length < 2) {
+    throw new Error("A escala está vazia.");
+  }
+
+  const cabecalhos = dados[0].map(function (item) {
+    return String(item).trim();
+  });
+
+  const indiceData = cabecalhos.indexOf("Data");
+  const indiceClasse = encontrarIndiceClasseEscalaEBD(cabecalhos, classe);
+
+  if (indiceData === -1) {
+    throw new Error("A coluna 'Data' não foi encontrada.");
+  }
+
+  if (indiceClasse === -1) {
+    throw new Error("A coluna da classe '" + classe + "' não foi encontrada.");
+  }
+
+  let linhaDataAtual = -1;
+  let linhaNovaData = -1;
+
+  for (let i = 1; i < dados.length; i++) {
+    let dataLinha = dados[i][indiceData];
+
+    if (dataLinha instanceof Date) {
+      dataLinha = Utilities.formatDate(dataLinha, TIMEZONE_EBD, "dd/MM/yyyy");
+    } else {
+      dataLinha = String(dataLinha).trim();
+    }
+
+    if (dataLinha === dataAtual) {
+      linhaDataAtual = i + 1;
+    }
+
+    if (dataLinha === novaData) {
+      linhaNovaData = i + 1;
+    }
+  }
+
+  if (linhaDataAtual === -1) {
+    throw new Error("A data atual não foi encontrada na escala.");
+  }
+
+  if (linhaNovaData === -1) {
+    throw new Error("A nova data não foi encontrada na escala.");
+  }
+
+  const professorNaDataAtual = String(
+    aba.getRange(linhaDataAtual, indiceClasse + 1).getValue()
+  ).trim();
+
+  const professorNaNovaData = String(
+    aba.getRange(linhaNovaData, indiceClasse + 1).getValue()
+  ).trim();
+
+  if (professorNaDataAtual !== professor) {
+    throw new Error(
+      "O professor selecionado não está mais nesta data. Atualize a página e tente novamente."
+    );
+  }
+
+  aba.getRange(linhaDataAtual, indiceClasse + 1).setValue(professorNaNovaData);
+  aba.getRange(linhaNovaData, indiceClasse + 1).setValue(professor);
+
+  registrarHistorico({
+    dataHora: new Date(),
+    classe: classe,
+    professorSolicitante: professor,
+    dataAntiga: dataAtual,
+    novaData: novaData,
+    professorTrocado: professorNaNovaData,
+    origem: origem
+  });
+
+  return {
+    sucesso: true,
+    mensagem: "Troca realizada com sucesso.",
+    professorSolicitante: professor,
+    professorTrocado: professorNaNovaData,
+    dataAntiga: dataAtual,
+    novaData: novaData,
+    classe: classe
+  };
+}
+
+function trocarProfessorComApoioRonan(parametros) {
+  const classe = String(parametros.classe || "").trim();
+  const professor = String(parametros.professor || "").trim();
+  const dataAtual = String(parametros.dataAtual || "").trim();
+  const origem = parametros.origem || "Site Escala EBD";
+
+  if (!classe || !professor || !dataAtual) {
+    throw new Error("Dados incompletos para solicitar apoio do Ronan.");
+  }
+
+  if (!classePermiteApoioRonanEBD(classe)) {
+    throw new Error("O apoio do Ronan pela página pública está disponível apenas para Testemunhas de Cristo e Heróis da Fé.");
+  }
+
+  if (professor.toLowerCase() === PROFESSOR_APOIO_RONAN_EBD.toLowerCase()) {
+    throw new Error("O Ronan já está selecionado como professor. Escolha o professor que precisa do apoio.");
+  }
+
+  const planilha = SpreadsheetApp.getActiveSpreadsheet();
+  const aba = planilha.getSheetByName(NOME_ABA_ESCALA);
+
+  if (!aba) {
+    throw new Error("A aba '" + NOME_ABA_ESCALA + "' não foi encontrada.");
+  }
+
+  const dados = aba.getDataRange().getValues();
+
+  if (dados.length < 2) {
+    throw new Error("A escala está vazia.");
+  }
+
+  const cabecalhos = dados[0].map(function (item) {
+    return String(item).trim();
+  });
+
+  const indiceData = cabecalhos.indexOf("Data");
+  const indiceClasse = encontrarIndiceClasseEscalaEBD(cabecalhos, classe);
+
+  if (indiceData === -1) {
+    throw new Error("A coluna 'Data' não foi encontrada.");
+  }
+
+  if (indiceClasse === -1) {
+    throw new Error("A coluna da classe '" + classe + "' não foi encontrada.");
+  }
+
+  let linhaDataAtual = -1;
+
+  for (let i = 1; i < dados.length; i++) {
+    let dataLinha = dados[i][indiceData];
+
+    if (dataLinha instanceof Date) {
+      dataLinha = Utilities.formatDate(dataLinha, TIMEZONE_EBD, "dd/MM/yyyy");
+    } else {
+      dataLinha = String(dataLinha).trim();
+    }
+
+    if (dataLinha === dataAtual) {
+      linhaDataAtual = i + 1;
+      break;
+    }
+  }
+
+  if (linhaDataAtual === -1) {
+    throw new Error("A data atual não foi encontrada na escala.");
+  }
+
+  const valorAtual = String(
+    aba.getRange(linhaDataAtual, indiceClasse + 1).getValue() || ""
+  ).trim();
+
+  const novoValor = montarCampoComApoioRonanEBD(valorAtual, professor);
+
+  aba.getRange(linhaDataAtual, indiceClasse + 1).setValue(novoValor);
+
+  garantirProfessorAtivo(
+    PROFESSOR_APOIO_RONAN_EBD,
+    normalizarNomeClasseEBD(classe),
+    "Apoio disponível para substituição pela página pública"
+  );
+
+  registrarHistorico({
+    dataHora: new Date(),
+    classe: normalizarNomeClasseEBD(classe),
+    professorSolicitante: professor,
+    dataAntiga: dataAtual,
+    novaData: dataAtual,
+    professorTrocado: PROFESSOR_APOIO_RONAN_EBD + " assumiu como apoio no lugar de " + professor + ".",
+    origem: origem + " - Apoio Ronan"
+  });
+
+  SpreadsheetApp.flush();
+
+  return {
+    sucesso: true,
+    mensagem: "Apoio do Ronan aplicado com sucesso.",
+    tipo: "apoioRonan",
+    professorSolicitante: professor,
+    professorTrocado: PROFESSOR_APOIO_RONAN_EBD,
+    dataAntiga: dataAtual,
+    novaData: dataAtual,
+    classe: normalizarNomeClasseEBD(classe)
+  };
+}
+
+function registrarHistorico(dados) {
+  const planilha = SpreadsheetApp.getActiveSpreadsheet();
+
+  let aba = planilha.getSheetByName(NOME_ABA_HISTORICO);
+
+  if (!aba) {
+    aba = planilha.insertSheet(NOME_ABA_HISTORICO);
+
+    aba.appendRow([
+      "Data/Hora",
+      "Classe",
+      "Professor Solicitante",
+      "Data Antiga",
+      "Nova Data",
+      "Professor Trocado",
+      "Origem"
+    ]);
+  }
+
+  aba.appendRow([
+    Utilities.formatDate(dados.dataHora, TIMEZONE_EBD, "dd/MM/yyyy HH:mm:ss"),
+    dados.classe,
+    dados.professorSolicitante,
+    dados.dataAntiga,
+    dados.novaData,
+    dados.professorTrocado,
+    dados.origem
+  ]);
+
+  aba.autoResizeColumns(1, 7);
+}
+
+function listarHistorico(parametros) {
+  const planilha = SpreadsheetApp.getActiveSpreadsheet();
+  const aba = planilha.getSheetByName(NOME_ABA_HISTORICO);
+
+  const limite = Number(parametros && parametros.limite ? parametros.limite : 50) || 50;
+
+  if (!aba) {
+    return {
+      sucesso: true,
+      historico: []
+    };
+  }
+
+  const dados = aba.getDataRange().getValues();
+
+  if (dados.length < 2) {
+    return {
+      sucesso: true,
+      historico: []
+    };
+  }
+
+  const historico = [];
+
+  for (let i = dados.length - 1; i >= 1 && historico.length < limite; i--) {
+    historico.push({
+      dataHora: String(dados[i][0] || ""),
+      classe: String(dados[i][1] || ""),
+      professorSolicitante: String(dados[i][2] || ""),
+      dataAntiga: String(dados[i][3] || ""),
+      novaData: String(dados[i][4] || ""),
+      professorTrocado: String(dados[i][5] || ""),
+      origem: String(dados[i][6] || "")
+    });
+  }
+
+  return {
+    sucesso: true,
+    historico: historico
+  };
+}
+
+function obterVersaoEscala() {
+  const planilha = SpreadsheetApp.getActiveSpreadsheet();
+  const abaEscala = planilha.getSheetByName(NOME_ABA_ESCALA);
+  const abaHistorico = planilha.getSheetByName(NOME_ABA_HISTORICO);
+  const abaLicoes = planilha.getSheetByName(NOME_ABA_LICOES);
+  const abaProfessores = planilha.getSheetByName(NOME_ABA_PROFESSORES);
+  const abaQuizzes = planilha.getSheetByName(NOME_ABA_QUIZZES);
+
+  if (!abaEscala) {
+    throw new Error("A aba '" + NOME_ABA_ESCALA + "' não foi encontrada.");
+  }
+
+  const dadosEscala = abaEscala.getDataRange().getValues();
+  const dadosHistorico = abaHistorico ? abaHistorico.getDataRange().getValues() : [];
+  const dadosLicoes = abaLicoes ? abaLicoes.getDataRange().getValues() : [];
+  const dadosProfessores = abaProfessores ? abaProfessores.getDataRange().getValues() : [];
+  const dadosQuizzes = abaQuizzes ? abaQuizzes.getDataRange().getValues() : [];
+
+  const texto = JSON.stringify({
+    escala: dadosEscala,
+    historico: dadosHistorico,
+    licoes: dadosLicoes,
+    professores: dadosProfessores,
+    quizzes: dadosQuizzes
+  });
+
+  const hash = Utilities.base64Encode(
+    Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, texto)
+  );
+
+  return {
+    sucesso: true,
+    versao: hash
+  };
+}
+
+function adminSalvarProfessor(parametros) {
+  validarSenhaAdmin(parametros);
+
+  const data = String(parametros.data || "").trim();
+  const classe = String(parametros.classe || "").trim();
+  const professor = String(parametros.professor || "").trim();
+
+  if (!data || !classe || !professor) {
+    throw new Error("Informe data, classe e professor.");
+  }
+
+  const planilha = SpreadsheetApp.getActiveSpreadsheet();
+  const aba = planilha.getSheetByName(NOME_ABA_ESCALA);
+
+  if (!aba) {
+    throw new Error("A aba '" + NOME_ABA_ESCALA + "' não foi encontrada.");
+  }
+
+  const dados = aba.getDataRange().getValues();
+  const cabecalhos = dados[0].map(function (item) {
+    return String(item).trim();
+  });
+
+  const indiceData = cabecalhos.indexOf("Data");
+  const indiceClasse = encontrarIndiceClasseEscalaEBD(cabecalhos, classe);
+
+  if (indiceClasse === -1) {
+    throw new Error("Classe não encontrada: " + classe);
+  }
+
+  let linhaEncontrada = -1;
+
+  for (let i = 1; i < dados.length; i++) {
+    let dataLinha = dados[i][indiceData];
+
+    if (dataLinha instanceof Date) {
+      dataLinha = Utilities.formatDate(dataLinha, TIMEZONE_EBD, "dd/MM/yyyy");
+    } else {
+      dataLinha = String(dataLinha).trim();
+    }
+
+    if (dataLinha === data) {
+      linhaEncontrada = i + 1;
+      break;
+    }
+  }
+
+  if (linhaEncontrada === -1) {
+    throw new Error("Data não encontrada: " + data);
+  }
+
+  const professorAnterior = String(aba.getRange(linhaEncontrada, indiceClasse + 1).getValue() || "").trim();
+
+  aba.getRange(linhaEncontrada, indiceClasse + 1).setValue(professor);
+
+  registrarHistorico({
+    dataHora: new Date(),
+    classe: classe,
+    professorSolicitante: "Administrador",
+    dataAntiga: data,
+    novaData: data,
+    professorTrocado: "Alterou professor: " + professorAnterior + " → " + professor,
+    origem: "Painel Admin - Alterar professor"
+  });
+
+  SpreadsheetApp.flush();
+
+  return {
+    sucesso: true,
+    mensagem: "Professor alterado com sucesso."
+  };
+}
+
+function adminAdicionarData(parametros) {
+  validarSenhaAdmin(parametros);
+
+  const data = String(parametros.data || "").trim();
+  const camposTexto = parametros.campos || "{}";
+
+  if (!data) {
+    throw new Error("Informe a data.");
+  }
+
+  let campos;
+
+  try {
+    campos = JSON.parse(camposTexto);
+  } catch (erro) {
+    campos = {};
+  }
+
+  const planilha = SpreadsheetApp.getActiveSpreadsheet();
+  const aba = planilha.getSheetByName(NOME_ABA_ESCALA);
+
+  if (!aba) {
+    throw new Error("A aba '" + NOME_ABA_ESCALA + "' não foi encontrada.");
+  }
+
+  const dados = aba.getDataRange().getValues();
+  const cabecalhos = dados[0].map(function (item) {
+    return String(item).trim();
+  });
+
+  const indiceData = cabecalhos.indexOf("Data");
+
+  for (let i = 1; i < dados.length; i++) {
+    let dataLinha = dados[i][indiceData];
+
+    if (dataLinha instanceof Date) {
+      dataLinha = Utilities.formatDate(dataLinha, TIMEZONE_EBD, "dd/MM/yyyy");
+    } else {
+      dataLinha = String(dataLinha).trim();
+    }
+
+    if (dataLinha === data) {
+      throw new Error("Já existe uma escala cadastrada para a data " + data + ".");
+    }
+  }
+
+  const novaLinha = cabecalhos.map(function (cabecalho) {
+    if (cabecalho === "Data") {
+      return data;
+    }
+
+    if (cabecalho === COLUNA_SUPORTE_EBD) {
+      return campos[cabecalho] || "Ronan";
+    }
+
+    return campos[cabecalho] || campos[normalizarNomeClasseEBD(cabecalho)] || "";
+  });
+
+  aba.appendRow(novaLinha);
+
+  registrarHistorico({
+    dataHora: new Date(),
+    classe: "Escala",
+    professorSolicitante: "Administrador",
+    dataAntiga: "",
+    novaData: data,
+    professorTrocado: "Adicionou nova data na escala",
+    origem: "Painel Admin - Adicionar data"
+  });
+
+  SpreadsheetApp.flush();
+
+  return {
+    sucesso: true,
+    mensagem: "Nova data adicionada com sucesso."
+  };
+}
+
+function adminRemoverData(parametros) {
+  validarSenhaAdmin(parametros);
+
+  const data = String(parametros.data || "").trim();
+
+  if (!data) {
+    throw new Error("Informe a data para remover.");
+  }
+
+  const planilha = SpreadsheetApp.getActiveSpreadsheet();
+  const aba = planilha.getSheetByName(NOME_ABA_ESCALA);
+
+  if (!aba) {
+    throw new Error("A aba '" + NOME_ABA_ESCALA + "' não foi encontrada.");
+  }
+
+  const dados = aba.getDataRange().getValues();
+  const cabecalhos = dados[0].map(function (item) {
+    return String(item).trim();
+  });
+
+  const indiceData = cabecalhos.indexOf("Data");
+  let linhaEncontrada = -1;
+
+  for (let i = 1; i < dados.length; i++) {
+    let dataLinha = dados[i][indiceData];
+
+    if (dataLinha instanceof Date) {
+      dataLinha = Utilities.formatDate(dataLinha, TIMEZONE_EBD, "dd/MM/yyyy");
+    } else {
+      dataLinha = String(dataLinha).trim();
+    }
+
+    if (dataLinha === data) {
+      linhaEncontrada = i + 1;
+      break;
+    }
+  }
+
+  if (linhaEncontrada === -1) {
+    throw new Error("Data não encontrada: " + data);
+  }
+
+  aba.deleteRow(linhaEncontrada);
+
+  registrarHistorico({
+    dataHora: new Date(),
+    classe: "Escala",
+    professorSolicitante: "Administrador",
+    dataAntiga: data,
+    novaData: "",
+    professorTrocado: "Removeu data da escala",
+    origem: "Painel Admin - Remover data"
+  });
+
+  SpreadsheetApp.flush();
+
+  return {
+    sucesso: true,
+    mensagem: "Data removida com sucesso."
+  };
+}
+
+function adminRenomearClasse(parametros) {
+  validarSenhaAdmin(parametros);
+
+  const classeAntiga = String(parametros.classeAntiga || "").trim();
+  const classeNova = String(parametros.classeNova || "").trim();
+
+  if (!classeAntiga || !classeNova) {
+    throw new Error("Informe a classe atual e o novo nome.");
+  }
+
+  if (classeAntiga === "Data") {
+    throw new Error("A coluna Data não pode ser renomeada.");
+  }
+
+  if (classeAntiga === COLUNA_SUPORTE_EBD) {
+    throw new Error("Suporte é uma função, não uma classe para renomear.");
+  }
+
+  const planilha = SpreadsheetApp.getActiveSpreadsheet();
+  const aba = planilha.getSheetByName(NOME_ABA_ESCALA);
+
+  if (!aba) {
+    throw new Error("A aba '" + NOME_ABA_ESCALA + "' não foi encontrada.");
+  }
+
+  const cabecalhos = aba.getRange(1, 1, 1, aba.getLastColumn()).getValues()[0].map(function (item) {
+    return String(item).trim();
+  });
+
+  const indiceAntigo = encontrarIndiceClasseEscalaEBD(cabecalhos, classeAntiga);
+
+  if (indiceAntigo === -1) {
+    throw new Error("Classe não encontrada: " + classeAntiga);
+  }
+
+  if (encontrarIndiceClasseEscalaEBD(cabecalhos, classeNova) !== -1 && normalizarNomeClasseEBD(classeAntiga) !== normalizarNomeClasseEBD(classeNova)) {
+    throw new Error("Já existe uma classe com o nome: " + classeNova);
+  }
+
+  aba.getRange(1, indiceAntigo + 1).setValue(classeNova);
+
+  registrarHistorico({
+    dataHora: new Date(),
+    classe: "Escala",
+    professorSolicitante: "Administrador",
+    dataAntiga: "",
+    novaData: "",
+    professorTrocado: "Renomeou classe: " + classeAntiga + " → " + classeNova,
+    origem: "Painel Admin - Renomear classe"
+  });
+
+  SpreadsheetApp.flush();
+
+  return {
+    sucesso: true,
+    mensagem: "Classe renomeada com sucesso."
+  };
 }
 
 function obterConfiguracaoArquivoLicaoEBD(classe) {

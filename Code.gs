@@ -14,6 +14,11 @@ const TTL_TOKEN_ADMIN_EBD = 1800;
 const TTL_TOKEN_TROCA_EBD = 900;
 const LIMITE_FALHAS_LOGIN_EBD = 8;
 const TTL_FALHAS_LOGIN_EBD = 600;
+const ID_PLANILHA_PADRAO_EBD = "1qei2p9Z61M5yOVxRPPDReguHQ7I9far3Hnr_LL-hZHc";
+const PROP_PLANILHA_ID_EBD = "EBD_PLANILHA_ID";
+const PROP_ESTADO_TRIMESTRAL_EBD = "EBD_ESTADO_TRIMESTRAL";
+const FUNCAO_GATILHO_TRIMESTRAL_EBD = "verificarEncerramentoTrimestralEBD";
+const HORA_GATILHO_TRIMESTRAL_EBD = 4;
 
 const CLASSES_ESCALA_EBD = [
   "Cordeirinhos de Cristo",
@@ -48,7 +53,9 @@ const ACOES_ESCRITA_EBD = {
   trocar:true, salvarLicoes:true, adminSalvarProfessor:true, adminAdicionarData:true,
   adminRemoverData:true, adminRenomearClasse:true, salvarQuizzes:true,
   adicionarProfessor:true, atualizarProfessor:true, inativarProfessor:true,
-  substituirProfessor:true, mudarProfessorClasse:true, arquivarEscalaAtual:true
+  substituirProfessor:true, mudarProfessorClasse:true, arquivarEscalaAtual:true,
+  verificarEncerramentoTrimestral:true, prepararProximoTrimestre:true,
+  instalarAutomacaoTrimestral:true
 };
 
 function agoraFormatadoEBD() {
@@ -293,6 +300,10 @@ function processarAcaoEBD(acao, parametros) {
   if (acao === "substituirProfessor") return substituirProfessor(parametros);
   if (acao === "mudarProfessorClasse") return mudarProfessorClasse(parametros);
   if (acao === "arquivarEscalaAtual") return arquivarEscalaAtual(parametros);
+  if (acao === "obterStatusTrimestral") { validarSenhaAdmin(parametros); return obterStatusTrimestralEBD(); }
+  if (acao === "instalarAutomacaoTrimestral") return instalarAutomacaoTrimestralEBD(parametros);
+  if (acao === "verificarEncerramentoTrimestral") return verificarEncerramentoTrimestralAdminEBD(parametros);
+  if (acao === "prepararProximoTrimestre") return prepararProximoTrimestreEBD(parametros);
   if (acao === "consultarHistoricoEscalas") { validarSenhaAdmin(parametros); return consultarHistoricoEscalas(parametros); }
   return {sucesso:false, mensagem:"Ação inválida."};
 }
@@ -301,8 +312,14 @@ function responderSaida(resposta, callback) {
   const conteudo = JSON.stringify(resposta);
 
   if (callback) {
+    const callbackSeguro = String(callback || "").trim();
+    if (!/^[A-Za-z_$][0-9A-Za-z_$]*$/.test(callbackSeguro)) {
+      return ContentService
+        .createTextOutput(JSON.stringify({sucesso:false, mensagem:"Callback JSONP inválido."}))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
     return ContentService
-      .createTextOutput(callback + "(" + conteudo + ");")
+      .createTextOutput(callbackSeguro + "(" + conteudo + ");")
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
   }
 
@@ -1736,46 +1753,492 @@ function mudarProfessorClasse(parametros) {
 }
 
 
+function obterPlanilhaEBD() {
+  const propriedades = PropertiesService.getScriptProperties();
+  const idSalvo = String(propriedades.getProperty(PROP_PLANILHA_ID_EBD) || "").trim();
+  if (idSalvo) return SpreadsheetApp.openById(idSalvo);
+
+  const ativa = SpreadsheetApp.getActiveSpreadsheet();
+  if (ativa) {
+    propriedades.setProperty(PROP_PLANILHA_ID_EBD, ativa.getId());
+    return ativa;
+  }
+  if (ID_PLANILHA_PADRAO_EBD) {
+    propriedades.setProperty(PROP_PLANILHA_ID_EBD, ID_PLANILHA_PADRAO_EBD);
+    return SpreadsheetApp.openById(ID_PLANILHA_PADRAO_EBD);
+  }
+  throw new Error("Não foi possível identificar a planilha da Escala EBD.");
+}
+
+function lerEstadoTrimestralEBD() {
+  const texto = String(PropertiesService.getScriptProperties().getProperty(PROP_ESTADO_TRIMESTRAL_EBD) || "").trim();
+  if (!texto) return {};
+  try { return JSON.parse(texto) || {}; } catch (erro) { return {}; }
+}
+
+function salvarEstadoTrimestralEBD(estado) {
+  PropertiesService.getScriptProperties().setProperty(PROP_ESTADO_TRIMESTRAL_EBD, JSON.stringify(estado || {}));
+}
+
 function criarOuPrepararHistoricoEscalasEBD() {
-  const planilha=SpreadsheetApp.getActiveSpreadsheet();
-  let aba=planilha.getSheetByName(NOME_ABA_HISTORICO_ESCALAS);
-  if (!aba) aba=planilha.insertSheet(NOME_ABA_HISTORICO_ESCALAS);
-  const headers=["ID","Ano","Trimestre","Data","Classe","Professor","Suporte","Origem","Data do Arquivamento","Observação"];
-  if (aba.getLastRow()===0) aba.appendRow(headers);
+  const planilha = obterPlanilhaEBD();
+  let aba = planilha.getSheetByName(NOME_ABA_HISTORICO_ESCALAS);
+  if (!aba) aba = planilha.insertSheet(NOME_ABA_HISTORICO_ESCALAS);
+  const headers = ["ID","Ano","Trimestre","Data","Classe","Professor","Suporte","Origem","Data do Arquivamento","Observação"];
+  if (aba.getLastRow() === 0) aba.appendRow(headers);
   aba.getRange(1,1,1,headers.length).setValues([headers]).setFontWeight("bold").setFontColor("#ffffff").setBackground("#1f4e79");
-  aba.setFrozenRows(1); return aba;
+  aba.setFrozenRows(1);
+  return aba;
 }
+
+function normalizarDataEBD(valor) {
+  if (valor instanceof Date && !isNaN(valor.getTime())) return new Date(valor.getFullYear(), valor.getMonth(), valor.getDate());
+  const texto = String(valor || "").trim();
+  const br = texto.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (br) return new Date(Number(br[3]), Number(br[2]) - 1, Number(br[1]));
+  const iso = texto.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (iso) return new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
+  return null;
+}
+
+function hojeEBD() {
+  return normalizarDataEBD(Utilities.formatDate(new Date(), TIMEZONE_EBD, "dd/MM/yyyy"));
+}
+
+function obterPeriodoDataEBD(data) {
+  const d = normalizarDataEBD(data);
+  if (!d) throw new Error("Data inválida para identificar o trimestre.");
+  return {ano:d.getFullYear(), trimestre:Math.floor(d.getMonth() / 3) + 1};
+}
+
+function rotuloTrimestreEBD(numero) {
+  return String(numero) + "º Trimestre";
+}
+
 function codigoTrimestreEBD(trimestre) {
-  const texto=String(trimestre || "").trim(), n=(texto.match(/[1-4]/) || [""])[0];
-  return n ? n+"T" : texto.replace(/\s+/g,"-");
+  const texto = String(trimestre || "").trim();
+  const n = Number((texto.match(/[1-4]/) || [""])[0]);
+  return n ? n + "T" : texto.replace(/\s+/g, "-");
 }
+
+function proximoPeriodoEBD(periodo) {
+  return periodo.trimestre === 4
+    ? {ano:periodo.ano + 1, trimestre:1}
+    : {ano:periodo.ano, trimestre:periodo.trimestre + 1};
+}
+
+function obterDomingosTrimestreEBD(ano, trimestre) {
+  const mesInicial = (Number(trimestre) - 1) * 3;
+  const inicio = new Date(Number(ano), mesInicial, 1);
+  const fim = new Date(Number(ano), mesInicial + 3, 1);
+  const domingos = [];
+  const cursor = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
+  while (cursor.getDay() !== 0) cursor.setDate(cursor.getDate() + 1);
+  while (cursor < fim) {
+    domingos.push(new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate()));
+    cursor.setDate(cursor.getDate() + 7);
+  }
+  return domingos;
+}
+
+function obterDadosEscalaTrimestralEBD() {
+  const planilha = obterPlanilhaEBD();
+  const aba = planilha.getSheetByName(NOME_ABA_ESCALA);
+  if (!aba) throw new Error("A aba '" + NOME_ABA_ESCALA + "' não foi encontrada.");
+  const ultimaLinha = Math.max(aba.getLastRow(), 1);
+  const ultimaColuna = Math.max(aba.getLastColumn(), ORDEM_COLUNAS_ESCALA_EBD.length);
+  const dados = aba.getRange(1,1,ultimaLinha,ultimaColuna).getValues();
+  const cabecalhos = dados[0].map(function(v){ return String(v || "").trim(); });
+  const indiceData = cabecalhos.indexOf("Data");
+  if (indiceData < 0) throw new Error("A coluna Data não foi encontrada na escala.");
+  const linhas = [];
+  for (let i=1; i<dados.length; i++) {
+    const data = normalizarDataEBD(dados[i][indiceData]);
+    if (!data) continue;
+    linhas.push({linha:i+1, data:data, valores:dados[i]});
+  }
+  linhas.sort(function(a,b){ return a.data.getTime() - b.data.getTime(); });
+  if (!linhas.length) throw new Error("A escala atual não possui datas válidas.");
+  const primeiraData = linhas[0].data;
+  const ultimaData = linhas[linhas.length - 1].data;
+  const periodoInicial = obterPeriodoDataEBD(primeiraData);
+  const periodoFinal = obterPeriodoDataEBD(ultimaData);
+  if (periodoInicial.ano !== periodoFinal.ano || periodoInicial.trimestre !== periodoFinal.trimestre) {
+    throw new Error("A escala atual contém datas de mais de um trimestre. Corrija as datas antes de arquivar.");
+  }
+  return {planilha:planilha, aba:aba, dados:dados, cabecalhos:cabecalhos, linhas:linhas, primeiraData:primeiraData, ultimaData:ultimaData, periodo:periodoFinal};
+}
+
+function separarNomesEscalaEBD(valor) {
+  return String(valor || "").split("/").map(function(nome){ return nome.trim(); }).filter(Boolean);
+}
+
+function obterOrdemProfessoresEBD(infoEscala) {
+  criarOuPrepararProfessores();
+  const aba = obterPlanilhaEBD().getSheetByName(NOME_ABA_PROFESSORES);
+  const dados = aba.getDataRange().getValues();
+  const classes = {};
+  CLASSES_ESCALA_EBD.forEach(function(classe){ classes[classe] = []; });
+  const suporte = [];
+
+  function adicionar(lista, nome, ativo) {
+    const chave = String(nome || "").trim().toLowerCase();
+    if (!chave) return;
+    if (lista.some(function(item){ return item.nome.toLowerCase() === chave; })) return;
+    lista.push({nome:String(nome).trim(), ativo:ativo});
+  }
+
+  for (let i=1; i<dados.length; i++) {
+    const nome = String(dados[i][0] || "").trim();
+    if (!nome) continue;
+    const classe = normalizarNomeClasseEBD(dados[i][1]);
+    const ativo = String(dados[i][2] || "Ativo").trim().toLowerCase() !== "inativo";
+    const observacao = String(dados[i][4] || "").toLowerCase();
+    if (classes[classe]) adicionar(classes[classe], nome, ativo);
+    if (classe === COLUNA_SUPORTE_EBD || classe === "Superintendente" || observacao.indexOf("suporte") !== -1) adicionar(suporte, nome, ativo);
+  }
+
+  if (!suporte.length && infoEscala) {
+    const indiceSuporte = infoEscala.cabecalhos.indexOf(COLUNA_SUPORTE_EBD);
+    if (indiceSuporte >= 0) {
+      infoEscala.linhas.forEach(function(item){
+        separarNomesEscalaEBD(item.valores[indiceSuporte]).forEach(function(nome){ adicionar(suporte, nome, true); });
+      });
+    }
+  }
+  return {classes:classes, suporte:suporte};
+}
+
+function obterUltimoNomeColunaEBD(info, coluna, ordem) {
+  const indice = coluna === COLUNA_SUPORTE_EBD ? info.cabecalhos.indexOf(COLUNA_SUPORTE_EBD) : encontrarIndiceClasseEscalaEBD(info.cabecalhos, coluna);
+  if (indice < 0) return "";
+  for (let i=info.linhas.length-1; i>=0; i--) {
+    const nomes = separarNomesEscalaEBD(info.linhas[i].valores[indice]);
+    for (let n=0; n<nomes.length; n++) {
+      if (ordem.some(function(item){ return item.nome.toLowerCase() === nomes[n].toLowerCase(); })) return nomes[n];
+    }
+    if (nomes.length) return nomes[0];
+  }
+  return "";
+}
+
+function criarCicloAtivoEBD(ordem, ultimoNome) {
+  const ativos = ordem.filter(function(item){ return item.ativo; });
+  if (!ativos.length) return [];
+  const indiceUltimo = ordem.findIndex(function(item){ return item.nome.toLowerCase() === String(ultimoNome || "").toLowerCase(); });
+  const ciclo = [];
+  for (let passo=1; passo<=ordem.length; passo++) {
+    const indice = indiceUltimo >= 0 ? (indiceUltimo + passo) % ordem.length : passo - 1;
+    if (ordem[indice].ativo) ciclo.push(ordem[indice].nome);
+  }
+  return ciclo.length ? ciclo : ativos.map(function(item){ return item.nome; });
+}
+
+function idArquivoEscalaEBD(periodo, data, classe) {
+  return periodo.ano + "-" + periodo.trimestre + "T-" + Utilities.formatDate(normalizarDataEBD(data), TIMEZONE_EBD, "dd/MM/yyyy") + "-" + classe;
+}
+
+function obterIdsEsperadosArquivoEBD(info) {
+  const ids = [];
+  info.linhas.forEach(function(item){
+    CLASSES_ESCALA_EBD.forEach(function(classe){ ids.push(idArquivoEscalaEBD(info.periodo, item.data, classe)); });
+  });
+  return ids;
+}
+
+function obterMapaIdsHistoricoEBD() {
+  const aba = criarOuPrepararHistoricoEscalasEBD();
+  const dados = aba.getDataRange().getValues();
+  const mapa = {};
+  for (let i=1; i<dados.length; i++) mapa[String(dados[i][0] || "")] = true;
+  return mapa;
+}
+
+function arquivarEscalaInternoEBD(info, origem, observacao) {
+  const historico = criarOuPrepararHistoricoEscalasEBD();
+  const existentes = obterMapaIdsHistoricoEBD();
+  const indiceSuporte = info.cabecalhos.indexOf(COLUNA_SUPORTE_EBD);
+  const linhas = [];
+  let duplicados = 0;
+  info.linhas.forEach(function(item){
+    const suporte = indiceSuporte >= 0 ? String(item.valores[indiceSuporte] || "").trim() : "";
+    CLASSES_ESCALA_EBD.forEach(function(classe){
+      const indiceClasse = encontrarIndiceClasseEscalaEBD(info.cabecalhos, classe);
+      if (indiceClasse < 0) return;
+      const id = idArquivoEscalaEBD(info.periodo, item.data, classe);
+      if (existentes[id]) { duplicados++; return; }
+      existentes[id] = true;
+      linhas.push([
+        id,
+        info.periodo.ano,
+        rotuloTrimestreEBD(info.periodo.trimestre),
+        item.data,
+        classe,
+        String(item.valores[indiceClasse] || "").trim(),
+        suporte,
+        String(origem || "Automação trimestral"),
+        agoraFormatadoEBD(),
+        String(observacao || "Arquivamento do trimestre encerrado.")
+      ]);
+    });
+  });
+  if (linhas.length) {
+    historico.getRange(historico.getLastRow()+1,1,linhas.length,10).setValues(linhas);
+    historico.getRange(historico.getLastRow()-linhas.length+1,4,linhas.length,1).setNumberFormat("dd/MM/yyyy");
+  }
+  const estado = lerEstadoTrimestralEBD();
+  estado.ultimoArquivamento = {
+    ano:info.periodo.ano,
+    trimestre:info.periodo.trimestre,
+    rotulo:rotuloTrimestreEBD(info.periodo.trimestre),
+    data:agoraFormatadoEBD(),
+    inseridos:linhas.length,
+    duplicados:duplicados,
+    origem:String(origem || "Automação trimestral")
+  };
+  estado.pendentePreparacao = true;
+  salvarEstadoTrimestralEBD(estado);
+  SpreadsheetApp.flush();
+  return {sucesso:true, inseridos:linhas.length, duplicados:duplicados, mensagem:"Escala arquivada com segurança.", periodo:info.periodo};
+}
+
 function arquivarEscalaAtual(parametros) {
   validarSenhaAdmin(parametros);
-  const ano=String(parametros.ano || "").trim(), trimestre=String(parametros.trimestre || "").trim();
-  if (!/^\d{4}$/.test(ano) || !trimestre) throw new Error("Informe um ano válido e o trimestre.");
-  const planilha=SpreadsheetApp.getActiveSpreadsheet(), escala=planilha.getSheetByName(NOME_ABA_ESCALA);
-  if (!escala) throw new Error("A aba '"+NOME_ABA_ESCALA+"' não foi encontrada.");
-  const historico=criarOuPrepararHistoricoEscalasEBD(), existentes={}, dh=historico.getDataRange().getValues();
-  for (let i=1;i<dh.length;i++) existentes[String(dh[i][0] || "")]=true;
-  const dados=escala.getDataRange().getValues(), headers=dados[0].map(function(v){return String(v || "").trim();});
-  const iData=headers.indexOf("Data"), iSup=headers.indexOf(COLUNA_SUPORTE_EBD), linhas=[]; let duplicados=0;
-  for (let r=1;r<dados.length;r++) {
-    if (!dados[r][iData]) continue;
-    const data=formatarValorEscalaEBD(dados[r][iData]), suporte=iSup>=0 ? String(dados[r][iSup] || "").trim() : "";
-    CLASSES_ESCALA_EBD.forEach(function(classe){
-      const c=encontrarIndiceClasseEscalaEBD(headers,classe); if (c<0) return;
-      const id=ano+"-"+codigoTrimestreEBD(trimestre)+"-"+data+"-"+classe;
-      if (existentes[id]) {duplicados++; return;} existentes[id]=true;
-      linhas.push([id,Number(ano),trimestre,dados[r][iData],classe,String(dados[r][c] || "").trim(),suporte,String(parametros.origem || "Painel Admin"),agoraFormatadoEBD(),String(parametros.observacao || "")]);
-    });
-  }
-  if (linhas.length) historico.getRange(historico.getLastRow()+1,1,linhas.length,10).setValues(linhas);
-  SpreadsheetApp.flush(); return {sucesso:true,inseridos:linhas.length,duplicados:duplicados,mensagem:"Escala arquivada com segurança."};
+  const info = obterDadosEscalaTrimestralEBD();
+  const anoInformado = Number(parametros.ano || 0);
+  const trimestreInformado = Number((String(parametros.trimestre || "").match(/[1-4]/) || [0])[0]);
+  if (anoInformado && anoInformado !== info.periodo.ano) throw new Error("O ano informado não corresponde às datas da escala atual.");
+  if (trimestreInformado && trimestreInformado !== info.periodo.trimestre) throw new Error("O trimestre informado não corresponde às datas da escala atual.");
+  return arquivarEscalaInternoEBD(info, parametros.origem || "Painel Admin - Arquivamento manual", parametros.observacao || "Arquivamento manual de segurança.");
 }
+
+function gatilhoTrimestralInstaladoEBD() {
+  return ScriptApp.getProjectTriggers().some(function(gatilho){ return gatilho.getHandlerFunction() === FUNCAO_GATILHO_TRIMESTRAL_EBD; });
+}
+
+function instalarAutomacaoTrimestralEBD(parametros) {
+  if (parametros) validarSenhaAdmin(parametros);
+  const planilha = SpreadsheetApp.getActiveSpreadsheet() || SpreadsheetApp.openById(ID_PLANILHA_PADRAO_EBD);
+  PropertiesService.getScriptProperties().setProperty(PROP_PLANILHA_ID_EBD, planilha.getId());
+  ScriptApp.getProjectTriggers().forEach(function(gatilho){
+    if (gatilho.getHandlerFunction() === FUNCAO_GATILHO_TRIMESTRAL_EBD) ScriptApp.deleteTrigger(gatilho);
+  });
+  ScriptApp.newTrigger(FUNCAO_GATILHO_TRIMESTRAL_EBD)
+    .timeBased()
+    .atHour(HORA_GATILHO_TRIMESTRAL_EBD)
+    .nearMinute(15)
+    .everyDays(1)
+    .inTimezone(TIMEZONE_EBD)
+    .create();
+  const estado = lerEstadoTrimestralEBD();
+  estado.automacaoInstaladaEm = agoraFormatadoEBD();
+  salvarEstadoTrimestralEBD(estado);
+  return {sucesso:true, instalado:true, mensagem:"Automação trimestral instalada. A verificação será executada diariamente."};
+}
+
+function verificarEncerramentoTrimestralInternoEBD(origem) {
+  const info = obterDadosEscalaTrimestralEBD();
+  const hoje = hojeEBD();
+  const encerrado = hoje.getTime() > info.ultimaData.getTime();
+  const estado = lerEstadoTrimestralEBD();
+  estado.ultimaVerificacao = agoraFormatadoEBD();
+  salvarEstadoTrimestralEBD(estado);
+  if (!encerrado) {
+    return {sucesso:true, encerrado:false, arquivado:false, mensagem:"O trimestre atual ainda está em andamento.", ultimaData:formatarValorEscalaEBD(info.ultimaData)};
+  }
+  const resultado = arquivarEscalaInternoEBD(info, origem || "Automação diária", "Arquivamento automático após a última data do trimestre.");
+  resultado.encerrado = true;
+  resultado.arquivado = true;
+  return resultado;
+}
+
+function verificarEncerramentoTrimestralEBD() {
+  return executarComLockEBD(function(){ return verificarEncerramentoTrimestralInternoEBD("Gatilho automático diário"); });
+}
+
+function verificarEncerramentoTrimestralAdminEBD(parametros) {
+  validarSenhaAdmin(parametros);
+  return verificarEncerramentoTrimestralInternoEBD("Painel Admin - Verificação manual");
+}
+
+function criarBackupEscalaEBD(info) {
+  const planilha = info.planilha;
+  const base = "BACKUP " + info.periodo.trimestre + "T " + info.periodo.ano + " " + Utilities.formatDate(new Date(), TIMEZONE_EBD, "yyyyMMdd-HHmm");
+  let nome = base.substring(0, 95), contador = 2;
+  while (planilha.getSheetByName(nome)) {
+    nome = (base + "-" + contador).substring(0, 99);
+    contador++;
+  }
+  const copia = info.aba.copyTo(planilha).setName(nome);
+  copia.hideSheet();
+  return nome;
+}
+
+function aplicarValidacoesEscalaEBD(aba, totalDatas, ordens) {
+  const maxLinhas = aba.getMaxRows();
+  const maxColunas = aba.getMaxColumns();
+  if (maxLinhas > 1 && maxColunas > 1) aba.getRange(2,2,maxLinhas-1,maxColunas-1).clearDataValidations();
+  CLASSES_ESCALA_EBD.forEach(function(classe, indice){
+    const lista = (ordens.classes[classe] || []).filter(function(item){ return item.ativo; }).map(function(item){ return item.nome; });
+    if (!lista.length || !totalDatas) return;
+    const regra = SpreadsheetApp.newDataValidation().requireValueInList(lista, true).setAllowInvalid(false).build();
+    aba.getRange(2, indice + 2, totalDatas, 1).setDataValidation(regra);
+  });
+  const suporte = (ordens.suporte || []).filter(function(item){ return item.ativo; }).map(function(item){ return item.nome; });
+  if (suporte.length && totalDatas) {
+    const regraSuporte = SpreadsheetApp.newDataValidation().requireValueInList(suporte, true).setAllowInvalid(false).build();
+    aba.getRange(2, ORDEM_COLUNAS_ESCALA_EBD.length, totalDatas, 1).setDataValidation(regraSuporte);
+  }
+}
+
+function formatarEscalaTrimestralEBD(aba, totalDatas) {
+  const totalLinhas = totalDatas + 1;
+  aba.setFrozenRows(1);
+  aba.setFrozenColumns(1);
+  aba.setHiddenGridlines(true);
+  aba.setRowHeight(1, 48);
+  if (totalDatas) aba.setRowHeights(2, totalDatas, 34);
+  [105,160,160,160,170,170,170,170,125,135,105].forEach(function(largura, indice){ aba.setColumnWidth(indice + 1, largura); });
+  const tabela = aba.getRange(1,1,totalLinhas,ORDEM_COLUNAS_ESCALA_EBD.length);
+  tabela.setFontFamily("Arial").setFontSize(10).setHorizontalAlignment("center").setVerticalAlignment("middle").setWrap(true);
+  aba.getRange(1,1,1,ORDEM_COLUNAS_ESCALA_EBD.length).setBackground("#1f4e79").setFontColor("#ffffff").setFontWeight("bold");
+  if (totalDatas) {
+    aba.getRange(2,1,totalDatas,1).setBackground("#d9eaf7").setFontColor("#082f49").setFontWeight("bold").setNumberFormat("dd/MM/yyyy");
+    for (let linha=2; linha<=totalLinhas; linha++) {
+      aba.getRange(linha,2,1,ORDEM_COLUNAS_ESCALA_EBD.length-1).setBackground(linha % 2 === 0 ? "#f6fbff" : "#ffffff");
+    }
+  }
+  tabela.setBorder(true,true,true,true,true,true,"#cbd9e3",SpreadsheetApp.BorderStyle.SOLID);
+  aba.getRange(1,1,totalLinhas,ORDEM_COLUNAS_ESCALA_EBD.length).setBorder(true,true,true,true,null,null,"#1f4e79",SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
+}
+
+function colunaLetraEBD(numero) {
+  let n = Number(numero), texto = "";
+  while (n > 0) { const resto = (n - 1) % 26; texto = String.fromCharCode(65 + resto) + texto; n = Math.floor((n - 1) / 26); }
+  return texto;
+}
+
+function reconstruirResumoEBD(abaEscala, totalDatas, ordens, periodo) {
+  const planilha = obterPlanilhaEBD();
+  let resumo = planilha.getSheetByName("Resumo");
+  if (!resumo) resumo = planilha.insertSheet("Resumo");
+  resumo.getDataRange().breakApart();
+  resumo.clear();
+  resumo.getRange("A1:C1").merge().setValue("Resumo da distribuição das aulas — " + rotuloTrimestreEBD(periodo.trimestre) + " de " + periodo.ano);
+  resumo.getRange("A3:C3").setValues([["Classe","Professor","Quantidade"]]);
+  const linhas = [];
+  CLASSES_ESCALA_EBD.concat([COLUNA_SUPORTE_EBD]).forEach(function(classe){
+    const ordem = classe === COLUNA_SUPORTE_EBD ? ordens.suporte : ordens.classes[classe] || [];
+    ordem.filter(function(item){ return item.ativo; }).forEach(function(item){ linhas.push([classe,item.nome,""]); });
+  });
+  if (linhas.length) resumo.getRange(4,1,linhas.length,3).setValues(linhas);
+  for (let i=0; i<linhas.length; i++) {
+    const linhaResumo = i + 4;
+    const classe = linhas[i][0];
+    const indiceColuna = classe === COLUNA_SUPORTE_EBD ? ORDEM_COLUNAS_ESCALA_EBD.length : CLASSES_ESCALA_EBD.indexOf(classe) + 2;
+    const letra = colunaLetraEBD(indiceColuna);
+    resumo.getRange(linhaResumo,3).setFormula("=COUNTIF('Escala EBD'!" + letra + "2:" + letra + (totalDatas + 1) + ",B" + linhaResumo + ")");
+  }
+  resumo.getRange("A1:C1").setBackground("#1f4e79").setFontColor("#ffffff").setFontWeight("bold").setHorizontalAlignment("center");
+  resumo.getRange("A3:C3").setBackground("#d9eaf7").setFontWeight("bold").setHorizontalAlignment("center");
+  if (linhas.length) resumo.getRange(4,1,linhas.length,3).setBorder(true,true,true,true,true,true,"#cbd9e3",SpreadsheetApp.BorderStyle.SOLID).setVerticalAlignment("middle");
+  resumo.setFrozenRows(3);
+  resumo.setColumnWidth(1,220); resumo.setColumnWidth(2,200); resumo.setColumnWidth(3,110);
+}
+
+function prepararProximoTrimestreEBD(parametros) {
+  validarSenhaAdmin(parametros);
+  const confirmacao = String(parametros.confirmacao || "").trim();
+  if (confirmacao !== "PREPARAR") throw new Error("Confirmação administrativa inválida.");
+  const info = obterDadosEscalaTrimestralEBD();
+  const hoje = hojeEBD();
+  if (hoje.getTime() <= info.ultimaData.getTime()) throw new Error("O trimestre atual ainda não terminou. A nova escala só pode ser preparada após a última data.");
+
+  const idsEsperados = obterIdsEsperadosArquivoEBD(info);
+  const existentes = obterMapaIdsHistoricoEBD();
+  const faltantes = idsEsperados.filter(function(id){ return !existentes[id]; });
+  if (faltantes.length) throw new Error("O arquivamento ainda não está completo. Use 'Verificar e arquivar agora' antes de preparar o próximo trimestre.");
+
+  const ordens = obterOrdemProfessoresEBD(info);
+  const proximo = proximoPeriodoEBD(info.periodo);
+  const domingos = obterDomingosTrimestreEBD(proximo.ano, proximo.trimestre);
+  if (!domingos.length) throw new Error("Nenhum domingo foi encontrado para o próximo trimestre.");
+  const backup = criarBackupEscalaEBD(info);
+  const linhas = [];
+  const ciclos = {};
+  CLASSES_ESCALA_EBD.forEach(function(classe){
+    ciclos[classe] = criarCicloAtivoEBD(ordens.classes[classe] || [], obterUltimoNomeColunaEBD(info, classe, ordens.classes[classe] || []));
+  });
+  const cicloSuporte = criarCicloAtivoEBD(ordens.suporte || [], obterUltimoNomeColunaEBD(info, COLUNA_SUPORTE_EBD, ordens.suporte || []));
+
+  domingos.forEach(function(data, indice){
+    const linha = [data];
+    CLASSES_ESCALA_EBD.forEach(function(classe){
+      const ciclo = ciclos[classe] || [];
+      linha.push(ciclo.length ? ciclo[indice % ciclo.length] : "");
+    });
+    linha.push(cicloSuporte.length ? cicloSuporte[indice % cicloSuporte.length] : "");
+    linhas.push(linha);
+  });
+
+  const aba = info.aba;
+  const linhasParaLimpar = Math.max(aba.getMaxRows() - 1, 1);
+  aba.getRange(2,1,linhasParaLimpar,aba.getMaxColumns()).clearContent().clearDataValidations().clearFormat();
+  aba.getRange(1,1,1,ORDEM_COLUNAS_ESCALA_EBD.length).setValues([ORDEM_COLUNAS_ESCALA_EBD]);
+  aba.getRange(2,1,linhas.length,ORDEM_COLUNAS_ESCALA_EBD.length).setValues(linhas);
+  aplicarValidacoesEscalaEBD(aba, linhas.length, ordens);
+  formatarEscalaTrimestralEBD(aba, linhas.length);
+  reconstruirResumoEBD(aba, linhas.length, ordens, proximo);
+
+  const estado = lerEstadoTrimestralEBD();
+  estado.pendentePreparacao = false;
+  estado.ultimaPreparacao = {ano:proximo.ano, trimestre:proximo.trimestre, data:agoraFormatadoEBD(), backup:backup};
+  salvarEstadoTrimestralEBD(estado);
+  registrarHistorico({
+    dataHora:new Date(), classe:"Escala", professorSolicitante:"Administrador",
+    dataAntiga:rotuloTrimestreEBD(info.periodo.trimestre) + " de " + info.periodo.ano,
+    novaData:rotuloTrimestreEBD(proximo.trimestre) + " de " + proximo.ano,
+    professorTrocado:"Preparou automaticamente " + linhas.length + " domingos, mantendo a sequência dos professores. Backup: " + backup,
+    origem:"Painel Admin - Preparação trimestral"
+  });
+  SpreadsheetApp.flush();
+  return {sucesso:true, mensagem:"Próximo trimestre preparado com sucesso.", ano:proximo.ano, trimestre:proximo.trimestre, rotulo:rotuloTrimestreEBD(proximo.trimestre), domingos:linhas.length, backup:backup};
+}
+
+function obterStatusTrimestralEBD() {
+  const info = obterDadosEscalaTrimestralEBD();
+  const idsEsperados = obterIdsEsperadosArquivoEBD(info);
+  const existentes = obterMapaIdsHistoricoEBD();
+  const arquivados = idsEsperados.filter(function(id){ return existentes[id]; }).length;
+  const encerrado = hojeEBD().getTime() > info.ultimaData.getTime();
+  const proximo = proximoPeriodoEBD(info.periodo);
+  const estado = lerEstadoTrimestralEBD();
+  return {
+    sucesso:true,
+    automacaoInstalada:gatilhoTrimestralInstaladoEBD(),
+    horaAutomacao:HORA_GATILHO_TRIMESTRAL_EBD + ":15",
+    periodoAtual:{ano:info.periodo.ano, trimestre:info.periodo.trimestre, rotulo:rotuloTrimestreEBD(info.periodo.trimestre)},
+    primeiraData:formatarValorEscalaEBD(info.primeiraData),
+    ultimaData:formatarValorEscalaEBD(info.ultimaData),
+    totalDomingos:info.linhas.length,
+    encerrado:encerrado,
+    arquivamentoCompleto:arquivados === idsEsperados.length,
+    registrosArquivados:arquivados,
+    registrosEsperados:idsEsperados.length,
+    podePreparar:encerrado && arquivados === idsEsperados.length,
+    proximoPeriodo:{ano:proximo.ano, trimestre:proximo.trimestre, rotulo:rotuloTrimestreEBD(proximo.trimestre)},
+    ultimaVerificacao:estado.ultimaVerificacao || "",
+    ultimoArquivamento:estado.ultimoArquivamento || null,
+    ultimaPreparacao:estado.ultimaPreparacao || null
+  };
+}
+
 function consultarHistoricoEscalas(parametros) {
-  const aba=criarOuPrepararHistoricoEscalasEBD(), dados=aba.getDataRange().getValues(), headers=dados[0].map(function(v){return String(v || "").trim();});
-  const limite=Math.min(Number(parametros.limite || 1000) || 1000,5000), registros=[];
-  for (let i=dados.length-1;i>=1 && registros.length<limite;i--) {
+  const aba = criarOuPrepararHistoricoEscalasEBD();
+  const dados = aba.getDataRange().getValues();
+  const headers = dados[0].map(function(v){return String(v || "").trim();});
+  const limite = Math.min(Number(parametros.limite || 1000) || 1000,5000), registros=[];
+  for (let i=dados.length-1; i>=1 && registros.length<limite; i--) {
     const item={}; headers.forEach(function(h,c){item[h]=formatarValorEscalaEBD(dados[i][c]);});
     if (parametros.ano && String(item.Ano)!==String(parametros.ano)) continue;
     if (parametros.trimestre && String(item.Trimestre)!==String(parametros.trimestre)) continue;

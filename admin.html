@@ -1689,24 +1689,41 @@
         <div id="painelHistoricoEscalas" class="admin-panel card">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
             <div>
-              <h2>📚 Histórico de escalas</h2>
-              <p>Arquive a escala atual antes de trocar o trimestre e consulte registros antigos por ano, trimestre, classe ou professor.</p>
+              <h2>📚 Encerramento trimestral e escalas salvas</h2>
+              <p>O sistema arquiva automaticamente o trimestre encerrado e prepara o próximo somente após confirmação administrativa.</p>
             </div>
-            <span class="chip">Backup permanente no Google Sheets</span>
+            <span class="chip">Automação segura com histórico</span>
           </div>
 
           <div class="subcard">
             <div class="subcard-header">
-              <h3>💾 Arquivar escala atual</h3>
-              <span class="chip">use antes de mudar o trimestre</span>
+              <h3>⚙️ Status da automação trimestral</h3>
+              <span id="triStatusChip" class="chip">Carregando...</span>
             </div>
-            <p class="help" style="margin-bottom:1rem;">Esta ação lê a escala atual da planilha e salva cada classe em linhas separadas na aba <strong>Historico_Escalas</strong>.</p>
-            <div class="form-grid">
-              <div><label>Ano</label><input id="histEscalaAnoArquivo" type="number" value="2026" min="2020" max="2100" /></div>
-              <div><label>Trimestre</label><select id="histEscalaTrimestreArquivo"><option>1º Trimestre</option><option>2º Trimestre</option><option selected>3º Trimestre</option><option>4º Trimestre</option></select></div>
-              <div><label>Observação</label><input id="histEscalaObservacaoArquivo" value="Escala arquivada pelo painel admin." /></div>
+            <div class="form-grid" style="margin-bottom:1rem;">
+              <div><label>Escala atual</label><input id="triPeriodoAtual" readonly value="—" /></div>
+              <div><label>Período das datas</label><input id="triDatasAtual" readonly value="—" /></div>
+              <div><label>Arquivamento</label><input id="triArquivoStatus" readonly value="—" /></div>
+              <div><label>Próximo trimestre</label><input id="triProximoPeriodo" readonly value="—" /></div>
             </div>
-            <div class="actions" style="margin-top:1rem;">
+            <p id="triMensagemStatus" class="help" style="margin-bottom:1rem;">Consultando o Google Apps Script...</p>
+            <div class="actions">
+              <button class="secondary" onclick="carregarStatusTrimestralAdmin()">🔄 Atualizar status</button>
+              <button class="purple" onclick="instalarAutomacaoTrimestralAdmin()">⏰ Instalar / reparar automação</button>
+              <button class="gray" onclick="verificarEncerramentoTrimestralAdmin()">📦 Verificar e arquivar agora</button>
+              <button id="btnPrepararProximoTrimestre" onclick="prepararProximoTrimestreAdmin()" disabled>🗓️ Preparar próximo trimestre</button>
+            </div>
+          </div>
+
+          <div class="subcard">
+            <div class="subcard-header"><h3>🔁 Como funciona a sequência</h3><span class="chip">continuidade automática</span></div>
+            <p class="help">A ordem é lida de cima para baixo na aba <strong>Professores</strong>. Para cada classe, o primeiro domingo do novo trimestre recebe o professor ativo seguinte ao último escalado no trimestre anterior. Professores inativos são ignorados. Se houver apenas um professor ativo, ele permanece em todas as datas.</p>
+          </div>
+
+          <div class="subcard">
+            <div class="subcard-header"><h3>🛡️ Arquivamento manual de emergência</h3><span class="chip">não apaga a escala</span></div>
+            <p class="help" style="margin-bottom:1rem;">Use somente se desejar forçar uma cópia adicional ou se o gatilho automático tiver falhado. O sistema identifica ano e trimestre pelas datas e ignora registros duplicados.</p>
+            <div class="actions">
               <button class="purple" onclick="arquivarEscalaAtualAdmin()">📦 Arquivar escala atual</button>
               <button class="secondary" onclick="consultarHistoricoEscalasAdmin()">🔎 Atualizar consulta</button>
             </div>
@@ -1897,7 +1914,7 @@
               <div class="manual-card">
                 <h3>🌐 Página pública</h3>
                 <p>Depois de qualquer alteração, confira a página pública:</p>
-                <div class="manual-link-line">https://ebdfiel.github.io/escala-ebd/</div>
+                <div class="manual-link-line">https://escala.ebdfiel.com.br/</div>
                 <p>Se algo não aparecer, atualize com <strong>Ctrl + F5</strong> ou teste em aba anônima.</p>
               </div>
 
@@ -2085,7 +2102,22 @@
             </div>
 
             <div class="manual-section">
-              <h3>🧯 12. Problemas comuns</h3>
+              <h3>📦 12. Encerramento e mudança de trimestre</h3>
+              <ol>
+                <li>Abra <strong>Escalas salvas</strong> e confira se a automação está ativa.</li>
+                <li>Depois da última data do trimestre, o sistema verifica e arquiva a escala automaticamente.</li>
+                <li>O histórico é protegido contra registros duplicados.</li>
+                <li>Quando o arquivo estiver completo, o botão <strong>Preparar próximo trimestre</strong> será liberado.</li>
+                <li>Confirme a preparação digitando <strong>PREPARAR</strong>.</li>
+                <li>O sistema cria todos os domingos, preserva as classes e continua a sequência de cada professor.</li>
+                <li>A ordem é lida de cima para baixo na aba <strong>Professores</strong>; professores inativos são ignorados.</li>
+                <li>Antes da substituição, é criado um backup oculto da escala anterior.</li>
+              </ol>
+              <p><strong>Importante:</strong> o arquivamento é automático, mas a preparação do novo trimestre sempre exige confirmação administrativa.</p>
+            </div>
+
+            <div class="manual-section">
+              <h3>🧯 13. Problemas comuns</h3>
               <h4>Alterei no admin, mas não apareceu no site público</h4>
               <ol>
                 <li>Abra a página pública.</li>
@@ -2463,7 +2495,8 @@
       () => carregarEscala(),
       () => carregarProfessores(),
       () => carregarQuizzesAdmin(),
-      () => carregarHistorico()
+      () => carregarHistorico(),
+      () => carregarStatusTrimestralAdmin(true)
     ];
 
     for (const tarefa of tarefas) {
@@ -2710,7 +2743,8 @@
   }
 
   window.addEventListener("message", (e) => {
-    if (e.data?.origem === "appsScriptSalvarLicoes") {
+    const origemGoogleScript = /^https:\/\/(script\.google\.com|script\.googleusercontent\.com)$/.test(String(e.origin || ""));
+    if (origemGoogleScript && e.data?.origem === "appsScriptSalvarLicoes") {
       salvandoLicoesEBD = false;
       clearTimeout(timerSalvarLicoesEBD);
       restaurarBotaoSalvarLicoes();
@@ -3905,44 +3939,138 @@
     }
   }
 
-  async function arquivarEscalaAtualAdmin() {
-    try {
-      const senha = obterSenhaObrigatoria();
-      const ano = document.getElementById("histEscalaAnoArquivo")?.value || "";
-      const trimestre = document.getElementById("histEscalaTrimestreArquivo")?.value || "";
-      const observacao = document.getElementById("histEscalaObservacaoArquivo")?.value || "Escala arquivada pelo painel admin.";
+  let statusTrimestralCache = null;
 
-      if (!ano || !trimestre) {
-        return mostrarStatus("error", "Informe ano e trimestre para arquivar a escala.");
+  function preencherStatusTrimestralAdmin(status) {
+    statusTrimestralCache = status || null;
+    const periodo = status?.periodoAtual;
+    const proximo = status?.proximoPeriodo;
+    const chip = document.getElementById("triStatusChip");
+    const btnPreparar = document.getElementById("btnPrepararProximoTrimestre");
+    const campoPeriodo = document.getElementById("triPeriodoAtual");
+    const campoDatas = document.getElementById("triDatasAtual");
+    const campoArquivo = document.getElementById("triArquivoStatus");
+    const campoProximo = document.getElementById("triProximoPeriodo");
+    const mensagem = document.getElementById("triMensagemStatus");
+
+    if (campoPeriodo) campoPeriodo.value = periodo ? `${periodo.rotulo} de ${periodo.ano}` : "—";
+    if (campoDatas) campoDatas.value = status ? `${status.primeiraData} a ${status.ultimaData} • ${status.totalDomingos} domingos` : "—";
+    if (campoArquivo) campoArquivo.value = status ? `${status.registrosArquivados}/${status.registrosEsperados} registros` : "—";
+    if (campoProximo) campoProximo.value = proximo ? `${proximo.rotulo} de ${proximo.ano}` : "—";
+    if (btnPreparar) btnPreparar.disabled = !status?.podePreparar;
+
+    if (chip) {
+      if (!status?.automacaoInstalada) chip.textContent = "Automação não instalada";
+      else if (status?.podePreparar) chip.textContent = "Pronto para novo trimestre";
+      else if (status?.encerrado) chip.textContent = "Encerrado — arquivando";
+      else chip.textContent = "Automação ativa";
+    }
+
+    if (mensagem) {
+      if (!status?.automacaoInstalada) {
+        mensagem.textContent = "Clique em Instalar / reparar automação. O gatilho fará uma verificação diária por volta de " + (status?.horaAutomacao || "04:15") + ".";
+      } else if (status?.podePreparar) {
+        mensagem.textContent = "O trimestre terminou e o arquivo está completo. O botão Preparar próximo trimestre está liberado.";
+      } else if (status?.encerrado && !status?.arquivamentoCompleto) {
+        mensagem.textContent = "O trimestre terminou, mas o histórico ainda não está completo. Use Verificar e arquivar agora.";
+      } else {
+        mensagem.textContent = "O trimestre está em andamento. O arquivamento acontecerá automaticamente depois da última data.";
       }
+    }
+  }
 
-      const confirmar = confirm(`Arquivar a escala atual como ${trimestre} de ${ano}?\n\nEsta ação salva uma cópia permanente na aba Historico_Escalas.`);
-      if (!confirmar) return;
-
-      mostrarStatus("info", "Arquivando escala atual... Aguarde.");
-
+  async function carregarStatusTrimestralAdmin(modoSilencioso = false) {
+    try {
       const r = await chamarAppsScript({
-        acao: "arquivarEscalaAtual",
-        senha,
-        ano,
-        trimestre,
-        observacao,
-        origem: "Painel Admin - Histórico de Escalas",
+        acao: "obterStatusTrimestral",
+        senha: obterSenhaObrigatoria(),
         _nocache: Date.now()
       }, { timeoutMs: 60000, tentativas: 2 });
+      if (!r || !r.sucesso) throw new Error((r && r.mensagem) || "Não foi possível consultar o status trimestral.");
+      preencherStatusTrimestralAdmin(r);
+      if (!modoSilencioso) mostrarStatus("success", "Status trimestral atualizado.");
+      return r;
+    } catch (erro) {
+      console.warn("Erro ao consultar status trimestral:", erro);
+      if (!modoSilencioso) mostrarStatus("error", erro.message || "Erro ao consultar status trimestral.");
+      return null;
+    }
+  }
 
-      if (!r || !r.sucesso) {
-        throw new Error((r && r.mensagem) || "Não foi possível arquivar a escala.");
-      }
+  async function instalarAutomacaoTrimestralAdmin() {
+    try {
+      if (!confirm("Instalar ou reparar o gatilho diário de arquivamento trimestral?")) return;
+      mostrarStatus("info", "Instalando automação trimestral...");
+      const r = await chamarAppsScript({
+        acao: "instalarAutomacaoTrimestral",
+        senha: obterSenhaObrigatoria(),
+        _nocache: Date.now()
+      }, { timeoutMs: 60000, tentativas: 1 });
+      if (!r || !r.sucesso) throw new Error((r && r.mensagem) || "Não foi possível instalar a automação.");
+      mostrarStatus("success", r.mensagem || "Automação instalada.");
+      await carregarStatusTrimestralAdmin(true);
+    } catch (erro) {
+      mostrarStatus("error", erro.message || "Erro ao instalar automação trimestral.");
+    }
+  }
 
-      mostrarStatus("success", `Escala arquivada: ${r.inseridos || 0} novo(s) registro(s), ${r.duplicados || 0} duplicado(s) ignorado(s).`);
-
-      const filtroAno = document.getElementById("histFiltroAno");
-      const filtroTri = document.getElementById("histFiltroTrimestre");
-      if (filtroAno) filtroAno.value = ano;
-      if (filtroTri) filtroTri.value = trimestre;
-
+  async function verificarEncerramentoTrimestralAdmin() {
+    try {
+      mostrarStatus("info", "Verificando encerramento e histórico...");
+      const r = await chamarAppsScript({
+        acao: "verificarEncerramentoTrimestral",
+        senha: obterSenhaObrigatoria(),
+        _nocache: Date.now()
+      }, { timeoutMs: 90000, tentativas: 1 });
+      if (!r || !r.sucesso) throw new Error((r && r.mensagem) || "Não foi possível verificar o trimestre.");
+      mostrarStatus("success", r.encerrado ? `Verificação concluída: ${r.inseridos || 0} registro(s) criado(s) e ${r.duplicados || 0} duplicado(s) ignorado(s).` : r.mensagem);
+      await carregarStatusTrimestralAdmin(true);
       await consultarHistoricoEscalasAdmin(true);
+    } catch (erro) {
+      mostrarStatus("error", erro.message || "Erro ao verificar encerramento trimestral.");
+    }
+  }
+
+  async function prepararProximoTrimestreAdmin() {
+    try {
+      const status = statusTrimestralCache || await carregarStatusTrimestralAdmin(true);
+      if (!status?.podePreparar) return mostrarStatus("error", "O próximo trimestre ainda não está liberado. Verifique o arquivamento primeiro.");
+      const proximo = status.proximoPeriodo;
+      const confirmar = confirm(`Preparar ${proximo.rotulo} de ${proximo.ano}?\n\nO sistema criará todos os domingos, continuará a sequência de cada classe e fará um backup oculto da escala atual.`);
+      if (!confirmar) return;
+      const confirmarFinal = prompt('Para confirmar, digite PREPARAR:');
+      if (String(confirmarFinal || "").trim().toUpperCase() !== "PREPARAR") return mostrarStatus("info", "Preparação cancelada.");
+      mostrarStatus("info", "Preparando o próximo trimestre... Não feche a página.");
+      const r = await chamarAppsScript({
+        acao: "prepararProximoTrimestre",
+        senha: obterSenhaObrigatoria(),
+        confirmacao: "PREPARAR",
+        _nocache: Date.now()
+      }, { timeoutMs: 120000, tentativas: 1 });
+      if (!r || !r.sucesso) throw new Error((r && r.mensagem) || "Não foi possível preparar o próximo trimestre.");
+      mostrarStatus("success", `${r.rotulo} de ${r.ano} preparado com ${r.domingos} domingo(s). Backup: ${r.backup}.`);
+      await carregarEscala();
+      await carregarStatusTrimestralAdmin(true);
+    } catch (erro) {
+      mostrarStatus("error", erro.message || "Erro ao preparar o próximo trimestre.");
+    }
+  }
+
+  async function arquivarEscalaAtualAdmin() {
+    try {
+      if (!confirm("Arquivar manualmente a escala atual?\n\nO sistema identifica o período pelas datas e não duplica registros já salvos.")) return;
+      mostrarStatus("info", "Arquivando escala atual... Aguarde.");
+      const r = await chamarAppsScript({
+        acao: "arquivarEscalaAtual",
+        senha: obterSenhaObrigatoria(),
+        observacao: "Arquivamento manual de emergência pelo painel.",
+        origem: "Painel Admin - Arquivamento manual",
+        _nocache: Date.now()
+      }, { timeoutMs: 90000, tentativas: 1 });
+      if (!r || !r.sucesso) throw new Error((r && r.mensagem) || "Não foi possível arquivar a escala.");
+      mostrarStatus("success", `Escala arquivada: ${r.inseridos || 0} novo(s) registro(s), ${r.duplicados || 0} duplicado(s) ignorado(s).`);
+      await consultarHistoricoEscalasAdmin(true);
+      await carregarStatusTrimestralAdmin(true);
     } catch (erro) {
       console.warn("Erro ao arquivar escala:", erro);
       mostrarStatus("error", erro.message || "Erro ao arquivar escala atual.");
@@ -4445,7 +4573,7 @@
       if (!escalaCache || !escalaCache.length) carregarEscala().then(() => renderizarAvisosProfessores(true));
       else renderizarAvisosProfessores(true);
     }
-    if (nome === "historicoEscalas") { preencherFiltrosHistoricoEscalas(); consultarHistoricoEscalasAdmin(true); }
+    if (nome === "historicoEscalas") { preencherFiltrosHistoricoEscalas(); consultarHistoricoEscalasAdmin(true); carregarStatusTrimestralAdmin(true); }
     if (nome === "professores") carregarProfessores();
     if (nome === "quizzes") carregarQuizzesAdmin();
     if (nome === "mapa") carregarAtualizacoesMapa();

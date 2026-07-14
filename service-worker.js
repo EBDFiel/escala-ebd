@@ -1,43 +1,21 @@
-const CACHE_NAME = "escala-ebd-v3-mensageiros";
-
-const ARQUIVOS_CACHE = [
-  "./",
-  "./index.html",
-  "./manifest.json",
-  "./logoebd.png",
-  "./Logotipo%20Horizontal%20Branca@300x.png"
-];
+const CACHE_NAME = "escala-ebd-v4-sync-planilha";
 
 self.addEventListener("install", function (event) {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(function (cache) {
-      return cache.addAll(ARQUIVOS_CACHE);
-    })
-  );
-
   self.skipWaiting();
 });
 
 self.addEventListener("activate", function (event) {
   event.waitUntil(
-    caches.keys().then(function (nomesCaches) {
-      return Promise.all(
-        nomesCaches.map(function (nomeCache) {
-          if (nomeCache !== CACHE_NAME) {
-            return caches.delete(nomeCache);
-          }
-        })
-      );
+    caches.keys().then(function (nomes) {
+      return Promise.all(nomes.map(function (nome) {
+        return caches.delete(nome);
+      }));
+    }).then(function () {
+      return self.clients.claim();
     })
   );
-
-  self.clients.claim();
 });
 
 self.addEventListener("fetch", function (event) {
-  event.respondWith(
-    fetch(event.request).catch(function () {
-      return caches.match(event.request);
-    })
-  );
+  event.respondWith(fetch(event.request, { cache: "no-store" }));
 });

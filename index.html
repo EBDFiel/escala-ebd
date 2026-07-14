@@ -3,12 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
 
   <title>Escala de Professores — EBD</title>
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_MOBILE_TELAS_ACESSO_RAPIDO_2026_07_05" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_SYNC_PLANILHA_2026_07_14" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -662,6 +665,59 @@
 
     .loading-box.show {
       display: block;
+    }
+
+    .loading-box.status-loading {
+      background: #eaf3fb;
+      color: #123f63;
+      border: 1px solid #a9c9e3;
+    }
+
+    .loading-box.status-success {
+      background: #eaf7ee;
+      color: #195c2c;
+      border: 1px solid #9fd2ad;
+    }
+
+    .loading-box.status-warning {
+      background: #fff7df;
+      color: #725213;
+      border: 1px solid #e4ca7a;
+    }
+
+    .loading-box.status-error {
+      background: #fff0f0;
+      color: #8a1f1f;
+      border: 1px solid #e3a2a2;
+    }
+
+    .loading-box .sync-status-text {
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .loading-box .sync-retry-button {
+      margin-left: 12px;
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 14px;
+      background: #123f63;
+      color: #ffffff;
+      font: inherit;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+
+    .scale-sync-error {
+      max-width: 760px;
+      margin: 16px auto;
+      padding: 22px;
+      border: 1px solid #e3a2a2;
+      border-radius: 18px;
+      background: #fff7f7;
+      color: #7d1d1d;
+      text-align: center;
+      font-weight: 700;
     }
 
     .table-wrap {
@@ -5072,15 +5128,10 @@
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec";
     const SENHA_ALTERAR_DIA = "1234";
 
-    const DOMINIOS_PUBLICADOS = [
-      "ebdfiel.github.io",
-      "escala.ebdfiel.com.br"
-    ];
-
     const SITE_PUBLICADO =
-      location.protocol !== "file:" &&
-      (DOMINIOS_PUBLICADOS.includes(location.hostname) ||
-        location.hostname.endsWith(".github.io"));
+      (location.protocol === "https:" || location.protocol === "http:") &&
+      location.hostname !== "localhost" &&
+      location.hostname !== "127.0.0.1";
 
     const classesEscala = [
       "Cordeirinhos de Cristo",
@@ -5841,6 +5892,47 @@
       atualizarBotaoEscala();
     }
 
+    function definirStatusEscala(tipo, mensagem, mostrarBotao = false) {
+      if (!loadingBox) {
+        return;
+      }
+
+      loadingBox.className = "loading-box show status-" + tipo;
+      loadingBox.innerHTML = "";
+
+      const texto = document.createElement("span");
+      texto.className = "sync-status-text";
+      texto.textContent = mensagem;
+      loadingBox.appendChild(texto);
+
+      if (mostrarBotao) {
+        const botao = document.createElement("button");
+        botao.type = "button";
+        botao.className = "sync-retry-button";
+        botao.textContent = "Tentar novamente";
+        botao.addEventListener("click", function () {
+          carregarEscalaDaPlanilha(false);
+        });
+        loadingBox.appendChild(botao);
+      }
+    }
+
+    function mostrarFalhaInicialDaEscala(mensagem) {
+      renderizarEscala([]);
+
+      const container = document.getElementById("escalaDestaque");
+
+      if (!container) {
+        return;
+      }
+
+      const aviso = document.createElement("div");
+      aviso.className = "scale-sync-error";
+      aviso.textContent = mensagem;
+      container.innerHTML = "";
+      container.appendChild(aviso);
+    }
+
     function chamarAppsScript(parametros) {
       return new Promise((resolve, reject) => {
         const callbackName = "callbackEscalaEBD_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
@@ -5879,60 +5971,82 @@
     }
 
     async function carregarEscalaDaPlanilha(modoSilencioso = false) {
-      if (!modoSilencioso && loadingBox) {
-        loadingBox.textContent = "Carregando escala atualizada... 🔄";
-        loadingBox.classList.add("show");
-      }
-
-      if (linhasEscala.length === 0) {
-        renderizarEscala(escalaReserva);
-      }
+      const primeiraCarga = linhasEscala.length === 0;
 
       if (!SITE_PUBLICADO) {
-        if (!modoSilencioso && loadingBox) {
-          loadingBox.textContent = "Prévia local: mostrando escala inicial. 📌";
+        if (primeiraCarga) {
+          renderizarEscala(escalaReserva);
         }
 
-        if (!modoSilencioso && loadingBox) {
-          setTimeout(() => {
-            loadingBox.classList.remove("show");
-          }, 1800);
-        }
+        definirStatusEscala(
+          "warning",
+          "Prévia local: os dados acima são apenas uma amostra. No site publicado, a escala vem da planilha.",
+          false
+        );
+        return true;
+      }
 
-        return;
+      if (!modoSilencioso || primeiraCarga) {
+        definirStatusEscala("loading", "Conectando à planilha e buscando a escala atual...", false);
       }
 
       try {
-        const dados = await chamarAppsScript({ acao: "listar" });
+        const dados = await chamarAppsScript({
+          acao: "listar",
+          cache: "nao",
+          _nocache: Date.now()
+        });
 
         if (!dados || !dados.sucesso) {
           throw new Error((dados && dados.mensagem) || "Não foi possível carregar a escala.");
         }
 
-        if (!dados.escala || dados.escala.length === 0) {
-          throw new Error("A planilha retornou sem dados.");
+        if (!Array.isArray(dados.escala) || dados.escala.length === 0) {
+          throw new Error("A planilha retornou sem datas de escala.");
         }
 
         renderizarEscala(dados.escala);
 
-        if (!modoSilencioso && loadingBox) {
-          loadingBox.textContent = "Escala atualizada pela planilha. ✅";
-        }
+        const horario = new Date().toLocaleTimeString("pt-BR", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit"
+        });
 
+        definirStatusEscala(
+          "success",
+          "Escala sincronizada diretamente com a planilha às " + horario +
+            " — " + dados.escala.length + " data(s) carregada(s).",
+          false
+        );
+
+        return true;
       } catch (erro) {
         console.error("Erro ao carregar escala:", erro);
 
-        if (!modoSilencioso && loadingBox) {
-          loadingBox.textContent = "Mostrando escala inicial. 📌";
+        if (primeiraCarga) {
+          mostrarFalhaInicialDaEscala(
+            "A escala não foi exibida porque não foi possível confirmar os dados da planilha."
+          );
+          definirStatusEscala(
+            "error",
+            "Falha na conexão com a planilha: " + erro.message +
+              " Publique uma nova versão do Apps Script e tente novamente.",
+            true
+          );
+        } else {
+          definirStatusEscala(
+            "error",
+            "Não foi possível confirmar uma nova leitura da planilha. " +
+              "A página mantém somente a última leitura válida desta sessão.",
+            true
+          );
         }
-      } finally {
-        if (!modoSilencioso && loadingBox) {
-          setTimeout(() => {
-            loadingBox.classList.remove("show");
-          }, 2200);
-        }
+
+        return false;
       }
     }
+
 
     async function carregarHistoricoAlteracoes(modoSilencioso = false) {
       if (!historicoAlteracoes) {
@@ -6245,6 +6359,7 @@
       const versaoAtual = await obterVersaoAtual();
 
       if (!versaoAtual) {
+        await carregarEscalaDaPlanilha(true);
         return;
       }
 
@@ -6644,7 +6759,7 @@
 
 
     function obterDadosHistoricoTrimestre() {
-      const linhas = Array.isArray(linhasEscala) && linhasEscala.length > 0 ? linhasEscala : escalaReserva;
+      const linhas = Array.isArray(linhasEscala) ? linhasEscala : [];
 
       return classesEscala
         .map((classe) => {
@@ -6976,7 +7091,11 @@
         document.fonts.ready.then(ajustarSubtituloAoTitulo);
       }
 
-      renderizarEscala(escalaReserva);
+      if (!SITE_PUBLICADO) {
+        renderizarEscala(escalaReserva);
+      } else {
+        renderizarEscala([]);
+      }
 
       await carregarEscalaDaPlanilha();
       await carregarLicoesDaPlanilha();
@@ -6996,25 +7115,43 @@
 
     document.addEventListener("visibilitychange", async function () {
       if (!document.hidden && SITE_PUBLICADO) {
-        await verificarAlteracaoNaPlanilha();
+        await carregarEscalaDaPlanilha(true);
+        ultimaVersaoEscala = await obterVersaoAtual();
       }
     });
 
-    if ("serviceWorker" in navigator && SITE_PUBLICADO) {
-      window.addEventListener("load", function () {
-        navigator.serviceWorker.getRegistrations()
-          .then(function (registrations) {
-            registrations.forEach(function (registration) {
-              registration.update();
+    window.addEventListener("pageshow", async function (evento) {
+      if (SITE_PUBLICADO && evento.persisted) {
+        await carregarEscalaDaPlanilha(true);
+        ultimaVersaoEscala = await obterVersaoAtual();
+      }
+    });
 
-              // Evita que uma versão antiga do PWA segure lições antigas no cache.
-              // Se preferir manter PWA instalado, esta linha pode ser removida futuramente.
-              registration.unregister();
+    if (SITE_PUBLICADO) {
+      window.addEventListener("load", function () {
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.getRegistrations()
+            .then(function (registrations) {
+              return Promise.all(registrations.map(function (registration) {
+                return registration.unregister();
+              }));
+            })
+            .catch(function (erro) {
+              console.warn("Não foi possível remover service worker antigo:", erro);
             });
-          })
-          .catch(function (erro) {
-            console.warn("Não foi possível atualizar/remover service worker:", erro);
-          });
+        }
+
+        if ("caches" in window) {
+          caches.keys()
+            .then(function (nomes) {
+              return Promise.all(nomes.map(function (nome) {
+                return caches.delete(nome);
+              }));
+            })
+            .catch(function (erro) {
+              console.warn("Não foi possível limpar caches antigos:", erro);
+            });
+        }
       });
     }
   </script>

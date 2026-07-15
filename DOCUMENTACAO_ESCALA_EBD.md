@@ -2,127 +2,73 @@
 
 ## Versão
 
-Versão 3 — armazenamento das lições atuais no Google Drive, automação trimestral e continuidade da sequência — 14/07/2026.
+Versão 3.2 — confirmação segura do salvamento das lições — 15/07/2026.
+
+## Correção 3.2
+
+O salvamento das lições é enviado por formulário para um iframe oculto. O Google pode servir a página de resposta por diferentes subdomínios de `googleusercontent.com`. A validação anterior aceitava somente dois endereços exatos e, por isso, algumas respostas legítimas eram ignoradas.
+
+A versão 3.2 corrige o fluxo com quatro mecanismos:
+
+1. cada salvamento recebe um `requisicaoId` exclusivo;
+2. o backend devolve esse mesmo identificador na resposta;
+3. o painel aceita a mensagem somente quando a origem é do Apps Script, a janela remetente é o iframe do formulário e o identificador corresponde à operação ativa;
+4. se a resposta automática demorar, o painel consulta os arquivos até cinco vezes antes de concluir.
+
+O backend também lê novamente os arquivos do Drive em até cinco tentativas. Se a conferência real não ocorrer, tenta restaurar o conteúdo anterior.
 
 ## Arquitetura
 
-- **GitHub Pages:** `index.html`, `admin.html`, recursos visuais, PWA e mapa do site.
-- **Google Apps Script:** API, autenticação, escala, histórico, automação trimestral e gerenciamento das lições.
-- **Google Planilhas:** escala, professores, histórico, quizzes e metadados das lições.
-- **Google Drive:** dois arquivos HTML privados contendo somente as lições atuais.
+- **GitHub Pages:** página pública, painel e mapa do site;
+- **Google Apps Script:** API, autenticação, escala, histórico, automação trimestral e lições;
+- **Google Planilhas:** escala, professores, histórico, quizzes e metadados;
+- **Google Drive:** `licao-adultos.html` e `licao-jovens.html`, contendo somente as versões atuais.
 
-## Armazenamento das lições
+## Salvamento semanal das lições
 
-O sistema mantém somente:
+1. O administrador atualiza uma ou as duas lições.
+2. O painel sincroniza o editor visual com o HTML.
+3. O HTML é sanitizado no cliente e novamente no backend.
+4. O Apps Script substitui os arquivos atuais no Google Drive.
+5. O backend relê os arquivos e compara os hashes.
+6. A resposta retorna o identificador da operação.
+7. O painel valida origem, janela remetente e identificador.
+8. Se a resposta automática demorar, o painel executa conferências adicionais.
+9. A aba `Licoes` recebe somente os metadados atuais.
 
-- `licao-adultos.html`;
-- `licao-jovens.html`.
+A versão anterior da lição não é mantida como histórico semanal.
 
-Quando uma nova lição é salva, o conteúdo do arquivo correspondente é substituído. A versão anterior não é arquivada. Isso corresponde ao fluxo semanal da EBD e evita o limite de tamanho das células da planilha.
+## Mensagens do painel
 
-A pasta criada automaticamente recebe o nome `Escala EBD - Licoes Atuais`. Os arquivos permanecem privados no Drive do proprietário do Apps Script. A página pública não acessa o Drive diretamente; ela recebe o conteúdo por meio da ação `licoes` do Aplicativo da Web.
+- **Lições atuais substituídas e conferidas:** confirmação automática recebida.
+- **Confirmação automática demorou, mas os arquivos foram conferidos:** salvamento confirmado pela consulta alternativa.
+- **Arquivos ainda não preparados:** somente nesse caso usar **Preparar / reparar Google Drive**.
+- **Não foi possível confirmar após várias tentativas:** conferir a página pública antes de tentar novamente.
 
-## Aba Licoes
+Não é necessário executar `migrarLicoesParaDriveEBD` depois que a pasta e os dois arquivos já foram criados.
 
-Depois da migração, a aba `Licoes` não armazena mais o HTML. Ela contém apenas:
+## Escala e automação trimestral
 
-- classe;
-- ID do arquivo no Drive;
-- nome do arquivo;
-- data e hora da atualização;
-- tamanho em bytes;
-- hash de conferência;
-- tipo de armazenamento;
-- URL privada do arquivo.
+A versão 3.2 preserva as funções restauradas na 3.1:
 
-## Migração inicial
-
-Depois de substituir o `Code.gs`, execute uma vez no editor do Apps Script:
-
-```text
-migrarLicoesParaDriveEBD
-```
-
-A função solicita a autorização do Google Drive, cria a pasta e os dois arquivos, migra as lições que ainda estiverem na planilha, confere o conteúdo e somente então transforma a aba `Licoes` em uma tabela de metadados.
-
-Se a migração falhar antes da conferência, o HTML antigo permanece na planilha.
-
-## Salvamento semanal
-
-1. Entre no painel administrativo.
-2. Abra **Lições interativas**.
-3. Atualize Adultos e/ou Adolescentes.
-4. Clique em **Substituir lições atuais**.
-5. O Apps Script sanitiza o HTML.
-6. Os arquivos atuais são substituídos no Drive.
-7. O sistema lê novamente os arquivos e compara seus hashes.
-8. A mensagem de sucesso só é exibida após a conferência.
-9. A aba `Licoes` recebe os novos metadados.
-10. A página pública busca a nova versão diretamente pelo Apps Script.
-
-Se ocorrer falha durante uma atualização conjunta, o sistema tenta restaurar o conteúdo anterior dos arquivos já alterados.
-
-## Segurança
-
-- Operações administrativas exigem token temporário.
-- Escritas utilizam `LockService`.
-- Scripts, eventos HTML e elementos de incorporação perigosos são removidos do conteúdo das lições.
-- Os arquivos no Drive não precisam ser compartilhados publicamente.
-- O site público recebe somente o conteúdo sanitizado retornado pelo Apps Script.
-
-## Automação trimestral
-
-O gatilho diário verifica a última data da aba `Escala EBD`. Após o encerramento:
-
-1. identifica o trimestre e o ano;
-2. calcula os registros esperados;
-3. arquiva somente os registros ausentes em `Historico_Escalas`;
-4. impede duplicidade por identificador;
-5. grava o estado do arquivamento;
-6. libera a preparação do período seguinte no painel.
-
-A escala atual não é substituída automaticamente.
-
-## Preparação do trimestre seguinte
-
-Depois do arquivamento validado, o administrador confirma a preparação. O sistema:
-
-- cria um backup oculto da escala atual;
-- calcula todos os domingos do próximo trimestre;
-- preserva as classes;
-- continua a sequência de professores;
-- ignora professores inativos;
-- reaplica as listas suspensas;
-- reconstrói a aba `Resumo`;
-- preserva o histórico.
-
-## Continuidade da sequência
-
-A sequência é calculada separadamente para cada classe. O primeiro professor do novo trimestre é o próximo professor ativo depois daquele que encerrou o trimestre anterior.
-
-Exemplo:
-
-```text
-Rita → Thaís → Alessandra
-```
-
-Se Rita estiver no último domingo, o trimestre seguinte começa com Thaís.
+- escala semanal;
+- troca de professores e apoio do Ronan;
+- histórico;
+- administração de datas, classes e professores;
+- arquivamento trimestral;
+- geração do trimestre seguinte;
+- continuidade da sequência por classe;
+- exclusão de professores inativos da sequência;
+- backup oculto antes da preparação.
 
 ## Recuperação
 
-Antes da preparação de um novo trimestre, o sistema cria uma aba oculta com nome iniciado por `BACKUP_ESCALA_`. Para recuperar:
-
-1. abra a planilha;
-2. use **Exibir > Planilhas ocultas**;
-3. abra a aba de backup;
-4. copie os dados necessários para `Escala EBD`.
-
-Para as lições, não existe histórico semanal intencional. Cada salvamento substitui a versão anterior. Caso seja necessário preservar excepcionalmente uma lição, faça manualmente uma cópia do arquivo no Google Drive antes de substituí-lo.
+Para a escala, abra uma aba oculta iniciada por `BACKUP_ESCALA_` e copie os dados necessários. Para as lições, o sistema tenta restaurar automaticamente o conteúdo anterior quando a conferência do salvamento falha durante a mesma operação.
 
 ## Operação de emergência
 
-- Arquivamento manual: painel **Escalas salvas**.
-- Verificação imediata: **Verificar e arquivar agora**.
-- Reparar gatilho: **Instalar / reparar automação**.
-- Reparar lições: botão **Preparar / reparar Google Drive** ou função `migrarLicoesParaDriveEBD`.
-- Conferir API: abrir a URL `/exec?acao=licoes`; a resposta deve indicar `armazenamento: google_drive`.
+- Conferir escala: `/exec?acao=listar`.
+- Conferir lições: `/exec?acao=licoes`.
+- Reparar armazenamento das lições: botão **Preparar / reparar Google Drive**.
+- Reparar gatilho trimestral: **Instalar / reparar automação**.
+- Verificação imediata do trimestre: **Verificar e arquivar agora**.

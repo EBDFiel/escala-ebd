@@ -5,7 +5,7 @@ const NOME_ABA_LICOES = "Licoes";
 const NOME_ABA_PROFESSORES = "Professores";
 const NOME_ABA_QUIZZES = "Quizzes";
 const TIMEZONE_EBD = "America/Sao_Paulo";
-const VERSAO_BACKEND_EBD = "EBD_3_1_CORRETIVO_ROTAS_2026_07_15";
+const VERSAO_BACKEND_EBD = "EBD_3_2_CONFIRMACAO_LICOES_2026_07_15";
 
 // Configure em Configurações do projeto > Propriedades do script:
 // EBD_SENHA_ADMIN e EBD_SENHA_TROCA.
@@ -282,15 +282,19 @@ function doGet(e) {
 }
 
 function doPost(e) {
+  const parametros = e && e.parameter ? e.parameter : {};
   let resposta;
+
   try {
-    const parametros = e && e.parameter ? e.parameter : {};
     const acao = String(parametros.acao || "").trim();
     const executar = function () { return processarAcaoEBD(acao, parametros); };
     resposta = ACOES_ESCRITA_EBD[acao] ? executarComLockEBD(executar) : executar();
   } catch (erro) {
     resposta = {sucesso:false, mensagem:erro.message || "Erro inesperado ao salvar."};
   }
+
+  resposta.requisicaoId = String(parametros.requisicaoId || "").trim();
+  resposta.respondidoEm = agoraFormatadoEBD();
   return responderHtmlParaAdmin(resposta);
 }
 
@@ -1398,6 +1402,33 @@ function validarTamanhoLicaoEBD(classe, conteudo) {
   return tamanho;
 }
 
+function conferirGravacaoLicoesDriveEBD(esperados, maxTentativas) {
+  const tentativas = Math.max(1, Number(maxTentativas || 5));
+  let ultimoEstado = null;
+
+  for (let tentativa = 1; tentativa <= tentativas; tentativa++) {
+    ultimoEstado = obterEstadoArquivosLicoesDriveEBD(false, {});
+
+    const adultosOk = !esperados.adultos ||
+      hashConteudoLicaoEBD(ultimoEstado.licoes.adultos) === hashConteudoLicaoEBD(esperados.adultos);
+    const jovensOk = !esperados.jovens ||
+      hashConteudoLicaoEBD(ultimoEstado.licoes.jovens) === hashConteudoLicaoEBD(esperados.jovens);
+
+    if (adultosOk && jovensOk) {
+      return ultimoEstado;
+    }
+
+    if (tentativa < tentativas) {
+      Utilities.sleep(400 * tentativa);
+    }
+  }
+
+  throw new Error(
+    "O Google Drive não confirmou integralmente a gravação das lições após " +
+    tentativas + " tentativas. O conteúdo anterior será restaurado."
+  );
+}
+
 function salvarLicoes(parametros) {
   validarSenhaAdmin(parametros);
 
@@ -1430,15 +1461,10 @@ function salvarLicoes(parametros) {
       alterados.push("jovens");
     }
 
-    const conferido = obterEstadoArquivosLicoesDriveEBD(false, {});
-
-    if (adultos && hashConteudoLicaoEBD(conferido.licoes.adultos) !== hashConteudoLicaoEBD(adultos)) {
-      throw new Error("O Google Drive não confirmou integralmente a gravação da lição de adultos.");
-    }
-
-    if (jovens && hashConteudoLicaoEBD(conferido.licoes.jovens) !== hashConteudoLicaoEBD(jovens)) {
-      throw new Error("O Google Drive não confirmou integralmente a gravação da lição de jovens.");
-    }
+    const conferido = conferirGravacaoLicoesDriveEBD({
+      adultos: adultos,
+      jovens: jovens
+    }, 5);
 
     atualizarAbaMetadadosLicoesEBD(conferido.metadados);
     SpreadsheetApp.flush();

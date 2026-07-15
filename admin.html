@@ -1599,6 +1599,7 @@
           <form id="formLicoes" target="envioOculto" method="POST" action="https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec">
             <input type="hidden" name="acao" value="salvarLicoes" />
             <input type="hidden" id="senhaForm" name="senha" />
+            <input type="hidden" id="requisicaoLicoesForm" name="requisicaoId" />
             <div class="lesson-tabs">
               <button id="tabAdultos" class="tab-btn active" type="button" onclick="abrirAbaLicao('adultos')">🧑 Jovens e Adultos</button>
               <button id="tabJovens" class="tab-btn" type="button" onclick="abrirAbaLicao('jovens')">🧑‍🎤 Adolescentes</button>
@@ -2247,6 +2248,7 @@
 
   let salvandoLicoesEBD = false;
   let timerSalvarLicoesEBD = null;
+  let requisicaoLicoesAtivaEBD = "";
 
   function mostrarStatus(tipo, msg) {
     const icone = tipo === "success" ? "✅" : tipo === "error" ? "⚠️" : "ℹ️";
@@ -2696,64 +2698,116 @@
       .trim();
   }
 
-  async function conferirSeLicoesForamSalvas(adultosEsperado, jovensEsperado) {
+  function aguardarConfirmacaoLicoesEBD(milisegundos) {
+    return new Promise((resolver) => setTimeout(resolver, milisegundos));
+  }
+
+  function gerarRequisicaoLicoesEBD() {
+    const aleatorio = Math.random().toString(36).slice(2, 12);
+    return "licoes-" + Date.now().toString(36) + "-" + aleatorio;
+  }
+
+  function origemPermitidaAppsScriptEBD(origem) {
     try {
-      const resposta = await chamarAppsScript({
-        acao: "licoes",
-        cache: "nao",
-        _nocache: Date.now()
-      });
-
-      if (!resposta || !resposta.sucesso || !resposta.licoes) {
-        throw new Error((resposta && resposta.mensagem) || "O Apps Script não retornou as lições salvas.");
-      }
-
-      const adultosSalvo = normalizarHtmlParaComparar(resposta.licoes.adultos);
-      const jovensSalvo = normalizarHtmlParaComparar(resposta.licoes.jovens);
-      const adultosAtual = normalizarHtmlParaComparar(sanitizarHtmlLicaoNoCliente(adultosEsperado));
-      const jovensAtual = normalizarHtmlParaComparar(sanitizarHtmlLicaoNoCliente(jovensEsperado));
-
-      const adultosOk = !adultosAtual || adultosSalvo === adultosAtual;
-      const jovensOk = !jovensAtual || jovensSalvo === jovensAtual;
-
-      if (adultosOk && jovensOk) {
-        document.getElementById("adultos").value = resposta.licoes.adultos || adultosEsperado;
-        document.getElementById("jovens").value = resposta.licoes.jovens || jovensEsperado;
-        sincronizarVisual("adultos", false);
-        sincronizarVisual("jovens", false);
-        return true;
-      }
-
-      return false;
+      const url = new URL(String(origem || ""));
+      const host = url.hostname.toLowerCase();
+      return url.protocol === "https:" && (
+        host === "script.google.com" ||
+        host === "script.googleusercontent.com" ||
+        host.endsWith(".googleusercontent.com")
+      );
     } catch (erro) {
-      console.warn("Não foi possível conferir se as lições foram salvas:", erro);
       return false;
     }
   }
 
-  async function tratarConfirmacaoAusenteLicoes(adultosValor, jovensValor) {
-    if (!salvandoLicoesEBD) {
+  async function conferirSeLicoesForamSalvas(adultosEsperado, jovensEsperado, maxTentativas = 5) {
+    const atrasos = [0, 1200, 2200, 3500, 5000];
+    let ultimaResposta = null;
+    let ultimoErro = null;
+
+    for (let tentativa = 0; tentativa < Math.max(1, maxTentativas); tentativa++) {
+      const espera = atrasos[Math.min(tentativa, atrasos.length - 1)];
+      if (espera) await aguardarConfirmacaoLicoesEBD(espera);
+
+      try {
+        const resposta = await chamarAppsScript({
+          acao: "licoes",
+          cache: "nao",
+          _nocache: Date.now() + tentativa
+        });
+        ultimaResposta = resposta;
+
+        if (!resposta || !resposta.sucesso || !resposta.licoes) {
+          ultimoErro = new Error((resposta && resposta.mensagem) || "O Apps Script não retornou as lições salvas.");
+          if (resposta && resposta.migracaoNecessaria) break;
+          continue;
+        }
+
+        const adultosSalvo = normalizarHtmlParaComparar(resposta.licoes.adultos);
+        const jovensSalvo = normalizarHtmlParaComparar(resposta.licoes.jovens);
+        const adultosAtual = normalizarHtmlParaComparar(sanitizarHtmlLicaoNoCliente(adultosEsperado));
+        const jovensAtual = normalizarHtmlParaComparar(sanitizarHtmlLicaoNoCliente(jovensEsperado));
+
+        const adultosOk = !adultosAtual || adultosSalvo === adultosAtual;
+        const jovensOk = !jovensAtual || jovensSalvo === jovensAtual;
+
+        if (adultosOk && jovensOk) {
+          document.getElementById("adultos").value = resposta.licoes.adultos || adultosEsperado;
+          document.getElementById("jovens").value = resposta.licoes.jovens || jovensEsperado;
+          sincronizarVisual("adultos", false);
+          sincronizarVisual("jovens", false);
+          return { salvo: true, resposta };
+        }
+
+        ultimoErro = new Error("Os arquivos ainda não correspondem ao conteúdo enviado.");
+      } catch (erro) {
+        ultimoErro = erro;
+        console.warn("Tentativa de conferência das lições falhou:", erro);
+      }
+    }
+
+    return {
+      salvo: false,
+      migracaoNecessaria: Boolean(ultimaResposta && ultimaResposta.migracaoNecessaria),
+      mensagem: (ultimoErro && ultimoErro.message) || "Não foi possível confirmar os arquivos atualizados."
+    };
+  }
+
+  async function tratarConfirmacaoAusenteLicoes(adultosValor, jovensValor, requisicaoId) {
+    if (!salvandoLicoesEBD || requisicaoId !== requisicaoLicoesAtivaEBD) {
       return;
     }
 
-    mostrarStatus("info", "O Apps Script demorou para confirmar. Conferindo diretamente se as lições já foram salvas...");
+    mostrarStatus("info", "A confirmação automática demorou. Conferindo os arquivos do Google Drive em várias tentativas...");
 
-    const salvouMesmoSemConfirmacao = await conferirSeLicoesForamSalvas(adultosValor, jovensValor);
+    const conferencia = await conferirSeLicoesForamSalvas(adultosValor, jovensValor, 5);
+
+    if (requisicaoId !== requisicaoLicoesAtivaEBD) return;
 
     salvandoLicoesEBD = false;
+    requisicaoLicoesAtivaEBD = "";
     restaurarBotaoSalvarLicoes();
 
-    if (salvouMesmoSemConfirmacao) {
+    if (conferencia.salvo) {
       mostrarStatus(
         "success",
-        "Lições salvas com sucesso. O painel não recebeu a confirmação automática do Apps Script, mas conferiu os arquivos do Google Drive e encontrou o conteúdo atualizado. Abra o site público e use Ctrl + F5 para conferir."
+        "Lições salvas com sucesso. A confirmação automática demorou, mas os arquivos do Google Drive foram conferidos e contêm o conteúdo atualizado."
+      );
+      return;
+    }
+
+    if (conferencia.migracaoNecessaria) {
+      mostrarStatus(
+        "error",
+        "Os arquivos das lições ainda não estão preparados no Google Drive. Use o botão Preparar / reparar Google Drive e tente novamente."
       );
       return;
     }
 
     mostrarStatus(
       "error",
-      "O Google Drive não confirmou a gravação das lições. Nenhuma mensagem de sucesso será exibida sem conferência. Execute migrarLicoesParaDriveEBD no Apps Script para autorizar o Drive e tente novamente."
+      "Não foi possível confirmar a atualização após várias tentativas. Nenhuma mensagem de sucesso foi exibida. Abra a página pública e confira o conteúdo; se não tiver mudado, use Preparar / reparar Google Drive e tente novamente. Detalhe: " + conferencia.mensagem
     );
   }
 
@@ -2778,12 +2832,15 @@
 
     const form = document.getElementById("formLicoes");
     const botaoSalvar = document.getElementById("btnSalvarLicoes");
+    const requisicaoId = gerarRequisicaoLicoesEBD();
 
     document.getElementById("senhaForm").value = s;
+    document.getElementById("requisicaoLicoesForm").value = requisicaoId;
     form.action = APPS_SCRIPT_URL;
     form.method = "POST";
     form.target = "envioOculto";
 
+    requisicaoLicoesAtivaEBD = requisicaoId;
     salvandoLicoesEBD = true;
 
     if (botaoSalvar) {
@@ -2794,7 +2851,7 @@
 
     clearTimeout(timerSalvarLicoesEBD);
     timerSalvarLicoesEBD = setTimeout(() => {
-      tratarConfirmacaoAusenteLicoes(adultosValor, jovensValor);
+      tratarConfirmacaoAusenteLicoes(adultosValor, jovensValor, requisicaoId);
     }, 15000);
 
     form.submit();
@@ -2803,19 +2860,27 @@
   }
 
   window.addEventListener("message", (e) => {
-    const origemGoogleScript = /^https:\/\/(script\.google\.com|script\.googleusercontent\.com)$/.test(String(e.origin || ""));
-    if (origemGoogleScript && e.data?.origem === "appsScriptSalvarLicoes") {
-      salvandoLicoesEBD = false;
-      clearTimeout(timerSalvarLicoesEBD);
-      restaurarBotaoSalvarLicoes();
+    const iframe = document.getElementById("envioOculto");
+    const fonteValida = Boolean(iframe && iframe.contentWindow && e.source === iframe.contentWindow);
+    const origemValida = origemPermitidaAppsScriptEBD(e.origin);
+    const dadosValidos = e.data && e.data.origem === "appsScriptSalvarLicoes";
+    const requisicaoValida = dadosValidos &&
+      String(e.data.requisicaoId || "") === requisicaoLicoesAtivaEBD &&
+      Boolean(requisicaoLicoesAtivaEBD);
 
-      if (e.data.sucesso) {
-        atualizarMetadadosLicoesDrive(e.data);
-        mostrarStatus("success", e.data.mensagem || "Lições substituídas e conferidas no Google Drive. A página pública buscará a versão atual.");
-        carregarLicoes(true);
-      } else {
-        mostrarStatus("error", e.data.mensagem || "Erro ao salvar lições.");
-      }
+    if (!fonteValida || !origemValida || !requisicaoValida) return;
+
+    salvandoLicoesEBD = false;
+    requisicaoLicoesAtivaEBD = "";
+    clearTimeout(timerSalvarLicoesEBD);
+    restaurarBotaoSalvarLicoes();
+
+    if (e.data.sucesso) {
+      atualizarMetadadosLicoesDrive(e.data);
+      mostrarStatus("success", e.data.mensagem || "Lições substituídas e conferidas no Google Drive. A página pública buscará a versão atual.");
+      carregarLicoes(true);
+    } else {
+      mostrarStatus("error", e.data.mensagem || "Erro ao salvar lições.");
     }
   });
 

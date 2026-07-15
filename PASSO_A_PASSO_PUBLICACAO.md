@@ -1,90 +1,52 @@
-# Passo a passo de publicação — Apps Script, Google Drive e GitHub
+# Passo a passo de publicação — Corretivo 3.2
 
-## Ordem segura
+## Objetivo
 
-Faça primeiro a atualização do **Google Apps Script**, depois execute a migração das lições e somente então envie os arquivos ao **GitHub**. Assim, a página pública continua lendo a estrutura antiga até o novo backend estar publicado.
+Corrigir a confirmação do salvamento das lições sem refazer a migração e sem alterar os arquivos atuais do Google Drive.
 
-## 1. Google Apps Script
+## 1. Atualize primeiro o Google Apps Script
 
-1. abra a planilha;
-2. acesse **Extensões > Apps Script**;
-3. faça uma cópia do código atual;
-4. substitua todo o `Code.gs` pelo arquivo deste pacote;
-5. confirme as propriedades `EBD_SENHA_ADMIN` e `EBD_SENHA_TROCA`;
-6. salve o projeto;
-7. abra **Implantar > Gerenciar implantações**;
-8. edite a implantação atual;
-9. selecione **Nova versão**;
-10. mantenha a execução como proprietário;
-11. implante e preserve a mesma URL terminada em `/exec`;
-12. autorize o acesso ao Google Drive, caso a permissão seja solicitada.
+1. Abra a planilha da Escala EBD.
+2. Acesse **Extensões > Apps Script**.
+3. Faça uma cópia de segurança do `Code.gs` atual.
+4. Substitua todo o conteúdo pelo `Code.gs` deste pacote.
+5. Clique em **Salvar**.
+6. Abra **Implantar > Gerenciar implantações**.
+7. Edite a implantação atual.
+8. Selecione **Nova versão**.
+9. Mantenha **Executar como: Eu**.
+10. Clique em **Implantar**.
+11. Preserve a mesma URL terminada em `/exec`.
 
-O novo backend continua compatível com o conteúdo antigo da aba `Licoes` enquanto a migração ainda não tiver sido executada.
+Não execute novamente `migrarLicoesParaDriveEBD`. A pasta e os arquivos atuais serão reutilizados.
 
-## 2. Migrar as lições para o Google Drive
+## 2. Atualize o GitHub
 
-Depois que a nova versão estiver implantada:
+Envie para a raiz do repositório:
 
-1. volte ao editor do Apps Script;
-2. no seletor de funções, escolha `migrarLicoesParaDriveEBD`;
-3. clique em **Executar**;
-4. revise e permita o acesso ao Google Drive;
-5. aguarde a mensagem de execução concluída.
+- `Code.gs`;
+- `admin.html`;
+- `README.md`;
+- `DOCUMENTACAO_ESCALA_EBD.md`;
+- `PASSO_A_PASSO_PUBLICACAO.md`;
+- `mapa-site.html`.
 
-A função cria a pasta `Escala EBD - Licoes Atuais`, cria os dois arquivos atuais, transfere o conteúdo antigo e somente depois converte a aba `Licoes` em uma tabela de metadados.
-
-## 3. Conferir a migração
-
-Na planilha, a aba `Licoes` deve mostrar somente metadados, com colunas como `ArquivoDriveId`, `NomeArquivo`, `AtualizadoEm`, `TamanhoBytes` e `HashSHA256`.
-
-No Google Drive, deve existir a pasta:
+Mensagem sugerida de commit:
 
 ```text
-Escala EBD - Licoes Atuais
+Corretivo 3.2 da confirmação das lições
 ```
 
-Dentro dela:
+Aguarde o GitHub Actions concluir. Não exclua o `CNAME` e não envie estes arquivos para a Hostinger.
 
-```text
-licao-adultos.html
-licao-jovens.html
-```
+## 3. Teste final
 
-Não compartilhe esses arquivos publicamente.
+1. Abra o painel e use `Ctrl + F5`.
+2. Entre em **Lições interativas**.
+3. Faça uma pequena alteração de teste.
+4. Clique em **Substituir lições atuais**.
+5. Aguarde a mensagem de sucesso.
+6. Abra a página pública e confira a lição.
+7. Confirme que a escala semanal, o histórico e a automação trimestral continuam funcionando.
 
-## 4. GitHub
-
-Arquivos alterados nesta versão:
-
-- `Code.gs`
-- `admin.html`
-- `index.html`
-- `README.md`
-- `DOCUMENTACAO_ESCALA_EBD.md`
-- `PASSO_A_PASSO_PUBLICACAO.md`
-- `mapa-site.html`
-
-No repositório `EBDFiel/escala-ebd`, branch `main`:
-
-1. confirme que a versão atual está commitada;
-2. envie os sete arquivos acima para a raiz do repositório;
-3. confirme a substituição;
-4. use o commit `Lições atuais no Google Drive`;
-5. aguarde o GitHub Actions concluir;
-6. não exclua o arquivo `CNAME`;
-7. não envie esta atualização para a Hostinger.
-
-## 5. Testes obrigatórios
-
-1. abra o painel administrativo;
-2. entre em **Lições interativas**;
-3. confirme a indicação **Google Drive ativo**;
-4. altere um pequeno trecho de uma das lições;
-5. clique em **Substituir lições atuais**;
-6. aguarde a confirmação da gravação;
-7. abra a página pública em janela anônima;
-8. abra a lição alterada;
-9. confirme que o trecho novo aparece;
-10. recarregue a aba `Licoes` e confira data, tamanho e hash atualizados.
-
-Se o painel informar falta de autorização, execute novamente `migrarLicoesParaDriveEBD` diretamente no editor do Apps Script e autorize o Drive.
+O botão **Preparar / reparar Google Drive** só deve ser usado quando o painel informar especificamente que os arquivos não estão preparados.

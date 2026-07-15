@@ -1,15 +1,24 @@
 # Escala EBD
 
-Versão 3 — Lições atuais no Google Drive, automação trimestral e histórico seguro — 14/07/2026.
+Versão 3.2 — confirmação segura do salvamento das lições — 15/07/2026.
 
-Arquivos principais:
+## Correção 3.2
 
-- `Code.gs`: backend do Google Apps Script.
-- `admin.html`: painel administrativo.
-- `index.html`: página pública.
-- `DOCUMENTACAO_ESCALA_EBD.md`: funcionamento técnico e operacional.
-- `PASSO_A_PASSO_PUBLICACAO.md`: publicação no GitHub Pages e Apps Script.
+- reconhece corretamente as respostas do Apps Script hospedadas em subdomínios `googleusercontent.com`;
+- associa cada salvamento a um identificador único;
+- aceita a confirmação somente quando ela vier do iframe usado pelo formulário e corresponder ao salvamento em andamento;
+- realiza até cinco conferências alternativas antes de apresentar erro;
+- o backend também repete a leitura do Google Drive antes de concluir ou restaurar a versão anterior;
+- remove a orientação indevida de repetir a migração quando os arquivos já estão configurados.
 
-As lições semanais não ficam mais armazenadas como HTML em células da planilha. O Apps Script mantém somente dois arquivos privados no Google Drive — `licao-adultos.html` e `licao-jovens.html` — e substitui a versão anterior a cada salvamento. A aba `Licoes` passa a registrar somente metadados.
+A correção preserva a escala, o histórico, a automação trimestral e os dois arquivos atuais das lições no Google Drive.
 
-O site é publicado pelo GitHub Pages. O `Code.gs` também deve ser copiado para o projeto vinculado à planilha e implantado como nova versão do Aplicativo da Web.
+## Arquivos principais
+
+- `Code.gs`: backend do Google Apps Script;
+- `admin.html`: painel administrativo;
+- `DOCUMENTACAO_ESCALA_EBD.md`: funcionamento técnico;
+- `PASSO_A_PASSO_PUBLICACAO.md`: instalação do corretivo;
+- `mapa-site.html`: mapa técnico atualizado.
+
+O site continua publicado pelo GitHub Pages. O `Code.gs` precisa ser copiado para o projeto Apps Script vinculado à planilha e implantado como nova versão.

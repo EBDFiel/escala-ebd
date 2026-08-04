@@ -12,7 +12,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_LIBERACAO_SEGUNDA_2026_08_04" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_STATUS_LICOES_VERSAO_2026_08_04_1852" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -4726,7 +4726,227 @@
         line-height: 1.45;
       }
     }
-</style>
+
+
+    /* STATUS DA APLICAÇÃO, SINCRONIZAÇÃO E LIÇÕES DA SEMANA */
+    .app-system-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      max-width: 1180px;
+      margin: 0 auto 16px;
+      padding: 13px 16px;
+      border-radius: 16px;
+      border: 1px solid transparent;
+      box-shadow: 0 8px 20px rgba(16, 47, 77, 0.08);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .app-system-banner[hidden] {
+      display: none !important;
+    }
+
+    .app-system-banner.update-banner {
+      background: linear-gradient(135deg, #fff7df, #ffffff);
+      color: #654b13;
+      border-color: #e7cc7d;
+    }
+
+    .app-system-banner.offline-banner {
+      background: linear-gradient(135deg, #fff0f0, #ffffff);
+      color: #7f1d1d;
+      border-color: #e6a4a4;
+    }
+
+    .app-system-banner strong {
+      display: block;
+      margin-bottom: 2px;
+      color: inherit;
+    }
+
+    .app-system-banner button {
+      flex: 0 0 auto;
+      border: 0;
+      border-radius: 999px;
+      padding: 9px 14px;
+      background: #123f63;
+      color: #ffffff;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(18, 63, 99, 0.18);
+    }
+
+    .sync-info-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: -4px 0 16px;
+      padding: 10px 13px;
+      border-radius: 14px;
+      background: #f8fbfe;
+      border: 1px solid #dbe7f0;
+      color: #526579;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .sync-connection-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: #23633a;
+    }
+
+    .sync-connection-status::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: #2e7d32;
+      box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.12);
+    }
+
+    .sync-connection-status.offline {
+      color: #9b2c2c;
+    }
+
+    .sync-connection-status.offline::before {
+      background: #b42318;
+      box-shadow: 0 0 0 4px rgba(180, 35, 24, 0.12);
+    }
+
+    .weekly-lessons-highlight {
+      margin-bottom: 24px;
+      padding: 22px;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(197, 155, 53, 0.18), transparent 35%),
+        linear-gradient(135deg, #102f4d, #1f4e79);
+      color: #ffffff;
+      box-shadow: 0 16px 36px rgba(16, 47, 77, 0.2);
+    }
+
+    .weekly-lessons-highlight[hidden] {
+      display: none !important;
+    }
+
+    .weekly-lessons-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+      margin-bottom: 15px;
+    }
+
+    .weekly-lessons-heading span {
+      display: block;
+      color: #f3d37a;
+      font-size: 0.78rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      margin-bottom: 5px;
+    }
+
+    .weekly-lessons-heading h2 {
+      margin: 0;
+      color: #ffffff;
+      font-size: 1.38rem;
+    }
+
+    .weekly-lessons-heading p {
+      margin: 0;
+      max-width: 540px;
+      color: rgba(255,255,255,0.78);
+      font-size: 0.9rem;
+    }
+
+    .weekly-lessons-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .weekly-lesson-card {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      min-height: 180px;
+      padding: 17px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.96);
+      color: #243447;
+      border: 1px solid rgba(255,255,255,0.55);
+    }
+
+    .weekly-lesson-card .weekly-lesson-class {
+      color: #1f4e79;
+      font-size: 0.78rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .weekly-lesson-card h3 {
+      margin: 0;
+      color: #102f4d;
+      font-size: 1.08rem;
+      line-height: 1.3;
+    }
+
+    .weekly-lesson-card p {
+      margin: 0;
+      color: #5b6b7d;
+      font-size: 0.85rem;
+      line-height: 1.45;
+    }
+
+    .weekly-lesson-card button {
+      margin-top: auto;
+      align-self: flex-start;
+      border: 0;
+      border-radius: 999px;
+      padding: 9px 14px;
+      background: #1f4e79;
+      color: #ffffff;
+      font: inherit;
+      font-size: 0.84rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .weekly-lesson-card button:disabled {
+      background: #a8b3bf;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 720px) {
+      .app-system-banner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .weekly-lessons-heading {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .weekly-lessons-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sync-info-strip {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+  </style>
 </head>
 
 <body>
@@ -4757,12 +4977,32 @@
   
   <main>
 
-    
+    <div id="bannerAtualizacao" class="app-system-banner update-banner" hidden role="status" aria-live="polite">
+      <div>
+        <strong>✨ Nova versão da Escala EBD disponível</strong>
+        <span>Atualize para receber as melhorias mais recentes da página.</span>
+      </div>
+      <button type="button" onclick="atualizarInterfaceAgora()">Atualizar agora</button>
+    </div>
+
+    <div id="bannerOffline" class="app-system-banner offline-banner" hidden role="status" aria-live="polite">
+      <div>
+        <strong>📡 Você está sem conexão</strong>
+        <span id="textoBannerOffline">A página mantém a última escala salva neste aparelho.</span>
+      </div>
+      <button type="button" onclick="carregarEscalaDaPlanilha(false)">Tentar novamente</button>
+    </div>
+
     <section id="escala" class="premium-card scale-premium">
       <div class="premium-section-title">
         <span class="eyebrow">📅 Principal</span>
         <h2>Escala da semana</h2>
         <p>Consulte de forma rápida e organizada os professores escalados para cada classe na próxima aula da EBD.</p>
+      </div>
+
+      <div class="sync-info-strip" aria-live="polite">
+        <span id="statusConexao" class="sync-connection-status">Conectando aos dados</span>
+        <span id="ultimaSincronizacao">Última sincronização: aguardando...</span>
       </div>
 
       <div class="loading-box show status-loading loading-animated" id="loadingBox" role="status" aria-live="polite" aria-label="Preparando a Escala EBD">
@@ -4815,6 +5055,17 @@
       </div>
     </section>
 
+
+    <section id="licoesDestaqueSemana" class="weekly-lessons-highlight" hidden aria-live="polite">
+      <div class="weekly-lessons-heading">
+        <div>
+          <span>📖 Materiais liberados</span>
+          <h2>Lições disponíveis nesta semana</h2>
+        </div>
+        <p>Os materiais programados aparecem aqui automaticamente a partir da segunda-feira anterior à aula.</p>
+      </div>
+      <div id="licoesDestaqueGrid" class="weekly-lessons-grid"></div>
+    </section>
     <section class="premium-card quick-access" aria-label="Acesso rápido">
       <div class="premium-section-title quick-access-title">
         <span class="eyebrow">⚡ Acesso rápido</span>
@@ -5647,6 +5898,10 @@
     let ultimaVersaoEscala = "";
     let formularioAberto = false;
     let mostrarEscalaCompleta = false;
+    let usandoEscalaOffline = false;
+
+    const CHAVE_CACHE_ESCALA_EBD = "ebdEscalaPublicaCacheV2";
+    const VERSAO_INTERFACE_EBD = (document.querySelector('meta[name="ebd-index-versao"]') || {}).content || "";
 
     let escala = {
       "Cordeirinhos de Cristo": [],
@@ -6070,6 +6325,138 @@
       atualizarBotaoEscala();
     }
 
+    function escaparHtmlPublico(valor) {
+      return String(valor == null ? "" : valor)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function formatarDataHoraSaoPaulo(timestamp) {
+      try {
+        return new Intl.DateTimeFormat("pt-BR", {
+          timeZone: "America/Sao_Paulo",
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit"
+        }).format(new Date(timestamp || Date.now()));
+      } catch (erro) {
+        return new Date(timestamp || Date.now()).toLocaleString("pt-BR");
+      }
+    }
+
+    function atualizarIndicadorConexao(online) {
+      const status = document.getElementById("statusConexao");
+      if (!status) return;
+      status.classList.toggle("offline", !online);
+      status.textContent = online ? "Dados conectados" : "Sem conexão com a internet";
+    }
+
+    function atualizarUltimaSincronizacao(timestamp, origem) {
+      const elemento = document.getElementById("ultimaSincronizacao");
+      if (!elemento) return;
+      const complemento = origem === "cache" ? " · dados salvos no aparelho" : "";
+      elemento.textContent = "Última sincronização: " + formatarDataHoraSaoPaulo(timestamp) + complemento;
+    }
+
+    function salvarEscalaCacheLocal(linhas) {
+      try {
+        localStorage.setItem(CHAVE_CACHE_ESCALA_EBD, JSON.stringify({
+          escala: linhas,
+          sincronizadoEm: Date.now()
+        }));
+      } catch (erro) {
+        console.warn("Não foi possível salvar a escala no aparelho:", erro);
+      }
+    }
+
+    function obterEscalaCacheLocal() {
+      try {
+        const bruto = localStorage.getItem(CHAVE_CACHE_ESCALA_EBD);
+        if (!bruto) return null;
+        const cache = JSON.parse(bruto);
+        if (!cache || !Array.isArray(cache.escala) || !cache.escala.length) return null;
+        return cache;
+      } catch (erro) {
+        console.warn("Não foi possível ler a escala salva no aparelho:", erro);
+        return null;
+      }
+    }
+
+    function exibirAvisoOffline(mostrar, timestamp) {
+      const banner = document.getElementById("bannerOffline");
+      const texto = document.getElementById("textoBannerOffline");
+      if (!banner) return;
+      banner.hidden = !mostrar;
+      if (mostrar && texto) {
+        texto.textContent = timestamp
+          ? "Você está visualizando a última escala salva em " + formatarDataHoraSaoPaulo(timestamp) + "."
+          : "Não foi possível atualizar os dados. A página mantém a última leitura válida desta sessão.";
+      }
+    }
+
+    function carregarEscalaDoCacheLocal() {
+      const cache = obterEscalaCacheLocal();
+      if (!cache) return false;
+      renderizarEscala(cache.escala);
+      usandoEscalaOffline = true;
+      atualizarIndicadorConexao(false);
+      atualizarUltimaSincronizacao(cache.sincronizadoEm, "cache");
+      exibirAvisoOffline(true, cache.sincronizadoEm);
+      return true;
+    }
+
+    async function verificarNovaVersaoInterface() {
+      if (!SITE_PUBLICADO || !VERSAO_INTERFACE_EBD) return;
+      try {
+        const url = new URL(location.href);
+        url.hash = "";
+        url.searchParams.set("_verificar_versao", Date.now());
+        const resposta = await fetch(url.toString(), {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache" }
+        });
+        if (!resposta.ok) return;
+        const html = await resposta.text();
+        const documento = new DOMParser().parseFromString(html, "text/html");
+        const meta = documento.querySelector('meta[name="ebd-index-versao"]');
+        const versaoRemota = meta ? String(meta.content || "").trim() : "";
+        const banner = document.getElementById("bannerAtualizacao");
+        if (banner && versaoRemota && versaoRemota !== VERSAO_INTERFACE_EBD) {
+          banner.hidden = false;
+        }
+      } catch (erro) {
+        console.warn("Não foi possível verificar uma nova versão da página:", erro);
+      }
+    }
+
+    async function atualizarInterfaceAgora() {
+      const botao = document.querySelector("#bannerAtualizacao button");
+      if (botao) {
+        botao.disabled = true;
+        botao.textContent = "Atualizando...";
+      }
+      try {
+        if ("serviceWorker" in navigator) {
+          const registros = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(registros.map(function (registro) { return registro.unregister(); }));
+        }
+        if ("caches" in window) {
+          const nomes = await caches.keys();
+          await Promise.all(nomes.map(function (nome) { return caches.delete(nome); }));
+        }
+      } catch (erro) {
+        console.warn("A limpeza de cache não foi concluída:", erro);
+      }
+      const destino = new URL(location.href);
+      destino.searchParams.set("_atualizado", Date.now());
+      location.replace(destino.toString());
+    }
+
     function definirStatusEscala(tipo, mensagem, mostrarBotao = false) {
       if (!loadingBox) {
         return;
@@ -6193,6 +6580,11 @@
         return true;
       }
 
+      if (navigator.onLine === false && primeiraCarga && carregarEscalaDoCacheLocal()) {
+        ocultarStatusEscala();
+        return true;
+      }
+
       if (!modoSilencioso || primeiraCarga) {
         definirStatusEscala("loading", "Conectando à planilha e buscando a escala atual...", false);
       }
@@ -6213,12 +6605,25 @@
         }
 
         renderizarEscala(dados.escala);
+        salvarEscalaCacheLocal(dados.escala);
+        usandoEscalaOffline = false;
+        atualizarIndicadorConexao(true);
+        atualizarUltimaSincronizacao(Date.now(), "online");
+        exibirAvisoOffline(false);
 
         ocultarStatusEscala();
 
         return true;
       } catch (erro) {
         console.error("Erro ao carregar escala:", erro);
+        atualizarIndicadorConexao(false);
+
+        if (primeiraCarga && carregarEscalaDoCacheLocal()) {
+          ocultarStatusEscala();
+          return true;
+        }
+
+        exibirAvisoOffline(linhasEscala.length > 0);
 
         if (primeiraCarga) {
           mostrarFalhaInicialDaEscala(
@@ -6227,14 +6632,13 @@
           definirStatusEscala(
             "error",
             "Falha na conexão com a planilha: " + erro.message +
-              " Publique uma nova versão do Apps Script e tente novamente.",
+              " Tente novamente quando a internet estiver disponível.",
             true
           );
         } else {
           definirStatusEscala(
-            "error",
-            "Não foi possível confirmar uma nova leitura da planilha. " +
-              "A página mantém somente a última leitura válida desta sessão.",
+            "warning",
+            "Não foi possível atualizar agora. A página mantém a última leitura válida.",
             true
           );
         }
@@ -6566,6 +6970,53 @@
       };
     }
 
+    function montarCardDestaqueLicao(tipo, rotuloClasse) {
+      const original = configuracaoLicoesSemana[tipo] || {};
+      const resolvida = resolverLicaoParaAbrir(original);
+      let titulo = "Material de apoio disponível";
+      let detalhe = "Conteúdo pronto para consulta.";
+      let textoBotao = "Abrir material";
+      let desabilitado = false;
+
+      if (original.tipo === "programacao") {
+        if (resolvida.indisponivel) {
+          titulo = "Próxima lição programada";
+          detalhe = resolvida.proxima
+            ? "Lição " + resolvida.proxima.numero + " · liberação em " + formatarDataProgramacaoPublica(resolvida.proxima.dataLiberacao) + " às 00h"
+            : "Ainda não há uma lição programada para liberação.";
+          textoBotao = "Aguardando liberação";
+          desabilitado = true;
+        } else {
+          titulo = resolvida.titulo || ("Lição " + resolvida.numero);
+          detalhe = "Lição " + resolvida.numero + " · aula em " + formatarDataProgramacaoPublica(resolvida.data) +
+            (resolvida.manual ? " · seleção manual" : " · liberada em " + formatarDataProgramacaoPublica(resolvida.dataLiberacao));
+          textoBotao = "Abrir Lição " + resolvida.numero;
+        }
+      } else if (original.tipo === "link") {
+        titulo = "Link da lição disponível";
+        detalhe = "O material será aberto em uma nova aba.";
+      }
+
+      return `
+        <article class="weekly-lesson-card">
+          <span class="weekly-lesson-class">${escaparHtmlPublico(rotuloClasse)}</span>
+          <h3>${escaparHtmlPublico(titulo)}</h3>
+          <p>${escaparHtmlPublico(detalhe)}</p>
+          <button type="button" onclick="abrirLicao('${tipo}')" ${desabilitado ? "disabled" : ""}>${escaparHtmlPublico(textoBotao)}</button>
+        </article>
+      `;
+    }
+
+    function renderizarDestaqueLicoesSemana() {
+      const secao = document.getElementById("licoesDestaqueSemana");
+      const grid = document.getElementById("licoesDestaqueGrid");
+      if (!secao || !grid) return;
+      grid.innerHTML =
+        montarCardDestaqueLicao("adultos", "Jovens e Adultos") +
+        montarCardDestaqueLicao("jovens", "Adolescentes");
+      secao.hidden = false;
+    }
+
     function atualizarBotoesLicoes() {
       const configurar = function (tipo, idBotao, idStatus, textoHtml) {
         const botao = document.getElementById(idBotao);
@@ -6610,6 +7061,7 @@
 
       configurar("adultos", "btnLicaoAdultos", "statusProgramacaoAdultos", "Ver lição de Jovens e Adultos");
       configurar("jovens", "btnLicaoJovens", "statusProgramacaoJovens", "Ver lição dos Adolescentes");
+      renderizarDestaqueLicoesSemana();
     }
 
     function aplicarDadosLicoesHostinger(dados, salvarCache = true) {
@@ -7511,15 +7963,39 @@
 
       if (SITE_PUBLICADO) {
         ultimaVersaoEscala = await obterVersaoAtual();
+        verificarNovaVersaoInterface();
 
         setInterval(async function () {
           await verificarAlteracaoNaPlanilha();
         }, 60000);
+
+        setInterval(function () {
+          verificarNovaVersaoInterface();
+        }, 300000);
       }
+
+      atualizarIndicadorConexao(navigator.onLine !== false);
     });
 
     window.addEventListener("resize", ajustarSubtituloAoTitulo);
     window.addEventListener("load", ajustarSubtituloAoTitulo);
+
+    window.addEventListener("offline", function () {
+      atualizarIndicadorConexao(false);
+      const cache = obterEscalaCacheLocal();
+      exibirAvisoOffline(true, cache && cache.sincronizadoEm);
+    });
+
+    window.addEventListener("online", async function () {
+      atualizarIndicadorConexao(true);
+      const atualizou = await carregarEscalaDaPlanilha(true);
+      if (atualizou) {
+        usandoEscalaOffline = false;
+        exibirAvisoOffline(false);
+        await carregarLicoesAtuais(true, true);
+        await carregarQuizzesDaPlanilha(true);
+      }
+    });
 
     document.addEventListener("visibilitychange", async function () {
       if (!document.hidden && SITE_PUBLICADO) {

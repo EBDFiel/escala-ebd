@@ -1684,6 +1684,75 @@
       }
     }
 
+  
+
+    /* HISTÓRICO DE TROCAS REALIZADAS PELOS PROFESSORES */
+    .teacher-history-intro {
+      margin: 0 0 1rem;
+      padding: 0.95rem 1rem;
+      border-radius: 18px;
+      background: linear-gradient(135deg, var(--primary-light), #ffffff);
+      border: 1px solid var(--gray-300);
+      color: var(--gray-700);
+      line-height: 1.5;
+    }
+
+    .teacher-history-filters {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border-radius: 20px;
+      background: #f8fafc;
+      border: 1px solid var(--gray-300);
+    }
+
+    .teacher-history-summary {
+      margin: 0.8rem 0 1rem;
+      color: var(--gray-600);
+      font-weight: 700;
+    }
+
+    .teacher-history-item {
+      border-left-color: #1f4e79;
+    }
+
+    .teacher-history-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.65rem;
+      color: var(--gray-500);
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .teacher-history-title {
+      margin: 0 0 0.7rem;
+      color: var(--primary-deep);
+      font-size: 1rem;
+    }
+
+    .teacher-history-details {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.55rem 1rem;
+      color: var(--gray-700);
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .teacher-history-details strong {
+      color: var(--primary-deep);
+    }
+
+    @media (max-width: 700px) {
+      .teacher-history-details {
+        grid-template-columns: 1fr;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -1770,7 +1839,7 @@
         <button id="abaMapaBtn" class="nav-btn" onclick="abrirPainel('mapa')">🗺️ Mapa do Site</button>
         <button id="abaManualBtn" class="nav-btn" onclick="abrirPainel('manual')">📘 Manual do painel</button>
         <button id="abaHistoricoEscalasBtn" class="nav-btn" onclick="abrirPainel('historicoEscalas')">📚 Escalas salvas</button>
-        <button id="abaHistoricoBtn" class="nav-btn" onclick="abrirPainel('historico')">📜 Histórico</button>
+        <button id="abaHistoricoBtn" class="nav-btn" onclick="abrirPainel('historico')">📜 Trocas dos professores</button>
       </aside>
 
       <div class="content-area">
@@ -2456,12 +2525,16 @@
             </div>
 
             <div class="manual-section">
-              <h3>📜 18. Como consultar o histórico</h3>
+              <h3>📜 18. Como consultar as trocas feitas pelos professores</h3>
               <ol>
-                <li>Clique em <strong>Histórico</strong>.</li>
-                <li>Veja os registros de alterações.</li>
-                <li>Clique em <strong>Atualizar</strong> para recarregar a lista.</li>
+                <li>Clique em <strong>Trocas dos professores</strong>.</li>
+                <li>O painel mostrará as alterações realizadas pelos professores na página pública.</li>
+                <li>Confira data e hora, professor solicitante, classe, data original, nova data e professor envolvido.</li>
+                <li>Use os filtros por professor, classe e período para localizar um registro.</li>
+                <li>Clique em <strong>Exportar CSV</strong> para baixar a consulta.</li>
+                <li>Use <strong>Atualizar</strong> para buscar os registros mais recentes no Google Sheets.</li>
               </ol>
+              <p><strong>Observação:</strong> esta área não registra suas ações administrativas. Ela mostra somente as trocas feitas pelos professores pelo site público.</p>
             </div>
 
             <div class="manual-section">
@@ -2577,8 +2650,44 @@
         </div>
 
         <div id="painelHistorico" class="admin-panel card">
-          <div style="display:flex; justify-content:space-between;"><h2>📜 Histórico de ações</h2><button class="secondary compact-btn" onclick="carregarHistorico()">Atualizar</button></div>
-          <div id="listaHistorico" class="history-list" style="margin-top:1rem;"></div>
+          <div style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:center;">
+            <h2 style="margin:0;">📜 Histórico de alterações dos professores</h2>
+            <button class="secondary compact-btn" onclick="carregarHistorico()">🔄 Atualizar</button>
+          </div>
+
+          <p class="teacher-history-intro">
+            Esta área mostra as trocas realizadas pelos professores na página pública da Escala EBD.
+            O registro identifica quem solicitou, a classe, as datas envolvidas, o professor trocado e o horário da alteração.
+          </p>
+
+          <div class="teacher-history-filters">
+            <div class="form-grid">
+              <div>
+                <label for="historicoFiltroProfessor">Professor</label>
+                <select id="historicoFiltroProfessor" onchange="aplicarFiltrosHistoricoProfessores()"><option value="">Todos</option></select>
+              </div>
+              <div>
+                <label for="historicoFiltroClasse">Classe</label>
+                <select id="historicoFiltroClasse" onchange="aplicarFiltrosHistoricoProfessores()"><option value="">Todas</option></select>
+              </div>
+              <div>
+                <label for="historicoFiltroInicio">Alterações desde</label>
+                <input id="historicoFiltroInicio" type="date" onchange="aplicarFiltrosHistoricoProfessores()" />
+              </div>
+              <div>
+                <label for="historicoFiltroFim">Alterações até</label>
+                <input id="historicoFiltroFim" type="date" onchange="aplicarFiltrosHistoricoProfessores()" />
+              </div>
+            </div>
+            <div class="actions">
+              <button type="button" onclick="aplicarFiltrosHistoricoProfessores()">🔍 Aplicar filtros</button>
+              <button type="button" class="gray" onclick="limparFiltrosHistoricoProfessores()">Limpar</button>
+              <button type="button" class="secondary" onclick="exportarHistoricoProfessoresCSV()">⬇️ Exportar CSV</button>
+            </div>
+          </div>
+
+          <div id="resumoHistoricoProfessores" class="teacher-history-summary">Carregando registros...</div>
+          <div id="listaHistorico" class="history-list"></div>
         </div>
       </div>
     </div>
@@ -2592,6 +2701,7 @@
   const modeloPadrao = `<div style="font-family:system-ui; background:#fef9e6; border-radius:2rem; padding:1.4rem;"><div style="background:#0b2b3f; color:white; padding:1rem; border-radius:1.5rem;"><h3>Conteúdo da lição</h3></div><div style="padding:1rem;"><p>Adicione aqui o conteúdo da aula...</p></div></div>`;
   let escalaCache = [], classesCache = [], professoresCache = [];
   let historicoEscalasCache = [];
+  let historicoTrocasProfessoresCache = [];
   const ordemClassesEBD = [
     "Cordeirinhos de Cristo",
     "Soldadinhos de Cristo",
@@ -2888,7 +2998,7 @@
       () => carregarEscala(),
       () => carregarProfessores(),
       () => carregarQuizzesAdmin(),
-      () => carregarHistorico(),
+      () => carregarHistorico(true),
       () => carregarStatusTrimestralAdmin(true)
     ];
 
@@ -4950,7 +5060,171 @@
     }
   }
 
-  async function carregarHistorico() { let r=await chamarAppsScript({acao:"historico",limite:"50"}); let div=document.getElementById("listaHistorico"); if(r.sucesso && r.historico?.length) div.innerHTML=r.historico.map(i=>`<div class="history-item"><strong>${i.dataHora}</strong><br>Classe: ${i.classe}<br>Alteração: ${i.professorTrocado||i.novaData}<br>Origem: ${i.origem}</div>`).join(""); else div.innerHTML="<p class='help'>Nenhum registro</p>"; }
+  function normalizarHistoricoTrocaProfessor(item) {
+    const bruto = item && typeof item === "object" ? item : {};
+    return {
+      dataHora: String(bruto.dataHora || bruto.DataHora || bruto.data_hora || "").trim(),
+      professorSolicitante: String(bruto.professorSolicitante || bruto.ProfessorSolicitante || bruto.professor || "").trim(),
+      classe: String(bruto.classe || bruto.Classe || "").trim(),
+      dataAntiga: String(bruto.dataAntiga || bruto.DataAntiga || bruto.dataAtual || "").trim(),
+      novaData: String(bruto.novaData || bruto.NovaData || "").trim(),
+      professorTrocado: String(bruto.professorTrocado || bruto.ProfessorTrocado || bruto.professorEnvolvido || "").trim(),
+      origem: String(bruto.origem || bruto.Origem || "Site Escala EBD").trim()
+    };
+  }
+
+  function dataHoraHistoricoParaDate(valor) {
+    const texto = String(valor || "").trim();
+    if (!texto) return null;
+    const br = texto.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\D+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+    if (br) {
+      const data = new Date(Number(br[3]), Number(br[2]) - 1, Number(br[1]), Number(br[4] || 0), Number(br[5] || 0), Number(br[6] || 0));
+      return Number.isNaN(data.getTime()) ? null : data;
+    }
+    const iso = new Date(texto);
+    return Number.isNaN(iso.getTime()) ? null : iso;
+  }
+
+  function ordenarTextoUnicoHistorico(lista) {
+    return Array.from(new Set((lista || []).map((item) => String(item || "").trim()).filter(Boolean)))
+      .sort((a, b) => a.localeCompare(b, "pt-BR", { sensitivity: "base" }));
+  }
+
+  function preencherFiltrosHistoricoProfessores() {
+    const selectProfessor = document.getElementById("historicoFiltroProfessor");
+    const selectClasse = document.getElementById("historicoFiltroClasse");
+    if (!selectProfessor || !selectClasse) return;
+
+    const valorProfessor = selectProfessor.value;
+    const valorClasse = selectClasse.value;
+    const professores = ordenarTextoUnicoHistorico(historicoTrocasProfessoresCache.flatMap((item) => [item.professorSolicitante, item.professorTrocado]));
+    const classes = ordenarTextoUnicoHistorico(historicoTrocasProfessoresCache.map((item) => item.classe));
+
+    selectProfessor.innerHTML = '<option value="">Todos</option>' + professores.map((nome) => `<option value="${escapeHtmlAdmin(nome)}">${escapeHtmlAdmin(nome)}</option>`).join("");
+    selectClasse.innerHTML = '<option value="">Todas</option>' + classes.map((classe) => `<option value="${escapeHtmlAdmin(classe)}">${escapeHtmlAdmin(classe)}</option>`).join("");
+
+    if (professores.includes(valorProfessor)) selectProfessor.value = valorProfessor;
+    if (classes.includes(valorClasse)) selectClasse.value = valorClasse;
+  }
+
+  function obterHistoricoProfessoresFiltrado() {
+    const professor = String(document.getElementById("historicoFiltroProfessor")?.value || "").trim();
+    const classe = String(document.getElementById("historicoFiltroClasse")?.value || "").trim();
+    const inicio = String(document.getElementById("historicoFiltroInicio")?.value || "").trim();
+    const fim = String(document.getElementById("historicoFiltroFim")?.value || "").trim();
+    const inicioDate = inicio ? new Date(inicio + "T00:00:00") : null;
+    const fimDate = fim ? new Date(fim + "T23:59:59") : null;
+
+    return (historicoTrocasProfessoresCache || []).filter((item) => {
+      if (professor && item.professorSolicitante !== professor && item.professorTrocado !== professor) return false;
+      if (classe && item.classe !== classe) return false;
+      const data = dataHoraHistoricoParaDate(item.dataHora);
+      if (inicioDate && (!data || data < inicioDate)) return false;
+      if (fimDate && (!data || data > fimDate)) return false;
+      return true;
+    }).sort((a, b) => {
+      const da = dataHoraHistoricoParaDate(a.dataHora);
+      const db = dataHoraHistoricoParaDate(b.dataHora);
+      return (db ? db.getTime() : 0) - (da ? da.getTime() : 0);
+    });
+  }
+
+  function renderizarHistoricoProfessores(lista) {
+    const div = document.getElementById("listaHistorico");
+    const resumo = document.getElementById("resumoHistoricoProfessores");
+    if (!div) return;
+
+    const registros = Array.isArray(lista) ? lista : [];
+    if (resumo) {
+      resumo.textContent = registros.length + " registro(s) encontrado(s).";
+    }
+
+    if (!registros.length) {
+      div.innerHTML = "<p class='help'>Nenhuma troca encontrada com os filtros selecionados.</p>";
+      return;
+    }
+
+    div.innerHTML = registros.map((item) => {
+      const substituicaoDireta = item.novaData && !/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(item.novaData);
+      const titulo = substituicaoDireta
+        ? `${item.professorSolicitante || "Professor"} solicitou uma substituição`
+        : `${item.professorSolicitante || "Professor"} alterou a data da aula`;
+      const rotuloNovaData = substituicaoDireta ? "Alteração realizada" : "Nova data";
+
+      return `
+        <div class="history-item teacher-history-item">
+          <div class="teacher-history-meta">
+            <span>🕒 ${escapeHtmlAdmin(item.dataHora || "Data não informada")}</span>
+            <span>🌐 ${escapeHtmlAdmin(item.origem || "Site Escala EBD")}</span>
+          </div>
+          <h3 class="teacher-history-title">${escapeHtmlAdmin(titulo)}</h3>
+          <div class="teacher-history-details">
+            <div><strong>Professor solicitante:</strong> ${escapeHtmlAdmin(item.professorSolicitante || "—")}</div>
+            <div><strong>Classe:</strong> ${escapeHtmlAdmin(item.classe || "—")}</div>
+            <div><strong>Data original:</strong> ${escapeHtmlAdmin(item.dataAntiga || "—")}</div>
+            <div><strong>${rotuloNovaData}:</strong> ${escapeHtmlAdmin(item.novaData || "—")}</div>
+            <div><strong>Professor envolvido:</strong> ${escapeHtmlAdmin(item.professorTrocado || "—")}</div>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function aplicarFiltrosHistoricoProfessores() {
+    renderizarHistoricoProfessores(obterHistoricoProfessoresFiltrado());
+  }
+
+  function limparFiltrosHistoricoProfessores() {
+    ["historicoFiltroProfessor", "historicoFiltroClasse", "historicoFiltroInicio", "historicoFiltroFim"].forEach((id) => {
+      const campo = document.getElementById(id);
+      if (campo) campo.value = "";
+    });
+    aplicarFiltrosHistoricoProfessores();
+  }
+
+  function valorCsvHistorico(valor) {
+    return '"' + String(valor == null ? "" : valor).replace(/"/g, '""') + '"';
+  }
+
+  function exportarHistoricoProfessoresCSV() {
+    const registros = obterHistoricoProfessoresFiltrado();
+    if (!registros.length) {
+      mostrarStatus("info", "Não há trocas para exportar com os filtros atuais.");
+      return;
+    }
+    const linhas = [["Data e hora", "Professor solicitante", "Classe", "Data original", "Nova data", "Professor envolvido", "Origem"]];
+    registros.forEach((item) => {
+      linhas.push([item.dataHora, item.professorSolicitante, item.classe, item.dataAntiga, item.novaData, item.professorTrocado, item.origem]);
+    });
+    const csv = linhas.map((linha) => linha.map(valorCsvHistorico).join(";")).join("\r\n");
+    baixarTextoComoArquivo("historico_trocas_professores.csv", csv);
+    mostrarStatus("success", "Histórico das trocas exportado em CSV.");
+  }
+
+  async function carregarHistorico(modoSilencioso = false) {
+    const div = document.getElementById("listaHistorico");
+    const resumo = document.getElementById("resumoHistoricoProfessores");
+    if (div && !modoSilencioso) div.innerHTML = "<p class='help'>Carregando trocas realizadas pelos professores...</p>";
+    if (resumo && !modoSilencioso) resumo.textContent = "Consultando o Google Sheets...";
+
+    try {
+      const r = await chamarAppsScript({ acao: "historico", limite: "500", cache: "nao", _nocache: Date.now() });
+      if (!r || !r.sucesso) {
+        throw new Error((r && r.mensagem) || "Não foi possível consultar o histórico de trocas.");
+      }
+      historicoTrocasProfessoresCache = (Array.isArray(r.historico) ? r.historico : [])
+        .map(normalizarHistoricoTrocaProfessor)
+        .filter((item) => item.professorSolicitante || item.dataAntiga || item.novaData);
+      preencherFiltrosHistoricoProfessores();
+      aplicarFiltrosHistoricoProfessores();
+      if (!modoSilencioso) mostrarStatus("success", "Histórico das trocas atualizado.");
+    } catch (erro) {
+      console.warn("Erro ao carregar histórico das trocas:", erro);
+      if (resumo) resumo.textContent = "Não foi possível carregar os registros agora.";
+      if (div) div.innerHTML = "<p class='help'>" + escapeHtmlAdmin(erro.message || "Erro ao carregar o histórico.") + "</p>";
+      if (!modoSilencioso) mostrarStatus("error", erro.message || "Erro ao carregar o histórico das trocas.");
+    }
+  }
   function preencherProfessorAtual() { let data=document.getElementById("escalaDataEditar").value, classe=document.getElementById("escalaClasseEditar").value, linha=escalaCache.find(l=>l.Data===data); document.getElementById("escalaProfessorEditar").value = linha && classe ? linha[classe] : ""; }
 
 

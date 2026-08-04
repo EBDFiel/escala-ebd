@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <!-- ADMIN_EBD_PROGRAMACAO_TRIMESTRAL_20260804 -->
+  <!-- ADMIN_EBD_LIBERACAO_SEGUNDA_20260804 -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Admin EBD — Igreja Sede | Lições na Hostinger</title>
@@ -507,6 +507,15 @@
       font-size: 0.62rem;
       color: var(--gray-500);
       text-align: center;
+    }
+
+    .programacao-liberacao-nota {
+      display: block;
+      margin-top: 0.35rem;
+      color: #166534;
+      font-size: 0.72rem;
+      font-weight: 800;
+      line-height: 1.3;
     }
 
     @media (max-width: 980px) {
@@ -1796,11 +1805,11 @@
                 </div>
                 <div id="programacaoWrapAdultos" class="lesson-program-wrap" hidden>
                   <div class="programacao-intro">
-                    📅 Cadastre antecipadamente os links do trimestre. O site público abrirá automaticamente a lição correspondente à data atual. Depois da última data, a última lição continuará disponível.
+                    📅 Informe a data da aula de cada lição. O site liberará automaticamente o link na segunda-feira anterior, às 00h (horário de Brasília). Depois da última aula, a última lição continuará disponível.
                   </div>
                   <div class="programacao-config-grid">
                     <div>
-                      <label for="inicioProgramacaoAdultos">Data da Lição 1</label>
+                      <label for="inicioProgramacaoAdultos">Data da aula — Lição 1</label>
                       <input id="inicioProgramacaoAdultos" type="date" />
                     </div>
                     <div>
@@ -1810,7 +1819,7 @@
                       </select>
                     </div>
                     <div class="programacao-actions">
-                      <button type="button" class="secondary compact-btn" onclick="gerarDatasProgramacao('adultos')">📆 Gerar 13 datas semanais</button>
+                      <button type="button" class="secondary compact-btn" onclick="gerarDatasProgramacao('adultos')">📆 Gerar 13 datas de aula</button>
                     </div>
                   </div>
                   <div class="programacao-bulk">
@@ -1864,11 +1873,11 @@
                 </div>
                 <div id="programacaoWrapJovens" class="lesson-program-wrap" hidden>
                   <div class="programacao-intro">
-                    📅 Cadastre antecipadamente os links do trimestre. O site público abrirá automaticamente a lição correspondente à data atual. Depois da última data, a última lição continuará disponível.
+                    📅 Informe a data da aula de cada lição. O site liberará automaticamente o link na segunda-feira anterior, às 00h (horário de Brasília). Depois da última aula, a última lição continuará disponível.
                   </div>
                   <div class="programacao-config-grid">
                     <div>
-                      <label for="inicioProgramacaoJovens">Data da Lição 1</label>
+                      <label for="inicioProgramacaoJovens">Data da aula — Lição 1</label>
                       <input id="inicioProgramacaoJovens" type="date" />
                     </div>
                     <div>
@@ -1878,7 +1887,7 @@
                       </select>
                     </div>
                     <div class="programacao-actions">
-                      <button type="button" class="secondary compact-btn" onclick="gerarDatasProgramacao('jovens')">📆 Gerar 13 datas semanais</button>
+                      <button type="button" class="secondary compact-btn" onclick="gerarDatasProgramacao('jovens')">📆 Gerar 13 datas de aula</button>
                     </div>
                   </div>
                   <div class="programacao-bulk">
@@ -2871,6 +2880,17 @@
     return partes[2] + "/" + partes[1] + "/" + partes[0];
   }
 
+  function dataLiberacaoProgramacaoAdmin(dataAula) {
+    const valor = normalizarDataProgramacao(dataAula);
+    if (!valor) return "";
+    const partes = valor.split("-").map(Number);
+    const data = new Date(Date.UTC(partes[0], partes[1] - 1, partes[2]));
+    const diaSemana = data.getUTCDay();
+    const diasDesdeSegunda = (diaSemana + 6) % 7;
+    data.setUTCDate(data.getUTCDate() - diasDesdeSegunda);
+    return data.toISOString().slice(0, 10);
+  }
+
   function garantirProgramacaoRenderizada(campo) {
     const sufixo = sufixoLicaoAdmin(campo);
     const lista = document.getElementById("programacaoLista" + sufixo);
@@ -2895,8 +2915,9 @@
       linha.innerHTML = `
         <div class="programacao-numero"><small>Lição</small>${numero}<span id="programacao${sufixo}Status${numero}" class="programacao-status-badge"></span></div>
         <div>
-          <label for="programacao${sufixo}Data${numero}">Data de liberação</label>
+          <label for="programacao${sufixo}Data${numero}">Data da aula</label>
           <input id="programacao${sufixo}Data${numero}" type="date" oninput="atualizarResumoProgramacao('${campo}')" />
+          <span id="programacao${sufixo}Liberacao${numero}" class="programacao-liberacao-nota"></span>
         </div>
         <div>
           <label for="programacao${sufixo}Titulo${numero}">Título</label>
@@ -2954,6 +2975,8 @@
     const sufixo = sufixoLicaoAdmin(campo);
     const itens = coletarProgramacaoAdmin(campo).filter(function (item) {
       return item.data && urlExternaValidaAdmin(item.url);
+    }).map(function (item) {
+      return Object.assign({}, item, { dataLiberacao: dataLiberacaoProgramacaoAdmin(item.data) });
     });
     const manual = Number(document.getElementById("licaoManual" + sufixo).value || 0);
 
@@ -2967,11 +2990,11 @@
 
     const hoje = hojeSaoPauloAdmin();
     const ordenados = itens.slice().sort(function (a, b) {
-      return a.data.localeCompare(b.data) || a.numero - b.numero;
+      return a.dataLiberacao.localeCompare(b.dataLiberacao) || a.numero - b.numero;
     });
-    const vigentes = ordenados.filter(function (item) { return item.data <= hoje; });
+    const vigentes = ordenados.filter(function (item) { return item.dataLiberacao <= hoje; });
     const atual = vigentes.length ? vigentes[vigentes.length - 1] : null;
-    const proxima = ordenados.find(function (item) { return item.data > hoje; }) || null;
+    const proxima = ordenados.find(function (item) { return item.dataLiberacao > hoje; }) || null;
     return { atual: atual, proxima: proxima, manual: false };
   }
 
@@ -2990,6 +3013,13 @@
     itens.forEach(function (item) {
       const linha = document.getElementById("programacao" + sufixo + "Row" + item.numero);
       const badge = document.getElementById("programacao" + sufixo + "Status" + item.numero);
+      const notaLiberacao = document.getElementById("programacao" + sufixo + "Liberacao" + item.numero);
+      if (notaLiberacao) {
+        const dataLiberacao = dataLiberacaoProgramacaoAdmin(item.data);
+        notaLiberacao.textContent = dataLiberacao
+          ? "Liberação: segunda-feira, " + formatarDataProgramacaoAdmin(dataLiberacao) + " às 00h"
+          : "";
+      }
       if (!linha || !badge) return;
       linha.classList.remove("atual", "proxima");
       badge.textContent = "";
@@ -3006,9 +3036,9 @@
     let texto = completas.length + " de " + TOTAL_LICOES_PROGRAMADAS + " lições programadas.";
     if (parciais.length) texto += " Há " + parciais.length + " linha(s) incompleta(s).";
     if (resolvida.atual) {
-      texto += " Exibida agora: Lição " + resolvida.atual.numero + " — " + (resolvida.atual.titulo || "sem título") + ".";
+      texto += " Exibida agora: Lição " + resolvida.atual.numero + " — " + (resolvida.atual.titulo || "sem título") + ". Aula em " + formatarDataProgramacaoAdmin(resolvida.atual.data) + ".";
     } else if (resolvida.proxima) {
-      texto += " A programação começa em " + formatarDataProgramacaoAdmin(resolvida.proxima.data) + ".";
+      texto += " A programação começa na segunda-feira, " + formatarDataProgramacaoAdmin(resolvida.proxima.dataLiberacao) + ", às 00h.";
     }
     resumo.textContent = texto;
     resumo.style.background = parciais.length ? "#fff7ed" : "#ecfdf5";
@@ -3029,7 +3059,7 @@
     const sufixo = sufixoLicaoAdmin(campo);
     const inicio = document.getElementById("inicioProgramacao" + sufixo).value;
     if (!normalizarDataProgramacao(inicio)) {
-      mostrarStatus("error", "Informe a data da Lição 1 antes de gerar as datas semanais.");
+      mostrarStatus("error", "Informe a data da aula da Lição 1 antes de gerar as datas.");
       return;
     }
 
@@ -3039,7 +3069,7 @@
       if (!titulo.value.trim()) titulo.value = "Lição " + numero;
     }
     atualizarResumoProgramacao(campo);
-    mostrarStatus("success", "As 13 datas semanais de " + nomeClasseLicaoAdmin(campo) + " foram geradas.");
+    mostrarStatus("success", "As 13 datas de aula de " + nomeClasseLicaoAdmin(campo) + " foram geradas. As liberações ocorrerão nas segundas-feiras anteriores, às 00h.");
   }
 
   function limparTituloImportadoProgramacao(valor) {

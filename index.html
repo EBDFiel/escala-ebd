@@ -12,7 +12,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_PROGRAMACAO_TRIMESTRAL_2026_08_04" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_LIBERACAO_SEGUNDA_2026_08_04" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -6338,9 +6338,21 @@
       return partes[2] + "/" + partes[1] + "/" + partes[0];
     }
 
+    function dataLiberacaoProgramacaoPublica(dataAula) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(String(dataAula || ""))) return "";
+      const partes = String(dataAula).split("-").map(Number);
+      const data = new Date(Date.UTC(partes[0], partes[1] - 1, partes[2]));
+      const diaSemana = data.getUTCDay();
+      const diasDesdeSegunda = (diaSemana + 6) % 7;
+      data.setUTCDate(data.getUTCDate() - diasDesdeSegunda);
+      return data.toISOString().slice(0, 10);
+    }
+
     function resolverProgramacaoPublica(item) {
       const programacao = normalizarProgramacaoPublica(item && item.programacao).filter(function (entrada) {
         return entrada.data && urlLicaoExternaValida(entrada.url);
+      }).map(function (entrada) {
+        return Object.assign({}, entrada, { dataLiberacao: dataLiberacaoProgramacaoPublica(entrada.data) });
       });
       const manual = Number(item && item.licaoManual || 0);
 
@@ -6351,12 +6363,12 @@
 
       const hoje = hojeSaoPauloPublico();
       const ordenada = programacao.slice().sort(function (a, b) {
-        return a.data.localeCompare(b.data) || a.numero - b.numero;
+        return a.dataLiberacao.localeCompare(b.dataLiberacao) || a.numero - b.numero;
       });
-      const vigentes = ordenada.filter(function (entrada) { return entrada.data <= hoje; });
+      const vigentes = ordenada.filter(function (entrada) { return entrada.dataLiberacao <= hoje; });
       return {
         atual: vigentes.length ? vigentes[vigentes.length - 1] : null,
-        proxima: ordenada.find(function (entrada) { return entrada.data > hoje; }) || null,
+        proxima: ordenada.find(function (entrada) { return entrada.dataLiberacao > hoje; }) || null,
         manual: false
       };
     }
@@ -6375,6 +6387,7 @@
         programada: true,
         numero: resolvida.atual.numero,
         data: resolvida.atual.data,
+        dataLiberacao: resolvida.atual.dataLiberacao,
         titulo: resolvida.atual.titulo || ("Lição " + resolvida.atual.numero),
         manual: resolvida.manual
       };
@@ -6393,12 +6406,12 @@
         if (itemOriginal.tipo === "programacao") {
           if (item.indisponivel) {
             botao.textContent = "Lição programada em breve";
-            botao.title = item.proxima ? "Disponível a partir de " + formatarDataProgramacaoPublica(item.proxima.data) : "Nenhuma lição programada";
+            botao.title = item.proxima ? "Disponível na segunda-feira, " + formatarDataProgramacaoPublica(item.proxima.dataLiberacao) + ", às 00h" : "Nenhuma lição programada";
             botao.disabled = true;
             if (status) {
               status.hidden = false;
               status.textContent = item.proxima
-                ? "Próxima: Lição " + item.proxima.numero + " em " + formatarDataProgramacaoPublica(item.proxima.data)
+                ? "Próxima: Lição " + item.proxima.numero + " · liberação em " + formatarDataProgramacaoPublica(item.proxima.dataLiberacao) + " às 00h"
                 : "A programação ainda não possui uma lição disponível.";
             }
             return;
@@ -6408,7 +6421,7 @@
           botao.title = (item.titulo || "Lição programada") + " — abre em nova aba";
           if (status) {
             status.hidden = false;
-            status.textContent = (item.manual ? "Selecionada manualmente: " : "Lição atual: ") + item.titulo + " · " + formatarDataProgramacaoPublica(item.data);
+            status.textContent = (item.manual ? "Selecionada manualmente: " : "Lição atual: ") + item.titulo + " · aula em " + formatarDataProgramacaoPublica(item.data) + (item.manual ? "" : " · liberada em " + formatarDataProgramacaoPublica(item.dataLiberacao));
           }
           return;
         }
@@ -6926,7 +6939,7 @@
 
       if (item.indisponivel) {
         const mensagem = item.proxima
-          ? "A próxima lição ficará disponível em " + formatarDataProgramacaoPublica(item.proxima.data) + "."
+          ? "A próxima lição ficará disponível na segunda-feira, " + formatarDataProgramacaoPublica(item.proxima.dataLiberacao) + ", às 00h."
           : "Ainda não há uma lição disponível na programação desta classe.";
         alert(mensagem);
         return;

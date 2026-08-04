@@ -2161,12 +2161,12 @@
         <div id="painelManual" class="admin-panel card">
           <div class="manual-panel">
             <div class="manual-hero">
-              <span class="manual-badge">📘 Manual interno do painel</span>
+              <span class="manual-badge">📘 Manual interno do painel · atualizado em 04/08/2026</span>
               <h2>Manual de uso — Escala EBD</h2>
               <p>
-                Use este guia sempre que precisar atualizar lições, escala, professores, quizzes,
-                mapa do site ou conferir o histórico. As alterações comuns feitas aqui no admin
-                são salvas no Google Sheets e aparecem na página pública depois da atualização.
+                Este guia reúne o funcionamento atual do painel: lições armazenadas na Hostinger,
+                links externos, programação trimestral, liberação automática na segunda-feira,
+                escala de professores, cadastros, quizzes, histórico e publicação do projeto.
               </p>
               <div class="manual-actions">
                 <button type="button" onclick="window.print()">🖨️ Imprimir manual</button>
@@ -2176,87 +2176,180 @@
             </div>
 
             <div class="manual-alert">
-              Regra principal: antes de salvar qualquer alteração, confira se escolheu a data certa,
-              a classe certa, o professor certo e depois confirme no site público usando Ctrl + F5.
+              Regra principal: antes de salvar, confira a aba correta, o formato da lição, as datas das aulas,
+              os links e a classe. Depois do salvamento, confirme o resultado no site público.
             </div>
 
             <div class="manual-grid">
               <div class="manual-card">
                 <h3>🔐 Como entrar no painel</h3>
                 <ol>
-                  <li>Acesse <strong>admin.html</strong>.</li>
+                  <li>Acesse <strong>admin.html</strong> pelo endereço administrativo.</li>
                   <li>Digite a senha administrativa.</li>
                   <li>Clique em <strong>Acessar painel</strong>.</li>
-                  <li>Use o menu lateral para navegar pelas áreas.</li>
+                  <li>Use o menu lateral para abrir cada área.</li>
                 </ol>
+                <p>A senha usada na API de lições deve ser a mesma configurada em <strong>config.php</strong> na Hostinger.</p>
               </div>
 
               <div class="manual-card">
                 <h3>🌐 Página pública</h3>
-                <p>Depois de qualquer alteração, confira a página pública:</p>
+                <p>Depois de qualquer alteração, confira:</p>
                 <div class="manual-link-line">https://escala.ebdfiel.com.br/</div>
-                <p>Se algo não aparecer, atualize com <strong>Ctrl + F5</strong> ou teste em aba anônima.</p>
+                <p>Se a versão antiga aparecer, use <strong>Ctrl + F5</strong>, aba anônima ou limpe o cache da PWA.</p>
               </div>
 
               <div class="manual-card">
-                <h3>📌 Quando usar o GitHub?</h3>
-                <p>Use o GitHub somente quando for alterar arquivos do projeto, como:</p>
+                <h3>🧩 Onde cada parte fica</h3>
                 <ul>
-                  <li>index.html</li>
-                  <li>admin.html</li>
-                  <li>Code.gs</li>
-                  <li>scripts do mapa automático</li>
+                  <li><strong>GitHub Pages:</strong> index.html, admin.html e arquivos visuais.</li>
+                  <li><strong>Hostinger:</strong> API e dados das lições.</li>
+                  <li><strong>Google Apps Script/Sheets:</strong> escala, professores, quizzes e histórico.</li>
                 </ul>
               </div>
 
               <div class="manual-card">
-                <h3>⚙️ Quando usar Apps Script?</h3>
-                <p>Use o Google Apps Script somente quando o arquivo <strong>Code.gs</strong> for alterado.</p>
-                <p>Depois de alterar o Code.gs, sempre implante como <strong>Nova versão</strong>.</p>
+                <h3>📁 Endereço da API de lições</h3>
+                <div class="manual-link-line">https://ebdfiel.com.br/escala-ebd-api/licoes.php</div>
+                <p>Ao abrir esse endereço, a resposta deve conter <strong>"sucesso": true</strong>.</p>
               </div>
             </div>
 
             <div class="manual-section">
-              <h3>📚 1. Como atualizar a lição da semana</h3>
-              <ol>
-                <li>Clique em <strong>Lições interativas</strong>.</li>
-                <li>Escolha <strong>Jovens e Adultos</strong> ou <strong>Adolescentes</strong>.</li>
-                <li>Clique em <strong>HTML avançado</strong>, se for colar uma lição pronta em HTML.</li>
-                <li>Apague o conteúdo antigo, se quiser substituir tudo.</li>
-                <li>Cole o novo conteúdo da lição.</li>
-                <li>Clique em <strong>Sincronizar</strong>.</li>
-                <li>Clique em <strong>Salvar lições</strong>.</li>
-                <li>Abra o site público e confira os botões da lição.</li>
-              </ol>
-              <h4>Chaves usadas pelo sistema</h4>
+              <h3>🏗️ 1. Arquitetura atual do sistema</h3>
               <ul>
-                <li><strong>adultos</strong> = Jovens e Adultos</li>
-                <li><strong>jovens</strong> = Adolescentes</li>
+                <li>O site e o painel são publicados no <strong>GitHub Pages</strong>.</li>
+                <li>As lições são salvas na <strong>Hostinger</strong>, dentro da pasta <strong>escala-ebd-api</strong>.</li>
+                <li>A escala e os demais dados administrativos continuam no <strong>Google Sheets</strong>, acessados pelo Apps Script.</li>
+                <li>Não apague nem substitua manualmente <strong>storage/licoes.json</strong> quando já houver lições cadastradas.</li>
+                <li>O arquivo <strong>config.php</strong> guarda a senha da API e os domínios autorizados.</li>
+              </ul>
+              <h4>Arquivos da API na Hostinger</h4>
+              <div class="manual-link-line">public_html/escala-ebd-api/</div>
+              <ul>
+                <li>.htaccess</li>
+                <li>config.php</li>
+                <li>licoes.php</li>
+                <li>storage/.htaccess</li>
+                <li>storage/licoes.json</li>
               </ul>
             </div>
 
             <div class="manual-section">
-              <h3>📅 2. Como alterar professor em uma data da escala</h3>
+              <h3>📚 2. Como escolher a aba de lições</h3>
+              <ol>
+                <li>Clique em <strong>Lições interativas</strong>.</li>
+                <li>Abra a aba <strong>Jovens e Adultos</strong> ou <strong>Adolescentes</strong>.</li>
+                <li>Escolha um dos três formatos: <strong>Conteúdo HTML</strong>, <strong>Link externo individual</strong> ou <strong>Programação trimestral</strong>.</li>
+                <li>Configure somente a aba que deseja alterar.</li>
+                <li>Antes de salvar, confira se a outra aba não ficou em programação trimestral vazia.</li>
+              </ol>
+              <h4>Chaves internas usadas pelo sistema</h4>
+              <ul>
+                <li><strong>adultos</strong> = aba Jovens e Adultos</li>
+                <li><strong>jovens</strong> = aba Adolescentes</li>
+              </ul>
+            </div>
+
+            <div class="manual-section">
+              <h3>✍️ 3. Formato “Conteúdo HTML”</h3>
+              <ol>
+                <li>Em <strong>Formato da lição</strong>, escolha <strong>Conteúdo HTML</strong>.</li>
+                <li>Edite diretamente no <strong>Editor visual</strong> ou clique em <strong>HTML avançado</strong>.</li>
+                <li>Use <strong>Atualizar prévia</strong> para sincronizar o HTML com o editor visual.</li>
+                <li>Use <strong>Limpar</strong> somente quando quiser apagar todo o conteúdo daquela aba.</li>
+                <li>Clique em <strong>Salvar lições na Hostinger</strong>.</li>
+              </ol>
+              <p>O botão Salvar sincroniza automaticamente o editor visual e o campo HTML.</p>
+            </div>
+
+            <div class="manual-section">
+              <h3>🔗 4. Formato “Link externo individual”</h3>
+              <ol>
+                <li>Escolha <strong>Link externo individual</strong>.</li>
+                <li>Cole um endereço completo iniciado por <strong>https://</strong>.</li>
+                <li>Clique em <strong>Salvar lições na Hostinger</strong>.</li>
+                <li>Abra o site público e teste o botão da lição.</li>
+              </ol>
+              <p>O link abre em nova aba. Endereços HTTP, javascript:, data: e URLs com usuário/senha embutidos são bloqueados.</p>
+            </div>
+
+            <div class="manual-section">
+              <h3>📆 5. Programação trimestral das 13 lições</h3>
+              <ol>
+                <li>Escolha <strong>Programação trimestral (até 13 lições)</strong>.</li>
+                <li>Informe em <strong>Data da aula — Lição 1</strong> o domingo da primeira aula.</li>
+                <li>Clique em <strong>Gerar 13 datas de aula</strong>.</li>
+                <li>Cole os links no campo <strong>Colar vários links de uma vez</strong>, um por linha.</li>
+                <li>Clique em <strong>Distribuir links nas 13 lições</strong>.</li>
+                <li>Revise os títulos, as datas e os endereços.</li>
+                <li>Confirme se o resumo mostra <strong>13 de 13 lições programadas</strong>.</li>
+                <li>Clique em <strong>Salvar lições na Hostinger</strong>.</li>
+              </ol>
+              <h4>Formatos aceitos na colagem em massa</h4>
+              <ul>
+                <li>Um link HTTPS por linha.</li>
+                <li><strong>Título da lição | https://endereco-da-licao</strong>.</li>
+                <li>Título em uma linha e o link na linha seguinte.</li>
+              </ul>
+            </div>
+
+            <div class="manual-section">
+              <h3>🕛 6. Regra de liberação automática</h3>
+              <p>A data informada na programação é a <strong>data da aula</strong>. O site libera o link na segunda-feira anterior, às <strong>00h</strong>, no horário de Brasília.</p>
+              <ul>
+                <li>Exemplo: aula no domingo <strong>16/08/2026</strong>.</li>
+                <li>Liberação automática: segunda-feira <strong>10/08/2026 às 00h</strong>.</li>
+                <li>A lição permanece ativa até a liberação da próxima.</li>
+                <li>Depois da última aula, a Lição 13 continua disponível.</li>
+              </ul>
+              <p>No modo automático, não é necessário entrar semanalmente no painel.</p>
+            </div>
+
+            <div class="manual-section">
+              <h3>📌 7. Seleção automática ou fixação manual</h3>
+              <ol>
+                <li>Em <strong>Lição exibida no site</strong>, deixe <strong>Automática, conforme a data</strong> para seguir o calendário.</li>
+                <li>Para uma exceção, escolha <strong>Fixar manualmente a Lição X</strong>.</li>
+                <li>Salve novamente na Hostinger.</li>
+                <li>Quando quiser voltar ao calendário normal, selecione <strong>Automática, conforme a data</strong> e salve.</li>
+              </ol>
+              <p>A fixação manual interrompe temporariamente a troca automática.</p>
+            </div>
+
+            <div class="manual-section">
+              <h3>💾 8. Como salvar, carregar e conferir as lições</h3>
+              <ol>
+                <li>Clique em <strong>Salvar lições na Hostinger</strong>.</li>
+                <li>Aguarde a mensagem de sucesso.</li>
+                <li>Use <strong>Carregar versões atuais</strong> para reler o que já está salvo na Hostinger.</li>
+                <li>Abra o site público e atualize a página.</li>
+                <li>Teste o botão da lição em cada classe.</li>
+              </ol>
+              <p><strong>Atenção:</strong> “Carregar versões atuais” não salva alterações; ele apenas recarrega os dados já gravados.</p>
+            </div>
+
+            <div class="manual-section">
+              <h3>📅 9. Como alterar professor em uma data da escala</h3>
               <ol>
                 <li>Clique em <strong>Gerenciar escala</strong>.</li>
                 <li>Na área <strong>Alterar professor por data</strong>, escolha a data.</li>
                 <li>Escolha a classe.</li>
                 <li>Digite o nome correto do professor.</li>
                 <li>Clique em <strong>Salvar alteração</strong>.</li>
-                <li>Confira a tabela da escala no admin.</li>
-                <li>Abra o site público e confira a alteração.</li>
+                <li>Confira a tabela da escala e o site público.</li>
               </ol>
             </div>
 
             <div class="manual-section">
-              <h3>➕ 3. Como adicionar uma nova data na escala</h3>
+              <h3>➕ 10. Como adicionar uma nova data na escala</h3>
               <ol>
                 <li>Clique em <strong>Gerenciar escala</strong>.</li>
                 <li>Vá até <strong>Nova data na escala</strong>.</li>
                 <li>Escolha a data do domingo.</li>
                 <li>Preencha o professor de cada classe.</li>
                 <li>Clique em <strong>Adicionar data</strong>.</li>
-                <li>Confira a tabela da escala e depois o site público.</li>
+                <li>Confira a tabela e o site público.</li>
               </ol>
               <h4>Ordem correta das classes</h4>
               <ol class="manual-class-list">
@@ -2274,11 +2367,11 @@
             </div>
 
             <div class="manual-section">
-              <h3>🗑️ 4. Como remover uma data</h3>
+              <h3>🗑️ 11. Como remover uma data</h3>
               <ol>
                 <li>Clique em <strong>Gerenciar escala</strong>.</li>
                 <li>Vá até <strong>Remover data</strong>.</li>
-                <li>Escolha a data que deseja remover.</li>
+                <li>Escolha a data.</li>
                 <li>Clique em <strong>Remover</strong>.</li>
                 <li>Confirme somente se tiver certeza.</li>
                 <li>Confira se a data saiu da tabela e do site público.</li>
@@ -2287,7 +2380,7 @@
             </div>
 
             <div class="manual-section">
-              <h3>🏷️ 5. Como renomear uma classe</h3>
+              <h3>🏷️ 12. Como renomear uma classe</h3>
               <ol>
                 <li>Clique em <strong>Gerenciar escala</strong>.</li>
                 <li>Vá até <strong>Renomear classe</strong>.</li>
@@ -2296,44 +2389,40 @@
                 <li>Clique em <strong>Renomear</strong>.</li>
                 <li>Confira a tabela e o site público.</li>
               </ol>
-              <p>Evite renomear classes sem necessidade, para não confundir a escala e os cadastros.</p>
             </div>
 
             <div class="manual-section">
-              <h3>👥 6. Como adicionar ou editar professor</h3>
+              <h3>👥 13. Como adicionar, editar ou inativar professor</h3>
               <h4>Adicionar professor</h4>
               <ol>
                 <li>Clique em <strong>Professores</strong>.</li>
-                <li>Na área <strong>Novo professor</strong>, digite o nome.</li>
-                <li>Escolha a classe preferencial.</li>
-                <li>Escolha o status: <strong>Ativo</strong> ou <strong>Inativo</strong>.</li>
+                <li>Digite o nome na área <strong>Novo professor</strong>.</li>
+                <li>Escolha a classe preferencial e o status.</li>
                 <li>Adicione uma observação, se necessário.</li>
                 <li>Clique em <strong>Adicionar</strong>.</li>
               </ol>
-              <h4>Editar ou inativar professor</h4>
+              <h4>Editar ou inativar</h4>
               <ol>
-                <li>Na área <strong>Editar / Inativar</strong>, selecione o professor.</li>
+                <li>Selecione o professor em <strong>Editar / Inativar</strong>.</li>
                 <li>Altere nome, classe, status ou observação.</li>
                 <li>Clique em <strong>Salvar alterações</strong>.</li>
-                <li>Para deixar de usar o professor, altere para <strong>Inativo</strong> ou clique em <strong>Inativar</strong>.</li>
               </ol>
             </div>
 
             <div class="manual-section">
-              <h3>🔄 7. Como substituir professor na escala</h3>
+              <h3>🔄 14. Como substituir professor na escala</h3>
               <ol>
                 <li>Clique em <strong>Professores</strong>.</li>
-                <li>Na área <strong>Substituir professor na escala</strong>, escolha o professor que saiu.</li>
+                <li>Na área <strong>Substituir professor na escala</strong>, escolha quem saiu.</li>
                 <li>Digite ou escolha o novo professor.</li>
-                <li>Escolha a classe, se quiser limitar a substituição.</li>
-                <li>Escolha se a troca vale para datas futuras ou para toda a escala.</li>
-                <li>Escolha se deseja inativar o professor antigo.</li>
+                <li>Escolha a classe e o período da substituição.</li>
+                <li>Defina se deseja inativar o professor antigo.</li>
                 <li>Clique em <strong>Substituir</strong>.</li>
               </ol>
             </div>
 
             <div class="manual-section">
-              <h3>📌 8. Como mudar professor de classe</h3>
+              <h3>📌 15. Como mudar professor de classe</h3>
               <ol>
                 <li>Clique em <strong>Professores</strong>.</li>
                 <li>Na área <strong>Mudar professor de classe</strong>, escolha o professor.</li>
@@ -2344,87 +2433,106 @@
             </div>
 
             <div class="manual-section">
-              <h3>🧠 9. Como atualizar os quizzes</h3>
+              <h3>🧠 16. Como atualizar os quizzes</h3>
               <ol>
                 <li>Clique em <strong>Quizzes</strong>.</li>
                 <li>Cole o link do quiz de <strong>Jovens e Adultos</strong>.</li>
                 <li>Cole o link do quiz dos <strong>Adolescentes</strong>.</li>
                 <li>Clique em <strong>Salvar links dos quizzes</strong>.</li>
-                <li>Use <strong>Testar links</strong> para abrir os quizzes.</li>
+                <li>Use <strong>Testar links</strong>.</li>
                 <li>Confira os botões na página pública.</li>
               </ol>
-              <h4>Chaves usadas pelo sistema</h4>
-              <ul>
-                <li><strong>adultos</strong> = Quiz Jovens e Adultos</li>
-                <li><strong>jovens</strong> = Quiz Adolescentes</li>
-              </ul>
             </div>
 
             <div class="manual-section">
-              <h3>🗺️ 10. Como usar o Mapa do Site</h3>
+              <h3>🗺️ 17. Como usar o Mapa do Site</h3>
               <ol>
                 <li>Clique em <strong>Mapa do Site</strong>.</li>
-                <li>Aguarde o arquivo <strong>mapa-site.html</strong> carregar.</li>
+                <li>Aguarde <strong>mapa-site.html</strong> carregar.</li>
                 <li>Use <strong>Recarregar mapa</strong>, se necessário.</li>
-                <li>Use <strong>Abrir em nova aba</strong>, se quiser visualizar separado.</li>
+                <li>Use <strong>Abrir em nova aba</strong> para visualizar separado.</li>
               </ol>
-              <p>O mapa é atualizado pelo GitHub Actions quando arquivos importantes são alterados no GitHub.</p>
+              <p>O mapa pode ser atualizado pelo GitHub Actions quando arquivos importantes forem alterados.</p>
             </div>
 
             <div class="manual-section">
-              <h3>📜 11. Como consultar o histórico</h3>
+              <h3>📜 18. Como consultar o histórico</h3>
               <ol>
                 <li>Clique em <strong>Histórico</strong>.</li>
                 <li>Veja os registros de alterações.</li>
-                <li>Clique em <strong>Atualizar</strong>, se quiser recarregar a lista.</li>
+                <li>Clique em <strong>Atualizar</strong> para recarregar a lista.</li>
               </ol>
-              <p>O histórico ajuda a conferir alterações de professor, data, classe, origem da ação e trocas feitas pelo site público.</p>
             </div>
 
             <div class="manual-section">
-              <h3>📦 12. Encerramento e mudança de trimestre</h3>
+              <h3>📦 19. Encerramento e mudança de trimestre</h3>
               <ol>
                 <li>Abra <strong>Escalas salvas</strong> e confira se a automação está ativa.</li>
-                <li>Depois da última data do trimestre, o sistema verifica e arquiva a escala automaticamente.</li>
-                <li>O histórico é protegido contra registros duplicados.</li>
-                <li>Quando o arquivo estiver completo, o botão <strong>Preparar próximo trimestre</strong> será liberado.</li>
-                <li>Confirme a preparação digitando <strong>PREPARAR</strong>.</li>
-                <li>O sistema cria todos os domingos, preserva as classes e continua a sequência de cada professor.</li>
-                <li>A ordem é lida de cima para baixo na aba <strong>Professores</strong>; professores inativos são ignorados.</li>
+                <li>Depois da última data, o sistema verifica e arquiva a escala.</li>
+                <li>Quando o arquivo estiver completo, <strong>Preparar próximo trimestre</strong> será liberado.</li>
+                <li>Confirme digitando <strong>PREPARAR</strong>.</li>
+                <li>O sistema cria os domingos, preserva as classes e continua a sequência dos professores.</li>
                 <li>Antes da substituição, é criado um backup oculto da escala anterior.</li>
               </ol>
-              <p><strong>Importante:</strong> o arquivamento é automático, mas a preparação do novo trimestre sempre exige confirmação administrativa.</p>
+              <p><strong>Importante:</strong> a preparação do novo trimestre exige confirmação administrativa.</p>
             </div>
 
             <div class="manual-section">
-              <h3>🧯 13. Problemas comuns</h3>
-              <h4>Alterei no admin, mas não apareceu no site público</h4>
+              <h3>🚀 20. Quando publicar no GitHub, Hostinger ou Apps Script</h3>
+              <h4>GitHub Pages</h4>
+              <p>Substitua arquivos no GitHub quando houver atualização de <strong>index.html</strong>, <strong>admin.html</strong>, imagens, manifestos ou scripts visuais.</p>
+              <h4>Hostinger</h4>
+              <p>Substitua arquivos na Hostinger quando houver atualização de <strong>licoes.php</strong>, <strong>config.php</strong> ou da estrutura da API.</p>
+              <p>Evite substituir <strong>storage/licoes.json</strong>, pois ele contém as lições cadastradas.</p>
+              <h4>Google Apps Script</h4>
+              <p>Atualize e implante uma <strong>Nova versão</strong> somente quando o arquivo <strong>Code.gs</strong> for alterado.</p>
+            </div>
+
+            <div class="manual-section">
+              <h3>🧯 21. Problemas comuns</h3>
+              <h4>“Senha administrativa incorreta” ao salvar lições</h4>
               <ol>
-                <li>Abra a página pública.</li>
-                <li>Aperte <strong>Ctrl + F5</strong>.</li>
-                <li>Teste em aba anônima.</li>
-                <li>Aguarde alguns minutos e tente de novo.</li>
+                <li>Abra <strong>public_html/escala-ebd-api/config.php</strong> na Hostinger.</li>
+                <li>Confira a constante <strong>EBD_ADMIN_PASSWORD</strong>.</li>
+                <li>Ela deve ser igual à senha usada para entrar no painel.</li>
+                <li>Salve, saia do painel e entre novamente.</li>
               </ol>
 
-              <h4>Botão do admin não responde</h4>
+              <h4>“Failed to fetch” ao salvar lições</h4>
               <ol>
-                <li>Aperte <strong>F12</strong>.</li>
-                <li>Abra a aba <strong>Console</strong>.</li>
-                <li>Veja se aparece algum erro em vermelho.</li>
-                <li>Atualize com <strong>Ctrl + F5</strong> e tente novamente.</li>
+                <li>Abra <strong>config.php</strong>.</li>
+                <li>Confira se <strong>https://escala.ebdfiel.com.br</strong> está em <strong>EBD_ALLOWED_ORIGINS</strong>.</li>
+                <li>Salve e atualize o painel com <strong>Ctrl + F5</strong>.</li>
               </ol>
 
-              <h4>Lição ou quiz não atualizou</h4>
+              <h4>“Não há nenhuma lição completa na programação”</h4>
               <ol>
-                <li>Volte na aba correta do admin.</li>
-                <li>Carregue as informações atuais.</li>
+                <li>Confira se cada linha possui <strong>data da aula</strong> e <strong>link HTTPS</strong>.</li>
+                <li>Confira se o resumo mostra a quantidade programada.</li>
+                <li>Se a outra aba não será programada, mude-a para HTML ou link individual.</li>
                 <li>Salve novamente.</li>
-                <li>Atualize a página pública com <strong>Ctrl + F5</strong>.</li>
+              </ol>
+
+              <h4>Alterei no painel, mas o site continua antigo</h4>
+              <ol>
+                <li>Use <strong>Ctrl + F5</strong>.</li>
+                <li>Teste em aba anônima.</li>
+                <li>Se usa o aplicativo instalado, limpe o cache ou reinstale a PWA.</li>
+                <li>Aguarde a publicação do GitHub Pages, quando arquivos do GitHub tiverem sido substituídos.</li>
+              </ol>
+
+              <h4>A API abre com erro 500 ou página em branco</h4>
+              <ol>
+                <li>Confira se a pasta está em <strong>public_html/escala-ebd-api</strong>.</li>
+                <li>Confira se existem <strong>config.php</strong>, <strong>licoes.php</strong> e a pasta <strong>storage</strong>.</li>
+                <li>Verifique permissões: pastas normalmente 755 e arquivos normalmente 644.</li>
+                <li>Teste novamente o endereço da API.</li>
               </ol>
             </div>
 
             <div class="manual-alert">
-              Checklist final: aba certa, data certa, classe certa, professor correto, salvamento concluído e conferência feita no site público.
+              Checklist final: aba certa, formato certo, datas das aulas conferidas, links HTTPS válidos,
+              salvamento concluído e teste feito no site público.
             </div>
           </div>
         </div>

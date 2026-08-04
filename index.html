@@ -709,6 +709,151 @@
       cursor: pointer;
     }
 
+
+    /* ANIMAÇÃO DE CARREGAMENTO INICIAL — ESCALA EBD */
+    .loading-box.status-loading.loading-animated {
+      position: relative;
+      overflow: hidden;
+      min-height: 190px;
+      padding: 28px 18px;
+      border: 1px solid rgba(31, 78, 121, 0.22);
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(197, 155, 53, 0.18), transparent 46%),
+        linear-gradient(135deg, #eef7ff, #ffffff 52%, #f2faf3);
+      box-shadow: 0 12px 28px rgba(31, 78, 121, 0.12);
+    }
+
+    .loading-box.status-loading.loading-animated::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      width: 42%;
+      background: linear-gradient(110deg, transparent, rgba(255, 255, 255, 0.72), transparent);
+      transform: translateX(-160%) skewX(-15deg);
+      animation: ebdLoaderShine 2.4s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .ebd-loader {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 132px;
+      text-align: center;
+    }
+
+    .ebd-loader-visual {
+      position: relative;
+      width: 76px;
+      height: 76px;
+      margin-bottom: 2px;
+    }
+
+    .ebd-loader-ring {
+      position: absolute;
+      inset: 0;
+      border: 4px solid rgba(31, 78, 121, 0.14);
+      border-top-color: var(--azul);
+      border-right-color: var(--dourado);
+      border-radius: 50%;
+      animation: ebdLoaderSpin 1.15s linear infinite;
+    }
+
+    .ebd-loader-book {
+      position: absolute;
+      inset: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow:
+        0 8px 18px rgba(31, 78, 121, 0.16),
+        inset 0 0 0 1px rgba(31, 78, 121, 0.08);
+      font-size: 2rem;
+      line-height: 1;
+      animation: ebdLoaderBook 1.8s ease-in-out infinite;
+    }
+
+    .ebd-loader-title {
+      margin: 0;
+      color: var(--azul-escuro);
+      font-size: 1.08rem;
+      font-weight: 900;
+      letter-spacing: 0.1px;
+    }
+
+    .ebd-loader-subtitle {
+      margin: 0;
+      color: #5d6d7e;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .ebd-loader-dots {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      height: 12px;
+      margin-top: 2px;
+    }
+
+    .ebd-loader-dots span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--azul);
+      opacity: 0.25;
+      animation: ebdLoaderDot 1.2s ease-in-out infinite;
+    }
+
+    .ebd-loader-dots span:nth-child(2) {
+      animation-delay: 0.16s;
+    }
+
+    .ebd-loader-dots span:nth-child(3) {
+      animation-delay: 0.32s;
+    }
+
+    @keyframes ebdLoaderSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes ebdLoaderBook {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-3px) scale(1.04); }
+    }
+
+    @keyframes ebdLoaderDot {
+      0%, 80%, 100% { opacity: 0.25; transform: translateY(0); }
+      40% { opacity: 1; transform: translateY(-4px); }
+    }
+
+    @keyframes ebdLoaderShine {
+      0% { transform: translateX(-160%) skewX(-15deg); }
+      55%, 100% { transform: translateX(340%) skewX(-15deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .loading-box.status-loading.loading-animated::before,
+      .ebd-loader-ring,
+      .ebd-loader-book,
+      .ebd-loader-dots span {
+        animation: none !important;
+      }
+
+      .ebd-loader-ring {
+        border-top-color: var(--azul);
+        border-right-color: var(--dourado);
+      }
+    }
+
     .scale-sync-error {
       max-width: 760px;
       margin: 16px auto;
@@ -4620,8 +4765,16 @@
         <p>Consulte de forma rápida e organizada os professores escalados para cada classe na próxima aula da EBD.</p>
       </div>
 
-      <div class="loading-box" id="loadingBox">
-        Carregando escala atualizada... 🔄
+      <div class="loading-box show status-loading loading-animated" id="loadingBox" role="status" aria-live="polite" aria-label="Preparando a Escala EBD">
+        <div class="ebd-loader" aria-hidden="true">
+          <div class="ebd-loader-visual">
+            <span class="ebd-loader-ring"></span>
+            <span class="ebd-loader-book">📖</span>
+          </div>
+          <p class="ebd-loader-title">Preparando a Escala EBD…</p>
+          <p class="ebd-loader-subtitle">Buscando as informações mais recentes.</p>
+          <span class="ebd-loader-dots"><span></span><span></span><span></span></span>
+        </div>
       </div>
 
       <div class="featured-weekly-scale" id="escalaDestaque" aria-live="polite"></div>
@@ -5922,7 +6075,27 @@
         return;
       }
 
+      if (tipo === "loading") {
+        loadingBox.className = "loading-box show status-loading loading-animated";
+        loadingBox.setAttribute("role", "status");
+        loadingBox.setAttribute("aria-live", "polite");
+        loadingBox.setAttribute("aria-label", "Preparando a Escala EBD");
+        loadingBox.innerHTML = `
+          <div class="ebd-loader" aria-hidden="true">
+            <div class="ebd-loader-visual">
+              <span class="ebd-loader-ring"></span>
+              <span class="ebd-loader-book">📖</span>
+            </div>
+            <p class="ebd-loader-title">Preparando a Escala EBD…</p>
+            <p class="ebd-loader-subtitle">Buscando as informações mais recentes.</p>
+            <span class="ebd-loader-dots"><span></span><span></span><span></span></span>
+          </div>
+        `;
+        return;
+      }
+
       loadingBox.className = "loading-box show status-" + tipo;
+      loadingBox.removeAttribute("aria-label");
       loadingBox.innerHTML = "";
 
       const texto = document.createElement("span");

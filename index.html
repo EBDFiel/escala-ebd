@@ -4946,6 +4946,137 @@
       }
     }
 
+  
+
+    /* ETAPA 1 — TROCAS SEGURAS: confirmação, conflitos e comprovante */
+    .swap-confirm-modal .modal,
+    .swap-receipt-modal .modal {
+      max-width: 620px;
+    }
+
+    .swap-confirm-card,
+    .swap-receipt-card {
+      border: 1px solid rgba(31, 78, 121, 0.16);
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .swap-confirm-alert {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      background: #fff8e7;
+      border: 1px solid #f2d58a;
+      color: #744b00;
+      line-height: 1.5;
+    }
+
+    .swap-confirm-alert span:first-child {
+      font-size: 1.45rem;
+      line-height: 1;
+    }
+
+    .swap-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .swap-detail-item {
+      border: 1px solid #dbe7f1;
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .swap-detail-item small {
+      display: block;
+      color: #64748b;
+      font-size: .78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: 4px;
+    }
+
+    .swap-detail-item strong {
+      color: #123b5d;
+      line-height: 1.35;
+    }
+
+    .swap-receipt-number {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #e9f7ef;
+      color: #166534;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    .swap-receipt-success {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .swap-receipt-success .icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 10px;
+      background: #dcfce7;
+      color: #15803d;
+      font-size: 1.8rem;
+    }
+
+    .swap-receipt-success h3 {
+      margin: 0 0 6px;
+      color: #123b5d;
+    }
+
+    .swap-receipt-success p {
+      margin: 0;
+      color: #64748b;
+    }
+
+    .swap-receipt-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .swap-receipt-actions button {
+      width: 100%;
+    }
+
+    .swap-conflict-note {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e3a8a;
+      font-size: .9rem;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 620px) {
+      .swap-detail-grid,
+      .swap-receipt-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+
   </style>
 </head>
 
@@ -5527,6 +5658,52 @@
       <div class="modal-body">
         <p class="history-modal-intro">Conferência das datas do trimestre.</p>
         <div id="conteudoHistoricoTrimestre" class="history-trimester-list"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal-overlay swap-confirm-modal" id="modalConfirmacaoTroca" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="tituloConfirmacaoTroca">
+      <div class="modal-header">
+        <h2 id="tituloConfirmacaoTroca">Confirmar alteração</h2>
+        <button class="close-btn" type="button" onclick="fecharConfirmacaoTroca()" aria-label="Fechar">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="swap-confirm-alert">
+          <span aria-hidden="true">⚠️</span>
+          <div><strong>Confira os dados antes de continuar.</strong><br>A alteração será aplicada imediatamente na escala.</div>
+        </div>
+        <div id="conteudoConfirmacaoTroca" class="swap-confirm-card"></div>
+        <div class="swap-conflict-note">O sistema verifica datas passadas, duplicidade de envio e conflitos do professor em outras classes.</div>
+        <div class="modal-actions">
+          <button class="btn btn-cancel" type="button" onclick="fecharConfirmacaoTroca()">Voltar e revisar</button>
+          <button class="btn" type="button" id="btnExecutarTroca" onclick="confirmarTrocaPendente()">Sim, confirmar alteração</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay swap-receipt-modal" id="modalComprovanteTroca" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="tituloComprovanteTroca">
+      <div class="modal-header">
+        <h2 id="tituloComprovanteTroca">Comprovante da alteração</h2>
+        <button class="close-btn" type="button" onclick="fecharComprovanteTroca()" aria-label="Fechar">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="swap-receipt-success">
+          <div class="icon" aria-hidden="true">✓</div>
+          <h3>Alteração realizada com sucesso</h3>
+          <p>Guarde ou compartilhe este comprovante.</p>
+        </div>
+        <div id="conteudoComprovanteTroca" class="swap-receipt-card"></div>
+        <div class="swap-receipt-actions">
+          <button class="btn btn-cancel" type="button" onclick="copiarComprovanteTroca()">📋 Copiar comprovante</button>
+          <button class="btn" type="button" onclick="compartilharComprovanteWhatsApp()">💬 Compartilhar no WhatsApp</button>
+        </div>
+        <div class="modal-actions">
+          <button class="btn" type="button" onclick="fecharComprovanteTroca()">Concluir</button>
+        </div>
       </div>
     </div>
   </div>
@@ -7400,7 +7577,7 @@
       }
 
       const datasDoProfessor = escala[classe]
-        .filter((linha) => linha.professor === professor)
+        .filter((linha) => linha.professor === professor && !dataTrocaJaPassou(linha.data))
         .map((linha) => ({
           value: linha.data,
           label: linha.data + " — " + formatarNomeProfessor(linha.professor)
@@ -7409,7 +7586,7 @@
       if (datasDoProfessor.length === 0) {
         const option = document.createElement("option");
         option.value = "";
-        option.textContent = "Nome não encontrado na escala atual";
+        option.textContent = "Não há aulas futuras disponíveis para este professor";
         dataAtualSelect.appendChild(option);
         atualizarResumo();
         return;
@@ -7434,7 +7611,7 @@
       }
 
       const novasDatas = escala[classe]
-        .filter((linha) => linha.data !== dataAtual)
+        .filter((linha) => linha.data !== dataAtual && !dataTrocaJaPassou(linha.data))
         .map((linha) => ({
           value: linha.data,
           label: linha.data + " — " + formatarNomeProfessor(linha.professor)
@@ -7450,6 +7627,283 @@
       preencherSelect(novaDataSelect, novasDatas);
       novaDataSelect.disabled = false;
       atualizarResumo();
+    }
+
+
+    let trocaPendenteConfirmacao = null;
+    let comprovanteTrocaAtual = null;
+    let trocaEmProcessamento = false;
+
+    function chaveDataBrasileiraEBD(valor) {
+      const texto = String(valor || "").trim();
+      const br = texto.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (br) return `${br[3]}-${String(br[2]).padStart(2, "0")}-${String(br[1]).padStart(2, "0")}`;
+      const iso = texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      return iso ? `${iso[1]}-${iso[2]}-${iso[3]}` : "";
+    }
+
+    function hojeSaoPauloChaveTroca() {
+      const partes = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Sao_Paulo",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).formatToParts(new Date());
+      const mapa = {};
+      partes.forEach((parte) => { mapa[parte.type] = parte.value; });
+      return `${mapa.year}-${mapa.month}-${mapa.day}`;
+    }
+
+    function dataTrocaJaPassou(valor) {
+      const chave = chaveDataBrasileiraEBD(valor);
+      return Boolean(chave && chave < hojeSaoPauloChaveTroca());
+    }
+
+    function nomesCorrespondemTroca(a, b) {
+      const limpar = (valor) => normalizarNomeExibicao(String(valor || ""))
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/\bprof(?:essor|essora)?\.?\s*/gi, "")
+        .trim().toLowerCase();
+      return Boolean(limpar(a) && limpar(a) === limpar(b));
+    }
+
+    function campoContemProfessorTroca(valor, professor) {
+      const texto = String(valor || "").trim();
+      if (!texto || !professor) return false;
+      return texto.split(/\s*(?:\/|;|,|\||\+|&|\n|\s+e\s+)\s*/i)
+        .some((nome) => nomesCorrespondemTroca(nome, professor));
+    }
+
+    function obterLinhaEscalaPorDataTroca(data) {
+      return (Array.isArray(linhasEscala) ? linhasEscala : [])
+        .map((linha) => normalizarLinha(linha))
+        .find((linha) => String(linha.Data || "").trim() === String(data || "").trim()) || null;
+    }
+
+    function localizarConflitosProfessorTroca(professor, data, classeIgnorada) {
+      const linha = obterLinhaEscalaPorDataTroca(data);
+      if (!linha || !professor) return [];
+      return (classesEscala || []).filter((classe) => {
+        if (classe === classeIgnorada) return false;
+        return campoContemProfessorTroca(linha[classe], professor);
+      });
+    }
+
+    function validarSegurancaTroca(payload) {
+      if (dataTrocaJaPassou(payload.dataAtual)) {
+        throw new Error("Não é permitido alterar uma aula que já aconteceu.");
+      }
+
+      if (!valorEhApoioRonan(payload.novaData) && dataTrocaJaPassou(payload.novaData)) {
+        throw new Error("Escolha uma nova data que ainda não tenha passado.");
+      }
+
+      if (valorEhApoioRonan(payload.novaData)) {
+        const conflitosRonan = localizarConflitosProfessorTroca(PROFESSOR_APOIO_RONAN, payload.dataAtual, payload.classe);
+        if (conflitosRonan.length) {
+          throw new Error(`O Prof. Ronan já está escalado em ${conflitosRonan.join(", ")} no dia ${payload.dataAtual}.`);
+        }
+        return;
+      }
+
+      const professorTrocado = encontrarProfessorNaData(payload.classe, payload.novaData);
+      const conflitosSolicitante = localizarConflitosProfessorTroca(payload.professor, payload.novaData, payload.classe);
+      const conflitosTrocado = localizarConflitosProfessorTroca(professorTrocado, payload.dataAtual, payload.classe);
+
+      if (conflitosSolicitante.length) {
+        throw new Error(`${formatarNomeProfessor(payload.professor)} já está escalado(a) em ${conflitosSolicitante.join(", ")} no dia ${payload.novaData}.`);
+      }
+
+      if (conflitosTrocado.length) {
+        throw new Error(`${formatarNomeProfessor(professorTrocado)} já está escalado(a) em ${conflitosTrocado.join(", ")} no dia ${payload.dataAtual}.`);
+      }
+    }
+
+    function montarDetalhesTroca(payload) {
+      const apoio = valorEhApoioRonan(payload.novaData);
+      const professorTrocado = apoio ? PROFESSOR_APOIO_RONAN : encontrarProfessorNaData(payload.classe, payload.novaData);
+      return {
+        apoio,
+        classe: payload.classe,
+        professorSolicitante: payload.professor,
+        professorTrocado,
+        dataAtual: payload.dataAtual,
+        novaData: apoio ? payload.dataAtual : payload.novaData
+      };
+    }
+
+    function htmlDetalhesTroca(dados) {
+      const classe = nomesClassesComEmoji[dados.classe] || dados.classe;
+      return `
+        <div class="swap-detail-grid">
+          <div class="swap-detail-item"><small>Classe</small><strong>${classe}</strong></div>
+          <div class="swap-detail-item"><small>Professor solicitante</small><strong>${formatarNomeProfessor(dados.professorSolicitante)}</strong></div>
+          <div class="swap-detail-item"><small>Data atual</small><strong>${dados.dataAtual}</strong></div>
+          <div class="swap-detail-item"><small>${dados.apoio ? "Data do apoio" : "Nova data"}</small><strong>${dados.novaData}</strong></div>
+          <div class="swap-detail-item" style="grid-column:1/-1"><small>${dados.apoio ? "Professor que assumirá" : "Professor envolvido na troca"}</small><strong>${formatarNomeProfessor(dados.professorTrocado)}</strong></div>
+        </div>`;
+    }
+
+    function abrirConfirmacaoTroca(payload) {
+      const modalConfirmacao = document.getElementById("modalConfirmacaoTroca");
+      const conteudo = document.getElementById("conteudoConfirmacaoTroca");
+      trocaPendenteConfirmacao = { payload, detalhes: montarDetalhesTroca(payload) };
+      if (conteudo) conteudo.innerHTML = htmlDetalhesTroca(trocaPendenteConfirmacao.detalhes);
+      if (modalConfirmacao) {
+        modalConfirmacao.classList.add("active");
+        modalConfirmacao.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+      }
+    }
+
+    function fecharConfirmacaoTroca() {
+      if (trocaEmProcessamento) return;
+      const modalConfirmacao = document.getElementById("modalConfirmacaoTroca");
+      if (modalConfirmacao) {
+        modalConfirmacao.classList.remove("active");
+        modalConfirmacao.setAttribute("aria-hidden", "true");
+      }
+      trocaPendenteConfirmacao = null;
+      if (!document.getElementById("modalAlteracao")?.classList.contains("active")) document.body.style.overflow = "";
+    }
+
+    function gerarNumeroComprovanteTroca() {
+      const agora = new Date();
+      const partes = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
+      }).formatToParts(agora).reduce((acc, parte) => ({ ...acc, [parte.type]: parte.value }), {});
+      const aleatorio = String(Math.floor(Math.random() * 900) + 100);
+      return `EBD-${partes.year}${partes.month}${partes.day}-${partes.hour}${partes.minute}${partes.second}-${aleatorio}`;
+    }
+
+    function textoComprovanteTroca(dados) {
+      return [
+        "COMPROVANTE — ESCALA EBD",
+        `Número: ${dados.numero}`,
+        `Data e hora: ${dados.dataHora}`,
+        `Professor solicitante: ${formatarNomeProfessor(dados.professorSolicitante)}`,
+        `Classe: ${dados.classe}`,
+        `Data original: ${dados.dataAtual}`,
+        `${dados.apoio ? "Data do apoio" : "Nova data"}: ${dados.novaData}`,
+        `${dados.apoio ? "Professor que assumirá" : "Professor envolvido"}: ${formatarNomeProfessor(dados.professorTrocado)}`,
+        "Situação: alteração concluída"
+      ].join("\n");
+    }
+
+    function abrirComprovanteTroca(dados) {
+      comprovanteTrocaAtual = dados;
+      const modalComprovante = document.getElementById("modalComprovanteTroca");
+      const conteudo = document.getElementById("conteudoComprovanteTroca");
+      if (conteudo) {
+        conteudo.innerHTML = `
+          <div class="swap-receipt-number">🧾 ${dados.numero}</div>
+          ${htmlDetalhesTroca(dados)}
+          <div class="swap-conflict-note"><strong>Registrado em:</strong> ${dados.dataHora}</div>`;
+      }
+      if (modalComprovante) {
+        modalComprovante.classList.add("active");
+        modalComprovante.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+      }
+    }
+
+    function fecharComprovanteTroca() {
+      const modalComprovante = document.getElementById("modalComprovanteTroca");
+      if (modalComprovante) {
+        modalComprovante.classList.remove("active");
+        modalComprovante.setAttribute("aria-hidden", "true");
+      }
+      comprovanteTrocaAtual = null;
+      document.body.style.overflow = "";
+    }
+
+    async function copiarComprovanteTroca() {
+      if (!comprovanteTrocaAtual) return;
+      const texto = textoComprovanteTroca(comprovanteTrocaAtual);
+      try {
+        await navigator.clipboard.writeText(texto);
+        alert("Comprovante copiado.");
+      } catch (erro) {
+        const campo = document.createElement("textarea");
+        campo.value = texto;
+        document.body.appendChild(campo);
+        campo.select();
+        document.execCommand("copy");
+        campo.remove();
+        alert("Comprovante copiado.");
+      }
+    }
+
+    function compartilharComprovanteWhatsApp() {
+      if (!comprovanteTrocaAtual) return;
+      const url = "https://wa.me/?text=" + encodeURIComponent(textoComprovanteTroca(comprovanteTrocaAtual));
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+
+    function resetarFormularioTrocaAposSucesso() {
+      form.reset();
+      atualizarAvisoApoioRonan("");
+      limparSelect(professorSelect, "Selecione primeiro a classe");
+      limparSelect(dataAtualSelect, "Selecione primeiro seu nome");
+      limparSelect(novaDataSelect, "Selecione primeiro sua data atual");
+      professorSelect.disabled = true;
+      dataAtualSelect.disabled = true;
+      novaDataSelect.disabled = true;
+      atualizarResumo();
+      limparStatus();
+      btnConfirmar.disabled = false;
+      btnConfirmar.textContent = "Confirmar alteração";
+    }
+
+    async function confirmarTrocaPendente() {
+      if (!trocaPendenteConfirmacao || trocaEmProcessamento) return;
+      const botao = document.getElementById("btnExecutarTroca");
+      trocaEmProcessamento = true;
+      if (botao) {
+        botao.disabled = true;
+        botao.textContent = "Salvando...";
+      }
+      btnConfirmar.disabled = true;
+
+      try {
+        const resultado = await enviarAlteracao(trocaPendenteConfirmacao.payload);
+        const detalhes = { ...trocaPendenteConfirmacao.detalhes };
+        await carregarEscalaDaPlanilha();
+        ultimaVersaoEscala = await obterVersaoAtual();
+
+        const dataHora = new Intl.DateTimeFormat("pt-BR", {
+          timeZone: "America/Sao_Paulo", dateStyle: "short", timeStyle: "medium"
+        }).format(new Date());
+
+        const comprovante = {
+          ...detalhes,
+          professorTrocado: resultado.professorTrocado || detalhes.professorTrocado,
+          numero: gerarNumeroComprovanteTroca(),
+          dataHora
+        };
+
+        const modalConfirmacao = document.getElementById("modalConfirmacaoTroca");
+        if (modalConfirmacao) modalConfirmacao.classList.remove("active");
+        trocaPendenteConfirmacao = null;
+        fecharModal();
+        resetarFormularioTrocaAposSucesso();
+        abrirComprovanteTroca(comprovante);
+      } catch (error) {
+        mostrarStatus("error", error.message || "Não foi possível salvar a alteração. Verifique o Apps Script.");
+        const modalConfirmacao = document.getElementById("modalConfirmacaoTroca");
+        if (modalConfirmacao) modalConfirmacao.classList.remove("active");
+        trocaPendenteConfirmacao = null;
+        document.getElementById("modalAlteracao")?.classList.add("active");
+        btnConfirmar.disabled = false;
+        btnConfirmar.textContent = "Confirmar alteração";
+      } finally {
+        trocaEmProcessamento = false;
+        if (botao) {
+          botao.disabled = false;
+          botao.textContent = "Sim, confirmar alteração";
+        }
+      }
     }
 
     function atualizarResumo() {
@@ -7760,9 +8214,11 @@
     }
 
     if (form) {
-      form.addEventListener("submit", async function (event) {
+      form.addEventListener("submit", function (event) {
         event.preventDefault();
         limparStatus();
+
+        if (trocaEmProcessamento) return;
 
         const classe = classeSelect.value;
         const professor = professorSelect.value;
@@ -7780,56 +8236,18 @@
         }
 
         const payload = {
-          classe: classe,
-          professor: professor,
-          dataAtual: dataAtual,
-          novaData: novaData,
+          classe,
+          professor,
+          dataAtual,
+          novaData,
           origem: "Site Escala EBD"
         };
 
-        btnConfirmar.disabled = true;
-        btnConfirmar.textContent = "Enviando...";
-
         try {
-          await enviarAlteracao(payload);
-          await carregarEscalaDaPlanilha();
-
-          ultimaVersaoEscala = await obterVersaoAtual();
-
-          mostrarStatus(
-            "success",
-            "A troca foi salva na planilha e registrada no histórico de alterações."
-          );
-
-          btnConfirmar.textContent = "Confirmado";
-
-          setTimeout(() => {
-            fecharModal();
-            btnConfirmar.disabled = false;
-            btnConfirmar.textContent = "Confirmar alteração";
-            form.reset();
-            atualizarAvisoApoioRonan("");
-
-            limparSelect(professorSelect, "Selecione primeiro a classe");
-            limparSelect(dataAtualSelect, "Selecione primeiro seu nome");
-            limparSelect(novaDataSelect, "Selecione primeiro sua data atual");
-
-            professorSelect.disabled = true;
-            dataAtualSelect.disabled = true;
-            novaDataSelect.disabled = true;
-
-            atualizarResumo();
-            limparStatus();
-          }, 2200);
-
+          validarSegurancaTroca(payload);
+          abrirConfirmacaoTroca(payload);
         } catch (error) {
-          mostrarStatus(
-            "error",
-            error.message || "Não foi possível salvar a alteração. Verifique o Apps Script."
-          );
-
-          btnConfirmar.disabled = false;
-          btnConfirmar.textContent = "Confirmar alteração";
+          mostrarStatus("error", error.message || "Não foi possível validar esta alteração.");
         }
       });
     }
@@ -7841,6 +8259,18 @@
         }
       });
     }
+
+
+    ["modalConfirmacaoTroca", "modalComprovanteTroca"].forEach((id) => {
+      const elemento = document.getElementById(id);
+      if (elemento) {
+        elemento.addEventListener("click", function (event) {
+          if (event.target !== elemento) return;
+          if (id === "modalConfirmacaoTroca") fecharConfirmacaoTroca();
+          if (id === "modalComprovanteTroca") fecharComprovanteTroca();
+        });
+      }
+    });
 
     const modalLicaoInicial = document.getElementById("modalLicao");
 

@@ -1753,6 +1753,48 @@
       }
     }
 
+  
+
+    /* ETAPA 1 — DESFAZER TROCAS DOS PROFESSORES */
+    .teacher-history-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .teacher-history-undo {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      background: #fff1f2;
+      color: #9f1239;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .teacher-history-undo:hover {
+      background: #ffe4e6;
+    }
+
+    .teacher-history-undo:disabled {
+      opacity: .55;
+      cursor: wait;
+    }
+
+    .teacher-history-security-note {
+      margin: 12px 0 0;
+      padding: 11px 13px;
+      border-radius: 12px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e3a8a;
+      font-size: .9rem;
+      line-height: 1.45;
+    }
+
   </style>
 </head>
 <body>
@@ -2531,6 +2573,8 @@
                 <li>O painel mostrará as alterações realizadas pelos professores na página pública.</li>
                 <li>Confira data e hora, professor solicitante, classe, data original, nova data e professor envolvido.</li>
                 <li>Use os filtros por professor, classe e período para localizar um registro.</li>
+                <li>Para reverter uma troca, clique em <strong>Desfazer troca</strong> e confira o resumo antes de confirmar.</li>
+                <li>O painel somente desfaz quando os professores ainda estão nas posições resultantes daquela troca.</li>
                 <li>Clique em <strong>Exportar CSV</strong> para baixar a consulta.</li>
                 <li>Use <strong>Atualizar</strong> para buscar os registros mais recentes no Google Sheets.</li>
               </ol>
@@ -2659,6 +2703,9 @@
             Esta área mostra as trocas realizadas pelos professores na página pública da Escala EBD.
             O registro identifica quem solicitou, a classe, as datas envolvidas, o professor trocado e o horário da alteração.
           </p>
+          <div class="teacher-history-security-note">
+            O botão <strong>Desfazer troca</strong> só funciona quando a escala ainda corresponde exatamente ao registro. Se outra alteração tiver ocorrido depois, o painel interrompe a operação para não sobrescrever dados mais recentes.
+          </div>
 
           <div class="teacher-history-filters">
             <div class="form-grid">
@@ -5129,27 +5176,152 @@
     });
   }
 
+
+  let historicoTrocasRenderizadas = [];
+  const trocasDesfeitasNestaSessao = new Set();
+
+  function normalizarNomeComparacaoHistorico(valor) {
+    return String(valor || "")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/\bprof(?:essor|essora)?\.?\s*/gi, "")
+      .trim().toLowerCase();
+  }
+
+  function nomesIguaisHistorico(a, b) {
+    const na = normalizarNomeComparacaoHistorico(a);
+    const nb = normalizarNomeComparacaoHistorico(b);
+    return Boolean(na && na === nb);
+  }
+
+  function itemEhTrocaPublica(item) {
+    const origem = String(item?.origem || "").toLowerCase();
+    const solicitante = String(item?.professorSolicitante || "").toLowerCase();
+    return solicitante !== "administrador" && (origem.includes("site escala ebd") || origem.includes("página pública") || origem.includes("pagina publica"));
+  }
+
+  function itemEhApoioRonan(item) {
+    const origem = String(item?.origem || "").toLowerCase();
+    const envolvido = String(item?.professorTrocado || "").toLowerCase();
+    return origem.includes("apoio ronan") || (item?.dataAntiga && item?.novaData === item?.dataAntiga && envolvido.includes("ronan"));
+  }
+
+  function assinaturaHistoricoTroca(item) {
+    return [item.dataHora, item.classe, item.professorSolicitante, item.dataAntiga, item.novaData, item.professorTrocado].join("|");
+  }
+
+  function obterLinhaEscalaAdminPorData(data) {
+    return (escalaCache || []).find((linha) => String(linha?.Data || linha?.data || "").trim() === String(data || "").trim()) || null;
+  }
+
+  function obterProfessorEscalaAdmin(data, classe) {
+    const linha = obterLinhaEscalaAdminPorData(data);
+    return linha ? String(linha[classe] || "").trim() : "";
+  }
+
+  async function salvarProfessorUndo(data, classe, professor) {
+    const resposta = await chamarAppsScript({
+      acao: "adminSalvarProfessor",
+      senha: obterSenhaObrigatoria(),
+      data,
+      classe,
+      professor,
+      _nocache: Date.now()
+    });
+    if (!resposta || !resposta.sucesso) {
+      throw new Error((resposta && resposta.mensagem) || "Não foi possível atualizar a escala.");
+    }
+    return resposta;
+  }
+
+  async function desfazerTrocaProfessor(indice) {
+    const item = historicoTrocasRenderizadas[Number(indice)];
+    if (!item || !itemEhTrocaPublica(item)) {
+      return mostrarStatus("error", "Este registro não corresponde a uma troca feita pela página pública.");
+    }
+
+    const assinatura = assinaturaHistoricoTroca(item);
+    if (trocasDesfeitasNestaSessao.has(assinatura)) {
+      return mostrarStatus("info", "Esta troca já foi desfeita nesta sessão.");
+    }
+
+    const apoio = itemEhApoioRonan(item);
+    const resumo = apoio
+      ? `Restaurar ${item.professorSolicitante} na classe ${item.classe}, em ${item.dataAntiga}?`
+      : `Restaurar ${item.professorSolicitante} em ${item.dataAntiga} e ${item.professorTrocado} em ${item.novaData}, na classe ${item.classe}?`;
+
+    if (!window.confirm("Desfazer esta troca?\n\n" + resumo + "\n\nO sistema verificará a escala atual antes de salvar.")) return;
+
+    const botoes = Array.from(document.querySelectorAll(".teacher-history-undo"));
+    botoes.forEach((botao) => { botao.disabled = true; });
+
+    try {
+      await carregarEscala();
+
+      if (apoio) {
+        const atual = obterProfessorEscalaAdmin(item.dataAntiga, item.classe);
+        if (!nomesIguaisHistorico(atual, "Ronan")) {
+          throw new Error("Não é seguro desfazer: a posição desta aula já foi alterada depois do registro.");
+        }
+        await salvarProfessorUndo(item.dataAntiga, item.classe, item.professorSolicitante);
+      } else {
+        const atualDataAntiga = obterProfessorEscalaAdmin(item.dataAntiga, item.classe);
+        const atualNovaData = obterProfessorEscalaAdmin(item.novaData, item.classe);
+
+        if (!nomesIguaisHistorico(atualDataAntiga, item.professorTrocado) || !nomesIguaisHistorico(atualNovaData, item.professorSolicitante)) {
+          throw new Error("Não é seguro desfazer: a escala foi modificada depois desta troca.");
+        }
+
+        await salvarProfessorUndo(item.dataAntiga, item.classe, item.professorSolicitante);
+        try {
+          await salvarProfessorUndo(item.novaData, item.classe, item.professorTrocado);
+        } catch (erroSegundoPasso) {
+          try {
+            await salvarProfessorUndo(item.dataAntiga, item.classe, atualDataAntiga);
+          } catch (erroRollback) {
+            console.error("Falha ao restaurar o primeiro passo do desfazer:", erroRollback);
+          }
+          throw new Error("O segundo passo não foi concluído. O painel tentou restaurar a situação anterior. Atualize a escala e confira os dois domingos.");
+        }
+      }
+
+      trocasDesfeitasNestaSessao.add(assinatura);
+      await carregarEscala();
+      await carregarHistorico(true);
+      mostrarStatus("success", "Troca desfeita com sucesso. A escala foi restaurada.");
+    } catch (erro) {
+      mostrarStatus("error", erro.message || "Não foi possível desfazer a troca.");
+    } finally {
+      botoes.forEach((botao) => { botao.disabled = false; });
+    }
+  }
+
   function renderizarHistoricoProfessores(lista) {
     const div = document.getElementById("listaHistorico");
     const resumo = document.getElementById("resumoHistoricoProfessores");
     if (!div) return;
 
-    const registros = Array.isArray(lista) ? lista : [];
+    const registros = (Array.isArray(lista) ? lista : []).filter(itemEhTrocaPublica);
+    historicoTrocasRenderizadas = registros;
+
     if (resumo) {
-      resumo.textContent = registros.length + " registro(s) encontrado(s).";
+      resumo.textContent = registros.length + " troca(s) realizada(s) pelos professores.";
     }
 
     if (!registros.length) {
-      div.innerHTML = "<p class='help'>Nenhuma troca encontrada com os filtros selecionados.</p>";
+      div.innerHTML = "<p class='help'>Nenhuma troca feita pela página pública foi encontrada com os filtros selecionados.</p>";
       return;
     }
 
-    div.innerHTML = registros.map((item) => {
+    div.innerHTML = registros.map((item, indice) => {
+      const apoio = itemEhApoioRonan(item);
       const substituicaoDireta = item.novaData && !/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(item.novaData);
-      const titulo = substituicaoDireta
-        ? `${item.professorSolicitante || "Professor"} solicitou uma substituição`
-        : `${item.professorSolicitante || "Professor"} alterou a data da aula`;
-      const rotuloNovaData = substituicaoDireta ? "Alteração realizada" : "Nova data";
+      const titulo = apoio
+        ? `${item.professorSolicitante || "Professor"} solicitou apoio`
+        : substituicaoDireta
+          ? `${item.professorSolicitante || "Professor"} solicitou uma substituição`
+          : `${item.professorSolicitante || "Professor"} alterou a data da aula`;
+      const rotuloNovaData = apoio ? "Data do apoio" : (substituicaoDireta ? "Alteração realizada" : "Nova data");
+      const jaDesfeita = trocasDesfeitasNestaSessao.has(assinaturaHistoricoTroca(item));
 
       return `
         <div class="history-item teacher-history-item">
@@ -5164,6 +5336,11 @@
             <div><strong>Data original:</strong> ${escapeHtmlAdmin(item.dataAntiga || "—")}</div>
             <div><strong>${rotuloNovaData}:</strong> ${escapeHtmlAdmin(item.novaData || "—")}</div>
             <div><strong>Professor envolvido:</strong> ${escapeHtmlAdmin(item.professorTrocado || "—")}</div>
+          </div>
+          <div class="teacher-history-actions">
+            <button type="button" class="teacher-history-undo" onclick="desfazerTrocaProfessor(${indice})" ${jaDesfeita ? "disabled" : ""}>
+              ${jaDesfeita ? "✓ Troca desfeita" : "↩️ Desfazer troca"}
+            </button>
           </div>
         </div>
       `;
@@ -5214,7 +5391,7 @@
       }
       historicoTrocasProfessoresCache = (Array.isArray(r.historico) ? r.historico : [])
         .map(normalizarHistoricoTrocaProfessor)
-        .filter((item) => item.professorSolicitante || item.dataAntiga || item.novaData);
+        .filter((item) => (item.professorSolicitante || item.dataAntiga || item.novaData) && itemEhTrocaPublica(item));
       preencherFiltrosHistoricoProfessores();
       aplicarFiltrosHistoricoProfessores();
       if (!modoSilencioso) mostrarStatus("success", "Histórico das trocas atualizado.");

@@ -1,11 +1,12 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <!-- ADMIN_EBD_MOBILE_EDITOR_AMPLO_20260705 -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Admin EBD — Igreja Sede | Lições no Google Drive</title>
+  <title>Admin EBD — Igreja Sede | Lições na Hostinger</title>
 
   <meta name="theme-color" content="#0b2b3f" />
   <meta name="application-name" content="Admin EBD" />
@@ -362,6 +363,34 @@
       font-family: monospace;
       font-size: 0.9rem;
       resize: vertical;
+    }
+
+
+    .lesson-source-card {
+      background: linear-gradient(135deg, #eef6ff, #ffffff);
+      border: 1px solid #bfdbfe;
+      border-radius: 20px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .lesson-source-grid {
+      display: grid;
+      grid-template-columns: minmax(190px, 0.7fr) minmax(260px, 1.3fr);
+      gap: 1rem;
+      align-items: end;
+    }
+
+    .lesson-link-wrap[hidden],
+    .lesson-editor-area[hidden] {
+      display: none !important;
+    }
+
+    .lesson-link-hint {
+      display: block;
+      margin-top: 0.4rem;
+      color: var(--gray-500);
+      font-size: 0.76rem;
     }
 
     /* subcards */
@@ -1171,7 +1200,8 @@
         border-radius: 14px;
       }
 
-      .form-grid {
+      .form-grid,
+      .lesson-source-grid {
         grid-template-columns: 1fr !important;
         gap: 0.72rem;
       }
@@ -1593,20 +1623,33 @@
         <!-- PAINEL LIÇÕES -->
         <div id="painelLicoes" class="admin-panel active card">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:1rem;">
-            <div><h2>📖 Conteúdo das aulas</h2><p>Edição visual e HTML</p></div>
-            <span class="chip">Google Drive · somente versão atual</span>
+            <div><h2>📖 Conteúdo das aulas</h2><p>Escolha entre HTML ou link da EBD Fiel</p></div>
+            <span class="chip">Hostinger · carregamento rápido</span>
           </div>
-          <form id="formLicoes" target="envioOculto" method="POST" action="https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec">
-            <input type="hidden" name="acao" value="salvarLicoes" />
-            <input type="hidden" id="senhaForm" name="senha" />
-            <input type="hidden" id="requisicaoLicoesForm" name="requisicaoId" />
+          <form id="formLicoes" onsubmit="return false;">
             <div class="lesson-tabs">
               <button id="tabAdultos" class="tab-btn active" type="button" onclick="abrirAbaLicao('adultos')">🧑 Jovens e Adultos</button>
               <button id="tabJovens" class="tab-btn" type="button" onclick="abrirAbaLicao('jovens')">🧑‍🎤 Adolescentes</button>
             </div>
 
             <div id="painelAdultos" class="editor-panel active">
-              <div class="lesson-workspace">
+              <div class="lesson-source-card">
+                <div class="lesson-source-grid">
+                  <div>
+                    <label for="tipoAdultos">Formato da lição</label>
+                    <select id="tipoAdultos" onchange="atualizarModoLicao('adultos')">
+                      <option value="html">Conteúdo HTML</option>
+                      <option value="link">Link da EBD Fiel</option>
+                    </select>
+                  </div>
+                  <div id="linkWrapAdultos" class="lesson-link-wrap" hidden>
+                    <label for="linkAdultos">Link da lição na EBD Fiel</label>
+                    <input id="linkAdultos" type="url" inputmode="url" placeholder="https://ebdfiel.com.br/..." />
+                    <span class="lesson-link-hint">Aceita endereços HTTPS de ebdfiel.com.br. A página será aberta em nova aba.</span>
+                  </div>
+                </div>
+              </div>
+              <div id="editorAreaAdultos" class="lesson-editor-area lesson-workspace">
                 <div class="lesson-editor-card">
                   <div class="lesson-toolbar">
                     <div><strong>✍️ Editor visual</strong><span style="display:block; font-size:0.7rem;">clique e edite diretamente</span></div>
@@ -1621,13 +1664,29 @@
                     <label>📝 HTML da lição (Jovens/Adultos)</label>
                     <textarea id="adultos" name="adultos" rows="12"></textarea>
                   </div>
-                  <div class="lesson-mode-note" style="background:var(--primary-light); border-radius:18px; padding:0.7rem; margin-top:1rem; font-size:0.8rem;">💡 Dica: agora o botão verde já sincroniza o editor visual e o HTML automaticamente antes de salvar.</div>
+                  <div class="lesson-mode-note" style="background:var(--primary-light); border-radius:18px; padding:0.7rem; margin-top:1rem; font-size:0.8rem;">💡 O botão Salvar sincroniza automaticamente o editor visual e o HTML.</div>
                 </div>
               </div>
             </div>
 
             <div id="painelJovens" class="editor-panel">
-              <div class="lesson-workspace">
+              <div class="lesson-source-card">
+                <div class="lesson-source-grid">
+                  <div>
+                    <label for="tipoJovens">Formato da lição</label>
+                    <select id="tipoJovens" onchange="atualizarModoLicao('jovens')">
+                      <option value="html">Conteúdo HTML</option>
+                      <option value="link">Link da EBD Fiel</option>
+                    </select>
+                  </div>
+                  <div id="linkWrapJovens" class="lesson-link-wrap" hidden>
+                    <label for="linkJovens">Link da lição na EBD Fiel</label>
+                    <input id="linkJovens" type="url" inputmode="url" placeholder="https://ebdfiel.com.br/..." />
+                    <span class="lesson-link-hint">Aceita endereços HTTPS de ebdfiel.com.br. A página será aberta em nova aba.</span>
+                  </div>
+                </div>
+              </div>
+              <div id="editorAreaJovens" class="lesson-editor-area lesson-workspace">
                 <div class="lesson-editor-card">
                   <div class="lesson-toolbar">
                     <div><strong>🎸 Editor visual – Adolescentes</strong></div>
@@ -1642,17 +1701,17 @@
                     <label>📝 HTML Lição Adolescentes</label>
                     <textarea id="jovens" name="jovens" rows="12"></textarea>
                   </div>
-                  <div class="lesson-mode-note" style="background:var(--primary-light); border-radius:18px; padding:0.7rem; margin-top:1rem; font-size:0.8rem;">💡 Dica: agora o botão verde já sincroniza o editor visual e o HTML automaticamente antes de salvar.</div>
+                  <div class="lesson-mode-note" style="background:var(--primary-light); border-radius:18px; padding:0.7rem; margin-top:1rem; font-size:0.8rem;">💡 O botão Salvar sincroniza automaticamente o editor visual e o HTML.</div>
                 </div>
               </div>
             </div>
+
             <div id="metadadosLicoesDrive" class="lesson-mode-note" style="background:#eef6ff; border:1px solid #bfdbfe; border-radius:18px; padding:0.8rem; margin-top:1rem; font-size:0.82rem;">
-              ☁️ As lições atuais serão mantidas em dois arquivos privados no Google Drive. Cada novo salvamento substitui a versão anterior.
+              🌐 As lições serão carregadas diretamente da Hostinger. Na primeira utilização, o painel importará as versões atuais do Google Drive para você salvar.
             </div>
             <div class="actions" style="margin-top:1.5rem;">
-              <button id="btnSalvarLicoes" type="button" onclick="salvarLicoes()">💾 Substituir lições atuais</button>
+              <button id="btnSalvarLicoes" type="button" onclick="salvarLicoes()">💾 Salvar lições na Hostinger</button>
               <button type="button" class="secondary" onclick="carregarLicoes()">📥 Carregar versões atuais</button>
-              <button type="button" class="gray" onclick="prepararArmazenamentoLicoesDrive()">☁️ Preparar / reparar Google Drive</button>
             </div>
           </form>
         </div>
@@ -2205,6 +2264,7 @@
 
 <script>
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec";
+  const LICOES_API_URL = "https://ebdfiel.com.br/escala-ebd-api/licoes.php";
   const modeloPadrao = `<div style="font-family:system-ui; background:#fef9e6; border-radius:2rem; padding:1.4rem;"><div style="background:#0b2b3f; color:white; padding:1rem; border-radius:1.5rem;"><h3>Conteúdo da lição</h3></div><div style="padding:1rem;"><p>Adicione aqui o conteúdo da aula...</p></div></div>`;
   let escalaCache = [], classesCache = [], professoresCache = [];
   let historicoEscalasCache = [];
@@ -2305,7 +2365,9 @@
 
   function obterSenhaSessao() { return sessionStorage.getItem("tokenAdminEBD") || ""; }
   function salvarSenhaSessao(v) { sessionStorage.setItem("tokenAdminEBD", v); }
-  function limparSenhaSessao() { sessionStorage.removeItem("tokenAdminEBD"); }
+  function obterSenhaHostingerSessao() { return sessionStorage.getItem("senhaHostingerEBD") || ""; }
+  function salvarSenhaHostingerSessao(v) { if (v) sessionStorage.setItem("senhaHostingerEBD", v); }
+  function limparSenhaSessao() { sessionStorage.removeItem("tokenAdminEBD"); sessionStorage.removeItem("senhaHostingerEBD"); }
 
   function respostaIndicaSenhaIncorreta(resposta) {
     const mensagem = String((resposta && resposta.mensagem) || "").toLowerCase();
@@ -2327,8 +2389,9 @@
     if (senhaForm) senhaForm.value = "";
   }
 
-  function liberarInterfaceAdmin(tokenAdmin) {
+  function liberarInterfaceAdmin(tokenAdmin, senhaHostinger = "") {
     salvarSenhaSessao(tokenAdmin);
+    salvarSenhaHostingerSessao(senhaHostinger);
 
     const senhaForm = document.getElementById("senhaForm");
     if (senhaForm) senhaForm.value = tokenAdmin;
@@ -2396,7 +2459,7 @@
 
       const tokenAdmin = String(resposta.tokenAdmin || "").trim();
       if (!tokenAdmin) throw new Error("O Apps Script não retornou o token administrativo.");
-      liberarInterfaceAdmin(tokenAdmin);
+      liberarInterfaceAdmin(tokenAdmin, senha);
       if (campoSenha) campoSenha.value = "";
       mostrarStatus("success", "Painel liberado com sessão segura.");
       await carregarTudo();
@@ -2515,49 +2578,111 @@
 
     garantirMenusAdmin();
   }
-  async function carregarLicoes(modoSilencioso = false) {
+  function normalizarItemLicaoAdmin(valor) {
+    if (typeof valor === "string") return { tipo: "html", html: valor, url: "" };
+    const item = valor && typeof valor === "object" ? valor : {};
+    return {
+      tipo: String(item.tipo || "html").toLowerCase() === "link" ? "link" : "html",
+      html: String(item.html || ""),
+      url: String(item.url || "").trim()
+    };
+  }
+
+  function urlEbdFielValidaAdmin(valor) {
     try {
-      const r = await chamarAppsScript({
-        acao: "licoes",
-        cache: "nao",
-        _nocache: Date.now()
-      });
-
-      if (!r || !r.sucesso || !r.licoes) {
-        throw new Error((r && r.mensagem) || "Resposta inválida ao carregar lições.");
-      }
-
-      document.getElementById("adultos").value = r.licoes.adultos || modeloPadrao;
-      document.getElementById("jovens").value = r.licoes.jovens || modeloPadrao;
-      atualizarMetadadosLicoesDrive(r);
-
-      sincronizarVisual("adultos", false);
-      sincronizarVisual("jovens", false);
-
-      if (!modoSilencioso) {
-        mostrarStatus("success", "Lições atuais carregadas com sucesso.");
-      }
+      const url = new URL(String(valor || "").trim());
+      const host = url.hostname.toLowerCase();
+      return url.protocol === "https:" && (host === "ebdfiel.com.br" || host.endsWith(".ebdfiel.com.br"));
     } catch (erro) {
-      console.error("Erro ao carregar lições:", erro);
-
-      document.getElementById("adultos").value = document.getElementById("adultos").value || modeloPadrao;
-      document.getElementById("jovens").value = document.getElementById("jovens").value || modeloPadrao;
-
-      sincronizarVisual("adultos", false);
-      sincronizarVisual("jovens", false);
-
-      if (!modoSilencioso) {
-        mostrarStatus("error", "Não foi possível carregar as lições agora. Confira a implantação do Apps Script ou tente novamente em alguns instantes.");
-      }
+      return false;
     }
   }
 
-  function atualizarMetadadosLicoesDrive(resposta) {
+  async function chamarApiLicoesHostinger(opcoes = {}) {
+    const controlador = new AbortController();
+    const timer = setTimeout(() => controlador.abort(), opcoes.timeoutMs || 15000);
+
+    try {
+      const resposta = await fetch(LICOES_API_URL + (opcoes.method === "POST" ? "" : "?t=" + Date.now()), {
+        method: opcoes.method || "GET",
+        cache: "no-store",
+        headers: opcoes.method === "POST"
+          ? { "Content-Type": "application/json", "Accept": "application/json" }
+          : { "Accept": "application/json" },
+        body: opcoes.method === "POST" ? JSON.stringify(opcoes.body || {}) : undefined,
+        signal: controlador.signal
+      });
+
+      let dados;
+      try { dados = await resposta.json(); }
+      catch (erroJson) { throw new Error("A API da Hostinger não retornou JSON válido."); }
+
+      if (!resposta.ok || !dados || !dados.sucesso) {
+        throw new Error((dados && dados.mensagem) || "Erro HTTP " + resposta.status + " na API da Hostinger.");
+      }
+      return dados;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  function preencherLicaoAdmin(campo, itemBruto) {
+    const item = normalizarItemLicaoAdmin(itemBruto);
+    const sufixo = campo === "adultos" ? "Adultos" : "Jovens";
+    document.getElementById("tipo" + sufixo).value = item.tipo;
+    document.getElementById("link" + sufixo).value = item.url;
+    document.getElementById(campo).value = item.html || modeloPadrao;
+    atualizarModoLicao(campo, false);
+    sincronizarVisual(campo, false);
+  }
+
+  async function carregarLicoes(modoSilencioso = false) {
+    try {
+      const respostaHostinger = await chamarApiLicoesHostinger();
+
+      if (respostaHostinger.configurado === false) {
+        const legado = await chamarAppsScript({
+          acao: "licoes",
+          cache: "nao",
+          _nocache: Date.now()
+        });
+
+        if (!legado || !legado.sucesso || !legado.licoes) {
+          throw new Error("A Hostinger ainda está vazia e não foi possível importar as lições atuais do Google Drive.");
+        }
+
+        preencherLicaoAdmin("adultos", { tipo: "html", html: legado.licoes.adultos || modeloPadrao, url: "" });
+        preencherLicaoAdmin("jovens", { tipo: "html", html: legado.licoes.jovens || legado.licoes.adolescentes || modeloPadrao, url: "" });
+        atualizarMetadadosLicoesHostinger({ configurado: false, armazenamento: "google_drive_legado" });
+
+        if (!modoSilencioso) {
+          mostrarStatus("info", "As lições atuais foram importadas do Google Drive. Clique em Salvar lições na Hostinger para concluir a migração.");
+        }
+        return;
+      }
+
+      const licoes = respostaHostinger.licoes || {};
+      preencherLicaoAdmin("adultos", licoes.adultos);
+      preencherLicaoAdmin("jovens", licoes.jovens || licoes.adolescentes);
+      atualizarMetadadosLicoesHostinger(respostaHostinger);
+
+      if (!modoSilencioso) mostrarStatus("success", "Lições atuais carregadas da Hostinger.");
+    } catch (erro) {
+      console.error("Erro ao carregar lições:", erro);
+      document.getElementById("adultos").value = document.getElementById("adultos").value || modeloPadrao;
+      document.getElementById("jovens").value = document.getElementById("jovens").value || modeloPadrao;
+      sincronizarVisual("adultos", false);
+      sincronizarVisual("jovens", false);
+      if (!modoSilencioso) mostrarStatus("error", "Não foi possível carregar as lições: " + erro.message);
+    }
+  }
+
+  function atualizarMetadadosLicoesHostinger(resposta) {
     const caixa = document.getElementById("metadadosLicoesDrive");
     if (!caixa) return;
 
-    if (!resposta || resposta.armazenamento !== "google_drive") {
-      caixa.innerHTML = "⚠️ As lições ainda estão na estrutura antiga da planilha. Use <strong>Preparar / reparar Google Drive</strong> ou execute <code>migrarLicoesParaDriveEBD</code> no Apps Script.";
+    if (!resposta || resposta.configurado === false) {
+      caixa.innerHTML = "🔄 <strong>Migração pendente.</strong> As versões do Google Drive foram carregadas no editor. Salve para gravá-las na Hostinger.";
       caixa.style.background = "#fff7ed";
       caixa.style.borderColor = "#fed7aa";
       return;
@@ -2567,33 +2692,25 @@
     const adultos = meta.adultos || {};
     const jovens = meta.jovens || {};
     const formatarTamanho = (bytes) => bytes ? Math.max(1, Math.round(Number(bytes) / 1024)) + " KB" : "—";
-
-    caixa.innerHTML = `☁️ <strong>Google Drive ativo.</strong> Adultos: ${adultos.atualizadoEm || "—"} (${formatarTamanho(adultos.tamanhoBytes)}). Adolescentes: ${jovens.atualizadoEm || "—"} (${formatarTamanho(jovens.tamanhoBytes)}). Cada salvamento substitui a versão anterior.`;
+    caixa.innerHTML = `🌐 <strong>Hostinger ativa.</strong> Jovens e Adultos: ${adultos.atualizadoEm || "—"} (${formatarTamanho(adultos.tamanhoBytes)}). Adolescentes: ${jovens.atualizadoEm || "—"} (${formatarTamanho(jovens.tamanhoBytes)}).`;
     caixa.style.background = "#ecfdf5";
     caixa.style.borderColor = "#a7f3d0";
   }
 
-  async function prepararArmazenamentoLicoesDrive() {
-    const token = obterSenhaSessao();
-    if (!token) return mostrarStatus("error", "Sessão expirada. Entre novamente no painel.");
+  function atualizarModoLicao(campo, mostrarMensagem = true) {
+    const sufixo = campo === "adultos" ? "Adultos" : "Jovens";
+    const tipo = document.getElementById("tipo" + sufixo).value;
+    const linkWrap = document.getElementById("linkWrap" + sufixo);
+    const editorArea = document.getElementById("editorArea" + sufixo);
+    const usaLink = tipo === "link";
 
-    try {
-      mostrarStatus("info", "Preparando os arquivos atuais das lições no Google Drive...");
-      const resposta = await chamarAppsScript({
-        acao: "migrarLicoesDrive",
-        tokenAdmin: token,
-        _nocache: Date.now()
-      });
+    if (linkWrap) linkWrap.hidden = !usaLink;
+    if (editorArea) editorArea.hidden = usaLink;
 
-      if (!resposta || !resposta.sucesso) {
-        throw new Error((resposta && resposta.mensagem) || "Não foi possível preparar o Google Drive.");
-      }
-
-      atualizarMetadadosLicoesDrive(resposta);
-      await carregarLicoes(true);
-      mostrarStatus("success", resposta.mensagem || "Google Drive preparado com sucesso.");
-    } catch (erro) {
-      mostrarStatus("error", "Não foi possível preparar o Google Drive: " + erro.message + ". No Apps Script, execute manualmente a função migrarLicoesParaDriveEBD para autorizar o acesso.");
+    if (mostrarMensagem) {
+      mostrarStatus("info", usaLink
+        ? "Modo link ativado. Cole o endereço da lição na EBD Fiel."
+        : "Modo HTML ativado. Edite ou cole o conteúdo da lição.");
     }
   }
 
@@ -2675,11 +2792,9 @@
 
   function restaurarBotaoSalvarLicoes() {
     const botaoSalvar = document.getElementById("btnSalvarLicoes");
-
-    if (botaoSalvar) {
-      botaoSalvar.disabled = false;
-      botaoSalvar.textContent = botaoSalvar.dataset.textoOriginal || "💾 Substituir lições atuais";
-    }
+    if (!botaoSalvar) return;
+    botaoSalvar.disabled = false;
+    botaoSalvar.textContent = botaoSalvar.dataset.textoOriginal || "💾 Salvar lições na Hostinger";
   }
 
   function sanitizarHtmlLicaoNoCliente(valor) {
@@ -2692,197 +2807,74 @@
     return conteudo.trim();
   }
 
-  function normalizarHtmlParaComparar(valor) {
-    return String(valor || "")
-      .replace(/\r\n/g, "\n")
-      .trim();
-  }
+  function obterItemLicaoParaSalvar(campo) {
+    const sufixo = campo === "adultos" ? "Adultos" : "Jovens";
+    const tipo = document.getElementById("tipo" + sufixo).value === "link" ? "link" : "html";
+    const url = document.getElementById("link" + sufixo).value.trim();
 
-  function aguardarConfirmacaoLicoesEBD(milisegundos) {
-    return new Promise((resolver) => setTimeout(resolver, milisegundos));
-  }
-
-  function gerarRequisicaoLicoesEBD() {
-    const aleatorio = Math.random().toString(36).slice(2, 12);
-    return "licoes-" + Date.now().toString(36) + "-" + aleatorio;
-  }
-
-  function origemPermitidaAppsScriptEBD(origem) {
-    try {
-      const url = new URL(String(origem || ""));
-      const host = url.hostname.toLowerCase();
-      return url.protocol === "https:" && (
-        host === "script.google.com" ||
-        host === "script.googleusercontent.com" ||
-        host.endsWith(".googleusercontent.com")
-      );
-    } catch (erro) {
-      return false;
-    }
-  }
-
-  async function conferirSeLicoesForamSalvas(adultosEsperado, jovensEsperado, maxTentativas = 5) {
-    const atrasos = [0, 1200, 2200, 3500, 5000];
-    let ultimaResposta = null;
-    let ultimoErro = null;
-
-    for (let tentativa = 0; tentativa < Math.max(1, maxTentativas); tentativa++) {
-      const espera = atrasos[Math.min(tentativa, atrasos.length - 1)];
-      if (espera) await aguardarConfirmacaoLicoesEBD(espera);
-
-      try {
-        const resposta = await chamarAppsScript({
-          acao: "licoes",
-          cache: "nao",
-          _nocache: Date.now() + tentativa
-        });
-        ultimaResposta = resposta;
-
-        if (!resposta || !resposta.sucesso || !resposta.licoes) {
-          ultimoErro = new Error((resposta && resposta.mensagem) || "O Apps Script não retornou as lições salvas.");
-          if (resposta && resposta.migracaoNecessaria) break;
-          continue;
-        }
-
-        const adultosSalvo = normalizarHtmlParaComparar(resposta.licoes.adultos);
-        const jovensSalvo = normalizarHtmlParaComparar(resposta.licoes.jovens);
-        const adultosAtual = normalizarHtmlParaComparar(sanitizarHtmlLicaoNoCliente(adultosEsperado));
-        const jovensAtual = normalizarHtmlParaComparar(sanitizarHtmlLicaoNoCliente(jovensEsperado));
-
-        const adultosOk = !adultosAtual || adultosSalvo === adultosAtual;
-        const jovensOk = !jovensAtual || jovensSalvo === jovensAtual;
-
-        if (adultosOk && jovensOk) {
-          document.getElementById("adultos").value = resposta.licoes.adultos || adultosEsperado;
-          document.getElementById("jovens").value = resposta.licoes.jovens || jovensEsperado;
-          sincronizarVisual("adultos", false);
-          sincronizarVisual("jovens", false);
-          return { salvo: true, resposta };
-        }
-
-        ultimoErro = new Error("Os arquivos ainda não correspondem ao conteúdo enviado.");
-      } catch (erro) {
-        ultimoErro = erro;
-        console.warn("Tentativa de conferência das lições falhou:", erro);
+    if (tipo === "link") {
+      if (!urlEbdFielValidaAdmin(url)) {
+        throw new Error("Informe um link HTTPS válido da EBD Fiel para " + (campo === "adultos" ? "Jovens e Adultos" : "Adolescentes") + ".");
       }
+      return { tipo: "link", url: url, html: "" };
     }
 
-    return {
-      salvo: false,
-      migracaoNecessaria: Boolean(ultimaResposta && ultimaResposta.migracaoNecessaria),
-      mensagem: (ultimoErro && ultimoErro.message) || "Não foi possível confirmar os arquivos atualizados."
-    };
+    sincronizarLicaoAntesDeSalvar(campo);
+    const html = sanitizarHtmlLicaoNoCliente(document.getElementById(campo).value);
+    if (!html) {
+      throw new Error("Preencha o conteúdo HTML da lição de " + (campo === "adultos" ? "Jovens e Adultos" : "Adolescentes") + ".");
+    }
+    return { tipo: "html", url: "", html: html };
   }
 
-  async function tratarConfirmacaoAusenteLicoes(adultosValor, jovensValor, requisicaoId) {
-    if (!salvandoLicoesEBD || requisicaoId !== requisicaoLicoesAtivaEBD) {
-      return;
+  async function salvarLicoes() {
+    const senhaHostinger = obterSenhaHostingerSessao();
+    if (!senhaHostinger) {
+      return mostrarStatus("error", "Para salvar na Hostinger, saia do painel e entre novamente com a senha administrativa.");
     }
 
-    mostrarStatus("info", "A confirmação automática demorou. Conferindo os arquivos do Google Drive em várias tentativas...");
-
-    const conferencia = await conferirSeLicoesForamSalvas(adultosValor, jovensValor, 5);
-
-    if (requisicaoId !== requisicaoLicoesAtivaEBD) return;
-
-    salvandoLicoesEBD = false;
-    requisicaoLicoesAtivaEBD = "";
-    restaurarBotaoSalvarLicoes();
-
-    if (conferencia.salvo) {
-      mostrarStatus(
-        "success",
-        "Lições salvas com sucesso. A confirmação automática demorou, mas os arquivos do Google Drive foram conferidos e contêm o conteúdo atualizado."
-      );
-      return;
+    let adultosItem;
+    let jovensItem;
+    try {
+      adultosItem = obterItemLicaoParaSalvar("adultos");
+      jovensItem = obterItemLicaoParaSalvar("jovens");
+    } catch (erroValidacao) {
+      return mostrarStatus("error", erroValidacao.message);
     }
 
-    if (conferencia.migracaoNecessaria) {
-      mostrarStatus(
-        "error",
-        "Os arquivos das lições ainda não estão preparados no Google Drive. Use o botão Preparar / reparar Google Drive e tente novamente."
-      );
-      return;
-    }
-
-    mostrarStatus(
-      "error",
-      "Não foi possível confirmar a atualização após várias tentativas. Nenhuma mensagem de sucesso foi exibida. Abra a página pública e confira o conteúdo; se não tiver mudado, use Preparar / reparar Google Drive e tente novamente. Detalhe: " + conferencia.mensagem
-    );
-  }
-
-  function salvarLicoes() {
-    const s = obterSenhaSessao();
-
-    if (!s) {
-      return mostrarStatus("error", "Sessão expirada. Saia do painel e entre novamente com a senha.");
-    }
-
-    sincronizarLicaoAntesDeSalvar("adultos");
-    sincronizarLicaoAntesDeSalvar("jovens");
-    sincronizarVisual("adultos", false);
-    sincronizarVisual("jovens", false);
-
-    const adultosValor = document.getElementById("adultos").value.trim();
-    const jovensValor = document.getElementById("jovens").value.trim();
-
-    if (!adultosValor && !jovensValor) {
-      return mostrarStatus("error", "Preencha pelo menos uma lição antes de salvar.");
-    }
-
-    const form = document.getElementById("formLicoes");
     const botaoSalvar = document.getElementById("btnSalvarLicoes");
-    const requisicaoId = gerarRequisicaoLicoesEBD();
-
-    document.getElementById("senhaForm").value = s;
-    document.getElementById("requisicaoLicoesForm").value = requisicaoId;
-    form.action = APPS_SCRIPT_URL;
-    form.method = "POST";
-    form.target = "envioOculto";
-
-    requisicaoLicoesAtivaEBD = requisicaoId;
-    salvandoLicoesEBD = true;
-
     if (botaoSalvar) {
       botaoSalvar.disabled = true;
       botaoSalvar.dataset.textoOriginal = botaoSalvar.textContent;
-      botaoSalvar.textContent = "⏳ Salvando no Google Drive...";
+      botaoSalvar.textContent = "⏳ Salvando na Hostinger...";
     }
 
-    clearTimeout(timerSalvarLicoesEBD);
-    timerSalvarLicoesEBD = setTimeout(() => {
-      tratarConfirmacaoAusenteLicoes(adultosValor, jovensValor, requisicaoId);
-    }, 15000);
+    mostrarStatus("info", "Salvando e conferindo as lições na Hostinger...");
 
-    form.submit();
+    try {
+      const resposta = await chamarApiLicoesHostinger({
+        method: "POST",
+        timeoutMs: 30000,
+        body: {
+          acao: "salvarLicoes",
+          senha: senhaHostinger,
+          licoes: {
+            adultos: adultosItem,
+            jovens: jovensItem
+          }
+        }
+      });
 
-    mostrarStatus("info", "Sincronizando o editor e substituindo os arquivos atuais no Google Drive... aguarde a confirmação.");
+      atualizarMetadadosLicoesHostinger(resposta);
+      preencherLicaoAdmin("adultos", resposta.licoes.adultos);
+      preencherLicaoAdmin("jovens", resposta.licoes.jovens);
+      mostrarStatus("success", resposta.mensagem || "Lições salvas com sucesso na Hostinger.");
+    } catch (erro) {
+      mostrarStatus("error", "Não foi possível salvar as lições na Hostinger: " + erro.message);
+    } finally {
+      restaurarBotaoSalvarLicoes();
+    }
   }
-
-  window.addEventListener("message", (e) => {
-    const iframe = document.getElementById("envioOculto");
-    const fonteValida = Boolean(iframe && iframe.contentWindow && e.source === iframe.contentWindow);
-    const origemValida = origemPermitidaAppsScriptEBD(e.origin);
-    const dadosValidos = e.data && e.data.origem === "appsScriptSalvarLicoes";
-    const requisicaoValida = dadosValidos &&
-      String(e.data.requisicaoId || "") === requisicaoLicoesAtivaEBD &&
-      Boolean(requisicaoLicoesAtivaEBD);
-
-    if (!fonteValida || !origemValida || !requisicaoValida) return;
-
-    salvandoLicoesEBD = false;
-    requisicaoLicoesAtivaEBD = "";
-    clearTimeout(timerSalvarLicoesEBD);
-    restaurarBotaoSalvarLicoes();
-
-    if (e.data.sucesso) {
-      atualizarMetadadosLicoesDrive(e.data);
-      mostrarStatus("success", e.data.mensagem || "Lições substituídas e conferidas no Google Drive. A página pública buscará a versão atual.");
-      carregarLicoes(true);
-    } else {
-      mostrarStatus("error", e.data.mensagem || "Erro ao salvar lições.");
-    }
-  });
 
   const professoresPadraoEBD = [
     { nome: "Rita", classe: "Cordeirinhos de Cristo", status: "Ativo", observacao: "" },

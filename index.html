@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -11,7 +12,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_LICOES_DRIVE_2026_07_14" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_LICOES_HOSTINGER_2026_08_04" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -4792,7 +4793,7 @@
               Material atual para apoiar a preparação das classes de jovens e adultos.
             </p>
           </div>
-          <button class="btn btn-card" type="button" onclick="abrirLicao('adultos')">
+          <button id="btnLicaoAdultos" class="btn btn-card" type="button" onclick="abrirLicao('adultos')">
             Ver lição de Jovens e Adultos
           </button>
         </article>
@@ -4804,7 +4805,7 @@
               Conteúdo da semana com linguagem e aplicação voltadas para os adolescentes.
             </p>
           </div>
-          <button class="btn btn-card" type="button" onclick="abrirLicao('jovens')">
+          <button id="btnLicaoJovens" class="btn btn-card" type="button" onclick="abrirLicao('jovens')">
             Ver lição dos Adolescentes
           </button>
         </article>
@@ -5126,6 +5127,7 @@
     }
 
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec";
+    const LICOES_API_URL = "https://ebdfiel.com.br/escala-ebd-api/licoes.php";
     let tokenTrocaEBD = "";
 
     const SITE_PUBLICADO =
@@ -5458,6 +5460,11 @@
         nas redes sociais e nos relacionamentos.
       </p>
 `
+    };
+
+    let configuracaoLicoesSemana = {
+      adultos: { tipo: "html", html: licoesSemana.adultos, url: "" },
+      jovens: { tipo: "html", html: licoesSemana.jovens, url: "" }
     };
 
     let quizLinks = {
@@ -6247,88 +6254,159 @@
       }
     }
 
-    async function carregarLicoesAtuais(modoSilencioso = false, forcarAtualizacao = false) {
-      try {
-        if (forcarAtualizacao) {
-          try {
-            localStorage.removeItem("ebdLicoesAdultos");
-            localStorage.removeItem("ebdLicoesJovens");
-          } catch (erroLocalStorage) {
-            console.warn("Não foi possível limpar cache local das lições:", erroLocalStorage);
-          }
-        }
+    function normalizarConfiguracaoLicao(valor, htmlPadrao) {
+      if (typeof valor === "string") {
+        return { tipo: "html", html: valor, url: "" };
+      }
 
+      const item = valor && typeof valor === "object" ? valor : {};
+      const tipo = String(item.tipo || "html").toLowerCase() === "link" ? "link" : "html";
+
+      return {
+        tipo: tipo,
+        html: String(item.html || (tipo === "html" ? htmlPadrao : "")),
+        url: String(item.url || "").trim()
+      };
+    }
+
+    function urlLicaoEbdFielValida(valor) {
+      try {
+        const url = new URL(String(valor || "").trim());
+        const host = url.hostname.toLowerCase();
+        return url.protocol === "https:" && (host === "ebdfiel.com.br" || host.endsWith(".ebdfiel.com.br"));
+      } catch (erro) {
+        return false;
+      }
+    }
+
+    function atualizarBotoesLicoes() {
+      const configurar = (tipo, id, textoHtml) => {
+        const botao = document.getElementById(id);
+        if (!botao) return;
+        const item = configuracaoLicoesSemana[tipo] || {};
+        const usaLink = item.tipo === "link" && urlLicaoEbdFielValida(item.url);
+        botao.textContent = usaLink ? "Abrir lição na EBD Fiel ↗" : textoHtml;
+        botao.title = usaLink ? "A lição será aberta em uma nova aba" : "Abrir o conteúdo da lição";
+      };
+
+      configurar("adultos", "btnLicaoAdultos", "Ver lição de Jovens e Adultos");
+      configurar("jovens", "btnLicaoJovens", "Ver lição dos Adolescentes");
+    }
+
+    function aplicarDadosLicoesHostinger(dados, salvarCache = true) {
+      if (!dados || !dados.licoes) return false;
+
+      const recebidas = dados.licoes || {};
+      const adultosBruto = recebidas.adultos || recebidas.jovensAdultos || recebidas.jovens_e_adultos || recebidas["jovens-e-adultos"];
+      const jovensBruto = recebidas.jovens || recebidas.adolescentes;
+
+      configuracaoLicoesSemana.adultos = normalizarConfiguracaoLicao(adultosBruto, licoesSemana.adultos);
+      configuracaoLicoesSemana.jovens = normalizarConfiguracaoLicao(jovensBruto, licoesSemana.jovens);
+
+      if (configuracaoLicoesSemana.adultos.html) licoesSemana.adultos = configuracaoLicoesSemana.adultos.html;
+      if (configuracaoLicoesSemana.jovens.html) licoesSemana.jovens = configuracaoLicoesSemana.jovens.html;
+
+      window.ultimaRespostaLicoesEBD = dados;
+      window.metadadosLicoesEBD = dados.metadados || {};
+      window.armazenamentoLicoesEBD = dados.armazenamento || "hostinger_json";
+
+      if (salvarCache) {
+        try {
+          localStorage.setItem("ebdLicoesHostingerV1", JSON.stringify({
+            configurado: true,
+            armazenamento: window.armazenamentoLicoesEBD,
+            licoes: configuracaoLicoesSemana,
+            salvoEm: Date.now()
+          }));
+        } catch (erroLocalStorage) {
+          console.warn("Não foi possível salvar as lições no cache local:", erroLocalStorage);
+        }
+      }
+
+      atualizarBotoesLicoes();
+      return true;
+    }
+
+    function carregarLicoesDoCacheHostinger() {
+      try {
+        const bruto = localStorage.getItem("ebdLicoesHostingerV1");
+        if (!bruto) return false;
+        const cache = JSON.parse(bruto);
+        return aplicarDadosLicoesHostinger(cache, false);
+      } catch (erro) {
+        console.warn("Não foi possível ler o cache das lições:", erro);
+        return false;
+      }
+    }
+
+    async function carregarLicoesLegadoDrive(modoSilencioso = false) {
+      try {
         const dados = await chamarAppsScript({
           acao: "licoes",
           cache: "nao",
           _nocache: Date.now()
         });
 
-        window.ultimaRespostaLicoesEBD = dados;
-        window.metadadosLicoesEBD = dados && dados.metadados ? dados.metadados : {};
-        window.armazenamentoLicoesEBD = dados && dados.armazenamento ? dados.armazenamento : "";
+        if (!dados || !dados.sucesso || !dados.licoes) return false;
 
-        if (!dados || !dados.sucesso || !dados.licoes) {
-          if (!modoSilencioso) {
-            console.warn("Lições não retornaram no formato esperado:", dados);
-          }
-          return false;
+        return aplicarDadosLicoesHostinger({
+          sucesso: true,
+          configurado: false,
+          armazenamento: "google_drive_legado",
+          licoes: {
+            adultos: { tipo: "html", html: dados.licoes.adultos || "", url: "" },
+            jovens: { tipo: "html", html: dados.licoes.jovens || dados.licoes.adolescentes || "", url: "" }
+          },
+          metadados: dados.metadados || {}
+        });
+      } catch (erro) {
+        if (!modoSilencioso) console.warn("Falha no carregamento legado pelo Google Drive:", erro);
+        return false;
+      }
+    }
+
+    async function carregarLicoesAtuais(modoSilencioso = false, forcarAtualizacao = false) {
+      const possuiCache = forcarAtualizacao ? false : carregarLicoesDoCacheHostinger();
+      const controlador = new AbortController();
+      const timer = setTimeout(() => controlador.abort(), 10000);
+
+      try {
+        const separador = LICOES_API_URL.includes("?") ? "&" : "?";
+        const resposta = await fetch(LICOES_API_URL + separador + "t=" + Date.now(), {
+          method: "GET",
+          cache: "no-store",
+          headers: { "Accept": "application/json" },
+          signal: controlador.signal
+        });
+
+        if (!resposta.ok) throw new Error("A API das lições respondeu com status " + resposta.status + ".");
+        const dados = await resposta.json();
+
+        if (!dados || !dados.sucesso) {
+          throw new Error((dados && dados.mensagem) || "Resposta inválida da API das lições.");
         }
 
-        const licoesRecebidas = dados.licoes || {};
-
-        const adultosRecebido =
-          licoesRecebidas.adultos ||
-          licoesRecebidas.jovensAdultos ||
-          licoesRecebidas.jovens_e_adultos ||
-          licoesRecebidas["jovens-e-adultos"] ||
-          "";
-
-        const jovensRecebido =
-          licoesRecebidas.jovens ||
-          licoesRecebidas.adolescentes ||
-          "";
-
-        if (adultosRecebido && String(adultosRecebido).trim()) {
-          licoesSemana.adultos = String(adultosRecebido);
+        if (dados.configurado === false) {
+          const legado = await carregarLicoesLegadoDrive(true);
+          if (legado) return true;
+          if (possuiCache) return true;
+          throw new Error("A Hostinger ainda não recebeu a primeira gravação das lições.");
         }
 
-        if (jovensRecebido && String(jovensRecebido).trim()) {
-          licoesSemana.jovens = String(jovensRecebido);
-        }
-
-        try {
-          localStorage.setItem("ebdLicoesAdultos", licoesSemana.adultos);
-          localStorage.setItem("ebdLicoesJovens", licoesSemana.jovens);
-        } catch (erroLocalStorage) {
-          console.warn("Não foi possível salvar lições no cache local:", erroLocalStorage);
+        if (!aplicarDadosLicoesHostinger(dados)) {
+          throw new Error("A API não retornou as lições no formato esperado.");
         }
 
         return true;
       } catch (erro) {
-        console.error("Erro ao carregar os arquivos atuais das lições:", erro);
+        console.error("Erro ao carregar as lições na Hostinger:", erro);
         window.ultimoErroLicoesEBD = erro;
 
-        if (forcarAtualizacao) {
-          return false;
-        }
-
-        try {
-          const adultosCache = localStorage.getItem("ebdLicoesAdultos");
-          const jovensCache = localStorage.getItem("ebdLicoesJovens");
-
-          if (adultosCache) {
-            licoesSemana.adultos = adultosCache;
-          }
-
-          if (jovensCache) {
-            licoesSemana.jovens = jovensCache;
-          }
-        } catch (erroLocalStorage) {
-          console.warn("Não foi possível carregar lições do cache local:", erroLocalStorage);
-        }
-
-        return false;
+        const legado = await carregarLicoesLegadoDrive(true);
+        if (legado) return true;
+        return possuiCache;
+      } finally {
+        clearTimeout(timer);
       }
     }
 
@@ -6710,63 +6788,51 @@
   }
 
   async function abrirLicao(tipo) {
+      const item = configuracaoLicoesSemana[tipo] || { tipo: "html", html: licoesSemana[tipo] || "", url: "" };
+
+      if (item.tipo === "link") {
+        if (!urlLicaoEbdFielValida(item.url)) {
+          alert("O link desta lição não é válido. Atualize-o no painel administrativo usando um endereço HTTPS da EBD Fiel.");
+          return;
+        }
+
+        window.open(item.url, "_blank", "noopener,noreferrer");
+        return;
+      }
+
       const modalLicao = document.getElementById("modalLicao");
       const tituloLicao = document.getElementById("tituloLicao");
       const conteudoLicao = document.getElementById("conteudoLicao");
 
-      if (!modalLicao || !tituloLicao || !conteudoLicao) {
-        return;
-      }
+      if (!modalLicao || !tituloLicao || !conteudoLicao) return;
 
       modalLicao.classList.add("active");
       document.body.style.overflow = "hidden";
-
       tituloLicao.textContent = tipo === "adultos"
         ? "Lição da Semana — Jovens e Adultos"
         : "Lição da Semana — Adolescentes";
 
-      conteudoLicao.innerHTML = `
-        <div style="padding: 28px; text-align: center;">
-          <strong>Carregando lição atualizada...</strong><br>
-          <span style="color:#64748b;">Buscando a versão mais recente no painel.</span>
-        </div>
-      `;
+      const conteudo = String(item.html || licoesSemana[tipo] || "").trim();
 
-      const carregou = await carregarLicoesAtuais(true, true);
-
-      if (!carregou) {
-        const erro = window.ultimoErroLicoesEBD;
+      if (!conteudo) {
         conteudoLicao.innerHTML = `
-          <div style="padding: 24px; border-radius: 18px; background:#fff3f3; color:#991b1b; border:1px solid #fecaca;">
-            <h3 style="margin-top:0;">Não foi possível carregar a lição atual do Google Drive</h3>
-            <p>O site tentou buscar o arquivo atual da lição pelo Apps Script, mas não recebeu uma resposta válida.</p>
-            <p><strong>Erro:</strong> ${erro && erro.message ? erro.message : "Resposta inválida ou tempo esgotado."}</p>
-            <p>Abra o link <code>?acao=licoes</code> do Apps Script para confirmar se o arquivo atual está disponível no Google Drive.</p>
+          <div style="padding:24px; border-radius:18px; background:#fff8e1; color:#7a5312; border:1px solid #f3d37a;">
+            <h3 style="margin-top:0;">Lição ainda não cadastrada</h3>
+            <p>Cadastre um conteúdo HTML ou um link da EBD Fiel no painel administrativo.</p>
           </div>
         `;
         return;
       }
 
-      if (tipo === "adultos") {
-        const conteudo = String(licoesSemana.adultos || "").trim();
+      conteudoLicao.innerHTML = prepararConteudoLicao(conteudo);
 
-        if (!conteudo || conteudo.includes("Lição modelo da semana")) {
-          console.warn("A lição de adultos carregada parece ser a lição modelo:", conteudo.slice(0, 300));
+      carregarLicoesAtuais(true, false).then(function (atualizou) {
+        if (!atualizou) return;
+        const atual = configuracaoLicoesSemana[tipo] || {};
+        if (atual.tipo === "html" && atual.html && atual.html !== conteudo) {
+          conteudoLicao.innerHTML = prepararConteudoLicao(atual.html);
         }
-
-        conteudoLicao.innerHTML = prepararConteudoLicao(conteudo);
-        return;
-      }
-
-      if (tipo === "jovens") {
-        const conteudo = String(licoesSemana.jovens || "").trim();
-
-        if (!conteudo || conteudo.includes("Lição modelo da semana")) {
-          console.warn("A lição de adolescentes carregada parece ser a lição modelo:", conteudo.slice(0, 300));
-        }
-
-        conteudoLicao.innerHTML = prepararConteudoLicao(conteudo);
-      }
+      }).catch(function () {});
     }
 
 
@@ -7109,8 +7175,9 @@
         renderizarEscala([]);
       }
 
+      const carregamentoLicoes = carregarLicoesAtuais();
       await carregarEscalaDaPlanilha();
-      await carregarLicoesAtuais();
+      await carregamentoLicoes;
       await carregarQuizzesDaPlanilha(true);
 
       if (SITE_PUBLICADO) {

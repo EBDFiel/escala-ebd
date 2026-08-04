@@ -6269,11 +6269,10 @@
       };
     }
 
-    function urlLicaoEbdFielValida(valor) {
+    function urlLicaoExternaValida(valor) {
       try {
         const url = new URL(String(valor || "").trim());
-        const host = url.hostname.toLowerCase();
-        return url.protocol === "https:" && (host === "ebdfiel.com.br" || host.endsWith(".ebdfiel.com.br"));
+        return url.protocol === "https:" && Boolean(url.hostname) && !url.username && !url.password;
       } catch (erro) {
         return false;
       }
@@ -6284,8 +6283,8 @@
         const botao = document.getElementById(id);
         if (!botao) return;
         const item = configuracaoLicoesSemana[tipo] || {};
-        const usaLink = item.tipo === "link" && urlLicaoEbdFielValida(item.url);
-        botao.textContent = usaLink ? "Abrir lição na EBD Fiel ↗" : textoHtml;
+        const usaLink = item.tipo === "link" && urlLicaoExternaValida(item.url);
+        botao.textContent = usaLink ? "Abrir link da lição ↗" : textoHtml;
         botao.title = usaLink ? "A lição será aberta em uma nova aba" : "Abrir o conteúdo da lição";
       };
 
@@ -6791,8 +6790,8 @@
       const item = configuracaoLicoesSemana[tipo] || { tipo: "html", html: licoesSemana[tipo] || "", url: "" };
 
       if (item.tipo === "link") {
-        if (!urlLicaoEbdFielValida(item.url)) {
-          alert("O link desta lição não é válido. Atualize-o no painel administrativo usando um endereço HTTPS da EBD Fiel.");
+        if (!urlLicaoExternaValida(item.url)) {
+          alert("O link desta lição não é válido. Atualize-o no painel administrativo usando um endereço HTTPS válido.");
           return;
         }
 
@@ -6818,7 +6817,7 @@
         conteudoLicao.innerHTML = `
           <div style="padding:24px; border-radius:18px; background:#fff8e1; color:#7a5312; border:1px solid #f3d37a;">
             <h3 style="margin-top:0;">Lição ainda não cadastrada</h3>
-            <p>Cadastre um conteúdo HTML ou um link da EBD Fiel no painel administrativo.</p>
+            <p>Cadastre um conteúdo HTML ou um link externo HTTPS no painel administrativo.</p>
           </div>
         `;
         return;

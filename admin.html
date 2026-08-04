@@ -1623,7 +1623,7 @@
         <!-- PAINEL LIÇÕES -->
         <div id="painelLicoes" class="admin-panel active card">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:1rem;">
-            <div><h2>📖 Conteúdo das aulas</h2><p>Escolha entre HTML ou link da EBD Fiel</p></div>
+            <div><h2>📖 Conteúdo das aulas</h2><p>Escolha entre HTML ou link externo da lição</p></div>
             <span class="chip">Hostinger · carregamento rápido</span>
           </div>
           <form id="formLicoes" onsubmit="return false;">
@@ -1639,13 +1639,13 @@
                     <label for="tipoAdultos">Formato da lição</label>
                     <select id="tipoAdultos" onchange="atualizarModoLicao('adultos')">
                       <option value="html">Conteúdo HTML</option>
-                      <option value="link">Link da EBD Fiel</option>
+                      <option value="link">Link externo da lição</option>
                     </select>
                   </div>
                   <div id="linkWrapAdultos" class="lesson-link-wrap" hidden>
-                    <label for="linkAdultos">Link da lição na EBD Fiel</label>
-                    <input id="linkAdultos" type="url" inputmode="url" placeholder="https://ebdfiel.com.br/..." />
-                    <span class="lesson-link-hint">Aceita endereços HTTPS de ebdfiel.com.br. A página será aberta em nova aba.</span>
+                    <label for="linkAdultos">Endereço HTTPS da lição</label>
+                    <input id="linkAdultos" type="url" inputmode="url" autocomplete="url" placeholder="https://exemplo.com/licao" />
+                    <span class="lesson-link-hint">Aceita qualquer endereço HTTPS válido. A página será aberta em nova aba com proteção de segurança.</span>
                   </div>
                 </div>
               </div>
@@ -1676,13 +1676,13 @@
                     <label for="tipoJovens">Formato da lição</label>
                     <select id="tipoJovens" onchange="atualizarModoLicao('jovens')">
                       <option value="html">Conteúdo HTML</option>
-                      <option value="link">Link da EBD Fiel</option>
+                      <option value="link">Link externo da lição</option>
                     </select>
                   </div>
                   <div id="linkWrapJovens" class="lesson-link-wrap" hidden>
-                    <label for="linkJovens">Link da lição na EBD Fiel</label>
-                    <input id="linkJovens" type="url" inputmode="url" placeholder="https://ebdfiel.com.br/..." />
-                    <span class="lesson-link-hint">Aceita endereços HTTPS de ebdfiel.com.br. A página será aberta em nova aba.</span>
+                    <label for="linkJovens">Endereço HTTPS da lição</label>
+                    <input id="linkJovens" type="url" inputmode="url" autocomplete="url" placeholder="https://exemplo.com/licao" />
+                    <span class="lesson-link-hint">Aceita qualquer endereço HTTPS válido. A página será aberta em nova aba com proteção de segurança.</span>
                   </div>
                 </div>
               </div>
@@ -2588,11 +2588,10 @@
     };
   }
 
-  function urlEbdFielValidaAdmin(valor) {
+  function urlExternaValidaAdmin(valor) {
     try {
       const url = new URL(String(valor || "").trim());
-      const host = url.hostname.toLowerCase();
-      return url.protocol === "https:" && (host === "ebdfiel.com.br" || host.endsWith(".ebdfiel.com.br"));
+      return url.protocol === "https:" && Boolean(url.hostname) && !url.username && !url.password;
     } catch (erro) {
       return false;
     }
@@ -2709,7 +2708,7 @@
 
     if (mostrarMensagem) {
       mostrarStatus("info", usaLink
-        ? "Modo link ativado. Cole o endereço da lição na EBD Fiel."
+        ? "Modo link ativado. Cole qualquer endereço HTTPS válido da lição."
         : "Modo HTML ativado. Edite ou cole o conteúdo da lição.");
     }
   }
@@ -2813,8 +2812,8 @@
     const url = document.getElementById("link" + sufixo).value.trim();
 
     if (tipo === "link") {
-      if (!urlEbdFielValidaAdmin(url)) {
-        throw new Error("Informe um link HTTPS válido da EBD Fiel para " + (campo === "adultos" ? "Jovens e Adultos" : "Adolescentes") + ".");
+      if (!urlExternaValidaAdmin(url)) {
+        throw new Error("Informe um link externo HTTPS válido para " + (campo === "adultos" ? "Jovens e Adultos" : "Adolescentes") + ".");
       }
       return { tipo: "link", url: url, html: "" };
     }

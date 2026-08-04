@@ -12,7 +12,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_LICOES_HOSTINGER_2026_08_04" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_PROGRAMACAO_TRIMESTRAL_2026_08_04" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -1050,6 +1050,22 @@
 
     .lesson-jovens {
       background: linear-gradient(135deg, #fff8e1, #ffffff);
+    }
+
+    .lesson-schedule-status {
+      margin-top: 10px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid rgba(31, 78, 121, 0.14);
+      color: #475569;
+      font-size: 0.78rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .lesson-schedule-status[hidden] {
+      display: none !important;
     }
 
     .lesson-modal {
@@ -4796,6 +4812,7 @@
           <button id="btnLicaoAdultos" class="btn btn-card" type="button" onclick="abrirLicao('adultos')">
             Ver lição de Jovens e Adultos
           </button>
+          <div id="statusProgramacaoAdultos" class="lesson-schedule-status" hidden></div>
         </article>
 
         <article class="lesson-card lesson-jovens">
@@ -4808,6 +4825,7 @@
           <button id="btnLicaoJovens" class="btn btn-card" type="button" onclick="abrirLicao('jovens')">
             Ver lição dos Adolescentes
           </button>
+          <div id="statusProgramacaoJovens" class="lesson-schedule-status" hidden></div>
         </article>
       </div>
 
@@ -6254,18 +6272,38 @@
       }
     }
 
+    const TOTAL_LICOES_PROGRAMADAS_PUBLICO = 13;
+
+    function normalizarProgramacaoPublica(valor) {
+      const recebida = Array.isArray(valor) ? valor : [];
+      return recebida.map(function (item, indice) {
+        const bruto = item && typeof item === "object" ? item : {};
+        return {
+          numero: Math.min(TOTAL_LICOES_PROGRAMADAS_PUBLICO, Math.max(1, Number(bruto.numero || indice + 1) || indice + 1)),
+          data: /^\d{4}-\d{2}-\d{2}$/.test(String(bruto.data || "")) ? String(bruto.data) : "",
+          titulo: String(bruto.titulo || "").trim(),
+          url: String(bruto.url || "").trim()
+        };
+      }).filter(function (item) {
+        return item.data || item.titulo || item.url;
+      });
+    }
+
     function normalizarConfiguracaoLicao(valor, htmlPadrao) {
       if (typeof valor === "string") {
-        return { tipo: "html", html: valor, url: "" };
+        return { tipo: "html", html: valor, url: "", programacao: [], licaoManual: 0 };
       }
 
       const item = valor && typeof valor === "object" ? valor : {};
-      const tipo = String(item.tipo || "html").toLowerCase() === "link" ? "link" : "html";
+      const tipoRecebido = String(item.tipo || "html").toLowerCase();
+      const tipo = ["html", "link", "programacao"].includes(tipoRecebido) ? tipoRecebido : "html";
 
       return {
         tipo: tipo,
         html: String(item.html || (tipo === "html" ? htmlPadrao : "")),
-        url: String(item.url || "").trim()
+        url: String(item.url || "").trim(),
+        programacao: normalizarProgramacaoPublica(item.programacao),
+        licaoManual: Math.min(TOTAL_LICOES_PROGRAMADAS_PUBLICO, Math.max(0, Number(item.licaoManual || 0) || 0))
       };
     }
 
@@ -6278,18 +6316,114 @@
       }
     }
 
+    function hojeSaoPauloPublico() {
+      try {
+        const partes = new Intl.DateTimeFormat("en-CA", {
+          timeZone: "America/Sao_Paulo",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit"
+        }).formatToParts(new Date());
+        const mapa = {};
+        partes.forEach(function (parte) { mapa[parte.type] = parte.value; });
+        return mapa.year + "-" + mapa.month + "-" + mapa.day;
+      } catch (erro) {
+        return new Date().toISOString().slice(0, 10);
+      }
+    }
+
+    function formatarDataProgramacaoPublica(data) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(String(data || ""))) return "";
+      const partes = String(data).split("-");
+      return partes[2] + "/" + partes[1] + "/" + partes[0];
+    }
+
+    function resolverProgramacaoPublica(item) {
+      const programacao = normalizarProgramacaoPublica(item && item.programacao).filter(function (entrada) {
+        return entrada.data && urlLicaoExternaValida(entrada.url);
+      });
+      const manual = Number(item && item.licaoManual || 0);
+
+      if (manual > 0) {
+        const fixada = programacao.find(function (entrada) { return entrada.numero === manual; }) || null;
+        return { atual: fixada, proxima: null, manual: true };
+      }
+
+      const hoje = hojeSaoPauloPublico();
+      const ordenada = programacao.slice().sort(function (a, b) {
+        return a.data.localeCompare(b.data) || a.numero - b.numero;
+      });
+      const vigentes = ordenada.filter(function (entrada) { return entrada.data <= hoje; });
+      return {
+        atual: vigentes.length ? vigentes[vigentes.length - 1] : null,
+        proxima: ordenada.find(function (entrada) { return entrada.data > hoje; }) || null,
+        manual: false
+      };
+    }
+
+    function resolverLicaoParaAbrir(item) {
+      const configuracao = item && typeof item === "object" ? item : {};
+      if (configuracao.tipo !== "programacao") return configuracao;
+      const resolvida = resolverProgramacaoPublica(configuracao);
+      if (!resolvida.atual) {
+        return { tipo: "programacao", indisponivel: true, proxima: resolvida.proxima || null };
+      }
+      return {
+        tipo: "link",
+        url: resolvida.atual.url,
+        html: "",
+        programada: true,
+        numero: resolvida.atual.numero,
+        data: resolvida.atual.data,
+        titulo: resolvida.atual.titulo || ("Lição " + resolvida.atual.numero),
+        manual: resolvida.manual
+      };
+    }
+
     function atualizarBotoesLicoes() {
-      const configurar = (tipo, id, textoHtml) => {
-        const botao = document.getElementById(id);
+      const configurar = function (tipo, idBotao, idStatus, textoHtml) {
+        const botao = document.getElementById(idBotao);
+        const status = document.getElementById(idStatus);
         if (!botao) return;
-        const item = configuracaoLicoesSemana[tipo] || {};
+
+        const itemOriginal = configuracaoLicoesSemana[tipo] || {};
+        const item = resolverLicaoParaAbrir(itemOriginal);
+        botao.disabled = false;
+
+        if (itemOriginal.tipo === "programacao") {
+          if (item.indisponivel) {
+            botao.textContent = "Lição programada em breve";
+            botao.title = item.proxima ? "Disponível a partir de " + formatarDataProgramacaoPublica(item.proxima.data) : "Nenhuma lição programada";
+            botao.disabled = true;
+            if (status) {
+              status.hidden = false;
+              status.textContent = item.proxima
+                ? "Próxima: Lição " + item.proxima.numero + " em " + formatarDataProgramacaoPublica(item.proxima.data)
+                : "A programação ainda não possui uma lição disponível.";
+            }
+            return;
+          }
+
+          botao.textContent = "Abrir Lição " + item.numero + " ↗";
+          botao.title = (item.titulo || "Lição programada") + " — abre em nova aba";
+          if (status) {
+            status.hidden = false;
+            status.textContent = (item.manual ? "Selecionada manualmente: " : "Lição atual: ") + item.titulo + " · " + formatarDataProgramacaoPublica(item.data);
+          }
+          return;
+        }
+
+        if (status) {
+          status.hidden = true;
+          status.textContent = "";
+        }
         const usaLink = item.tipo === "link" && urlLicaoExternaValida(item.url);
         botao.textContent = usaLink ? "Abrir link da lição ↗" : textoHtml;
         botao.title = usaLink ? "A lição será aberta em uma nova aba" : "Abrir o conteúdo da lição";
       };
 
-      configurar("adultos", "btnLicaoAdultos", "Ver lição de Jovens e Adultos");
-      configurar("jovens", "btnLicaoJovens", "Ver lição dos Adolescentes");
+      configurar("adultos", "btnLicaoAdultos", "statusProgramacaoAdultos", "Ver lição de Jovens e Adultos");
+      configurar("jovens", "btnLicaoJovens", "statusProgramacaoJovens", "Ver lição dos Adolescentes");
     }
 
     function aplicarDadosLicoesHostinger(dados, salvarCache = true) {
@@ -6787,7 +6921,16 @@
   }
 
   async function abrirLicao(tipo) {
-      const item = configuracaoLicoesSemana[tipo] || { tipo: "html", html: licoesSemana[tipo] || "", url: "" };
+      const original = configuracaoLicoesSemana[tipo] || { tipo: "html", html: licoesSemana[tipo] || "", url: "", programacao: [], licaoManual: 0 };
+      const item = resolverLicaoParaAbrir(original);
+
+      if (item.indisponivel) {
+        const mensagem = item.proxima
+          ? "A próxima lição ficará disponível em " + formatarDataProgramacaoPublica(item.proxima.data) + "."
+          : "Ainda não há uma lição disponível na programação desta classe.";
+        alert(mensagem);
+        return;
+      }
 
       if (item.tipo === "link") {
         if (!urlLicaoExternaValida(item.url)) {
@@ -6817,7 +6960,7 @@
         conteudoLicao.innerHTML = `
           <div style="padding:24px; border-radius:18px; background:#fff8e1; color:#7a5312; border:1px solid #f3d37a;">
             <h3 style="margin-top:0;">Lição ainda não cadastrada</h3>
-            <p>Cadastre um conteúdo HTML ou um link externo HTTPS no painel administrativo.</p>
+            <p>Cadastre um conteúdo HTML, um link individual ou uma programação trimestral no painel administrativo.</p>
           </div>
         `;
         return;
@@ -6827,7 +6970,8 @@
 
       carregarLicoesAtuais(true, false).then(function (atualizou) {
         if (!atualizou) return;
-        const atual = configuracaoLicoesSemana[tipo] || {};
+        const atualOriginal = configuracaoLicoesSemana[tipo] || {};
+        const atual = resolverLicaoParaAbrir(atualOriginal);
         if (atual.tipo === "html" && atual.html && atual.html !== conteudo) {
           conteudoLicao.innerHTML = prepararConteudoLicao(atual.html);
         }

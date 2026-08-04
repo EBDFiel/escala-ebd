@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <!-- ADMIN_EBD_MOBILE_EDITOR_AMPLO_20260705 -->
+  <!-- ADMIN_EBD_PROGRAMACAO_TRIMESTRAL_20260804 -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Admin EBD — Igreja Sede | Lições na Hostinger</title>
@@ -391,6 +391,151 @@
       margin-top: 0.4rem;
       color: var(--gray-500);
       font-size: 0.76rem;
+    }
+
+    .lesson-program-wrap[hidden] {
+      display: none !important;
+    }
+
+    .lesson-program-wrap {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #bfdbfe;
+    }
+
+    .programacao-intro {
+      padding: 0.85rem 1rem;
+      border-radius: 16px;
+      background: #ffffff;
+      border: 1px solid #dbeafe;
+      color: var(--gray-700);
+      font-size: 0.86rem;
+      margin-bottom: 1rem;
+    }
+
+    .programacao-config-grid {
+      display: grid;
+      grid-template-columns: minmax(190px, 0.8fr) minmax(220px, 1fr) minmax(190px, 0.8fr);
+      gap: 0.8rem;
+      align-items: end;
+    }
+
+    .programacao-bulk {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 18px;
+      background: #f8fafc;
+      border: 1px solid var(--gray-300);
+    }
+
+    .programacao-bulk textarea {
+      min-height: 150px;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.84rem;
+    }
+
+    .programacao-bulk-actions,
+    .programacao-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.7rem;
+    }
+
+    .programacao-resumo {
+      margin: 1rem 0;
+      padding: 0.8rem 1rem;
+      border-radius: 16px;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #166534;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .programacao-lista {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .programacao-row {
+      display: grid;
+      grid-template-columns: 74px minmax(145px, 0.75fr) minmax(180px, 1fr) minmax(260px, 1.5fr) auto;
+      gap: 0.7rem;
+      align-items: end;
+      padding: 0.85rem;
+      border-radius: 18px;
+      background: #ffffff;
+      border: 1px solid var(--gray-300);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .programacao-row.atual {
+      border-color: #22c55e;
+      box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.14);
+      background: #f0fdf4;
+    }
+
+    .programacao-row.proxima {
+      border-color: #d4af37;
+      background: #fffbeb;
+    }
+
+    .programacao-numero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 64px;
+      border-radius: 14px;
+      background: var(--primary-light);
+      color: var(--primary-deep);
+      font-weight: 900;
+      line-height: 1.15;
+    }
+
+    .programacao-numero small {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--gray-500);
+    }
+
+    .programacao-status-badge {
+      display: block;
+      margin-top: 0.3rem;
+      font-size: 0.62rem;
+      color: var(--gray-500);
+      text-align: center;
+    }
+
+    @media (max-width: 980px) {
+      .programacao-config-grid,
+      .programacao-row {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .programacao-numero {
+        grid-row: span 2;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .programacao-config-grid,
+      .programacao-row {
+        grid-template-columns: 1fr !important;
+      }
+
+      .programacao-numero {
+        min-height: 48px;
+        grid-row: auto;
+      }
+
+      .programacao-bulk-actions,
+      .programacao-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
     }
 
     /* subcards */
@@ -1623,7 +1768,7 @@
         <!-- PAINEL LIÇÕES -->
         <div id="painelLicoes" class="admin-panel active card">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:1rem;">
-            <div><h2>📖 Conteúdo das aulas</h2><p>Escolha entre HTML ou link externo da lição</p></div>
+            <div><h2>📖 Conteúdo das aulas</h2><p>Escolha entre HTML, link individual ou programação trimestral</p></div>
             <span class="chip">Hostinger · carregamento rápido</span>
           </div>
           <form id="formLicoes" onsubmit="return false;">
@@ -1639,7 +1784,8 @@
                     <label for="tipoAdultos">Formato da lição</label>
                     <select id="tipoAdultos" onchange="atualizarModoLicao('adultos')">
                       <option value="html">Conteúdo HTML</option>
-                      <option value="link">Link externo da lição</option>
+                      <option value="link">Link externo individual</option>
+                      <option value="programacao">Programação trimestral (até 13 lições)</option>
                     </select>
                   </div>
                   <div id="linkWrapAdultos" class="lesson-link-wrap" hidden>
@@ -1647,6 +1793,36 @@
                     <input id="linkAdultos" type="url" inputmode="url" autocomplete="url" placeholder="https://exemplo.com/licao" />
                     <span class="lesson-link-hint">Aceita qualquer endereço HTTPS válido. A página será aberta em nova aba com proteção de segurança.</span>
                   </div>
+                </div>
+                <div id="programacaoWrapAdultos" class="lesson-program-wrap" hidden>
+                  <div class="programacao-intro">
+                    📅 Cadastre antecipadamente os links do trimestre. O site público abrirá automaticamente a lição correspondente à data atual. Depois da última data, a última lição continuará disponível.
+                  </div>
+                  <div class="programacao-config-grid">
+                    <div>
+                      <label for="inicioProgramacaoAdultos">Data da Lição 1</label>
+                      <input id="inicioProgramacaoAdultos" type="date" />
+                    </div>
+                    <div>
+                      <label for="licaoManualAdultos">Lição exibida no site</label>
+                      <select id="licaoManualAdultos" onchange="atualizarResumoProgramacao('adultos')">
+                        <option value="0">Automática, conforme a data</option>
+                      </select>
+                    </div>
+                    <div class="programacao-actions">
+                      <button type="button" class="secondary compact-btn" onclick="gerarDatasProgramacao('adultos')">📆 Gerar 13 datas semanais</button>
+                    </div>
+                  </div>
+                  <div class="programacao-bulk">
+                    <label for="linksEmMassaAdultos">Colar vários links de uma vez</label>
+                    <textarea id="linksEmMassaAdultos" rows="6" placeholder="Cole um link HTTPS por linha. Também aceita: Título da lição | https://exemplo.com/licao-01"></textarea>
+                    <div class="programacao-bulk-actions">
+                      <button type="button" class="purple compact-btn" onclick="aplicarLinksEmMassa('adultos')">📥 Distribuir links nas 13 lições</button>
+                      <button type="button" class="red compact-btn" onclick="limparProgramacao('adultos')">🗑️ Limpar programação</button>
+                    </div>
+                  </div>
+                  <div id="resumoProgramacaoAdultos" class="programacao-resumo">0 de 13 lições programadas.</div>
+                  <div id="programacaoListaAdultos" class="programacao-lista"></div>
                 </div>
               </div>
               <div id="editorAreaAdultos" class="lesson-editor-area lesson-workspace">
@@ -1676,7 +1852,8 @@
                     <label for="tipoJovens">Formato da lição</label>
                     <select id="tipoJovens" onchange="atualizarModoLicao('jovens')">
                       <option value="html">Conteúdo HTML</option>
-                      <option value="link">Link externo da lição</option>
+                      <option value="link">Link externo individual</option>
+                      <option value="programacao">Programação trimestral (até 13 lições)</option>
                     </select>
                   </div>
                   <div id="linkWrapJovens" class="lesson-link-wrap" hidden>
@@ -1684,6 +1861,36 @@
                     <input id="linkJovens" type="url" inputmode="url" autocomplete="url" placeholder="https://exemplo.com/licao" />
                     <span class="lesson-link-hint">Aceita qualquer endereço HTTPS válido. A página será aberta em nova aba com proteção de segurança.</span>
                   </div>
+                </div>
+                <div id="programacaoWrapJovens" class="lesson-program-wrap" hidden>
+                  <div class="programacao-intro">
+                    📅 Cadastre antecipadamente os links do trimestre. O site público abrirá automaticamente a lição correspondente à data atual. Depois da última data, a última lição continuará disponível.
+                  </div>
+                  <div class="programacao-config-grid">
+                    <div>
+                      <label for="inicioProgramacaoJovens">Data da Lição 1</label>
+                      <input id="inicioProgramacaoJovens" type="date" />
+                    </div>
+                    <div>
+                      <label for="licaoManualJovens">Lição exibida no site</label>
+                      <select id="licaoManualJovens" onchange="atualizarResumoProgramacao('jovens')">
+                        <option value="0">Automática, conforme a data</option>
+                      </select>
+                    </div>
+                    <div class="programacao-actions">
+                      <button type="button" class="secondary compact-btn" onclick="gerarDatasProgramacao('jovens')">📆 Gerar 13 datas semanais</button>
+                    </div>
+                  </div>
+                  <div class="programacao-bulk">
+                    <label for="linksEmMassaJovens">Colar vários links de uma vez</label>
+                    <textarea id="linksEmMassaJovens" rows="6" placeholder="Cole um link HTTPS por linha. Também aceita: Título da lição | https://exemplo.com/licao-01"></textarea>
+                    <div class="programacao-bulk-actions">
+                      <button type="button" class="purple compact-btn" onclick="aplicarLinksEmMassa('jovens')">📥 Distribuir links nas 13 lições</button>
+                      <button type="button" class="red compact-btn" onclick="limparProgramacao('jovens')">🗑️ Limpar programação</button>
+                    </div>
+                  </div>
+                  <div id="resumoProgramacaoJovens" class="programacao-resumo">0 de 13 lições programadas.</div>
+                  <div id="programacaoListaJovens" class="programacao-lista"></div>
                 </div>
               </div>
               <div id="editorAreaJovens" class="lesson-editor-area lesson-workspace">
@@ -2578,13 +2785,57 @@
 
     garantirMenusAdmin();
   }
+  const TOTAL_LICOES_PROGRAMADAS = 13;
+
+  function sufixoLicaoAdmin(campo) {
+    return campo === "adultos" ? "Adultos" : "Jovens";
+  }
+
+  function nomeClasseLicaoAdmin(campo) {
+    return campo === "adultos" ? "Jovens e Adultos" : "Adolescentes";
+  }
+
+  function normalizarDataProgramacao(valor) {
+    const data = String(valor || "").trim();
+    return /^\d{4}-\d{2}-\d{2}$/.test(data) ? data : "";
+  }
+
+  function normalizarProgramacaoAdmin(valor) {
+    const recebida = Array.isArray(valor) ? valor : [];
+    const porNumero = new Map();
+
+    recebida.forEach(function (item, indice) {
+      const bruto = item && typeof item === "object" ? item : {};
+      const numero = Math.min(TOTAL_LICOES_PROGRAMADAS, Math.max(1, Number(bruto.numero || indice + 1) || indice + 1));
+      porNumero.set(numero, {
+        numero: numero,
+        data: normalizarDataProgramacao(bruto.data),
+        titulo: String(bruto.titulo || "").trim(),
+        url: String(bruto.url || "").trim()
+      });
+    });
+
+    return Array.from({ length: TOTAL_LICOES_PROGRAMADAS }, function (_, indice) {
+      const numero = indice + 1;
+      return porNumero.get(numero) || { numero: numero, data: "", titulo: "", url: "" };
+    });
+  }
+
   function normalizarItemLicaoAdmin(valor) {
-    if (typeof valor === "string") return { tipo: "html", html: valor, url: "" };
+    if (typeof valor === "string") {
+      return { tipo: "html", html: valor, url: "", programacao: normalizarProgramacaoAdmin([]), licaoManual: 0 };
+    }
+
     const item = valor && typeof valor === "object" ? valor : {};
+    const tipoRecebido = String(item.tipo || "html").toLowerCase();
+    const tipo = ["html", "link", "programacao"].includes(tipoRecebido) ? tipoRecebido : "html";
+
     return {
-      tipo: String(item.tipo || "html").toLowerCase() === "link" ? "link" : "html",
+      tipo: tipo,
       html: String(item.html || ""),
-      url: String(item.url || "").trim()
+      url: String(item.url || "").trim(),
+      programacao: normalizarProgramacaoAdmin(item.programacao),
+      licaoManual: Math.min(TOTAL_LICOES_PROGRAMADAS, Math.max(0, Number(item.licaoManual || 0) || 0))
     };
   }
 
@@ -2595,6 +2846,287 @@
     } catch (erro) {
       return false;
     }
+  }
+
+  function hojeSaoPauloAdmin() {
+    try {
+      const partes = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Sao_Paulo",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).formatToParts(new Date());
+      const mapa = {};
+      partes.forEach(function (parte) { mapa[parte.type] = parte.value; });
+      return mapa.year + "-" + mapa.month + "-" + mapa.day;
+    } catch (erro) {
+      return new Date().toISOString().slice(0, 10);
+    }
+  }
+
+  function formatarDataProgramacaoAdmin(data) {
+    const valor = normalizarDataProgramacao(data);
+    if (!valor) return "—";
+    const partes = valor.split("-");
+    return partes[2] + "/" + partes[1] + "/" + partes[0];
+  }
+
+  function garantirProgramacaoRenderizada(campo) {
+    const sufixo = sufixoLicaoAdmin(campo);
+    const lista = document.getElementById("programacaoLista" + sufixo);
+    const seletorManual = document.getElementById("licaoManual" + sufixo);
+    if (!lista || !seletorManual) return;
+
+    if (seletorManual.options.length === 1) {
+      for (let numero = 1; numero <= TOTAL_LICOES_PROGRAMADAS; numero += 1) {
+        const opcao = document.createElement("option");
+        opcao.value = String(numero);
+        opcao.textContent = "Fixar manualmente a Lição " + numero;
+        seletorManual.appendChild(opcao);
+      }
+    }
+
+    if (lista.children.length > 0) return;
+
+    for (let numero = 1; numero <= TOTAL_LICOES_PROGRAMADAS; numero += 1) {
+      const linha = document.createElement("div");
+      linha.className = "programacao-row";
+      linha.id = "programacao" + sufixo + "Row" + numero;
+      linha.innerHTML = `
+        <div class="programacao-numero"><small>Lição</small>${numero}<span id="programacao${sufixo}Status${numero}" class="programacao-status-badge"></span></div>
+        <div>
+          <label for="programacao${sufixo}Data${numero}">Data de liberação</label>
+          <input id="programacao${sufixo}Data${numero}" type="date" oninput="atualizarResumoProgramacao('${campo}')" />
+        </div>
+        <div>
+          <label for="programacao${sufixo}Titulo${numero}">Título</label>
+          <input id="programacao${sufixo}Titulo${numero}" type="text" maxlength="180" placeholder="Lição ${numero}" oninput="atualizarResumoProgramacao('${campo}')" />
+        </div>
+        <div>
+          <label for="programacao${sufixo}Url${numero}">Link HTTPS</label>
+          <input id="programacao${sufixo}Url${numero}" type="url" inputmode="url" autocomplete="url" placeholder="https://exemplo.com/licao-${String(numero).padStart(2, "0")}" oninput="atualizarResumoProgramacao('${campo}')" />
+        </div>
+        <div>
+          <button type="button" class="outline-btn compact-btn" onclick="testarLinkProgramacao('${campo}', ${numero})">🔗 Testar</button>
+        </div>`;
+      lista.appendChild(linha);
+    }
+  }
+
+  function preencherProgramacaoAdmin(campo, programacao, licaoManual) {
+    garantirProgramacaoRenderizada(campo);
+    const sufixo = sufixoLicaoAdmin(campo);
+    const itens = normalizarProgramacaoAdmin(programacao);
+
+    itens.forEach(function (item) {
+      document.getElementById("programacao" + sufixo + "Data" + item.numero).value = item.data;
+      document.getElementById("programacao" + sufixo + "Titulo" + item.numero).value = item.titulo;
+      document.getElementById("programacao" + sufixo + "Url" + item.numero).value = item.url;
+    });
+
+    const seletor = document.getElementById("licaoManual" + sufixo);
+    if (seletor) seletor.value = String(Math.min(TOTAL_LICOES_PROGRAMADAS, Math.max(0, Number(licaoManual || 0) || 0)));
+
+    const primeiraData = itens.find(function (item) { return item.numero === 1 && item.data; });
+    const inicio = document.getElementById("inicioProgramacao" + sufixo);
+    if (inicio && primeiraData) inicio.value = primeiraData.data;
+
+    atualizarResumoProgramacao(campo);
+  }
+
+  function coletarProgramacaoAdmin(campo) {
+    garantirProgramacaoRenderizada(campo);
+    const sufixo = sufixoLicaoAdmin(campo);
+    const itens = [];
+
+    for (let numero = 1; numero <= TOTAL_LICOES_PROGRAMADAS; numero += 1) {
+      itens.push({
+        numero: numero,
+        data: normalizarDataProgramacao(document.getElementById("programacao" + sufixo + "Data" + numero).value),
+        titulo: document.getElementById("programacao" + sufixo + "Titulo" + numero).value.trim(),
+        url: document.getElementById("programacao" + sufixo + "Url" + numero).value.trim()
+      });
+    }
+    return itens;
+  }
+
+  function resolverProgramacaoAdmin(campo) {
+    const sufixo = sufixoLicaoAdmin(campo);
+    const itens = coletarProgramacaoAdmin(campo).filter(function (item) {
+      return item.data && urlExternaValidaAdmin(item.url);
+    });
+    const manual = Number(document.getElementById("licaoManual" + sufixo).value || 0);
+
+    if (manual > 0) {
+      return {
+        atual: itens.find(function (item) { return item.numero === manual; }) || null,
+        proxima: null,
+        manual: true
+      };
+    }
+
+    const hoje = hojeSaoPauloAdmin();
+    const ordenados = itens.slice().sort(function (a, b) {
+      return a.data.localeCompare(b.data) || a.numero - b.numero;
+    });
+    const vigentes = ordenados.filter(function (item) { return item.data <= hoje; });
+    const atual = vigentes.length ? vigentes[vigentes.length - 1] : null;
+    const proxima = ordenados.find(function (item) { return item.data > hoje; }) || null;
+    return { atual: atual, proxima: proxima, manual: false };
+  }
+
+  function atualizarResumoProgramacao(campo) {
+    garantirProgramacaoRenderizada(campo);
+    const sufixo = sufixoLicaoAdmin(campo);
+    const itens = coletarProgramacaoAdmin(campo);
+    const completas = itens.filter(function (item) { return item.data && urlExternaValidaAdmin(item.url); });
+    const parciais = itens.filter(function (item) {
+      const possuiAlgo = item.data || item.titulo || item.url;
+      return possuiAlgo && !(item.data && urlExternaValidaAdmin(item.url));
+    });
+    const resolvida = resolverProgramacaoAdmin(campo);
+    const resumo = document.getElementById("resumoProgramacao" + sufixo);
+
+    itens.forEach(function (item) {
+      const linha = document.getElementById("programacao" + sufixo + "Row" + item.numero);
+      const badge = document.getElementById("programacao" + sufixo + "Status" + item.numero);
+      if (!linha || !badge) return;
+      linha.classList.remove("atual", "proxima");
+      badge.textContent = "";
+      if (resolvida.atual && resolvida.atual.numero === item.numero) {
+        linha.classList.add("atual");
+        badge.textContent = resolvida.manual ? "FIXADA" : "ATUAL";
+      } else if (resolvida.proxima && resolvida.proxima.numero === item.numero) {
+        linha.classList.add("proxima");
+        badge.textContent = "PRÓXIMA";
+      }
+    });
+
+    if (!resumo) return;
+    let texto = completas.length + " de " + TOTAL_LICOES_PROGRAMADAS + " lições programadas.";
+    if (parciais.length) texto += " Há " + parciais.length + " linha(s) incompleta(s).";
+    if (resolvida.atual) {
+      texto += " Exibida agora: Lição " + resolvida.atual.numero + " — " + (resolvida.atual.titulo || "sem título") + ".";
+    } else if (resolvida.proxima) {
+      texto += " A programação começa em " + formatarDataProgramacaoAdmin(resolvida.proxima.data) + ".";
+    }
+    resumo.textContent = texto;
+    resumo.style.background = parciais.length ? "#fff7ed" : "#ecfdf5";
+    resumo.style.borderColor = parciais.length ? "#fed7aa" : "#a7f3d0";
+    resumo.style.color = parciais.length ? "#9a3412" : "#166534";
+  }
+
+  function somarDiasDataIso(dataIso, dias) {
+    const partes = String(dataIso || "").split("-").map(Number);
+    if (partes.length !== 3 || partes.some(function (parte) { return !Number.isFinite(parte); })) return "";
+    const data = new Date(Date.UTC(partes[0], partes[1] - 1, partes[2]));
+    data.setUTCDate(data.getUTCDate() + dias);
+    return data.toISOString().slice(0, 10);
+  }
+
+  function gerarDatasProgramacao(campo) {
+    garantirProgramacaoRenderizada(campo);
+    const sufixo = sufixoLicaoAdmin(campo);
+    const inicio = document.getElementById("inicioProgramacao" + sufixo).value;
+    if (!normalizarDataProgramacao(inicio)) {
+      mostrarStatus("error", "Informe a data da Lição 1 antes de gerar as datas semanais.");
+      return;
+    }
+
+    for (let numero = 1; numero <= TOTAL_LICOES_PROGRAMADAS; numero += 1) {
+      document.getElementById("programacao" + sufixo + "Data" + numero).value = somarDiasDataIso(inicio, (numero - 1) * 7);
+      const titulo = document.getElementById("programacao" + sufixo + "Titulo" + numero);
+      if (!titulo.value.trim()) titulo.value = "Lição " + numero;
+    }
+    atualizarResumoProgramacao(campo);
+    mostrarStatus("success", "As 13 datas semanais de " + nomeClasseLicaoAdmin(campo) + " foram geradas.");
+  }
+
+  function limparTituloImportadoProgramacao(valor) {
+    return String(valor || "")
+      .replace(/^\s*\d+\s*[.)-]\s*/, "")
+      .replace(/^\s*[-*•]+\s*/, "")
+      .replace(/\*\*/g, "")
+      .replace(/[|–—:\-\s]+$/, "")
+      .trim();
+  }
+
+  function extrairLinksEmMassaProgramacao(valor) {
+    const resultado = [];
+    let tituloPendente = "";
+
+    String(valor || "").split(/\r?\n/).forEach(function (linhaOriginal) {
+      const linha = String(linhaOriginal || "").trim();
+      if (!linha) return;
+
+      const correspondencia = linha.match(/https?:\/\/\S+/i);
+      if (!correspondencia) {
+        tituloPendente = limparTituloImportadoProgramacao(linha);
+        return;
+      }
+
+      const url = correspondencia[0].replace(/[),;]+$/, "");
+      const tituloMesmaLinha = limparTituloImportadoProgramacao(linha.slice(0, correspondencia.index));
+      resultado.push({ titulo: tituloMesmaLinha || tituloPendente, url: url });
+      tituloPendente = "";
+    });
+
+    return resultado;
+  }
+
+  function aplicarLinksEmMassa(campo) {
+    garantirProgramacaoRenderizada(campo);
+    const sufixo = sufixoLicaoAdmin(campo);
+    const textarea = document.getElementById("linksEmMassa" + sufixo);
+    const linhas = extrairLinksEmMassaProgramacao(textarea.value);
+
+    if (!linhas.length) {
+      mostrarStatus("error", "Cole pelo menos um link HTTPS. O sistema também aceita título em uma linha e link na linha seguinte.");
+      return;
+    }
+
+    const invalidas = linhas.filter(function (item) { return !urlExternaValidaAdmin(item.url); });
+    if (invalidas.length) {
+      mostrarStatus("error", "Há " + invalidas.length + " link(s) que não usam HTTPS. Corrija antes de distribuir.");
+      return;
+    }
+
+    linhas.slice(0, TOTAL_LICOES_PROGRAMADAS).forEach(function (item, indice) {
+      const numero = indice + 1;
+      document.getElementById("programacao" + sufixo + "Url" + numero).value = item.url;
+      const titulo = document.getElementById("programacao" + sufixo + "Titulo" + numero);
+      if (item.titulo) titulo.value = item.titulo;
+      else if (!titulo.value.trim()) titulo.value = "Lição " + numero;
+    });
+
+    atualizarResumoProgramacao(campo);
+    mostrarStatus("success", Math.min(linhas.length, TOTAL_LICOES_PROGRAMADAS) + " link(s) distribuído(s) em " + nomeClasseLicaoAdmin(campo) + ".");
+  }
+
+  function testarLinkProgramacao(campo, numero) {
+    const sufixo = sufixoLicaoAdmin(campo);
+    const url = document.getElementById("programacao" + sufixo + "Url" + numero).value.trim();
+    if (!urlExternaValidaAdmin(url)) {
+      mostrarStatus("error", "O link da Lição " + numero + " não é um endereço HTTPS válido.");
+      return;
+    }
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+
+  function limparProgramacao(campo) {
+    if (!confirm("Limpar todas as datas, títulos e links programados desta classe?")) return;
+    const sufixo = sufixoLicaoAdmin(campo);
+    garantirProgramacaoRenderizada(campo);
+    for (let numero = 1; numero <= TOTAL_LICOES_PROGRAMADAS; numero += 1) {
+      document.getElementById("programacao" + sufixo + "Data" + numero).value = "";
+      document.getElementById("programacao" + sufixo + "Titulo" + numero).value = "";
+      document.getElementById("programacao" + sufixo + "Url" + numero).value = "";
+    }
+    document.getElementById("inicioProgramacao" + sufixo).value = "";
+    document.getElementById("linksEmMassa" + sufixo).value = "";
+    document.getElementById("licaoManual" + sufixo).value = "0";
+    atualizarResumoProgramacao(campo);
+    mostrarStatus("info", "Programação de " + nomeClasseLicaoAdmin(campo) + " limpa.");
   }
 
   async function chamarApiLicoesHostinger(opcoes = {}) {
@@ -2627,10 +3159,11 @@
 
   function preencherLicaoAdmin(campo, itemBruto) {
     const item = normalizarItemLicaoAdmin(itemBruto);
-    const sufixo = campo === "adultos" ? "Adultos" : "Jovens";
+    const sufixo = sufixoLicaoAdmin(campo);
     document.getElementById("tipo" + sufixo).value = item.tipo;
     document.getElementById("link" + sufixo).value = item.url;
     document.getElementById(campo).value = item.html || modeloPadrao;
+    preencherProgramacaoAdmin(campo, item.programacao, item.licaoManual);
     atualizarModoLicao(campo, false);
     sincronizarVisual(campo, false);
   }
@@ -2697,19 +3230,31 @@
   }
 
   function atualizarModoLicao(campo, mostrarMensagem = true) {
-    const sufixo = campo === "adultos" ? "Adultos" : "Jovens";
+    const sufixo = sufixoLicaoAdmin(campo);
     const tipo = document.getElementById("tipo" + sufixo).value;
     const linkWrap = document.getElementById("linkWrap" + sufixo);
+    const programacaoWrap = document.getElementById("programacaoWrap" + sufixo);
     const editorArea = document.getElementById("editorArea" + sufixo);
     const usaLink = tipo === "link";
+    const usaProgramacao = tipo === "programacao";
 
     if (linkWrap) linkWrap.hidden = !usaLink;
-    if (editorArea) editorArea.hidden = usaLink;
+    if (programacaoWrap) programacaoWrap.hidden = !usaProgramacao;
+    if (editorArea) editorArea.hidden = usaLink || usaProgramacao;
+
+    if (usaProgramacao) {
+      garantirProgramacaoRenderizada(campo);
+      atualizarResumoProgramacao(campo);
+    }
 
     if (mostrarMensagem) {
-      mostrarStatus("info", usaLink
-        ? "Modo link ativado. Cole qualquer endereço HTTPS válido da lição."
-        : "Modo HTML ativado. Edite ou cole o conteúdo da lição.");
+      if (usaLink) {
+        mostrarStatus("info", "Modo link individual ativado. Cole um endereço HTTPS válido da lição.");
+      } else if (usaProgramacao) {
+        mostrarStatus("info", "Programação trimestral ativada. Cadastre datas e links para até 13 lições.");
+      } else {
+        mostrarStatus("info", "Modo HTML ativado. Edite ou cole o conteúdo da lição.");
+      }
     }
   }
 
@@ -2807,23 +3352,55 @@
   }
 
   function obterItemLicaoParaSalvar(campo) {
-    const sufixo = campo === "adultos" ? "Adultos" : "Jovens";
-    const tipo = document.getElementById("tipo" + sufixo).value === "link" ? "link" : "html";
-    const url = document.getElementById("link" + sufixo).value.trim();
-
-    if (tipo === "link") {
-      if (!urlExternaValidaAdmin(url)) {
-        throw new Error("Informe um link externo HTTPS válido para " + (campo === "adultos" ? "Jovens e Adultos" : "Adolescentes") + ".");
-      }
-      return { tipo: "link", url: url, html: "" };
-    }
+    const sufixo = sufixoLicaoAdmin(campo);
+    const tipoSelecionado = document.getElementById("tipo" + sufixo).value;
+    const tipo = ["html", "link", "programacao"].includes(tipoSelecionado) ? tipoSelecionado : "html";
+    const urlDigitada = document.getElementById("link" + sufixo).value.trim();
 
     sincronizarLicaoAntesDeSalvar(campo);
-    const html = sanitizarHtmlLicaoNoCliente(document.getElementById(campo).value);
-    if (!html) {
-      throw new Error("Preencha o conteúdo HTML da lição de " + (campo === "adultos" ? "Jovens e Adultos" : "Adolescentes") + ".");
+    const htmlSanitizado = sanitizarHtmlLicaoNoCliente(document.getElementById(campo).value);
+    const programacaoBruta = coletarProgramacaoAdmin(campo);
+    const parciais = programacaoBruta.filter(function (item) {
+      const possuiAlgo = item.data || item.titulo || item.url;
+      return possuiAlgo && !(item.data && urlExternaValidaAdmin(item.url));
+    });
+    const programacaoCompleta = programacaoBruta.filter(function (item) {
+      return item.data && urlExternaValidaAdmin(item.url);
+    });
+    const datas = programacaoCompleta.map(function (item) { return item.data; });
+    const datasRepetidas = datas.filter(function (data, indice) { return datas.indexOf(data) !== indice; });
+    const licaoManual = Number(document.getElementById("licaoManual" + sufixo).value || 0);
+
+    if (tipo === "link" && !urlExternaValidaAdmin(urlDigitada)) {
+      throw new Error("Informe um link externo HTTPS válido para " + nomeClasseLicaoAdmin(campo) + ".");
     }
-    return { tipo: "html", url: "", html: html };
+
+    if (tipo === "html" && !htmlSanitizado) {
+      throw new Error("Preencha o conteúdo HTML da lição de " + nomeClasseLicaoAdmin(campo) + ".");
+    }
+
+    if (tipo === "programacao") {
+      if (parciais.length) {
+        throw new Error("Complete a data e o link HTTPS de todas as linhas preenchidas em " + nomeClasseLicaoAdmin(campo) + ".");
+      }
+      if (!programacaoCompleta.length) {
+        throw new Error("Cadastre pelo menos uma lição completa na programação de " + nomeClasseLicaoAdmin(campo) + ".");
+      }
+      if (datasRepetidas.length) {
+        throw new Error("Não use a mesma data em duas lições da programação de " + nomeClasseLicaoAdmin(campo) + ".");
+      }
+      if (licaoManual > 0 && !programacaoCompleta.some(function (item) { return item.numero === licaoManual; })) {
+        throw new Error("A lição fixada manualmente precisa ter data e link cadastrados em " + nomeClasseLicaoAdmin(campo) + ".");
+      }
+    }
+
+    return {
+      tipo: tipo,
+      url: urlExternaValidaAdmin(urlDigitada) ? urlDigitada : "",
+      html: htmlSanitizado,
+      programacao: programacaoCompleta,
+      licaoManual: licaoManual
+    };
   }
 
   async function salvarLicoes() {

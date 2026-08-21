@@ -12,7 +12,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_PUSH_FCM_2026_08_21_1238" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_DESIGN_COMPACTO_2026_08_21_1825" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -5437,6 +5437,422 @@
       color: #9f1239;
     }
 
+  
+
+    /* =========================================================
+       REFINAMENTO VISUAL MOBILE — 21/08/2026
+       Mais compacto, navegação de app e hierarquia personalizada.
+       ========================================================= */
+    .my-next-class-card {
+      position: relative;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 14px;
+      margin: 0 0 18px;
+      padding: 16px 18px;
+      border: 1px solid rgba(31,78,121,.16);
+      border-radius: 20px;
+      background: linear-gradient(135deg, #ffffff 0%, #f5f9fd 100%);
+      box-shadow: 0 10px 26px rgba(15,23,42,.07);
+    }
+
+    .my-next-class-card[hidden] { display: none !important; }
+
+    .my-next-class-card.has-assignment {
+      background: radial-gradient(circle at top right, rgba(212,175,55,.15), transparent 34%), linear-gradient(135deg, #fffdf7 0%, #f7fbff 100%);
+      border-color: rgba(197,155,53,.30);
+    }
+
+    .my-next-class-icon {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: #102f4d;
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(16,47,77,.18);
+    }
+
+    .my-next-class-eyebrow {
+      display: block;
+      margin-bottom: 3px;
+      color: #8a6817;
+      font-size: .72rem;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .my-next-class-content h2 {
+      margin: 0;
+      color: #102f4d;
+      font-size: 1.08rem;
+      line-height: 1.2;
+    }
+
+    .my-next-class-content p {
+      margin: 5px 0 0;
+      color: #526273;
+      font-size: .88rem;
+      line-height: 1.4;
+    }
+
+    .my-next-class-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .my-next-class-tags span {
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #eaf3fb;
+      color: #174d75;
+      font-size: .74rem;
+      font-weight: 850;
+    }
+
+    .my-next-class-tags span.neutral {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .my-next-class-actions {
+      display: flex;
+      gap: 7px;
+      flex-direction: column;
+    }
+
+    .my-next-class-btn {
+      min-width: 112px;
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: #1f4e79;
+      color: #fff;
+      font: inherit;
+      font-size: .78rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .my-next-class-btn.secondary {
+      background: #fff;
+      color: #1f4e79;
+      box-shadow: inset 0 0 0 1px rgba(31,78,121,.22);
+    }
+
+    .logout-footer-wrap { margin-top: 14px; }
+    .logout-footer-btn {
+      border: 0;
+      background: transparent;
+      color: #64748b;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font: inherit;
+      font-size: .82rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .logout-footer-btn:hover { background: #f1f5f9; color: #0f3b5f; }
+
+    .mobile-bottom-nav { display: none; }
+
+    @media (max-width: 760px) {
+      body { padding-bottom: 76px; }
+
+      header {
+        padding: 13px 14px 18px !important;
+        border-bottom-width: 4px !important;
+      }
+
+      .header-logo {
+        max-width: 355px !important;
+        margin-bottom: 7px !important;
+      }
+
+      .header-subtitle {
+        font-size: .66rem !important;
+        margin-bottom: 4px !important;
+        max-width: calc(100vw - 36px) !important;
+      }
+
+      .header-title {
+        font-size: clamp(1.58rem, 8vw, 2.12rem) !important;
+        line-height: 1.02 !important;
+      }
+
+      .header-note {
+        margin-top: 8px !important;
+        padding: 5px 12px !important;
+        font-size: .8rem !important;
+      }
+
+      .header-verse {
+        margin-top: 10px !important;
+        padding: 10px 12px !important;
+        border-radius: 16px !important;
+      }
+
+      .header-verse .verse-icon {
+        width: 30px !important;
+        height: 30px !important;
+        margin-bottom: 5px !important;
+      }
+
+      .header-verse p {
+        font-size: .78rem !important;
+        line-height: 1.42 !important;
+        margin: 0 !important;
+      }
+
+      .header-verse strong {
+        margin-top: 6px !important;
+        font-size: .78rem !important;
+      }
+
+      main { padding: 14px 12px 20px !important; }
+
+      .identity-bar {
+        margin-bottom: 8px !important;
+        padding: 9px 11px !important;
+        border-radius: 15px !important;
+        flex-direction: row !important;
+        align-items: center !important;
+      }
+
+      .identity-avatar {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 1rem !important;
+      }
+
+      .identity-bar-main small { font-size: .68rem !important; }
+      .identity-bar-main strong { font-size: .92rem !important; }
+      .identity-role { font-size: .62rem !important; padding: 2px 6px !important; }
+
+      .identity-user-tools {
+        margin: 0 0 10px !important;
+        padding: 0 !important;
+      }
+
+      .identity-user-tools .install-app-subtle-wrap {
+        justify-content: flex-start !important;
+        gap: 6px !important;
+      }
+
+      .install-app-subtle {
+        padding: 6px 10px !important;
+        font-size: .74rem !important;
+      }
+
+      .identity-user-tools .notification-app-status {
+        text-align: left !important;
+        margin: 5px 0 0 2px !important;
+        font-size: .74rem !important;
+      }
+
+      .my-next-class-card {
+        grid-template-columns: 38px minmax(0, 1fr);
+        gap: 10px;
+        margin-bottom: 12px;
+        padding: 12px;
+        border-radius: 17px;
+      }
+
+      .my-next-class-icon { width: 38px; height: 38px; border-radius: 12px; }
+      .my-next-class-eyebrow { font-size: .65rem; }
+      .my-next-class-content h2 { font-size: .98rem; }
+      .my-next-class-content p { font-size: .79rem; }
+      .my-next-class-tags { margin-top: 6px; }
+      .my-next-class-tags span { font-size: .68rem; padding: 4px 7px; }
+
+      .my-next-class-actions {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+      }
+      .my-next-class-actions .my-next-class-btn:only-child { grid-column: 1 / -1; }
+      .my-next-class-btn { min-width: 0; padding: 8px 10px; font-size: .75rem; }
+
+      .premium-card {
+        border-radius: 20px !important;
+        padding: 15px 12px !important;
+        margin-bottom: 14px !important;
+      }
+
+      .premium-section-title { margin-bottom: 11px !important; }
+      .premium-section-title .eyebrow { padding: 5px 10px !important; font-size: .67rem !important; margin-bottom: 5px !important; }
+      .premium-section-title h2 { font-size: 1.28rem !important; }
+      .premium-section-title p { display: none !important; }
+
+      .sync-info-strip {
+        padding: 10px 11px !important;
+        border-radius: 14px !important;
+        gap: 4px !important;
+        margin-bottom: 12px !important;
+        font-size: .76rem !important;
+      }
+
+      .featured-weekly-scale { gap: 10px !important; }
+      .featured-week-block {
+        padding: 12px 9px 13px !important;
+        border-radius: 19px !important;
+      }
+      .featured-week-date { margin-bottom: 10px !important; }
+      .featured-week-date span { padding: 7px 14px !important; font-size: .88rem !important; }
+      .featured-teachers-grid { gap: 7px !important; }
+      .featured-teacher-card {
+        min-height: 76px !important;
+        border-radius: 14px !important;
+      }
+      .featured-teacher-card::before { height: 3px !important; }
+      .featured-teacher-icon {
+        top: 10px !important;
+        right: 10px !important;
+        width: 31px !important;
+        height: 31px !important;
+        border-radius: 10px !important;
+        font-size: .82rem !important;
+      }
+      .featured-teacher-class {
+        min-height: 42px !important;
+        padding: 10px 48px 8px 12px !important;
+        font-size: .91rem !important;
+        line-height: 1.08 !important;
+      }
+      .featured-teacher-name {
+        margin: 7px 12px 9px !important;
+        font-size: .84rem !important;
+      }
+      .featured-support-card {
+        margin-top: 7px !important;
+        min-height: 70px !important;
+      }
+
+      .scale-action-bottom { margin-top: 12px !important; }
+      .scale-buttons { gap: 7px !important; }
+      .scale-buttons .btn { min-height: 38px !important; padding: 8px 10px !important; font-size: .78rem !important; }
+
+      .weekly-lessons-highlight {
+        margin-bottom: 14px !important;
+        padding: 15px 12px !important;
+        border-radius: 20px !important;
+      }
+      .weekly-lessons-heading { margin-bottom: 10px !important; gap: 5px !important; }
+      .weekly-lessons-heading span { font-size: .68rem !important; }
+      .weekly-lessons-heading h2 { font-size: 1.22rem !important; }
+      .weekly-lessons-heading p { display: none !important; }
+      .weekly-lessons-grid { gap: 8px !important; }
+      .weekly-lesson-card {
+        min-height: 0 !important;
+        gap: 5px !important;
+        padding: 12px !important;
+        border-radius: 15px !important;
+      }
+      .weekly-lesson-card p { font-size: .76rem !important; }
+      .weekly-lesson-card button { margin-top: 5px !important; padding: 7px 11px !important; font-size: .76rem !important; }
+
+      .quick-access { margin-top: 0 !important; }
+      .quick-access-title h2, .quick-access-title p { display: none !important; }
+      .quick-access-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 8px !important; }
+      .quick-card {
+        min-height: 84px !important;
+        padding: 11px !important;
+        border-radius: 16px !important;
+        display: grid !important;
+        grid-template-columns: 38px minmax(0, 1fr) !important;
+        align-items: center !important;
+        gap: 8px !important;
+      }
+      .quick-icon {
+        width: 38px !important;
+        height: 38px !important;
+        margin: 0 !important;
+        border-radius: 12px !important;
+        font-size: 1rem !important;
+      }
+      .quick-card h3 { font-size: .86rem !important; line-height: 1.15 !important; margin: 0 !important; }
+      .quick-card p { display: none !important; }
+
+      .leadership-footer {
+        gap: 7px !important;
+        margin-bottom: 10px !important;
+      }
+      .leadership-card {
+        padding: 10px 11px !important;
+        border-radius: 14px !important;
+        font-size: .8rem !important;
+      }
+      .leadership-card strong { margin-bottom: 2px !important; font-size: .84rem !important; }
+      footer { padding: 18px 12px 88px !important; font-size: .78rem !important; }
+      .admin-footer-action { margin: 12px auto 8px !important; }
+      .admin-access-btn { padding: 8px 13px !important; font-size: .78rem !important; }
+      .admin-access-note { font-size: .7rem !important; }
+      .logout-footer-wrap { margin-top: 10px; }
+      .logout-footer-btn { font-size: .76rem; padding: 7px 12px; }
+
+      .mobile-bottom-nav {
+        position: fixed;
+        left: 9px;
+        right: 9px;
+        bottom: max(8px, env(safe-area-inset-bottom));
+        z-index: 850;
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 3px;
+        padding: 6px;
+        border: 1px solid rgba(31,78,121,.14);
+        border-radius: 20px;
+        background: rgba(255,255,255,.96);
+        box-shadow: 0 12px 32px rgba(15,23,42,.18);
+        backdrop-filter: blur(14px);
+      }
+
+      .mobile-bottom-nav button {
+        border: 0;
+        background: transparent;
+        color: #334155;
+        border-radius: 14px;
+        min-height: 48px;
+        padding: 5px 2px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1px;
+        font: inherit;
+        font-weight: 850;
+        cursor: pointer;
+      }
+      .mobile-bottom-nav button:active { background: #eef5fb; }
+      .mobile-bottom-nav button span { font-size: 1rem; line-height: 1; }
+      .mobile-bottom-nav button small { font-size: .61rem; line-height: 1.1; }
+
+      .floating-week-btn { bottom: 78px !important; }
+
+      body.mobile-section-open .mobile-bottom-nav { display: grid !important; }
+      body.mobile-section-open #barraUsuarioIdentificado,
+      body.mobile-section-open #acoesUsuarioIdentificado,
+      body.mobile-section-open #proximaAulaUsuarioEBD { display: none !important; }
+
+      body.perfil-consulta-ebd .mobile-bottom-nav {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .my-next-class-card:not(.has-assignment) .my-next-class-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (min-width: 761px) {
+      .quick-access-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+
   </style>
 </head>
 
@@ -5493,7 +5909,6 @@
           <span id="perfilUsuarioIdentificado" class="identity-role"></span>
         </div>
       </div>
-      <button type="button" class="identity-switch-btn" onclick="trocarUsuarioIdentificado()">Trocar usuário</button>
     </div>
 
     <div id="acoesUsuarioIdentificado" class="identity-user-tools" hidden>
@@ -5503,6 +5918,20 @@
       </div>
       <div id="estadoNotificacoesEBD" class="notification-app-status" hidden aria-live="polite"></div>
     </div>
+
+    <section id="proximaAulaUsuarioEBD" class="my-next-class-card" hidden aria-live="polite">
+      <div class="my-next-class-icon" aria-hidden="true">📌</div>
+      <div class="my-next-class-content">
+        <span class="my-next-class-eyebrow">Sua próxima aula</span>
+        <h2 id="tituloProximaAulaUsuarioEBD">Próxima escala</h2>
+        <p id="textoProximaAulaUsuarioEBD">Aguarde a escala carregar.</p>
+        <div id="atribuicoesProximaAulaUsuarioEBD" class="my-next-class-tags"></div>
+      </div>
+      <div class="my-next-class-actions">
+        <button type="button" class="my-next-class-btn" onclick="irParaEscalaEBD()">Ver escala</button>
+        <button id="btnAlterarProximaAulaUsuarioEBD" type="button" class="my-next-class-btn secondary requer-permissao-alteracao" onclick="abrirModal()">Alterar meu dia</button>
+      </div>
+    </section>
 
     <section id="escala" class="premium-card scale-premium">
       <div class="premium-section-title">
@@ -5618,6 +6047,12 @@
           <span class="quick-icon">ℹ️</span>
           <h3>Sobre e suporte</h3>
           <p>Veja orientações e fale com a coordenação.</p>
+        </button>
+
+        <button class="quick-card quick-card-button" type="button" onclick="abrirCompartilharEscala()">
+          <span class="quick-icon">📲</span>
+          <h3>Compartilhar escala</h3>
+          <p>Envie a escala da semana ao grupo.</p>
         </button>
       </div>
 
@@ -5929,7 +6364,21 @@
     <p>
       Escala EBD — Escola Bíblica Dominical | 3º Trimestre 2026 📚
     </p>
+
+    <div class="logout-footer-wrap">
+      <button id="btnSairUsuario" class="logout-footer-btn" type="button" onclick="sairUsuarioIdentificadoEBD()" hidden>
+        ↪ Sair
+      </button>
+    </div>
   </footer>
+
+  <nav class="mobile-bottom-nav" aria-label="Navegação principal do app">
+    <button type="button" onclick="irParaInicioEBD()"><span>⌂</span><small>Início</small></button>
+    <button type="button" onclick="irParaEscalaEBD()"><span>📅</span><small>Escala</small></button>
+    <button type="button" onclick="abrirTelaRapida('licoes')"><span>📖</span><small>Lição</small></button>
+    <button type="button" class="requer-permissao-alteracao" onclick="abrirModal()"><span>🔄</span><small>Alterar</small></button>
+    <button type="button" onclick="irParaMaisEBD()"><span>☰</span><small>Mais</small></button>
+  </nav>
 
 
   <button id="btnVoltarSemanaAtual" class="floating-week-btn" type="button" onclick="voltarParaSemanaAtual()">
@@ -6761,11 +7210,16 @@
         perfil.hidden = !usuarioIdentificadoEBD || consulta;
       }
 
+      const botaoSair = document.getElementById("btnSairUsuario");
+      if (botaoSair) botaoSair.hidden = !usuarioIdentificadoEBD;
+
       atualizarPermissoesUsuarioIdentificado();
+      renderizarProximaAulaUsuarioEBD();
     }
 
     function atualizarPermissoesUsuarioIdentificado() {
       const somenteConsulta = ehPerfilConsultaPublico(usuarioIdentificadoEBD);
+      document.body.classList.toggle("perfil-consulta-ebd", somenteConsulta);
       document.querySelectorAll(".requer-permissao-alteracao").forEach((elemento) => {
         elemento.hidden = somenteConsulta;
       });
@@ -8054,6 +8508,117 @@
       atualizarBotaoInstalarAppEBD();
     });
 
+    function irParaInicioEBD() {
+      document.body.classList.remove("mobile-section-open");
+      limparTelasRapidasAtivas();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function irParaEscalaEBD() {
+      document.body.classList.remove("mobile-section-open");
+      limparTelasRapidasAtivas();
+      const secao = document.getElementById("escala");
+      if (secao) secao.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function irParaMaisEBD() {
+      document.body.classList.remove("mobile-section-open");
+      limparTelasRapidasAtivas();
+      const secao = document.querySelector(".quick-access");
+      if (secao) secao.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    async function sairUsuarioIdentificadoEBD() {
+      if (!usuarioIdentificadoEBD) {
+        abrirIdentificacaoUsuario(false);
+        return;
+      }
+
+      const confirmar = window.confirm("Deseja sair da sua identificação neste aparelho?");
+      if (!confirmar) return;
+
+      try {
+        const tokenPush = obterTokenPushSalvoEBD();
+        if (tokenPush) await removerTokenPushDoBackendEBD(tokenPush);
+      } catch (erro) {
+        console.warn("Não foi possível remover temporariamente o vínculo das notificações ao sair:", erro);
+      }
+
+      salvarTokenSuperintendenteLocalEBD("", "");
+      salvarUsuarioIdentificado("");
+      document.body.classList.remove("mobile-section-open");
+      limparTelasRapidasAtivas();
+      abrirIdentificacaoUsuario(false);
+    }
+
+    function obterAtribuicoesUsuarioNaLinhaEBD(linhaOriginal, usuario) {
+      const linha = normalizarLinha(linhaOriginal || {});
+      const chaveUsuario = chaveNomeUsuarioEBD(usuario);
+      if (!chaveUsuario) return [];
+
+      const atribuicoes = [];
+      classesEscala.forEach((classe) => {
+        const nomes = separarNomesEscala(linha[classe]);
+        if (nomes.some((nome) => chaveNomeUsuarioEBD(nome) === chaveUsuario)) {
+          atribuicoes.push(classe);
+        }
+      });
+
+      const nomesSuporte = separarNomesEscala(linha.Suporte);
+      if (nomesSuporte.some((nome) => chaveNomeUsuarioEBD(nome) === chaveUsuario)) {
+        atribuicoes.push("Suporte");
+      }
+
+      return atribuicoes;
+    }
+
+    function renderizarProximaAulaUsuarioEBD() {
+      const card = document.getElementById("proximaAulaUsuarioEBD");
+      const titulo = document.getElementById("tituloProximaAulaUsuarioEBD");
+      const texto = document.getElementById("textoProximaAulaUsuarioEBD");
+      const tags = document.getElementById("atribuicoesProximaAulaUsuarioEBD");
+      const botaoAlterar = document.getElementById("btnAlterarProximaAulaUsuarioEBD");
+      if (!card || !titulo || !texto || !tags) return;
+
+      if (!usuarioIdentificadoEBD || ehPerfilConsultaPublico(usuarioIdentificadoEBD)) {
+        card.hidden = true;
+        return;
+      }
+
+      if (!Array.isArray(linhasEscala) || !linhasEscala.length) {
+        card.hidden = true;
+        return;
+      }
+
+      const linhasSemana = obterLinhasDaSemanaAtual(linhasEscala);
+      const linha = linhasSemana.length ? normalizarLinha(linhasSemana[0]) : null;
+      if (!linha) {
+        card.hidden = true;
+        return;
+      }
+
+      const atribuicoes = obterAtribuicoesUsuarioNaLinhaEBD(linha, usuarioIdentificadoEBD);
+      const data = escaparHtmlPublico(linha.Data || "próximo domingo");
+      const nome = escaparHtmlPublico(usuarioIdentificadoEBD);
+
+      card.hidden = false;
+      tags.innerHTML = "";
+
+      if (atribuicoes.length) {
+        titulo.textContent = `Domingo • ${linha.Data || "Próxima aula"}`;
+        texto.innerHTML = `<strong>${nome}</strong>, você está escalado nesta semana.`;
+        tags.innerHTML = atribuicoes.map((item) => `<span>${escaparHtmlPublico(item)}</span>`).join("");
+        if (botaoAlterar) botaoAlterar.hidden = false;
+        card.classList.add("has-assignment");
+      } else {
+        titulo.textContent = `Domingo • ${linha.Data || "Próxima aula"}`;
+        texto.innerHTML = `<strong>${nome}</strong>, você não está escalado para este domingo.`;
+        tags.innerHTML = `<span class="neutral">Escala disponível para consulta</span>`;
+        if (botaoAlterar) botaoAlterar.hidden = true;
+        card.classList.remove("has-assignment");
+      }
+    }
+
     function renderizarEscala(linhas) {
       atualizarEscalaLocal(linhas);
 
@@ -8063,6 +8628,7 @@
       renderizarCards(linhasParaExibir);
       renderizarEscalaDestaque(linhasParaExibir);
       atualizarBotaoEscala();
+      renderizarProximaAulaUsuarioEBD();
     }
 
     function escaparHtmlPublico(valor) {

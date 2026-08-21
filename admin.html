@@ -1977,6 +1977,7 @@
         <button id="abaManualBtn" class="nav-btn" onclick="abrirPainel('manual')">📘 Manual do painel</button>
         <button id="abaHistoricoEscalasBtn" class="nav-btn" onclick="abrirPainel('historicoEscalas')">📚 Escalas salvas</button>
         <button id="abaAcessosAppBtn" class="nav-btn" onclick="abrirPainel('acessosApp')">📊 Acessos ao app</button>
+        <button id="abaNotificacoesBtn" class="nav-btn" onclick="abrirPainel('notificacoes')">🔔 Notificações</button>
         <button id="abaHistoricoBtn" class="nav-btn" onclick="abrirPainel('historico')">📜 Trocas dos professores</button>
       </aside>
 
@@ -2368,7 +2369,7 @@
         <div id="painelManual" class="admin-panel card">
           <div class="manual-panel">
             <div class="manual-hero">
-              <span class="manual-badge">📘 Manual interno do painel · atualizado em 04/08/2026</span>
+              <span class="manual-badge">📘 Manual interno do painel · atualizado em 21/08/2026</span>
               <h2>Manual de uso — Escala EBD</h2>
               <p>
                 Este guia reúne o funcionamento atual do painel: lições armazenadas na Hostinger,
@@ -2694,7 +2695,20 @@
             </div>
 
             <div class="manual-section">
-              <h3>📦 20. Encerramento e mudança de trimestre</h3>
+              <h3>🔔 20. Notificações na barra do celular</h3>
+              <ol>
+                <li>Configure o projeto Firebase e as propriedades do script conforme o passo a passo da atualização.</li>
+                <li>No painel, abra <strong>Notificações</strong> e confirme se aparece <strong>Firebase configurado ✅</strong>.</li>
+                <li>Clique em <strong>Instalar automação</strong> uma única vez.</li>
+                <li>Cada professor deve tocar em <strong>Ativar notificações</strong> no próprio celular e permitir o envio.</li>
+                <li>A automação verifica a escala diariamente por volta das <strong>08h</strong> e envia somente na segunda e na sexta para quem estiver escalado no domingo seguinte.</li>
+                <li>Use <strong>Testar</strong> para conferir o recebimento em um professor que já tenha ativado as notificações.</li>
+              </ol>
+              <p><strong>iPhone/iPad:</strong> o app precisa estar adicionado à Tela de Início para receber Web Push. Os lembretes internos continuam funcionando como alternativa.</p>
+            </div>
+
+            <div class="manual-section">
+              <h3>📦 21. Encerramento e mudança de trimestre</h3>
               <ol>
                 <li>Abra <strong>Escalas salvas</strong> e confira se a automação está ativa.</li>
                 <li>Depois da última data, o sistema verifica e arquiva a escala.</li>
@@ -2707,7 +2721,7 @@
             </div>
 
             <div class="manual-section">
-              <h3>🚀 21. Quando publicar no GitHub, Hostinger ou Apps Script</h3>
+              <h3>🚀 22. Quando publicar no GitHub, Hostinger ou Apps Script</h3>
               <h4>GitHub Pages</h4>
               <p>Substitua arquivos no GitHub quando houver atualização de <strong>index.html</strong>, <strong>admin.html</strong>, imagens, manifestos ou scripts visuais.</p>
               <h4>Hostinger</h4>
@@ -2718,7 +2732,7 @@
             </div>
 
             <div class="manual-section">
-              <h3>🧯 22. Problemas comuns</h3>
+              <h3>🧯 23. Problemas comuns</h3>
               <h4>“Senha administrativa incorreta” ao salvar lições</h4>
               <ol>
                 <li>Abra <strong>public_html/escala-ebd-api/config.php</strong> na Hostinger.</li>
@@ -2891,6 +2905,65 @@
           </div>
         </div>
 
+
+        <div id="painelNotificacoes" class="admin-panel card">
+          <div style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:center;">
+            <div>
+              <h2 style="margin:0;">🔔 Notificações dos professores</h2>
+              <p style="margin:.35rem 0 0;">Acompanhe quais professores ativaram lembretes no celular e teste o envio antes da automação semanal.</p>
+            </div>
+            <div class="actions" style="margin:0;">
+              <button class="secondary compact-btn" type="button" onclick="carregarNotificacoesApp()">🔄 Atualizar</button>
+              <button class="purple compact-btn" type="button" onclick="instalarAutomacaoNotificacoesAdmin()">⚙️ Instalar automação</button>
+            </div>
+          </div>
+
+          <div id="statusConfiguracaoNotificacoes" class="access-app-intro" style="margin-top:1rem;">
+            Abra esta área para verificar a configuração do Firebase e os aparelhos cadastrados.
+          </div>
+
+          <div class="dashboard-grid">
+            <div class="metric-card"><span>Professores com notificações</span><strong id="notifProfessoresAtivos">0</strong></div>
+            <div class="metric-card"><span>Aparelhos ativos</span><strong id="notifAparelhosAtivos">0</strong></div>
+            <div class="metric-card"><span>Automação</span><strong id="notifAutomacaoStatus" style="font-size:1rem;">—</strong></div>
+            <div class="metric-card"><span>Horário</span><strong id="notifHorarioStatus" style="font-size:1rem;">—</strong></div>
+          </div>
+
+          <div class="access-app-table-wrap">
+            <table class="access-app-table">
+              <thead>
+                <tr>
+                  <th>Professor</th>
+                  <th>Perfil</th>
+                  <th>Aparelhos ativos</th>
+                  <th>Última atualização</th>
+                  <th>Último envio</th>
+                  <th>Status</th>
+                  <th>Teste</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaNotificacoesApp">
+                <tr><td colspan="7">Nenhum dado carregado.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="subcard" style="margin-top:1rem;">
+            <div class="subcard-header">
+              <h3>📌 Como funciona</h3>
+            </div>
+            <p class="help">
+              O professor precisa tocar em <strong>Ativar notificações</strong> no próprio aparelho e permitir o envio.
+              A automação verifica a escala diariamente às 08h e envia somente na <strong>segunda-feira</strong> e na <strong>sexta-feira</strong>
+              para quem estiver escalado no domingo seguinte.
+            </p>
+            <p class="help" style="margin-top:.6rem;">
+              No iPhone/iPad, o app precisa estar adicionado à Tela de Início para receber Web Push.
+              Os lembretes internos do app continuam funcionando como alternativa.
+            </p>
+          </div>
+        </div>
+
         <div id="painelHistorico" class="admin-panel card">
           <div style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:center;">
             <h2 style="margin:0;">📜 Histórico de alterações dos professores</h2>
@@ -2953,6 +3026,8 @@
   let historicoTrocasProfessoresCache = [];
   let acessosAppCache = [];
   let professoresNuncaAcessaramCache = [];
+  let notificacoesAppCache = [];
+  let statusNotificacoesAppCache = null;
   const ordemClassesEBD = [
     "Cordeirinhos de Cristo",
     "Soldadinhos de Cristo",
@@ -5534,6 +5609,199 @@
     }
   }
 
+
+  function agruparNotificacoesAppPorUsuario() {
+    const mapa = new Map();
+
+    (notificacoesAppCache || []).forEach((item) => {
+      const usuario = String(item.usuario || "").trim();
+      if (!usuario) return;
+      const chave = normalizarNomeComparacaoHistorico(usuario) || usuario.toLowerCase();
+
+      if (!mapa.has(chave)) {
+        mapa.set(chave, {
+          usuario: usuario,
+          perfil: item.perfil || "Professor",
+          aparelhosAtivos: 0,
+          ultimaAtualizacao: "",
+          ultimaAtualizacaoDate: null,
+          ultimoEnvio: "",
+          ultimoEnvioDate: null,
+          status: "",
+          erros: []
+        });
+      }
+
+      const grupo = mapa.get(chave);
+      if (item.ativo) grupo.aparelhosAtivos += 1;
+
+      const atualizacaoDate = dataHoraHistoricoParaDate(item.ultimaAtualizacao);
+      if (atualizacaoDate && (!grupo.ultimaAtualizacaoDate || atualizacaoDate > grupo.ultimaAtualizacaoDate)) {
+        grupo.ultimaAtualizacaoDate = atualizacaoDate;
+        grupo.ultimaAtualizacao = item.ultimaAtualizacao;
+      }
+
+      const envioDate = dataHoraHistoricoParaDate(item.ultimoEnvio);
+      if (envioDate && (!grupo.ultimoEnvioDate || envioDate > grupo.ultimoEnvioDate)) {
+        grupo.ultimoEnvioDate = envioDate;
+        grupo.ultimoEnvio = item.ultimoEnvio;
+        grupo.status = item.ultimoStatus || grupo.status;
+      }
+
+      if (item.ultimoErro) grupo.erros.push(item.ultimoErro);
+      if (!grupo.status && item.ultimoStatus) grupo.status = item.ultimoStatus;
+    });
+
+    return Array.from(mapa.values()).sort((a, b) =>
+      a.usuario.localeCompare(b.usuario, "pt-BR", { sensitivity: "base" })
+    );
+  }
+
+  function renderizarNotificacoesAppAdmin() {
+    const tbody = document.getElementById("tabelaNotificacoesApp");
+    const configuracao = statusNotificacoesAppCache?.configuracao || {};
+    const automacaoInstalada = Boolean(statusNotificacoesAppCache?.automacaoInstalada);
+    const hora = Number(statusNotificacoesAppCache?.horaProgramada || 8);
+    const grupos = agruparNotificacoesAppPorUsuario();
+    const ativos = grupos.filter((item) => item.aparelhosAtivos > 0);
+    const totalAparelhos = ativos.reduce((total, item) => total + item.aparelhosAtivos, 0);
+
+    const profEl = document.getElementById("notifProfessoresAtivos");
+    const apEl = document.getElementById("notifAparelhosAtivos");
+    const autoEl = document.getElementById("notifAutomacaoStatus");
+    const horaEl = document.getElementById("notifHorarioStatus");
+    const statusEl = document.getElementById("statusConfiguracaoNotificacoes");
+
+    if (profEl) profEl.textContent = String(ativos.length);
+    if (apEl) apEl.textContent = String(totalAparelhos);
+    if (autoEl) autoEl.textContent = automacaoInstalada ? "Ativa ✅" : "Não instalada";
+    if (horaEl) horaEl.textContent = `${String(hora).padStart(2, "0")}:00`;
+
+    if (statusEl) {
+      if (configuracao.completa) {
+        statusEl.innerHTML = "<strong>Firebase configurado ✅</strong> · O app pode registrar aparelhos e o Apps Script pode enviar notificações.";
+      } else {
+        const ausentes = Array.isArray(configuracao.ausentes) ? configuracao.ausentes : [];
+        statusEl.innerHTML = `<strong>Configuração incompleta.</strong> Propriedades ausentes no Apps Script: ${escapeHtmlAdmin(ausentes.join(", ") || "verifique as propriedades do Firebase")}.`;
+      }
+    }
+
+    if (!tbody) return;
+    if (!grupos.length) {
+      tbody.innerHTML = '<tr><td colspan="7">Nenhum professor ativou notificações neste aparelho ainda.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = grupos.map((item) => {
+      const ativo = item.aparelhosAtivos > 0;
+      const status = item.erros.length
+        ? "Erro no último envio"
+        : (item.status || (ativo ? "Ativa" : "Desativada"));
+      const usuarioCodificado = encodeURIComponent(item.usuario);
+
+      return `
+        <tr>
+          <td><strong>${escapeHtmlAdmin(item.usuario)}</strong></td>
+          <td>${escapeHtmlAdmin(item.perfil || "Professor")}</td>
+          <td>${item.aparelhosAtivos}</td>
+          <td>${escapeHtmlAdmin(item.ultimaAtualizacao || "—")}</td>
+          <td>${escapeHtmlAdmin(item.ultimoEnvio || "—")}</td>
+          <td>${escapeHtmlAdmin(status)}</td>
+          <td>
+            <button class="compact-btn" type="button" ${ativo ? "" : "disabled"} onclick="testarNotificacaoProfessorAdmin(decodeURIComponent('${usuarioCodificado}'))">
+              🧪 Testar
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  async function carregarNotificacoesApp(modoSilencioso = false) {
+    const tbody = document.getElementById("tabelaNotificacoesApp");
+    if (!modoSilencioso && tbody) {
+      tbody.innerHTML = '<tr><td colspan="7">Carregando notificações...</td></tr>';
+    }
+
+    try {
+      const token = obterSenhaObrigatoria();
+      const resposta = await chamarAppsScript({
+        acao: "consultarNotificacoesApp",
+        tokenAdmin: token,
+        _nocache: Date.now()
+      });
+
+      if (!resposta || !resposta.sucesso) {
+        throw new Error((resposta && resposta.mensagem) || "Não foi possível consultar as notificações.");
+      }
+
+      notificacoesAppCache = Array.isArray(resposta.registros) ? resposta.registros : [];
+      statusNotificacoesAppCache = {
+        configuracao: resposta.configuracao || {},
+        automacaoInstalada: Boolean(resposta.automacaoInstalada),
+        horaProgramada: Number(resposta.horaProgramada || 8)
+      };
+      renderizarNotificacoesAppAdmin();
+      if (!modoSilencioso) mostrarStatus("success", "Notificações atualizadas.");
+    } catch (erro) {
+      if (tbody) tbody.innerHTML = `<tr><td colspan="7">${escapeHtmlAdmin(erro.message || "Erro ao consultar notificações.")}</td></tr>`;
+      if (!modoSilencioso) mostrarStatus("error", erro.message || "Erro ao consultar notificações.");
+    }
+  }
+
+  async function instalarAutomacaoNotificacoesAdmin() {
+    const confirmar = window.confirm(
+      "Instalar ou atualizar a automação de notificações?\n\nEla verificará a escala diariamente por volta das 08h e enviará somente na segunda e na sexta para os professores escalados."
+    );
+    if (!confirmar) return;
+
+    try {
+      const token = obterSenhaObrigatoria();
+      mostrarStatus("info", "Instalando a automação de notificações...");
+      const resposta = await chamarAppsScript({
+        acao: "instalarAutomacaoNotificacoes",
+        tokenAdmin: token,
+        _nocache: Date.now()
+      });
+
+      if (!resposta || !resposta.sucesso) {
+        throw new Error((resposta && resposta.mensagem) || "Não foi possível instalar a automação.");
+      }
+
+      mostrarStatus("success", resposta.mensagem || "Automação instalada.");
+      await carregarNotificacoesApp(true);
+    } catch (erro) {
+      mostrarStatus("error", erro.message || "Erro ao instalar a automação.");
+    }
+  }
+
+  async function testarNotificacaoProfessorAdmin(usuario) {
+    const nome = String(usuario || "").trim();
+    if (!nome) return;
+
+    if (!window.confirm(`Enviar uma notificação de teste para os aparelhos ativos de ${nome}?`)) return;
+
+    try {
+      const token = obterSenhaObrigatoria();
+      mostrarStatus("info", `Enviando teste para ${nome}...`);
+      const resposta = await chamarAppsScript({
+        acao: "testarNotificacaoApp",
+        tokenAdmin: token,
+        usuario: nome,
+        _nocache: Date.now()
+      });
+
+      if (!resposta || !resposta.sucesso) {
+        throw new Error((resposta && resposta.mensagem) || "Não foi possível enviar a notificação de teste.");
+      }
+
+      mostrarStatus("success", `${resposta.enviados || 0} notificação(ões) de teste enviada(s) para ${nome}.`);
+      await carregarNotificacoesApp(true);
+    } catch (erro) {
+      mostrarStatus("error", erro.message || "Erro ao enviar a notificação de teste.");
+    }
+  }
+
   function normalizarHistoricoTrocaProfessor(item) {
     const bruto = item && typeof item === "object" ? item : {};
     return {
@@ -6287,7 +6555,7 @@
   }
 
   function abrirPainel(nome) {
-    ["licoes", "escala", "compartilharEscala", "avisos", "historicoEscalas", "professores", "quizzes", "mapa", "manual", "acessosApp", "historico"].forEach((p) => {
+    ["licoes", "escala", "compartilharEscala", "avisos", "historicoEscalas", "professores", "quizzes", "mapa", "manual", "acessosApp", "notificacoes", "historico"].forEach((p) => {
       const painel = document.getElementById(`painel${p.charAt(0).toUpperCase() + p.slice(1)}`);
       const botao = document.getElementById(`aba${p.charAt(0).toUpperCase() + p.slice(1)}Btn`);
 
@@ -6318,6 +6586,7 @@
     if (nome === "quizzes") carregarQuizzesAdmin();
     if (nome === "mapa") carregarAtualizacoesMapa();
     if (nome === "acessosApp") carregarAcessosApp();
+    if (nome === "notificacoes") carregarNotificacoesApp();
     if (nome === "historico") carregarHistorico();
   }
   function abrirAbaLicao(aba) { let adulto=aba==="adultos"; document.getElementById("tabAdultos").classList.toggle("active", adulto); document.getElementById("tabJovens").classList.toggle("active", !adulto); document.getElementById("painelAdultos").classList.toggle("active", adulto); document.getElementById("painelJovens").classList.toggle("active", !adulto); }

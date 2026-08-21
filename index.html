@@ -12,7 +12,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_COMPARTILHAR_ESCALA_2026_08_21_1132" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_PUSH_FCM_2026_08_21_1238" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -5378,6 +5378,34 @@
       }
     }
 
+
+    .notification-app-status {
+      margin-top: 8px;
+      text-align: center;
+      font-size: 0.84rem;
+      color: #64748b;
+    }
+
+    .notification-app-status.success {
+      color: #166534;
+    }
+
+    .notification-app-status.warning {
+      color: #92400e;
+    }
+
+    .notification-app-subtle.is-active {
+      border-color: #86efac;
+      background: #f0fdf4;
+      color: #166534;
+    }
+
+    .notification-app-subtle.is-blocked {
+      border-color: #fecaca;
+      background: #fff1f2;
+      color: #9f1239;
+    }
+
   </style>
 </head>
 
@@ -5565,8 +5593,10 @@
           Para instalar: no Android, abra no Chrome e toque em <strong>Adicionar à tela inicial</strong>. No iPhone, abra no Safari e toque em <strong>Adicionar à Tela de Início</strong>.
         </p>
         <div class="install-app-subtle-wrap">
+          <button id="btnNotificacoesEBD" class="install-app-subtle notification-app-subtle requer-perfil-professor-notificacao" type="button" onclick="gerenciarNotificacoesEBD()" hidden>🔔 Ativar notificações</button>
           <button id="btnInstalarAppDiscreto" class="install-app-subtle" type="button" onclick="instalarAppEBD()">📱 Instalar app</button>
         </div>
+        <div id="estadoNotificacoesEBD" class="notification-app-status" hidden aria-live="polite"></div>
       </div>
     </section>
 
@@ -6090,6 +6120,9 @@
     </div>
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js"></script>
+
   <script>
 
     function ajustarSubtituloAoTitulo() {
@@ -6113,7 +6146,14 @@
     const CHAVE_DISPOSITIVO_ACESSO_EBD = "ebdDispositivoAcessoV1";
     const SUPERINTENDENTES_EBD = ["Elias", "Ronan"];
     const PERFIS_CONSULTA_EBD = ["Diretoria", "Aluno"];
+    const CHAVE_TOKEN_PUSH_EBD = "ebdPushTokenV1";
+    const CHAVE_PUSH_ATIVO_EBD = "ebdPushAtivoV1";
     let usuarioIdentificadoEBD = "";
+    let configNotificacoesEBD = null;
+    let serviceWorkerRegistroEBD = null;
+    let messagingEBD = null;
+    let listenerMensagemFirebaseEBD = false;
+    let inicializandoNotificacoesEBD = null;
 
     const SITE_PUBLICADO =
       (location.protocol === "https:" || location.protocol === "http:") &&
@@ -6651,10 +6691,15 @@
       document.querySelectorAll(".requer-permissao-alteracao").forEach((elemento) => {
         elemento.hidden = somenteConsulta;
       });
+      document.querySelectorAll(".requer-perfil-professor-notificacao").forEach((elemento) => {
+        elemento.hidden = somenteConsulta || !configNotificacoesEBD?.configurado;
+      });
 
       if (somenteConsulta && modal?.classList.contains("active")) {
         fecharModal();
       }
+
+      atualizarBotaoNotificacoesEBD();
     }
 
     function atualizarAvisoPerfilIdentificado() {
@@ -6712,6 +6757,9 @@
 
       salvarUsuarioIdentificado(nome);
       registrarAcessoIdentificadoEBD(nome);
+      sincronizarNotificacaoComUsuarioEBD().catch(function(erro) {
+        console.warn("Não foi possível sincronizar a identificação das notificações:", erro);
+      });
 
       const modalIdentificacao = document.getElementById("modalIdentificacaoUsuario");
       if (modalIdentificacao) {
@@ -6742,6 +6790,9 @@
         usuarioIdentificadoEBD = correspondente;
         atualizarBarraUsuarioIdentificado();
         registrarAcessoIdentificadoEBD(correspondente);
+        sincronizarNotificacaoComUsuarioEBD().catch(function(erro) {
+          console.warn("Não foi possível sincronizar a identificação das notificações:", erro);
+        });
         setTimeout(verificarLembreteProfessorSemana, 180);
         return;
       }
@@ -7440,6 +7491,401 @@
       abrirModal();
     }
 
+
+    function ehIOSNotificacaoEBD() {
+      const ua = String(navigator.userAgent || "");
+      const plataforma = String(navigator.platform || "");
+      return /iPad|iPhone|iPod/i.test(ua) || (plataforma === "MacIntel" && Number(navigator.maxTouchPoints || 0) > 1);
+    }
+
+    function obterTokenPushSalvoEBD() {
+      try {
+        return String(localStorage.getItem(CHAVE_TOKEN_PUSH_EBD) || "").trim();
+      } catch (erro) {
+        return "";
+      }
+    }
+
+    function salvarTokenPushEBD(token) {
+      try {
+        const valor = String(token || "").trim();
+        if (valor) {
+          localStorage.setItem(CHAVE_TOKEN_PUSH_EBD, valor);
+          localStorage.setItem(CHAVE_PUSH_ATIVO_EBD, "1");
+        } else {
+          localStorage.removeItem(CHAVE_TOKEN_PUSH_EBD);
+          localStorage.removeItem(CHAVE_PUSH_ATIVO_EBD);
+        }
+      } catch (erro) {
+        console.warn("Não foi possível salvar o estado das notificações:", erro);
+      }
+    }
+
+    function notificacaoAtivaLocalEBD() {
+      try {
+        return localStorage.getItem(CHAVE_PUSH_ATIVO_EBD) === "1" && Boolean(obterTokenPushSalvoEBD());
+      } catch (erro) {
+        return false;
+      }
+    }
+
+    function recursosPushDisponiveisEBD() {
+      return Boolean(
+        SITE_PUBLICADO &&
+        window.isSecureContext &&
+        "Notification" in window &&
+        "serviceWorker" in navigator &&
+        "PushManager" in window
+      );
+    }
+
+    function definirEstadoNotificacoesEBD(texto, tipo) {
+      const estado = document.getElementById("estadoNotificacoesEBD");
+      if (!estado) return;
+      const mensagem = String(texto || "").trim();
+      estado.hidden = !mensagem;
+      estado.textContent = mensagem;
+      estado.className = "notification-app-status" + (tipo ? " " + tipo : "");
+    }
+
+    function atualizarBotaoNotificacoesEBD() {
+      const botao = document.getElementById("btnNotificacoesEBD");
+      if (!botao) return;
+
+      const consulta = ehPerfilConsultaPublico(usuarioIdentificadoEBD);
+      const configurado = Boolean(configNotificacoesEBD && configNotificacoesEBD.configurado);
+      botao.hidden = consulta || !configurado;
+
+      if (botao.hidden) {
+        definirEstadoNotificacoesEBD("", "");
+        return;
+      }
+
+      botao.classList.remove("is-active", "is-blocked");
+
+      if (!recursosPushDisponiveisEBD()) {
+        botao.textContent = "🔕 Notificações indisponíveis";
+        botao.disabled = true;
+        definirEstadoNotificacoesEBD("", "");
+        return;
+      }
+
+      botao.disabled = false;
+
+      if (Notification.permission === "denied") {
+        botao.textContent = "🔕 Notificações bloqueadas";
+        botao.classList.add("is-blocked");
+        definirEstadoNotificacoesEBD("As notificações estão bloqueadas nas configurações do navegador.", "warning");
+        return;
+      }
+
+      if (Notification.permission === "granted" && notificacaoAtivaLocalEBD()) {
+        botao.textContent = "🔔 Notificações ativas";
+        botao.classList.add("is-active");
+        definirEstadoNotificacoesEBD("Você receberá lembretes quando estiver escalado.", "success");
+        return;
+      }
+
+      botao.textContent = "🔔 Ativar notificações";
+      definirEstadoNotificacoesEBD("", "");
+    }
+
+    async function carregarConfigNotificacoesEBD() {
+      if (configNotificacoesEBD) return configNotificacoesEBD;
+      if (!SITE_PUBLICADO) return null;
+
+      try {
+        const resposta = await chamarAppsScript({
+          acao: "configNotificacoes",
+          _nocache: Date.now()
+        });
+
+        if (resposta && resposta.sucesso) {
+          configNotificacoesEBD = resposta;
+        } else {
+          configNotificacoesEBD = { configurado: false };
+        }
+      } catch (erro) {
+        console.warn("Não foi possível consultar a configuração de notificações:", erro);
+        configNotificacoesEBD = { configurado: false };
+      }
+
+      atualizarPermissoesUsuarioIdentificado();
+      return configNotificacoesEBD;
+    }
+
+    function montarUrlServiceWorkerEBD(config) {
+      const firebaseConfig = config?.firebaseConfig || {};
+      const parametros = new URLSearchParams();
+      [
+        "apiKey",
+        "authDomain",
+        "projectId",
+        "storageBucket",
+        "messagingSenderId",
+        "appId"
+      ].forEach((chave) => {
+        if (firebaseConfig[chave]) parametros.set(chave, firebaseConfig[chave]);
+      });
+      parametros.set("v", String(config?.versao || "1"));
+      return "service-worker.js?" + parametros.toString();
+    }
+
+    async function registrarServiceWorkerNotificacoesEBD(config) {
+      if (!("serviceWorker" in navigator)) return null;
+
+      const urlWorker = config?.configurado
+        ? montarUrlServiceWorkerEBD(config)
+        : "service-worker.js?v=push-base";
+
+      const registro = await navigator.serviceWorker.register(urlWorker, {
+        scope: "./",
+        updateViaCache: "none"
+      });
+
+      serviceWorkerRegistroEBD = registro;
+      try {
+        await registro.update();
+      } catch (erro) {
+        console.warn("Não foi possível verificar atualização do service worker:", erro);
+      }
+      return registro;
+    }
+
+    async function obterMessagingEBD() {
+      if (messagingEBD) return messagingEBD;
+      if (!window.firebase || !firebase.messaging) {
+        throw new Error("O serviço de notificações ainda não foi carregado. Atualize a página e tente novamente.");
+      }
+
+      const config = await carregarConfigNotificacoesEBD();
+      if (!config?.configurado) {
+        throw new Error("As notificações ainda não foram configuradas pela administração.");
+      }
+
+      const firebaseConfig = config.firebaseConfig || {};
+      let appFirebase;
+      if (Array.isArray(firebase.apps) && firebase.apps.length) {
+        appFirebase = firebase.app();
+      } else {
+        appFirebase = firebase.initializeApp(firebaseConfig);
+      }
+
+      messagingEBD = firebase.messaging(appFirebase);
+
+      if (!listenerMensagemFirebaseEBD && typeof messagingEBD.onMessage === "function") {
+        listenerMensagemFirebaseEBD = true;
+        messagingEBD.onMessage(async function(payload) {
+          try {
+            const dados = payload?.data || {};
+            const titulo = dados.title || "Escala EBD";
+            const corpo = dados.body || "Você recebeu um novo lembrete da Escala EBD.";
+            const registro = serviceWorkerRegistroEBD || await navigator.serviceWorker.ready;
+            if (registro && Notification.permission === "granted") {
+              await registro.showNotification(titulo, {
+                body: corpo,
+                icon: "logoebd.png",
+                badge: "logoebd.png",
+                tag: dados.tag || "escala-ebd-lembrete",
+                data: { url: dados.url || "https://escala.ebdfiel.com.br/" }
+              });
+            }
+          } catch (erro) {
+            console.warn("Não foi possível exibir a notificação recebida em primeiro plano:", erro);
+          }
+        });
+      }
+
+      return messagingEBD;
+    }
+
+    async function registrarTokenPushNoBackendEBD(token) {
+      if (!usuarioIdentificadoEBD || ehPerfilConsultaPublico(usuarioIdentificadoEBD)) return false;
+
+      const resposta = await chamarAppsScript({
+        acao: "registrarPushApp",
+        usuarioIdentificado: usuarioIdentificadoEBD,
+        perfil: perfilUsuarioAcessoEBD(usuarioIdentificadoEBD),
+        dispositivoId: obterIdDispositivoAcessoEBD(),
+        origem: origemAcessoAppEBD(),
+        tokenPush: String(token || ""),
+        _nocache: Date.now()
+      });
+
+      if (!resposta || !resposta.sucesso) {
+        throw new Error((resposta && resposta.mensagem) || "Não foi possível registrar este aparelho para notificações.");
+      }
+
+      return true;
+    }
+
+    async function removerTokenPushDoBackendEBD(token) {
+      const valor = String(token || "").trim();
+      if (!valor) return;
+      try {
+        await chamarAppsScript({
+          acao: "removerPushApp",
+          tokenPush: valor,
+          dispositivoId: obterIdDispositivoAcessoEBD(),
+          _nocache: Date.now()
+        });
+      } catch (erro) {
+        console.warn("Não foi possível remover o aparelho da lista de notificações:", erro);
+      }
+    }
+
+    async function obterOuAtualizarTokenPushEBD() {
+      const config = await carregarConfigNotificacoesEBD();
+      if (!config?.configurado) {
+        throw new Error("As notificações ainda não foram configuradas.");
+      }
+
+      const registro = serviceWorkerRegistroEBD || await registrarServiceWorkerNotificacoesEBD(config);
+      const messaging = await obterMessagingEBD();
+      const token = await messaging.getToken({
+        vapidKey: config.vapidPublicKey,
+        serviceWorkerRegistration: registro
+      });
+
+      if (!token) {
+        throw new Error("O navegador não forneceu um identificador para receber notificações.");
+      }
+
+      salvarTokenPushEBD(token);
+      return token;
+    }
+
+    async function ativarNotificacoesEBD() {
+      if (!usuarioIdentificadoEBD) {
+        abrirIdentificacaoUsuario(false);
+        return;
+      }
+
+      if (ehPerfilConsultaPublico(usuarioIdentificadoEBD)) return;
+
+      const config = await carregarConfigNotificacoesEBD();
+      if (!config?.configurado) {
+        alert("As notificações ainda estão sendo configuradas. Tente novamente mais tarde.");
+        return;
+      }
+
+      if (!recursosPushDisponiveisEBD()) {
+        alert("Este navegador não oferece suporte às notificações do app.");
+        return;
+      }
+
+      if (ehIOSNotificacaoEBD() && !appJaInstaladoEBD()) {
+        alert("No iPhone/iPad, instale primeiro a Escala EBD na Tela de Início. Depois abra o app instalado e ative as notificações.");
+        abrirTelaRapida("instalarApp");
+        return;
+      }
+
+      if (Notification.permission === "denied") {
+        alert("As notificações estão bloqueadas neste navegador. Abra as configurações do site/app e permita notificações para a Escala EBD.");
+        atualizarBotaoNotificacoesEBD();
+        return;
+      }
+
+      definirEstadoNotificacoesEBD("Ativando notificações...", "");
+      const permissao = Notification.permission === "granted"
+        ? "granted"
+        : await Notification.requestPermission();
+
+      if (permissao !== "granted") {
+        atualizarBotaoNotificacoesEBD();
+        return;
+      }
+
+      const token = await obterOuAtualizarTokenPushEBD();
+      await registrarTokenPushNoBackendEBD(token);
+      atualizarBotaoNotificacoesEBD();
+      definirEstadoNotificacoesEBD("Notificações ativadas neste aparelho. ✅", "success");
+    }
+
+    async function desativarNotificacoesEBD() {
+      const token = obterTokenPushSalvoEBD();
+      await removerTokenPushDoBackendEBD(token);
+
+      try {
+        const messaging = await obterMessagingEBD();
+        if (messaging && typeof messaging.deleteToken === "function") {
+          await messaging.deleteToken();
+        }
+      } catch (erro) {
+        console.warn("O token local não pôde ser excluído completamente:", erro);
+      }
+
+      salvarTokenPushEBD("");
+      atualizarBotaoNotificacoesEBD();
+      definirEstadoNotificacoesEBD("Notificações desativadas neste aparelho.", "");
+    }
+
+    async function gerenciarNotificacoesEBD() {
+      try {
+        if (Notification.permission === "granted" && notificacaoAtivaLocalEBD()) {
+          const confirmar = window.confirm("As notificações já estão ativas neste aparelho. Deseja desativá-las?");
+          if (confirmar) await desativarNotificacoesEBD();
+          return;
+        }
+        await ativarNotificacoesEBD();
+      } catch (erro) {
+        console.error("Erro ao configurar notificações:", erro);
+        definirEstadoNotificacoesEBD(erro.message || "Não foi possível configurar as notificações.", "warning");
+        alert(erro.message || "Não foi possível configurar as notificações.");
+      }
+    }
+
+    async function sincronizarNotificacaoComUsuarioEBD() {
+      const tokenLocal = obterTokenPushSalvoEBD();
+      if (!tokenLocal || !recursosPushDisponiveisEBD() || Notification.permission !== "granted") {
+        atualizarBotaoNotificacoesEBD();
+        return;
+      }
+
+      if (ehPerfilConsultaPublico(usuarioIdentificadoEBD)) {
+        await removerTokenPushDoBackendEBD(tokenLocal);
+        atualizarBotaoNotificacoesEBD();
+        return;
+      }
+
+      const config = await carregarConfigNotificacoesEBD();
+      if (!config?.configurado) return;
+
+      try {
+        const tokenAtual = await obterOuAtualizarTokenPushEBD();
+        await registrarTokenPushNoBackendEBD(tokenAtual);
+      } finally {
+        atualizarBotaoNotificacoesEBD();
+      }
+    }
+
+    async function inicializarInfraNotificacoesEBD() {
+      if (inicializandoNotificacoesEBD) return inicializandoNotificacoesEBD;
+
+      inicializandoNotificacoesEBD = (async function() {
+        try {
+          const config = await carregarConfigNotificacoesEBD();
+          await registrarServiceWorkerNotificacoesEBD(config || { configurado: false });
+          atualizarBotaoNotificacoesEBD();
+
+          if (
+            config?.configurado &&
+            Notification.permission === "granted" &&
+            obterTokenPushSalvoEBD() &&
+            usuarioIdentificadoEBD &&
+            !ehPerfilConsultaPublico(usuarioIdentificadoEBD)
+          ) {
+            await sincronizarNotificacaoComUsuarioEBD();
+          }
+        } catch (erro) {
+          console.warn("Infraestrutura de notificações não pôde ser inicializada:", erro);
+          atualizarBotaoNotificacoesEBD();
+        }
+      })();
+
+      return inicializandoNotificacoesEBD;
+    }
+
     function appJaInstaladoEBD() {
       return Boolean(
         (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
@@ -7614,7 +8060,9 @@
       try {
         if ("serviceWorker" in navigator) {
           const registros = await navigator.serviceWorker.getRegistrations();
-          await Promise.all(registros.map(function (registro) { return registro.unregister(); }));
+          await Promise.all(registros.map(function (registro) {
+            return registro.update().catch(function () { return null; });
+          }));
         }
         if ("caches" in window) {
           const nomes = await caches.keys();
@@ -9467,17 +9915,9 @@
 
     if (SITE_PUBLICADO) {
       window.addEventListener("load", function () {
-        if ("serviceWorker" in navigator) {
-          navigator.serviceWorker.getRegistrations()
-            .then(function (registrations) {
-              return Promise.all(registrations.map(function (registration) {
-                return registration.unregister();
-              }));
-            })
-            .catch(function (erro) {
-              console.warn("Não foi possível remover service worker antigo:", erro);
-            });
-        }
+        inicializarInfraNotificacoesEBD().catch(function (erro) {
+          console.warn("Não foi possível inicializar as notificações:", erro);
+        });
 
         if ("caches" in window) {
           caches.keys()

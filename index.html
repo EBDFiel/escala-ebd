@@ -5397,6 +5397,131 @@
       transform: translateY(-1px);
     }
 
+    .welcome-app-modal {
+      max-width: 500px;
+    }
+
+    .welcome-app-modal .modal-header {
+      justify-content: center;
+      text-align: center;
+      background: linear-gradient(135deg, #123f64 0%, #1f5f8b 100%);
+      color: #ffffff;
+    }
+
+    .welcome-app-modal .modal-header h2 {
+      color: #ffffff;
+    }
+
+    .welcome-app-intro {
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .welcome-app-icon {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto 10px;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      background: #fff7d6;
+      border: 1px solid #f2d675;
+      font-size: 1.75rem;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, .08);
+    }
+
+    .welcome-app-intro p {
+      margin: 0;
+      color: #475569;
+      line-height: 1.5;
+    }
+
+    .welcome-app-benefit {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 11px;
+      align-items: start;
+      padding: 12px 13px;
+      margin-top: 10px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px solid #dbe4ee;
+    }
+
+    .welcome-app-benefit.notification {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+
+    .welcome-app-benefit-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: #ffffff;
+      font-size: 1.25rem;
+      box-shadow: 0 3px 10px rgba(15, 23, 42, .06);
+    }
+
+    .welcome-app-benefit strong {
+      display: block;
+      margin-bottom: 3px;
+      color: #0f2f4a;
+      font-size: .93rem;
+    }
+
+    .welcome-app-benefit p {
+      margin: 0;
+      color: #52657a;
+      font-size: .84rem;
+      line-height: 1.45;
+    }
+
+    .welcome-app-actions {
+      display: grid;
+      gap: 9px;
+      margin-top: 16px;
+    }
+
+    .welcome-app-actions .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .welcome-app-actions .btn-notification {
+      background: #166534;
+      border-color: #166534;
+    }
+
+    .welcome-app-actions .btn-notification:hover {
+      background: #14532d;
+      border-color: #14532d;
+    }
+
+    .welcome-app-later {
+      border: 0;
+      background: transparent;
+      color: #64748b;
+      font-weight: 800;
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+
+    .welcome-app-later:hover {
+      color: #1f5f8b;
+    }
+
+    @media (max-width: 620px) {
+      .welcome-app-modal {
+        width: min(94vw, 480px);
+      }
+
+      .welcome-app-modal .modal-body {
+        padding: 16px;
+      }
+    }
+
     .reminder-modal {
       max-width: 520px;
     }
@@ -6440,6 +6565,42 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="modalConviteAppEBD" aria-hidden="true">
+    <div class="modal welcome-app-modal" role="dialog" aria-modal="true" aria-labelledby="tituloConviteAppEBD">
+      <div class="modal-header">
+        <h2 id="tituloConviteAppEBD">📱 Tenha a Escala EBD sempre à mão</h2>
+      </div>
+      <div class="modal-body">
+        <div class="welcome-app-intro">
+          <div class="welcome-app-icon" aria-hidden="true">📲</div>
+          <p id="textoConviteAppEBD">Instale o aplicativo no seu celular para acessar a escala com mais facilidade.</p>
+        </div>
+
+        <div id="beneficioInstalacaoConviteEBD" class="welcome-app-benefit">
+          <div class="welcome-app-benefit-icon" aria-hidden="true">📱</div>
+          <div>
+            <strong>Instale no celular</strong>
+            <p>A Escala EBD ficará disponível na sua tela inicial, com acesso rápido como um aplicativo.</p>
+          </div>
+        </div>
+
+        <div id="beneficioNotificacaoConviteEBD" class="welcome-app-benefit notification" hidden>
+          <div class="welcome-app-benefit-icon" aria-hidden="true">🔔</div>
+          <div>
+            <strong>Ative as notificações</strong>
+            <p>Quando você estiver escalado para dar aula, receberá lembretes na segunda-feira e na sexta-feira da semana da sua aula.</p>
+          </div>
+        </div>
+
+        <div class="welcome-app-actions">
+          <button id="btnInstalarConviteEBD" type="button" class="btn" onclick="instalarPeloConviteEBD()">📱 Instalar app</button>
+          <button id="btnNotificarConviteEBD" type="button" class="btn btn-notification" onclick="ativarNotificacoesPeloConviteEBD()" hidden>🔔 Ativar notificações</button>
+          <button type="button" class="welcome-app-later" onclick="adiarConviteAppEBD()">Agora não</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="modalAlteracao">
     <div class="modal">
       <div class="modal-header">
@@ -6667,6 +6828,9 @@
     const PERFIS_CONSULTA_EBD = ["Diretoria", "Aluno"];
     const CHAVE_TOKEN_PUSH_EBD = "ebdPushTokenV1";
     const CHAVE_PUSH_ATIVO_EBD = "ebdPushAtivoV1";
+    const CHAVE_CONVITE_APP_EBD = "ebdConviteAppV1";
+    const DIAS_ADIAR_CONVITE_APP_EBD = 7;
+    let conviteAppTimerEBD = null;
     let usuarioIdentificadoEBD = "";
     let configNotificacoesEBD = null;
     let serviceWorkerRegistroEBD = null;
@@ -7434,6 +7598,7 @@
         }
 
         setTimeout(verificarLembreteProfessorSemana, 180);
+        agendarConviteAppEBD(900);
       } catch (erro) {
         alert(erro.message || "Não foi possível validar o acesso de superintendente.");
         campoSenha?.focus();
@@ -7495,6 +7660,7 @@
           console.warn("Não foi possível sincronizar a identificação das notificações:", erro);
         });
         setTimeout(verificarLembreteProfessorSemana, 180);
+        agendarConviteAppEBD(900);
         return;
       }
 
@@ -8587,6 +8753,186 @@
       return inicializandoNotificacoesEBD;
     }
 
+    function ehNavegadorCelularEBD() {
+      const ua = String(navigator.userAgent || "");
+      const mobileUA = /Android|iPhone|iPad|iPod|IEMobile|Opera Mini|Mobile/i.test(ua);
+      const touchCompacto = Number(navigator.maxTouchPoints || 0) > 1 && window.innerWidth <= 1024;
+      return Boolean(mobileUA || touchCompacto);
+    }
+
+    function chaveConviteAppUsuarioEBD() {
+      const usuario = chaveNomeUsuarioEBD(usuarioIdentificadoEBD).replace(/\s+/g, "-") || "usuario";
+      return `${CHAVE_CONVITE_APP_EBD}:${usuario}`;
+    }
+
+    function conviteAppEstaAdiadoEBD() {
+      try {
+        const ate = Number(localStorage.getItem(chaveConviteAppUsuarioEBD()) || 0);
+        return Number.isFinite(ate) && ate > Date.now();
+      } catch (erro) {
+        return false;
+      }
+    }
+
+    function limparAdiamentoConviteAppEBD() {
+      try {
+        localStorage.removeItem(chaveConviteAppUsuarioEBD());
+      } catch (erro) {
+        console.warn("Não foi possível limpar o adiamento da sugestão do app:", erro);
+      }
+    }
+
+    function fecharConviteAppEBD() {
+      const modalConvite = document.getElementById("modalConviteAppEBD");
+      if (!modalConvite) return;
+      modalConvite.classList.remove("active");
+      modalConvite.setAttribute("aria-hidden", "true");
+      if (!document.querySelector(".modal-overlay.active")) {
+        document.body.style.overflow = "";
+      }
+    }
+
+    function adiarConviteAppEBD() {
+      try {
+        const dias = DIAS_ADIAR_CONVITE_APP_EBD * 24 * 60 * 60 * 1000;
+        localStorage.setItem(chaveConviteAppUsuarioEBD(), String(Date.now() + dias));
+      } catch (erro) {
+        console.warn("Não foi possível registrar o adiamento da sugestão do app:", erro);
+      }
+      fecharConviteAppEBD();
+    }
+
+    function modalImportanteAbertoEBD() {
+      const ids = [
+        "modalIdentificacaoUsuario",
+        "modalLembreteProfessor",
+        "modalAlteracao",
+        "modalConfirmacaoTroca",
+        "modalComprovanteTroca",
+        "modalCompartilharEscala",
+        "modalLicao",
+        "modalHistoricoTrimestre"
+      ];
+      return ids.some((id) => document.getElementById(id)?.classList.contains("active"));
+    }
+
+    async function abrirConviteAppEBD() {
+      if (!usuarioIdentificadoEBD) return;
+      if (!ehNavegadorCelularEBD() || appJaInstaladoEBD()) return;
+      if (conviteAppEstaAdiadoEBD()) return;
+
+      if (modalImportanteAbertoEBD()) {
+        agendarConviteAppEBD(2200);
+        return;
+      }
+
+      const consulta = ehPerfilConsultaPublico(usuarioIdentificadoEBD);
+      let config = configNotificacoesEBD;
+      if (!consulta && !config) {
+        try {
+          config = await carregarConfigNotificacoesEBD();
+        } catch (erro) {
+          config = null;
+        }
+      }
+
+      const instalacaoPendente = !appJaInstaladoEBD();
+      const notificacaoJaAtiva = Boolean(
+        !consulta &&
+        recursosPushDisponiveisEBD() &&
+        Notification.permission === "granted" &&
+        notificacaoAtivaLocalEBD()
+      );
+      const notificacaoPendente = Boolean(
+        !consulta &&
+        config?.configurado &&
+        recursosPushDisponiveisEBD() &&
+        !notificacaoJaAtiva
+      );
+
+      if (!instalacaoPendente && !notificacaoPendente) return;
+
+      const modalConvite = document.getElementById("modalConviteAppEBD");
+      const beneficioInstalacao = document.getElementById("beneficioInstalacaoConviteEBD");
+      const beneficioNotificacao = document.getElementById("beneficioNotificacaoConviteEBD");
+      const btnInstalar = document.getElementById("btnInstalarConviteEBD");
+      const btnNotificar = document.getElementById("btnNotificarConviteEBD");
+      const texto = document.getElementById("textoConviteAppEBD");
+      if (!modalConvite) return;
+
+      if (texto) {
+        if (consulta) {
+          texto.textContent = "Instale o aplicativo no seu celular para acessar a Escala EBD com mais facilidade.";
+        } else if (notificacaoPendente) {
+          texto.textContent = "Instale o aplicativo e ative as notificações para acompanhar sua escala com mais facilidade.";
+        } else {
+          texto.textContent = "Suas notificações já estão ativas. Instale também o aplicativo para ter a Escala EBD sempre à mão.";
+        }
+      }
+
+      if (beneficioInstalacao) beneficioInstalacao.hidden = !instalacaoPendente;
+      if (btnInstalar) btnInstalar.hidden = !instalacaoPendente;
+      if (beneficioNotificacao) beneficioNotificacao.hidden = !notificacaoPendente;
+      if (btnNotificar) {
+        btnNotificar.hidden = !notificacaoPendente;
+        btnNotificar.disabled = false;
+        btnNotificar.textContent = Notification.permission === "denied"
+          ? "🔕 Ver como liberar notificações"
+          : "🔔 Ativar notificações";
+      }
+
+      modalConvite.classList.add("active");
+      modalConvite.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function agendarConviteAppEBD(atraso = 900) {
+      if (conviteAppTimerEBD) clearTimeout(conviteAppTimerEBD);
+      conviteAppTimerEBD = setTimeout(function() {
+        abrirConviteAppEBD().catch(function(erro) {
+          console.warn("Não foi possível exibir a sugestão de instalação/notificações:", erro);
+        });
+      }, Math.max(250, Number(atraso) || 900));
+    }
+
+    async function instalarPeloConviteEBD() {
+      fecharConviteAppEBD();
+      await instalarAppEBD();
+    }
+
+    async function ativarNotificacoesPeloConviteEBD() {
+      const botao = document.getElementById("btnNotificarConviteEBD");
+      if (Notification.permission === "denied") {
+        alert("As notificações estão bloqueadas neste navegador. Abra as configurações do site/aplicativo no celular e permita as notificações. Depois volte à Escala EBD.");
+        return;
+      }
+
+      if (botao) {
+        botao.disabled = true;
+        botao.textContent = "Ativando...";
+      }
+
+      try {
+        await gerenciarNotificacoesEBD();
+        if (Notification.permission === "granted" && notificacaoAtivaLocalEBD()) {
+          limparAdiamentoConviteAppEBD();
+          atualizarBotaoNotificacoesEBD();
+          const beneficio = document.getElementById("beneficioNotificacaoConviteEBD");
+          const texto = document.getElementById("textoConviteAppEBD");
+          if (beneficio) beneficio.hidden = true;
+          if (botao) botao.hidden = true;
+          if (texto) texto.textContent = "Notificações ativadas com sucesso. Agora você também pode instalar a Escala EBD para acessar mais rapidamente pelo celular.";
+          if (appJaInstaladoEBD()) fecharConviteAppEBD();
+          return;
+        }
+      } finally {
+        if (botao) {
+          botao.disabled = false;
+          botao.textContent = "🔔 Ativar notificações";
+        }
+      }
+    }
+
     function appJaInstaladoEBD() {
       return Boolean(
         (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
@@ -8630,6 +8976,8 @@
     window.addEventListener("appinstalled", function () {
       promptInstalacaoEBD = null;
       atualizarBotaoInstalarAppEBD();
+      limparAdiamentoConviteAppEBD();
+      fecharConviteAppEBD();
     });
 
     function irParaInicioEBD() {

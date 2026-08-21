@@ -5305,6 +5305,79 @@
       }
     }
 
+
+    .install-app-subtle-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    .install-app-subtle {
+      border: 1px solid #dbe4ee;
+      background: rgba(255,255,255,.78);
+      color: #475569;
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: .82rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(15,23,42,.04);
+      transition: .18s ease;
+    }
+
+    .install-app-subtle:hover {
+      background: #ffffff;
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+      transform: translateY(-1px);
+    }
+
+    .reminder-modal {
+      max-width: 520px;
+    }
+
+    .reminder-card {
+      border: 1px solid #dbeafe;
+      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+      border-radius: 16px;
+      padding: 16px;
+      color: #334155;
+      line-height: 1.55;
+    }
+
+    .reminder-card h3 {
+      margin: 0 0 8px;
+      color: #0f172a;
+      font-size: 1.05rem;
+    }
+
+    .reminder-card p {
+      margin: 0;
+    }
+
+    .reminder-assignment {
+      margin-top: 12px;
+      padding: 11px 12px;
+      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid #dbeafe;
+      font-weight: 800;
+      color: #1e3a8a;
+    }
+
+    .reminder-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 520px) {
+      .reminder-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+
   </style>
 </head>
 
@@ -5474,12 +5547,6 @@
           <p>Veja todas as datas do trimestre.</p>
         </button>
 
-        <button class="quick-card quick-card-button" type="button" onclick="abrirTelaRapida('instalarApp')">
-          <span class="quick-icon">📲</span>
-          <h3>Instalar app</h3>
-          <p>Veja a orientação rápida para Android e iPhone.</p>
-        </button>
-
         <button class="quick-card quick-card-button" type="button" onclick="abrirTelaRapida('sobreApp')">
           <span class="quick-icon">ℹ️</span>
           <h3>Sobre e suporte</h3>
@@ -5497,6 +5564,9 @@
         <p style="margin-top:10px; color:#64748b; font-size:0.94rem;">
           Para instalar: no Android, abra no Chrome e toque em <strong>Adicionar à tela inicial</strong>. No iPhone, abra no Safari e toque em <strong>Adicionar à Tela de Início</strong>.
         </p>
+        <div class="install-app-subtle-wrap">
+          <button id="btnInstalarAppDiscreto" class="install-app-subtle" type="button" onclick="instalarAppEBD()">📱 Instalar app</button>
+        </div>
       </div>
     </section>
 
@@ -5924,6 +5994,23 @@
       <div class="modal-body">
         <p class="history-modal-intro">Conferência das datas do trimestre.</p>
         <div id="conteudoHistoricoTrimestre" class="history-trimester-list"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal-overlay" id="modalLembreteProfessor" aria-hidden="true">
+    <div class="modal reminder-modal" role="dialog" aria-modal="true" aria-labelledby="tituloLembreteProfessor">
+      <div class="modal-header">
+        <h2 id="tituloLembreteProfessor">Lembrete da EBD</h2>
+        <button class="close-btn" type="button" onclick="fecharLembreteProfessor()" aria-label="Fechar">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="conteudoLembreteProfessor" class="reminder-card"></div>
+        <div class="reminder-actions">
+          <button class="btn btn-cancel" type="button" onclick="verMinhaEscalaDoLembrete()">📅 Ver minha escala</button>
+          <button class="btn requer-permissao-alteracao" type="button" onclick="alterarMeuDiaDoLembrete()">🔄 Alterar meu dia</button>
+        </div>
       </div>
     </div>
   </div>
@@ -6587,6 +6674,8 @@
         resetarFormularioTrocaAposSucesso();
         atualizarPerfilModalAlteracao();
       }
+
+      setTimeout(verificarLembreteProfessorSemana, 180);
     }
 
     function trocarUsuarioIdentificado() {
@@ -6602,6 +6691,7 @@
       if (correspondente) {
         usuarioIdentificadoEBD = correspondente;
         atualizarBarraUsuarioIdentificado();
+        setTimeout(verificarLembreteProfessorSemana, 180);
         return;
       }
 
@@ -7067,22 +7157,32 @@
       ];
 
       const texto = [
-        "📅 *Escala EBD — Professores*",
+        "🙏 *Paz do Senhor, irmãos!*",
         "",
-        `🗓️ *${linha.Data || "Próxima aula"}*`
+        "📅 Segue a *Escala EBD* desta semana.",
+        "",
+        "Professores, por favor, confiram com atenção a *data e a classe* em que estão escalados. Caso seja necessário realizar alguma alteração, façam pelo aplicativo o quanto antes para mantermos a escala atualizada.",
+        "",
+        `🗓️ *${linha.Data || "Próxima aula"}*`,
+        ""
       ];
 
       classesCompartilhamento.forEach(([classe, icone]) => {
         texto.push(`${icone} ${classe}: ${formatarNomeProfessor(linha[classe] || "—")}`);
+        texto.push("");
       });
 
       const suporte = String(linha.Suporte || "").trim();
-      if (suporte) texto.push(`🛠️ Suporte: ${formatarNomeSuporte(suporte)}`);
+      if (suporte) {
+        texto.push(`🛠️ Suporte: ${formatarNomeSuporte(suporte)}`);
+        texto.push("");
+      }
 
       texto.push(
+        "🔗 *Consulte sempre a escala atualizada:*",
+        URL_APP_ESCALA_EBD,
         "",
-        "🔗 Consulte sempre a escala atualizada:",
-        URL_APP_ESCALA_EBD
+        "Deus abençoe a todos! 🙏"
       );
 
       return texto.join("\n");
@@ -7150,6 +7250,189 @@
         "Link do app copiado. Agora é só colar no grupo dos professores."
       );
     }
+
+
+    const CHAVE_LEMBRETE_ESCALA_EBD = "ebdLembreteEscalaV1";
+    let promptInstalacaoEBD = null;
+
+    function obterHojeSaoPauloEBD() {
+      const partes = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Sao_Paulo",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).formatToParts(new Date());
+      const mapa = {};
+      partes.forEach((parte) => { mapa[parte.type] = parte.value; });
+      const ano = Number(mapa.year);
+      const mes = Number(mapa.month);
+      const dia = Number(mapa.day);
+      const dataUTC = new Date(Date.UTC(ano, mes - 1, dia));
+      return {
+        ano,
+        mes,
+        dia,
+        chave: `${String(ano).padStart(4, "0")}-${String(mes).padStart(2, "0")}-${String(dia).padStart(2, "0")}`,
+        diaSemana: dataUTC.getUTCDay()
+      };
+    }
+
+    function adicionarDiasDataEBD(info, dias) {
+      const data = new Date(Date.UTC(info.ano, info.mes - 1, info.dia));
+      data.setUTCDate(data.getUTCDate() + dias);
+      return {
+        ano: data.getUTCFullYear(),
+        mes: data.getUTCMonth() + 1,
+        dia: data.getUTCDate(),
+        chave: `${data.getUTCFullYear()}-${String(data.getUTCMonth() + 1).padStart(2, "0")}-${String(data.getUTCDate()).padStart(2, "0")}`,
+        br: `${String(data.getUTCDate()).padStart(2, "0")}/${String(data.getUTCMonth() + 1).padStart(2, "0")}/${data.getUTCFullYear()}`
+      };
+    }
+
+    function obterEscalaDoUsuarioNaDataEBD(nome, dataBR) {
+      const linha = obterLinhaEscalaPorDataTroca(dataBR);
+      if (!linha || !nome) return null;
+
+      const classes = classesEscala.filter((classe) => campoContemProfessorTroca(linha[classe], nome));
+      const suporte = campoContemProfessorTroca(linha.Suporte, nome);
+
+      if (!classes.length && !suporte) return null;
+      return { linha, classes, suporte };
+    }
+
+    function chaveLembreteProfessorEBD(hoje, usuario) {
+      const nome = chaveNomeUsuarioEBD(usuario).replace(/\s+/g, "-") || "usuario";
+      return `${CHAVE_LEMBRETE_ESCALA_EBD}:${hoje.chave}:${nome}`;
+    }
+
+    function lembreteJaVisualizadoEBD(chave) {
+      try {
+        return localStorage.getItem(chave) === "1";
+      } catch (erro) {
+        return false;
+      }
+    }
+
+    function marcarLembreteVisualizadoEBD(chave) {
+      try {
+        localStorage.setItem(chave, "1");
+      } catch (erro) {
+        console.warn("Não foi possível registrar a visualização do lembrete:", erro);
+      }
+    }
+
+    function verificarLembreteProfessorSemana() {
+      if (!usuarioIdentificadoEBD || ehPerfilConsultaPublico(usuarioIdentificadoEBD)) return;
+      if (!Array.isArray(linhasEscala) || !linhasEscala.length) return;
+
+      const hoje = obterHojeSaoPauloEBD();
+      if (hoje.diaSemana !== 1 && hoje.diaSemana !== 5) return;
+
+      const diasAteDomingo = hoje.diaSemana === 1 ? 6 : 2;
+      const domingo = adicionarDiasDataEBD(hoje, diasAteDomingo);
+      const escalaUsuario = obterEscalaDoUsuarioNaDataEBD(usuarioIdentificadoEBD, domingo.br);
+      if (!escalaUsuario) return;
+
+      const chave = chaveLembreteProfessorEBD(hoje, usuarioIdentificadoEBD);
+      if (lembreteJaVisualizadoEBD(chave)) return;
+
+      const modalLembrete = document.getElementById("modalLembreteProfessor");
+      const titulo = document.getElementById("tituloLembreteProfessor");
+      const conteudo = document.getElementById("conteudoLembreteProfessor");
+      if (!modalLembrete || !titulo || !conteudo) return;
+
+      const sexta = hoje.diaSemana === 5;
+      const atribuicoes = escalaUsuario.classes.map((classe) => nomesClassesComEmoji[classe] || classe);
+      if (escalaUsuario.suporte) atribuicoes.push("Suporte 🤝");
+      const descricao = atribuicoes.length === 1
+        ? atribuicoes[0]
+        : atribuicoes.join(" · ");
+
+      titulo.textContent = sexta ? "🔔 Lembrete da EBD" : "🙏 Sua EBD desta semana";
+      conteudo.innerHTML = `
+        <h3>Paz do Senhor, ${escaparHtmlPublico(usuarioIdentificadoEBD)}!</h3>
+        <p>${sexta
+          ? `Você está escalado para este domingo, <strong>${domingo.br}</strong>. Se precisar fazer alguma alteração, utilize o aplicativo.`
+          : `Você está escalado para a EBD deste domingo, <strong>${domingo.br}</strong>. Por favor, confira sua escala e, caso seja necessário, faça a alteração pelo aplicativo.`}
+        </p>
+        <div class="reminder-assignment">${escaparHtmlPublico(descricao)}</div>
+      `;
+
+      marcarLembreteVisualizadoEBD(chave);
+      modalLembrete.classList.add("active");
+      modalLembrete.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function fecharLembreteProfessor() {
+      const modalLembrete = document.getElementById("modalLembreteProfessor");
+      if (modalLembrete) {
+        modalLembrete.classList.remove("active");
+        modalLembrete.setAttribute("aria-hidden", "true");
+      }
+      document.body.style.overflow = "";
+    }
+
+    function verMinhaEscalaDoLembrete() {
+      fecharLembreteProfessor();
+      mostrarEscalaCompleta = false;
+      const linhasParaExibir = obterLinhasParaExibir();
+      renderizarTabela(linhasParaExibir);
+      renderizarCards(linhasParaExibir);
+      renderizarEscalaDestaque(linhasParaExibir);
+      atualizarBotaoEscala();
+      document.getElementById("escala")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function alterarMeuDiaDoLembrete() {
+      fecharLembreteProfessor();
+      abrirModal();
+    }
+
+    function appJaInstaladoEBD() {
+      return Boolean(
+        (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+        window.navigator.standalone === true
+      );
+    }
+
+    function atualizarBotaoInstalarAppEBD() {
+      const botao = document.getElementById("btnInstalarAppDiscreto");
+      if (!botao) return;
+      botao.hidden = appJaInstaladoEBD();
+    }
+
+    async function instalarAppEBD() {
+      if (appJaInstaladoEBD()) {
+        atualizarBotaoInstalarAppEBD();
+        return;
+      }
+
+      if (promptInstalacaoEBD) {
+        try {
+          promptInstalacaoEBD.prompt();
+          await promptInstalacaoEBD.userChoice;
+          promptInstalacaoEBD = null;
+          atualizarBotaoInstalarAppEBD();
+          return;
+        } catch (erro) {
+          console.warn("Não foi possível abrir a instalação automática:", erro);
+        }
+      }
+
+      abrirTelaRapida("instalarApp");
+    }
+
+    window.addEventListener("beforeinstallprompt", function (evento) {
+      evento.preventDefault();
+      promptInstalacaoEBD = evento;
+      atualizarBotaoInstalarAppEBD();
+    });
+
+    window.addEventListener("appinstalled", function () {
+      promptInstalacaoEBD = null;
+      atualizarBotaoInstalarAppEBD();
+    });
 
     function renderizarEscala(linhas) {
       atualizarEscalaLocal(linhas);
@@ -8945,7 +9228,7 @@
     }
 
 
-    ["modalCompartilharEscala", "modalConfirmacaoTroca", "modalComprovanteTroca"].forEach((id) => {
+    ["modalCompartilharEscala", "modalConfirmacaoTroca", "modalComprovanteTroca", "modalLembreteProfessor"].forEach((id) => {
       const elemento = document.getElementById(id);
       if (elemento) {
         elemento.addEventListener("click", function (event) {
@@ -8953,6 +9236,7 @@
           if (id === "modalCompartilharEscala") fecharCompartilharEscala();
           if (id === "modalConfirmacaoTroca") fecharConfirmacaoTroca();
           if (id === "modalComprovanteTroca") fecharComprovanteTroca();
+          if (id === "modalLembreteProfessor") fecharLembreteProfessor();
         });
       }
     });
@@ -8983,6 +9267,7 @@
         fecharLicao();
         fecharHistoricoTrimestre();
         fecharCompartilharEscala();
+        fecharLembreteProfessor();
       }
     });
 
@@ -9061,6 +9346,7 @@
 
     document.addEventListener("DOMContentLoaded", async function () {
       ajustarSubtituloAoTitulo();
+      atualizarBotaoInstalarAppEBD();
 
       if (document.fonts && document.fonts.ready) {
         document.fonts.ready.then(ajustarSubtituloAoTitulo);

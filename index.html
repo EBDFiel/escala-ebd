@@ -5415,7 +5415,7 @@
 
       <div class="scale-action scale-action-bottom">
         <div class="actions-center scale-buttons">
-          <button class="btn btn-action-red btn-mobile-visible" type="button" onclick="abrirModal()">
+          <button class="btn btn-action-red btn-mobile-visible requer-permissao-alteracao" type="button" onclick="abrirModal()">
             Alterar meu dia
           </button>
 
@@ -5450,7 +5450,7 @@
       </div>
 
       <div class="quick-access-grid">
-        <button class="quick-card quick-card-button" type="button" onclick="abrirModal()">
+        <button class="quick-card quick-card-button requer-permissao-alteracao" type="button" onclick="abrirModal()">
           <span class="quick-icon">🔄</span>
           <h3>Alterar meu dia</h3>
           <p>Troque sua data pelo app para que tudo fique registrado.</p>
@@ -5643,7 +5643,7 @@
       </div>
     </section>
 
-    <section class="premium-card instructions">
+    <section class="premium-card instructions requer-permissao-alteracao">
       <div class="premium-section-title">
         <span class="eyebrow">🔄 Troca de data</span>
         <h2>Como alterar seu dia de aula</h2>
@@ -6024,6 +6024,7 @@
     const LICOES_API_URL = "https://ebdfiel.com.br/escala-ebd-api/licoes.php";
     const CHAVE_USUARIO_IDENTIFICADO_EBD = "ebdUsuarioIdentificadoV1";
     const SUPERINTENDENTES_EBD = ["Elias", "Ronan"];
+    const PERFIS_CONSULTA_EBD = ["Diretoria", "Aluno"];
     let usuarioIdentificadoEBD = "";
 
     const SITE_PUBLICADO =
@@ -6418,6 +6419,11 @@
       return SUPERINTENDENTES_EBD.some((item) => chaveNomeUsuarioEBD(item) === chave);
     }
 
+    function ehPerfilConsultaPublico(nome) {
+      const chave = chaveNomeUsuarioEBD(nome);
+      return PERFIS_CONSULTA_EBD.some((item) => chaveNomeUsuarioEBD(item) === chave);
+    }
+
     function separarNomesEscala(valor) {
       return String(valor || "")
         .split(/\s*(?:\/|;|\||\+|&|\n|\s+e\s+)\s*/i)
@@ -6449,9 +6455,17 @@
         });
       });
 
-      return Array.from(nomes.values()).sort((a, b) =>
+      const lista = Array.from(nomes.values()).sort((a, b) =>
         a.localeCompare(b, "pt-BR", { sensitivity: "base" })
       );
+
+      PERFIS_CONSULTA_EBD.forEach((perfil) => {
+        if (!lista.some((nome) => chaveNomeUsuarioEBD(nome) === chaveNomeUsuarioEBD(perfil))) {
+          lista.push(perfil);
+        }
+      });
+
+      return lista;
     }
 
     function obterUsuarioIdentificadoSalvo() {
@@ -6488,8 +6502,22 @@
 
       if (perfil) {
         const superintendente = ehSuperintendentePublico(usuarioIdentificadoEBD);
-        perfil.textContent = superintendente ? "Superintendente" : "Professor(a)";
-        perfil.hidden = !usuarioIdentificadoEBD;
+        const consulta = ehPerfilConsultaPublico(usuarioIdentificadoEBD);
+        perfil.textContent = superintendente ? "Superintendente" : (consulta ? "" : "Professor(a)");
+        perfil.hidden = !usuarioIdentificadoEBD || consulta;
+      }
+
+      atualizarPermissoesUsuarioIdentificado();
+    }
+
+    function atualizarPermissoesUsuarioIdentificado() {
+      const somenteConsulta = ehPerfilConsultaPublico(usuarioIdentificadoEBD);
+      document.querySelectorAll(".requer-permissao-alteracao").forEach((elemento) => {
+        elemento.hidden = somenteConsulta;
+      });
+
+      if (somenteConsulta && modal?.classList.contains("active")) {
+        fecharModal();
       }
     }
 
@@ -6498,13 +6526,8 @@
       const aviso = document.getElementById("avisoPerfilIdentificado");
       if (!select || !aviso) return;
 
-      if (ehSuperintendentePublico(select.value)) {
-        aviso.hidden = false;
-        aviso.textContent = "Perfil de superintendente: Elias e Ronan podem realizar alterações em nome de qualquer professor da escala.";
-      } else {
-        aviso.hidden = true;
-        aviso.textContent = "";
-      }
+      aviso.hidden = true;
+      aviso.textContent = "";
     }
 
     function preencherSelectIdentificacaoUsuario(preSelecionado) {
@@ -8043,6 +8066,10 @@
     function abrirModal() {
       if (!usuarioIdentificadoEBD) {
         abrirIdentificacaoUsuario(false);
+        return;
+      }
+
+      if (ehPerfilConsultaPublico(usuarioIdentificadoEBD)) {
         return;
       }
 

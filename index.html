@@ -12,7 +12,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_DESIGN_COMPACTO_2026_08_21_1825" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_DESIGN_COMPACTO_LEMBRAR_SUPER_2026_08_21_1840" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -5273,6 +5273,40 @@
       margin-top: 14px;
     }
 
+    .super-remember-option {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border: 1px solid #dbeafe;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+
+    .super-remember-option label {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0;
+      color: #1e3a5f;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .super-remember-option input {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      accent-color: #1f5f8b;
+      flex: 0 0 auto;
+    }
+
+    .super-remember-option small {
+      display: block;
+      margin-top: 6px;
+      color: #64748b;
+      font-size: .76rem;
+      line-height: 1.35;
+    }
+
 
     .superintendent-note {
       margin: 0 0 14px;
@@ -6000,17 +6034,6 @@
       </div>
     </section>
 
-
-    <section id="licoesDestaqueSemana" class="weekly-lessons-highlight" hidden aria-live="polite">
-      <div class="weekly-lessons-heading">
-        <div>
-          <span>📖 Materiais liberados</span>
-          <h2>Lições disponíveis nesta semana</h2>
-        </div>
-        <p>Os materiais programados aparecem aqui automaticamente a partir da segunda-feira anterior à aula.</p>
-      </div>
-      <div id="licoesDestaqueGrid" class="weekly-lessons-grid"></div>
-    </section>
     <section class="premium-card quick-access" aria-label="Acesso rápido">
       <div class="premium-section-title quick-access-title">
         <span class="eyebrow">⚡ Acesso rápido</span>
@@ -6404,6 +6427,13 @@
         <div class="form-group" id="grupoSenhaSuperintendenteEBD" hidden>
           <label for="senhaSuperintendenteEBD">Senha de superintendente</label>
           <input id="senhaSuperintendenteEBD" type="password" autocomplete="current-password" inputmode="text" placeholder="Digite a senha" />
+          <div class="super-remember-option">
+            <label for="lembrarSuperintendenteEBD">
+              <input id="lembrarSuperintendenteEBD" type="checkbox" />
+              <span>Lembrar neste aparelho por 30 dias</span>
+            </label>
+            <small>Use esta opção somente em um aparelho pessoal.</small>
+          </div>
         </div>
         <button type="button" class="btn identity-continue-btn" id="btnConfirmarIdentificacaoEBD" onclick="confirmarIdentificacaoUsuario()">Continuar</button>
       </div>
@@ -6632,6 +6662,7 @@
     const CHAVE_USUARIO_IDENTIFICADO_EBD = "ebdUsuarioIdentificadoV1";
     const CHAVE_DISPOSITIVO_ACESSO_EBD = "ebdDispositivoAcessoV1";
     const CHAVE_TOKEN_SUPERINTENDENTE_EBD = "ebdTokenSuperintendenteV1";
+    const CHAVE_TOKEN_SUPERINTENDENTE_LEMBRADO_EBD = "ebdTokenSuperintendenteLembradoV1";
     const SUPERINTENDENTES_EBD = ["Elias", "Ronan"];
     const PERFIS_CONSULTA_EBD = ["Diretoria", "Aluno"];
     const CHAVE_TOKEN_PUSH_EBD = "ebdPushTokenV1";
@@ -7035,40 +7066,82 @@
       return SUPERINTENDENTES_EBD.some((item) => chaveNomeUsuarioEBD(item) === chave);
     }
 
+    function limparTokenSuperintendenteLocalEBD() {
+      try { sessionStorage.removeItem(CHAVE_TOKEN_SUPERINTENDENTE_EBD); } catch (erro) {}
+      try { localStorage.removeItem(CHAVE_TOKEN_SUPERINTENDENTE_LEMBRADO_EBD); } catch (erro) {}
+    }
+
     function obterTokenSuperintendenteLocalEBD(nome) {
       if (!ehSuperintendentePublico(nome)) return "";
+      const chaveNome = chaveNomeUsuarioEBD(nome);
+
+      try {
+        const lembrado = JSON.parse(localStorage.getItem(CHAVE_TOKEN_SUPERINTENDENTE_LEMBRADO_EBD) || "{}");
+        const expiraEm = Number(lembrado.expiraEm || 0);
+        if (
+          chaveNomeUsuarioEBD(lembrado.nome) === chaveNome &&
+          String(lembrado.token || "").trim() &&
+          expiraEm > Date.now()
+        ) {
+          return String(lembrado.token || "").trim();
+        }
+        if (lembrado.token || expiraEm) localStorage.removeItem(CHAVE_TOKEN_SUPERINTENDENTE_LEMBRADO_EBD);
+      } catch (erro) {
+        try { localStorage.removeItem(CHAVE_TOKEN_SUPERINTENDENTE_LEMBRADO_EBD); } catch (e) {}
+      }
+
       try {
         const dados = JSON.parse(sessionStorage.getItem(CHAVE_TOKEN_SUPERINTENDENTE_EBD) || "{}");
-        if (chaveNomeUsuarioEBD(dados.nome) !== chaveNomeUsuarioEBD(nome)) return "";
+        const expiraEm = Number(dados.expiraEm || 0);
+        if (chaveNomeUsuarioEBD(dados.nome) !== chaveNome) return "";
+        if (expiraEm && expiraEm <= Date.now()) {
+          sessionStorage.removeItem(CHAVE_TOKEN_SUPERINTENDENTE_EBD);
+          return "";
+        }
         return String(dados.token || "").trim();
       } catch (erro) {
         return "";
       }
     }
 
-    function salvarTokenSuperintendenteLocalEBD(nome, token) {
+    function salvarTokenSuperintendenteLocalEBD(nome, token, opcoes = {}) {
       try {
         if (!nome || !token) {
-          sessionStorage.removeItem(CHAVE_TOKEN_SUPERINTENDENTE_EBD);
+          limparTokenSuperintendenteLocalEBD();
           return;
         }
-        sessionStorage.setItem(CHAVE_TOKEN_SUPERINTENDENTE_EBD, JSON.stringify({ nome, token }));
+
+        const lembrar = Boolean(opcoes.lembrar);
+        const segundos = Math.max(60, Number(opcoes.expiraEmSegundos || (lembrar ? 2592000 : 21600)));
+        const dados = { nome, token, expiraEm: Date.now() + (segundos * 1000) };
+
+        if (lembrar) {
+          localStorage.setItem(CHAVE_TOKEN_SUPERINTENDENTE_LEMBRADO_EBD, JSON.stringify(dados));
+          sessionStorage.removeItem(CHAVE_TOKEN_SUPERINTENDENTE_EBD);
+        } else {
+          sessionStorage.setItem(CHAVE_TOKEN_SUPERINTENDENTE_EBD, JSON.stringify(dados));
+          localStorage.removeItem(CHAVE_TOKEN_SUPERINTENDENTE_LEMBRADO_EBD);
+        }
       } catch (erro) {
         console.warn("Não foi possível guardar a sessão de superintendente:", erro);
       }
     }
 
-    async function autenticarSuperintendenteEBD(nome, senha) {
+    async function autenticarSuperintendenteEBD(nome, senha, lembrarAparelho = false) {
       const resposta = await chamarAppsScript({
         acao: "validarAcessoSuperintendente",
         usuarioIdentificado: nome,
         senha: String(senha || ""),
+        lembrarAparelho: lembrarAparelho ? "1" : "0",
         _nocache: Date.now()
       });
       if (!resposta || !resposta.sucesso || !resposta.autenticado || !resposta.tokenSuperintendente) {
         throw new Error((resposta && resposta.mensagem) || "Senha de superintendente incorreta.");
       }
-      salvarTokenSuperintendenteLocalEBD(nome, resposta.tokenSuperintendente);
+      salvarTokenSuperintendenteLocalEBD(nome, resposta.tokenSuperintendente, {
+        lembrar: Boolean(resposta.persistente || lembrarAparelho),
+        expiraEmSegundos: resposta.expiraEmSegundos
+      });
       return resposta.tokenSuperintendente;
     }
 
@@ -7238,11 +7311,13 @@
       const select = document.getElementById("selectUsuarioIdentificado");
       const grupoSenha = document.getElementById("grupoSenhaSuperintendenteEBD");
       const campoSenha = document.getElementById("senhaSuperintendenteEBD");
+      const lembrar = document.getElementById("lembrarSuperintendenteEBD");
       if (!select) return;
 
       const exigeSenha = ehSuperintendentePublico(select.value);
       if (grupoSenha) grupoSenha.hidden = !exigeSenha;
       if (!exigeSenha && campoSenha) campoSenha.value = "";
+      if (!exigeSenha && lembrar) lembrar.checked = false;
     }
 
     function preencherSelectIdentificacaoUsuario(preSelecionado) {
@@ -7264,7 +7339,9 @@
       if (encontrado) select.value = encontrado;
 
       const campoSenha = document.getElementById("senhaSuperintendenteEBD");
+      const lembrar = document.getElementById("lembrarSuperintendenteEBD");
       if (campoSenha) campoSenha.value = "";
+      if (lembrar) lembrar.checked = false;
       atualizarAvisoPerfilIdentificado();
     }
 
@@ -7286,6 +7363,7 @@
     async function confirmarIdentificacaoUsuario() {
       const select = document.getElementById("selectUsuarioIdentificado");
       const campoSenha = document.getElementById("senhaSuperintendenteEBD");
+      const lembrarSuper = document.getElementById("lembrarSuperintendenteEBD");
       const botao = document.getElementById("btnConfirmarIdentificacaoEBD");
       const nome = String(select?.value || "").trim();
       if (!nome) {
@@ -7306,9 +7384,9 @@
             campoSenha?.focus();
             return;
           }
-          await autenticarSuperintendenteEBD(nome, senha);
+          await autenticarSuperintendenteEBD(nome, senha, Boolean(lembrarSuper?.checked));
         } else {
-          salvarTokenSuperintendenteLocalEBD("", "");
+          limparTokenSuperintendenteLocalEBD();
         }
 
         salvarUsuarioIdentificado(nome);
@@ -7345,7 +7423,7 @@
     function trocarUsuarioIdentificado() {
       if (modal?.classList.contains("active")) fecharModal();
       if (ehSuperintendentePublico(usuarioIdentificadoEBD)) {
-        salvarTokenSuperintendenteLocalEBD("", "");
+        limparTokenSuperintendenteLocalEBD();
       }
       abrirIdentificacaoUsuario(true);
     }
@@ -8544,7 +8622,23 @@
         console.warn("Não foi possível remover temporariamente o vínculo das notificações ao sair:", erro);
       }
 
-      salvarTokenSuperintendenteLocalEBD("", "");
+      if (ehSuperintendentePublico(usuarioIdentificadoEBD)) {
+        const tokenSuper = obterTokenSuperintendenteLocalEBD(usuarioIdentificadoEBD);
+        if (tokenSuper) {
+          try {
+            await chamarAppsScript({
+              acao: "revogarAcessoSuperintendente",
+              usuarioIdentificado: usuarioIdentificadoEBD,
+              tokenSuperintendente: tokenSuper,
+              _nocache: Date.now()
+            });
+          } catch (erro) {
+            console.warn("Não foi possível revogar a sessão de superintendente no servidor:", erro);
+          }
+        }
+      }
+
+      limparTokenSuperintendenteLocalEBD();
       salvarUsuarioIdentificado("");
       document.body.classList.remove("mobile-section-open");
       limparTelasRapidasAtivas();

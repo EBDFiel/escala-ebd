@@ -2567,18 +2567,21 @@
             </div>
 
             <div class="manual-section">
-              <h3>📜 18. Como consultar as trocas feitas pelos professores</h3>
+              <h3>📜 18. Como consultar as alterações feitas no app</h3>
               <ol>
                 <li>Clique em <strong>Trocas dos professores</strong>.</li>
-                <li>O painel mostrará as alterações realizadas pelos professores na página pública.</li>
-                <li>Confira data e hora, professor solicitante, classe, data original, nova data e professor envolvido.</li>
-                <li>Use os filtros por professor, classe e período para localizar um registro.</li>
+                <li>O app público não solicita mais senha de alteração. Cada pessoa escolhe o próprio nome e essa identificação é registrada junto com a mudança.</li>
+                <li>O nome fica memorizado naquele aparelho. Em celular compartilhado ou se a pessoa selecionar errado, use <strong>Trocar usuário</strong> na página principal.</li>
+                <li>Confira <strong>quem fez a alteração</strong>, o professor da escala, a classe, data original, nova data, professor envolvido e data/hora.</li>
+                <li>Use os filtros por <strong>quem fez</strong>, professor da escala, classe e período.</li>
+                <li><strong>Elias e Ronan</strong> são reconhecidos como superintendentes e podem realizar alterações em nome de qualquer professor pelo app público.</li>
+                <li>Os demais professores ficam vinculados ao próprio nome e só podem solicitar alteração da própria escala.</li>
                 <li>Para reverter uma troca, clique em <strong>Desfazer troca</strong> e confira o resumo antes de confirmar.</li>
                 <li>O painel somente desfaz quando os professores ainda estão nas posições resultantes daquela troca.</li>
                 <li>Clique em <strong>Exportar CSV</strong> para baixar a consulta.</li>
                 <li>Use <strong>Atualizar</strong> para buscar os registros mais recentes no Google Sheets.</li>
               </ol>
-              <p><strong>Observação:</strong> esta área não registra suas ações administrativas. Ela mostra somente as trocas feitas pelos professores pelo site público.</p>
+              <p><strong>Importante:</strong> a identificação do usuário é declarada pelo nome escolhido no aparelho. Ela facilita o acompanhamento nesta fase inicial, mas não equivale a uma autenticação individual com senha.</p>
             </div>
 
             <div class="manual-section">
@@ -2700,8 +2703,8 @@
           </div>
 
           <p class="teacher-history-intro">
-            Esta área mostra as trocas realizadas pelos professores na página pública da Escala EBD.
-            O registro identifica quem solicitou, a classe, as datas envolvidas, o professor trocado e o horário da alteração.
+            Esta área mostra as alterações realizadas no app público da Escala EBD.
+            O registro identifica quem estava usando o app, o professor da escala alterado, a classe, as datas envolvidas e o horário da alteração.
           </p>
           <div class="teacher-history-security-note">
             O botão <strong>Desfazer troca</strong> só funciona quando a escala ainda corresponde exatamente ao registro. Se outra alteração tiver ocorrido depois, o painel interrompe a operação para não sobrescrever dados mais recentes.
@@ -2710,7 +2713,11 @@
           <div class="teacher-history-filters">
             <div class="form-grid">
               <div>
-                <label for="historicoFiltroProfessor">Professor</label>
+                <label for="historicoFiltroUsuario">Quem fez a alteração</label>
+                <select id="historicoFiltroUsuario" onchange="aplicarFiltrosHistoricoProfessores()"><option value="">Todos</option></select>
+              </div>
+              <div>
+                <label for="historicoFiltroProfessor">Professor da escala</label>
                 <select id="historicoFiltroProfessor" onchange="aplicarFiltrosHistoricoProfessores()"><option value="">Todos</option></select>
               </div>
               <div>
@@ -5116,7 +5123,11 @@
       dataAntiga: String(bruto.dataAntiga || bruto.DataAntiga || bruto.dataAtual || "").trim(),
       novaData: String(bruto.novaData || bruto.NovaData || "").trim(),
       professorTrocado: String(bruto.professorTrocado || bruto.ProfessorTrocado || bruto.professorEnvolvido || "").trim(),
-      origem: String(bruto.origem || bruto.Origem || "Site Escala EBD").trim()
+      origem: String(bruto.origem || bruto.Origem || "App Escala EBD").trim(),
+      usuarioIdentificado: String(
+        bruto.usuarioIdentificado || bruto.UsuarioIdentificado || bruto.usuario || bruto.QuemFez ||
+        bruto.professorSolicitante || bruto.ProfessorSolicitante || ""
+      ).trim()
     };
   }
 
@@ -5138,23 +5149,29 @@
   }
 
   function preencherFiltrosHistoricoProfessores() {
+    const selectUsuario = document.getElementById("historicoFiltroUsuario");
     const selectProfessor = document.getElementById("historicoFiltroProfessor");
     const selectClasse = document.getElementById("historicoFiltroClasse");
-    if (!selectProfessor || !selectClasse) return;
+    if (!selectUsuario || !selectProfessor || !selectClasse) return;
 
+    const valorUsuario = selectUsuario.value;
     const valorProfessor = selectProfessor.value;
     const valorClasse = selectClasse.value;
+    const usuarios = ordenarTextoUnicoHistorico(historicoTrocasProfessoresCache.map((item) => item.usuarioIdentificado || item.professorSolicitante));
     const professores = ordenarTextoUnicoHistorico(historicoTrocasProfessoresCache.flatMap((item) => [item.professorSolicitante, item.professorTrocado]));
     const classes = ordenarTextoUnicoHistorico(historicoTrocasProfessoresCache.map((item) => item.classe));
 
+    selectUsuario.innerHTML = '<option value="">Todos</option>' + usuarios.map((nome) => `<option value="${escapeHtmlAdmin(nome)}">${escapeHtmlAdmin(nome)}</option>`).join("");
     selectProfessor.innerHTML = '<option value="">Todos</option>' + professores.map((nome) => `<option value="${escapeHtmlAdmin(nome)}">${escapeHtmlAdmin(nome)}</option>`).join("");
     selectClasse.innerHTML = '<option value="">Todas</option>' + classes.map((classe) => `<option value="${escapeHtmlAdmin(classe)}">${escapeHtmlAdmin(classe)}</option>`).join("");
 
+    if (usuarios.includes(valorUsuario)) selectUsuario.value = valorUsuario;
     if (professores.includes(valorProfessor)) selectProfessor.value = valorProfessor;
     if (classes.includes(valorClasse)) selectClasse.value = valorClasse;
   }
 
   function obterHistoricoProfessoresFiltrado() {
+    const usuario = String(document.getElementById("historicoFiltroUsuario")?.value || "").trim();
     const professor = String(document.getElementById("historicoFiltroProfessor")?.value || "").trim();
     const classe = String(document.getElementById("historicoFiltroClasse")?.value || "").trim();
     const inicio = String(document.getElementById("historicoFiltroInicio")?.value || "").trim();
@@ -5163,6 +5180,7 @@
     const fimDate = fim ? new Date(fim + "T23:59:59") : null;
 
     return (historicoTrocasProfessoresCache || []).filter((item) => {
+      if (usuario && (item.usuarioIdentificado || item.professorSolicitante) !== usuario) return false;
       if (professor && item.professorSolicitante !== professor && item.professorTrocado !== professor) return false;
       if (classe && item.classe !== classe) return false;
       const data = dataHoraHistoricoParaDate(item.dataHora);
@@ -5196,7 +5214,12 @@
   function itemEhTrocaPublica(item) {
     const origem = String(item?.origem || "").toLowerCase();
     const solicitante = String(item?.professorSolicitante || "").toLowerCase();
-    return solicitante !== "administrador" && (origem.includes("site escala ebd") || origem.includes("página pública") || origem.includes("pagina publica"));
+    return solicitante !== "administrador" && (
+      origem.includes("app escala ebd") ||
+      origem.includes("site escala ebd") ||
+      origem.includes("página pública") ||
+      origem.includes("pagina publica")
+    );
   }
 
   function itemEhApoioRonan(item) {
@@ -5304,7 +5327,7 @@
     historicoTrocasRenderizadas = registros;
 
     if (resumo) {
-      resumo.textContent = registros.length + " troca(s) realizada(s) pelos professores.";
+      resumo.textContent = registros.length + " alteração(ões) registrada(s) no app público.";
     }
 
     if (!registros.length) {
@@ -5315,11 +5338,15 @@
     div.innerHTML = registros.map((item, indice) => {
       const apoio = itemEhApoioRonan(item);
       const substituicaoDireta = item.novaData && !/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(item.novaData);
+      const quemFez = item.usuarioIdentificado || item.professorSolicitante || "Usuário";
+      const fezParaOutro = normalizarNomeComparacaoHistorico(quemFez) !== normalizarNomeComparacaoHistorico(item.professorSolicitante);
       const titulo = apoio
-        ? `${item.professorSolicitante || "Professor"} solicitou apoio`
+        ? `${quemFez} registrou um apoio para ${item.professorSolicitante || "professor"}`
         : substituicaoDireta
-          ? `${item.professorSolicitante || "Professor"} solicitou uma substituição`
-          : `${item.professorSolicitante || "Professor"} alterou a data da aula`;
+          ? `${quemFez} registrou uma substituição`
+          : fezParaOutro
+            ? `${quemFez} alterou a escala de ${item.professorSolicitante || "professor"}`
+            : `${quemFez} alterou a própria data de aula`;
       const rotuloNovaData = apoio ? "Data do apoio" : (substituicaoDireta ? "Alteração realizada" : "Nova data");
       const jaDesfeita = trocasDesfeitasNestaSessao.has(assinaturaHistoricoTroca(item));
 
@@ -5327,11 +5354,12 @@
         <div class="history-item teacher-history-item">
           <div class="teacher-history-meta">
             <span>🕒 ${escapeHtmlAdmin(item.dataHora || "Data não informada")}</span>
-            <span>🌐 ${escapeHtmlAdmin(item.origem || "Site Escala EBD")}</span>
+            <span>🌐 ${escapeHtmlAdmin(item.origem || "App Escala EBD")}</span>
           </div>
           <h3 class="teacher-history-title">${escapeHtmlAdmin(titulo)}</h3>
           <div class="teacher-history-details">
-            <div><strong>Professor solicitante:</strong> ${escapeHtmlAdmin(item.professorSolicitante || "—")}</div>
+            <div><strong>Quem fez a alteração:</strong> ${escapeHtmlAdmin(quemFez)}</div>
+            <div><strong>Professor da escala:</strong> ${escapeHtmlAdmin(item.professorSolicitante || "—")}</div>
             <div><strong>Classe:</strong> ${escapeHtmlAdmin(item.classe || "—")}</div>
             <div><strong>Data original:</strong> ${escapeHtmlAdmin(item.dataAntiga || "—")}</div>
             <div><strong>${rotuloNovaData}:</strong> ${escapeHtmlAdmin(item.novaData || "—")}</div>
@@ -5352,7 +5380,7 @@
   }
 
   function limparFiltrosHistoricoProfessores() {
-    ["historicoFiltroProfessor", "historicoFiltroClasse", "historicoFiltroInicio", "historicoFiltroFim"].forEach((id) => {
+    ["historicoFiltroUsuario", "historicoFiltroProfessor", "historicoFiltroClasse", "historicoFiltroInicio", "historicoFiltroFim"].forEach((id) => {
       const campo = document.getElementById(id);
       if (campo) campo.value = "";
     });
@@ -5369,9 +5397,18 @@
       mostrarStatus("info", "Não há trocas para exportar com os filtros atuais.");
       return;
     }
-    const linhas = [["Data e hora", "Professor solicitante", "Classe", "Data original", "Nova data", "Professor envolvido", "Origem"]];
+    const linhas = [["Data e hora", "Quem fez a alteração", "Professor da escala", "Classe", "Data original", "Nova data", "Professor envolvido", "Origem"]];
     registros.forEach((item) => {
-      linhas.push([item.dataHora, item.professorSolicitante, item.classe, item.dataAntiga, item.novaData, item.professorTrocado, item.origem]);
+      linhas.push([
+        item.dataHora,
+        item.usuarioIdentificado || item.professorSolicitante,
+        item.professorSolicitante,
+        item.classe,
+        item.dataAntiga,
+        item.novaData,
+        item.professorTrocado,
+        item.origem
+      ]);
     });
     const csv = linhas.map((linha) => linha.map(valorCsvHistorico).join(";")).join("\r\n");
     baixarTextoComoArquivo("historico_trocas_professores.csv", csv);

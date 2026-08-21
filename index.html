@@ -5309,7 +5309,38 @@
     .install-app-subtle-wrap {
       display: flex;
       justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
       margin-top: 12px;
+    }
+
+    .identity-user-tools {
+      margin: -8px 0 18px;
+      padding: 0 4px;
+    }
+
+    .identity-user-tools .install-app-subtle-wrap {
+      justify-content: flex-start;
+      margin-top: 0;
+    }
+
+    .identity-user-tools .notification-app-status {
+      text-align: left;
+      margin: 7px 0 0 2px;
+    }
+
+    @media (max-width: 620px) {
+      .identity-user-tools {
+        margin-top: -8px;
+      }
+
+      .identity-user-tools .install-app-subtle-wrap {
+        justify-content: center;
+      }
+
+      .identity-user-tools .notification-app-status {
+        text-align: center;
+      }
     }
 
     .install-app-subtle {
@@ -5465,6 +5496,14 @@
       <button type="button" class="identity-switch-btn" onclick="trocarUsuarioIdentificado()">Trocar usuário</button>
     </div>
 
+    <div id="acoesUsuarioIdentificado" class="identity-user-tools" hidden>
+      <div class="install-app-subtle-wrap">
+        <button id="btnNotificacoesEBD" class="install-app-subtle notification-app-subtle requer-perfil-professor-notificacao" type="button" onclick="gerenciarNotificacoesEBD()" hidden>🔔 Ativar notificações</button>
+        <button id="btnInstalarAppDiscreto" class="install-app-subtle" type="button" onclick="instalarAppEBD()">📱 Instalar app</button>
+      </div>
+      <div id="estadoNotificacoesEBD" class="notification-app-status" hidden aria-live="polite"></div>
+    </div>
+
     <section id="escala" class="premium-card scale-premium">
       <div class="premium-section-title">
         <span class="eyebrow">📅 Principal</span>
@@ -5592,11 +5631,6 @@
         <p style="margin-top:10px; color:#64748b; font-size:0.94rem;">
           Para instalar: no Android, abra no Chrome e toque em <strong>Adicionar à tela inicial</strong>. No iPhone, abra no Safari e toque em <strong>Adicionar à Tela de Início</strong>.
         </p>
-        <div class="install-app-subtle-wrap">
-          <button id="btnNotificacoesEBD" class="install-app-subtle notification-app-subtle requer-perfil-professor-notificacao" type="button" onclick="gerenciarNotificacoesEBD()" hidden>🔔 Ativar notificações</button>
-          <button id="btnInstalarAppDiscreto" class="install-app-subtle" type="button" onclick="instalarAppEBD()">📱 Instalar app</button>
-        </div>
-        <div id="estadoNotificacoesEBD" class="notification-app-status" hidden aria-live="polite"></div>
       </div>
     </section>
 
@@ -5918,7 +5952,11 @@
             <option value="">Selecione seu nome</option>
           </select>
         </div>
-        <button type="button" class="btn identity-continue-btn" onclick="confirmarIdentificacaoUsuario()">Continuar</button>
+        <div class="form-group" id="grupoSenhaSuperintendenteEBD" hidden>
+          <label for="senhaSuperintendenteEBD">Senha de superintendente</label>
+          <input id="senhaSuperintendenteEBD" type="password" autocomplete="current-password" inputmode="text" placeholder="Digite a senha" />
+        </div>
+        <button type="button" class="btn identity-continue-btn" id="btnConfirmarIdentificacaoEBD" onclick="confirmarIdentificacaoUsuario()">Continuar</button>
       </div>
     </div>
   </div>
@@ -6144,6 +6182,7 @@
     const LICOES_API_URL = "https://ebdfiel.com.br/escala-ebd-api/licoes.php";
     const CHAVE_USUARIO_IDENTIFICADO_EBD = "ebdUsuarioIdentificadoV1";
     const CHAVE_DISPOSITIVO_ACESSO_EBD = "ebdDispositivoAcessoV1";
+    const CHAVE_TOKEN_SUPERINTENDENTE_EBD = "ebdTokenSuperintendenteV1";
     const SUPERINTENDENTES_EBD = ["Elias", "Ronan"];
     const PERFIS_CONSULTA_EBD = ["Diretoria", "Aluno"];
     const CHAVE_TOKEN_PUSH_EBD = "ebdPushTokenV1";
@@ -6547,6 +6586,43 @@
       return SUPERINTENDENTES_EBD.some((item) => chaveNomeUsuarioEBD(item) === chave);
     }
 
+    function obterTokenSuperintendenteLocalEBD(nome) {
+      if (!ehSuperintendentePublico(nome)) return "";
+      try {
+        const dados = JSON.parse(sessionStorage.getItem(CHAVE_TOKEN_SUPERINTENDENTE_EBD) || "{}");
+        if (chaveNomeUsuarioEBD(dados.nome) !== chaveNomeUsuarioEBD(nome)) return "";
+        return String(dados.token || "").trim();
+      } catch (erro) {
+        return "";
+      }
+    }
+
+    function salvarTokenSuperintendenteLocalEBD(nome, token) {
+      try {
+        if (!nome || !token) {
+          sessionStorage.removeItem(CHAVE_TOKEN_SUPERINTENDENTE_EBD);
+          return;
+        }
+        sessionStorage.setItem(CHAVE_TOKEN_SUPERINTENDENTE_EBD, JSON.stringify({ nome, token }));
+      } catch (erro) {
+        console.warn("Não foi possível guardar a sessão de superintendente:", erro);
+      }
+    }
+
+    async function autenticarSuperintendenteEBD(nome, senha) {
+      const resposta = await chamarAppsScript({
+        acao: "validarAcessoSuperintendente",
+        usuarioIdentificado: nome,
+        senha: String(senha || ""),
+        _nocache: Date.now()
+      });
+      if (!resposta || !resposta.sucesso || !resposta.autenticado || !resposta.tokenSuperintendente) {
+        throw new Error((resposta && resposta.mensagem) || "Senha de superintendente incorreta.");
+      }
+      salvarTokenSuperintendenteLocalEBD(nome, resposta.tokenSuperintendente);
+      return resposta.tokenSuperintendente;
+    }
+
     function ehPerfilConsultaPublico(nome) {
       const chave = chaveNomeUsuarioEBD(nome);
       return PERFIS_CONSULTA_EBD.some((item) => chaveNomeUsuarioEBD(item) === chave);
@@ -6674,6 +6750,8 @@
       if (!barra) return;
 
       barra.hidden = !usuarioIdentificadoEBD;
+      const ferramentas = document.getElementById("acoesUsuarioIdentificado");
+      if (ferramentas) ferramentas.hidden = !usuarioIdentificadoEBD;
       if (nome) nome.textContent = usuarioIdentificadoEBD || "—";
 
       if (perfil) {
@@ -6704,11 +6782,13 @@
 
     function atualizarAvisoPerfilIdentificado() {
       const select = document.getElementById("selectUsuarioIdentificado");
-      const aviso = document.getElementById("avisoPerfilIdentificado");
-      if (!select || !aviso) return;
+      const grupoSenha = document.getElementById("grupoSenhaSuperintendenteEBD");
+      const campoSenha = document.getElementById("senhaSuperintendenteEBD");
+      if (!select) return;
 
-      aviso.hidden = true;
-      aviso.textContent = "";
+      const exigeSenha = ehSuperintendentePublico(select.value);
+      if (grupoSenha) grupoSenha.hidden = !exigeSenha;
+      if (!exigeSenha && campoSenha) campoSenha.value = "";
     }
 
     function preencherSelectIdentificacaoUsuario(preSelecionado) {
@@ -6729,6 +6809,8 @@
       const encontrado = usuarios.find((nome) => chaveNomeUsuarioEBD(nome) === chaveNomeUsuarioEBD(procurado));
       if (encontrado) select.value = encontrado;
 
+      const campoSenha = document.getElementById("senhaSuperintendenteEBD");
+      if (campoSenha) campoSenha.value = "";
       atualizarAvisoPerfilIdentificado();
     }
 
@@ -6747,37 +6829,70 @@
       }, 50);
     }
 
-    function confirmarIdentificacaoUsuario() {
+    async function confirmarIdentificacaoUsuario() {
       const select = document.getElementById("selectUsuarioIdentificado");
+      const campoSenha = document.getElementById("senhaSuperintendenteEBD");
+      const botao = document.getElementById("btnConfirmarIdentificacaoEBD");
       const nome = String(select?.value || "").trim();
       if (!nome) {
         alert("Selecione seu nome para continuar.");
         return;
       }
 
-      salvarUsuarioIdentificado(nome);
-      registrarAcessoIdentificadoEBD(nome);
-      sincronizarNotificacaoComUsuarioEBD().catch(function(erro) {
-        console.warn("Não foi possível sincronizar a identificação das notificações:", erro);
-      });
-
-      const modalIdentificacao = document.getElementById("modalIdentificacaoUsuario");
-      if (modalIdentificacao) {
-        modalIdentificacao.classList.remove("active");
-        modalIdentificacao.setAttribute("aria-hidden", "true");
-      }
-      document.body.style.overflow = "";
-
-      if (modal?.classList.contains("active")) {
-        resetarFormularioTrocaAposSucesso();
-        atualizarPerfilModalAlteracao();
+      if (botao) {
+        botao.disabled = true;
+        botao.textContent = ehSuperintendentePublico(nome) ? "Verificando..." : "Entrando...";
       }
 
-      setTimeout(verificarLembreteProfessorSemana, 180);
+      try {
+        if (ehSuperintendentePublico(nome)) {
+          const senha = String(campoSenha?.value || "");
+          if (!senha) {
+            alert("Digite a senha de superintendente para continuar.");
+            campoSenha?.focus();
+            return;
+          }
+          await autenticarSuperintendenteEBD(nome, senha);
+        } else {
+          salvarTokenSuperintendenteLocalEBD("", "");
+        }
+
+        salvarUsuarioIdentificado(nome);
+        registrarAcessoIdentificadoEBD(nome);
+        sincronizarNotificacaoComUsuarioEBD().catch(function(erro) {
+          console.warn("Não foi possível sincronizar a identificação das notificações:", erro);
+        });
+
+        const modalIdentificacao = document.getElementById("modalIdentificacaoUsuario");
+        if (modalIdentificacao) {
+          modalIdentificacao.classList.remove("active");
+          modalIdentificacao.setAttribute("aria-hidden", "true");
+        }
+        document.body.style.overflow = "";
+        if (campoSenha) campoSenha.value = "";
+
+        if (modal?.classList.contains("active")) {
+          resetarFormularioTrocaAposSucesso();
+          atualizarPerfilModalAlteracao();
+        }
+
+        setTimeout(verificarLembreteProfessorSemana, 180);
+      } catch (erro) {
+        alert(erro.message || "Não foi possível validar o acesso de superintendente.");
+        campoSenha?.focus();
+      } finally {
+        if (botao) {
+          botao.disabled = false;
+          botao.textContent = "Continuar";
+        }
+      }
     }
 
     function trocarUsuarioIdentificado() {
       if (modal?.classList.contains("active")) fecharModal();
+      if (ehSuperintendentePublico(usuarioIdentificadoEBD)) {
+        salvarTokenSuperintendenteLocalEBD("", "");
+      }
       abrirIdentificacaoUsuario(true);
     }
 
@@ -6787,6 +6902,14 @@
       const correspondente = usuarios.find((nome) => chaveNomeUsuarioEBD(nome) === chaveNomeUsuarioEBD(salvo));
 
       if (correspondente) {
+        if (ehSuperintendentePublico(correspondente) && !obterTokenSuperintendenteLocalEBD(correspondente)) {
+          usuarioIdentificadoEBD = "";
+          atualizarBarraUsuarioIdentificado();
+          preencherSelectIdentificacaoUsuario(correspondente);
+          abrirIdentificacaoUsuario(false);
+          return;
+        }
+
         usuarioIdentificadoEBD = correspondente;
         atualizarBarraUsuarioIdentificado();
         registrarAcessoIdentificadoEBD(correspondente);
@@ -9414,7 +9537,10 @@
         dataAtual: payload.dataAtual,
         novaData: payload.novaData,
         origem: payload.origem,
-        usuarioIdentificado: payload.usuarioIdentificado || usuarioIdentificadoEBD
+        usuarioIdentificado: payload.usuarioIdentificado || usuarioIdentificadoEBD,
+        tokenSuperintendente: ehSuperintendentePublico(payload.usuarioIdentificado || usuarioIdentificadoEBD)
+          ? obterTokenSuperintendenteLocalEBD(payload.usuarioIdentificado || usuarioIdentificadoEBD)
+          : ""
       });
 
       if (!dados || !dados.sucesso) {

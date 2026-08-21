@@ -2703,6 +2703,8 @@
                 <li>Cada professor deve tocar em <strong>Ativar notificações</strong> no próprio celular e permitir o envio.</li>
                 <li>A automação verifica a escala diariamente por volta das <strong>08h</strong> e envia somente na segunda e na sexta para quem estiver escalado no domingo seguinte.</li>
                 <li>Use <strong>Testar</strong> para conferir o recebimento em um professor que já tenha ativado as notificações.</li>
+                <li>Elias e Ronan podem marcar <strong>Lembrar neste aparelho</strong>; essa autorização não expira por tempo e só é removida ao sair, limpar os dados do app ou pela opção de revogação no painel.</li>
+                <li>Em <strong>Notificações → Acessos lembrados dos superintendentes</strong>, você pode revogar os acessos salvos de Elias, Ronan ou de todos os aparelhos.</li>
               </ol>
               <p><strong>iPhone/iPad:</strong> o app precisa estar adicionado à Tela de Início para receber Web Push. Os lembretes internos continuam funcionando como alternativa.</p>
             </div>
@@ -2949,6 +2951,32 @@
           </div>
 
           <div class="subcard" style="margin-top:1rem;">
+            <div class="subcard-header" style="display:flex;justify-content:space-between;gap:1rem;align-items:center;flex-wrap:wrap;">
+              <div>
+                <h3 style="margin:0;">🔐 Acessos lembrados dos superintendentes</h3>
+                <p class="help" style="margin:.35rem 0 0;">Elias e Ronan podem marcar <strong>Lembrar neste aparelho</strong>. A autorização permanece até o usuário tocar em <strong>Sair</strong> ou até você revogá-la aqui.</p>
+              </div>
+              <button class="red compact-btn" type="button" onclick="revogarAcessosSuperintendentesAdmin('')">🚫 Revogar todos</button>
+            </div>
+            <div class="access-app-table-wrap" style="margin-top:.8rem;">
+              <table class="access-app-table">
+                <thead>
+                  <tr>
+                    <th>Superintendente</th>
+                    <th>Aparelhos autorizados</th>
+                    <th>Último uso</th>
+                    <th>Forma de acesso</th>
+                    <th>Ação</th>
+                  </tr>
+                </thead>
+                <tbody id="tabelaAcessosSuperintendentes">
+                  <tr><td colspan="5">Nenhum acesso lembrado carregado.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="subcard" style="margin-top:1rem;">
             <div class="subcard-header">
               <h3>📌 Como funciona</h3>
             </div>
@@ -3028,6 +3056,7 @@
   let professoresNuncaAcessaramCache = [];
   let notificacoesAppCache = [];
   let statusNotificacoesAppCache = null;
+  let acessosSuperintendentesCache = [];
   const ordemClassesEBD = [
     "Cordeirinhos de Cristo",
     "Soldadinhos de Cristo",
@@ -5657,6 +5686,64 @@
     );
   }
 
+  function renderizarAcessosSuperintendentesAdmin() {
+    const tbody = document.getElementById("tabelaAcessosSuperintendentes");
+    if (!tbody) return;
+
+    const grupos = new Map();
+    (acessosSuperintendentesCache || []).forEach((item) => {
+      const usuario = String(item.usuario || "").trim();
+      if (!usuario) return;
+      if (!grupos.has(usuario)) grupos.set(usuario, []);
+      grupos.get(usuario).push(item);
+    });
+
+    if (!grupos.size) {
+      tbody.innerHTML = '<tr><td colspan="5">Nenhum aparelho está com acesso permanente salvo.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = Array.from(grupos.entries()).map(([usuario, sessoes]) => {
+      const ordenadas = sessoes.slice().sort((a,b) => String(b.ultimoUsoEm || "").localeCompare(String(a.ultimoUsoEm || "")));
+      const ultimo = ordenadas[0] || {};
+      const origens = Array.from(new Set(sessoes.map((i) => String(i.origem || "").trim()).filter(Boolean))).join(", ") || "—";
+      const usuarioCodificado = encodeURIComponent(usuario);
+      return `
+        <tr>
+          <td><strong>${escapeHtmlAdmin(usuario)}</strong></td>
+          <td>${sessoes.length}</td>
+          <td>${escapeHtmlAdmin(ultimo.ultimoUsoEm || ultimo.criadoEm || "—")}</td>
+          <td>${escapeHtmlAdmin(origens)}</td>
+          <td><button class="red compact-btn" type="button" onclick="revogarAcessosSuperintendentesAdmin(decodeURIComponent('${usuarioCodificado}'))">🚫 Revogar</button></td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  async function revogarAcessosSuperintendentesAdmin(usuario) {
+    const nome = String(usuario || "").trim();
+    const alvoTexto = nome ? `todos os acessos salvos de ${nome}` : "TODOS os acessos salvos de Elias e Ronan";
+    if (!window.confirm(`Revogar ${alvoTexto}?
+
+Nos aparelhos afetados, a senha será solicitada novamente no próximo acesso online.`)) return;
+
+    try {
+      const token = obterSenhaObrigatoria();
+      mostrarStatus("info", "Revogando acessos salvos...");
+      const resposta = await chamarAppsScript({
+        acao: "revogarAcessosSuperintendentesAdmin",
+        tokenAdmin: token,
+        usuario: nome,
+        _nocache: Date.now()
+      });
+      if (!resposta || !resposta.sucesso) throw new Error((resposta && resposta.mensagem) || "Não foi possível revogar os acessos.");
+      mostrarStatus("success", resposta.mensagem || "Acessos revogados.");
+      await carregarNotificacoesApp(true);
+    } catch (erro) {
+      mostrarStatus("error", erro.message || "Erro ao revogar os acessos salvos.");
+    }
+  }
+
   function renderizarNotificacoesAppAdmin() {
     const tbody = document.getElementById("tabelaNotificacoesApp");
     const configuracao = statusNotificacoesAppCache?.configuracao || {};
@@ -5685,6 +5772,8 @@
         statusEl.innerHTML = `<strong>Configuração incompleta.</strong> Propriedades ausentes no Apps Script: ${escapeHtmlAdmin(ausentes.join(", ") || "verifique as propriedades do Firebase")}.`;
       }
     }
+
+    renderizarAcessosSuperintendentesAdmin();
 
     if (!tbody) return;
     if (!grupos.length) {
@@ -5736,6 +5825,7 @@
       }
 
       notificacoesAppCache = Array.isArray(resposta.registros) ? resposta.registros : [];
+      acessosSuperintendentesCache = Array.isArray(resposta.acessosSuperintendentes) ? resposta.acessosSuperintendentes : [];
       statusNotificacoesAppCache = {
         configuracao: resposta.configuracao || {},
         automacaoInstalada: Boolean(resposta.automacaoInstalada),

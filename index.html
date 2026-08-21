@@ -12,7 +12,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_DESIGN_COMPACTO_LEMBRAR_SUPER_2026_08_21_1840" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_DESIGN_COMPACTO_LEMBRAR_SUPER_PERMANENTE_2026_08_21" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -6430,9 +6430,9 @@
           <div class="super-remember-option">
             <label for="lembrarSuperintendenteEBD">
               <input id="lembrarSuperintendenteEBD" type="checkbox" />
-              <span>Lembrar neste aparelho por 30 dias</span>
+              <span>Lembrar neste aparelho</span>
             </label>
-            <small>Use esta opção somente em um aparelho pessoal.</small>
+            <small>A autorização ficará salva neste aparelho até você tocar em Sair ou até ser revogada no painel.</small>
           </div>
         </div>
         <button type="button" class="btn identity-continue-btn" id="btnConfirmarIdentificacaoEBD" onclick="confirmarIdentificacaoUsuario()">Continuar</button>
@@ -7077,15 +7077,18 @@
 
       try {
         const lembrado = JSON.parse(localStorage.getItem(CHAVE_TOKEN_SUPERINTENDENTE_LEMBRADO_EBD) || "{}");
-        const expiraEm = Number(lembrado.expiraEm || 0);
         if (
           chaveNomeUsuarioEBD(lembrado.nome) === chaveNome &&
-          String(lembrado.token || "").trim() &&
-          expiraEm > Date.now()
+          String(lembrado.token || "").trim()
         ) {
+          // Migra silenciosamente o formato anterior que possuía expiração de 30 dias.
+          if (lembrado.expiraEm || !lembrado.permanente) {
+            const migrado = { nome: lembrado.nome, token: lembrado.token, permanente: true };
+            localStorage.setItem(CHAVE_TOKEN_SUPERINTENDENTE_LEMBRADO_EBD, JSON.stringify(migrado));
+          }
           return String(lembrado.token || "").trim();
         }
-        if (lembrado.token || expiraEm) localStorage.removeItem(CHAVE_TOKEN_SUPERINTENDENTE_LEMBRADO_EBD);
+        if (lembrado.token) localStorage.removeItem(CHAVE_TOKEN_SUPERINTENDENTE_LEMBRADO_EBD);
       } catch (erro) {
         try { localStorage.removeItem(CHAVE_TOKEN_SUPERINTENDENTE_LEMBRADO_EBD); } catch (e) {}
       }
@@ -7104,6 +7107,15 @@
       }
     }
 
+    function tokenSuperintendenteEhPermanenteLocalEBD(nome) {
+      try {
+        const lembrado = JSON.parse(localStorage.getItem(CHAVE_TOKEN_SUPERINTENDENTE_LEMBRADO_EBD) || "{}");
+        return chaveNomeUsuarioEBD(lembrado.nome) === chaveNomeUsuarioEBD(nome) && Boolean(String(lembrado.token || "").trim());
+      } catch (erro) {
+        return false;
+      }
+    }
+
     function salvarTokenSuperintendenteLocalEBD(nome, token, opcoes = {}) {
       try {
         if (!nome || !token) {
@@ -7112,13 +7124,13 @@
         }
 
         const lembrar = Boolean(opcoes.lembrar);
-        const segundos = Math.max(60, Number(opcoes.expiraEmSegundos || (lembrar ? 2592000 : 21600)));
-        const dados = { nome, token, expiraEm: Date.now() + (segundos * 1000) };
-
         if (lembrar) {
+          const dados = { nome, token, permanente: true };
           localStorage.setItem(CHAVE_TOKEN_SUPERINTENDENTE_LEMBRADO_EBD, JSON.stringify(dados));
           sessionStorage.removeItem(CHAVE_TOKEN_SUPERINTENDENTE_EBD);
         } else {
+          const segundos = Math.max(60, Number(opcoes.expiraEmSegundos || 21600));
+          const dados = { nome, token, expiraEm: Date.now() + (segundos * 1000) };
           sessionStorage.setItem(CHAVE_TOKEN_SUPERINTENDENTE_EBD, JSON.stringify(dados));
           localStorage.removeItem(CHAVE_TOKEN_SUPERINTENDENTE_LEMBRADO_EBD);
         }
@@ -7133,16 +7145,29 @@
         usuarioIdentificado: nome,
         senha: String(senha || ""),
         lembrarAparelho: lembrarAparelho ? "1" : "0",
+        dispositivoId: obterIdDispositivoAcessoEBD(),
+        origem: origemAcessoAppEBD(),
         _nocache: Date.now()
       });
       if (!resposta || !resposta.sucesso || !resposta.autenticado || !resposta.tokenSuperintendente) {
         throw new Error((resposta && resposta.mensagem) || "Senha de superintendente incorreta.");
       }
       salvarTokenSuperintendenteLocalEBD(nome, resposta.tokenSuperintendente, {
-        lembrar: Boolean(resposta.persistente || lembrarAparelho),
+        lembrar: Boolean(resposta.permanente || resposta.persistente || lembrarAparelho),
         expiraEmSegundos: resposta.expiraEmSegundos
       });
       return resposta.tokenSuperintendente;
+    }
+
+    async function validarSessaoSuperintendenteRemotaEBD(nome, token) {
+      if (!ehSuperintendentePublico(nome) || !token) return false;
+      const resposta = await chamarAppsScript({
+        acao: "validarSessaoSuperintendente",
+        usuarioIdentificado: nome,
+        tokenSuperintendente: token,
+        _nocache: Date.now()
+      });
+      return Boolean(resposta && resposta.sucesso && resposta.valido);
     }
 
     function ehPerfilConsultaPublico(nome) {
@@ -7428,18 +7453,39 @@
       abrirIdentificacaoUsuario(true);
     }
 
-    function inicializarIdentificacaoUsuario() {
+    async function inicializarIdentificacaoUsuario() {
       const salvo = obterUsuarioIdentificadoSalvo();
       const usuarios = obterUsuariosDisponiveisEBD();
       const correspondente = usuarios.find((nome) => chaveNomeUsuarioEBD(nome) === chaveNomeUsuarioEBD(salvo));
 
       if (correspondente) {
-        if (ehSuperintendentePublico(correspondente) && !obterTokenSuperintendenteLocalEBD(correspondente)) {
-          usuarioIdentificadoEBD = "";
-          atualizarBarraUsuarioIdentificado();
-          preencherSelectIdentificacaoUsuario(correspondente);
-          abrirIdentificacaoUsuario(false);
-          return;
+        if (ehSuperintendentePublico(correspondente)) {
+          const tokenSuper = obterTokenSuperintendenteLocalEBD(correspondente);
+          if (!tokenSuper) {
+            usuarioIdentificadoEBD = "";
+            atualizarBarraUsuarioIdentificado();
+            preencherSelectIdentificacaoUsuario(correspondente);
+            abrirIdentificacaoUsuario(false);
+            return;
+          }
+
+          // Uma autorização permanente pode ser revogada pelo painel. Quando há internet,
+          // confirma o token no servidor antes de liberar novamente o perfil privilegiado.
+          if (navigator.onLine !== false && tokenSuperintendenteEhPermanenteLocalEBD(correspondente)) {
+            try {
+              const valido = await validarSessaoSuperintendenteRemotaEBD(correspondente, tokenSuper);
+              if (!valido) {
+                limparTokenSuperintendenteLocalEBD();
+                usuarioIdentificadoEBD = "";
+                atualizarBarraUsuarioIdentificado();
+                preencherSelectIdentificacaoUsuario(correspondente);
+                abrirIdentificacaoUsuario(false);
+                return;
+              }
+            } catch (erro) {
+              console.warn("Não foi possível confirmar a autorização salva agora; o servidor validará novamente em qualquer alteração:", erro);
+            }
+          }
         }
 
         usuarioIdentificadoEBD = correspondente;
@@ -10645,7 +10691,7 @@
 
       const carregamentoLicoes = carregarLicoesAtuais();
       await carregarEscalaDaPlanilha();
-      inicializarIdentificacaoUsuario();
+      await inicializarIdentificacaoUsuario();
       await carregamentoLicoes;
       await carregarQuizzesDaPlanilha(true);
 

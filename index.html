@@ -12,7 +12,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_DESIGN_COMPACTO_LEMBRAR_SUPER_PERMANENTE_2026_08_21" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_VIRADA_TRIMESTRAL_AUTOMATICA_PERMANENTE_2026_08_21" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -20,7 +20,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="logoebd.png?v=10" />
 
   <meta property="og:title" content="Escala de Professores — EBD" />
-  <meta property="og:description" content="Escola Bíblica Dominical — 3º Trimestre 2026" />
+  <meta property="og:description" content="Escola Bíblica Dominical — Escala de Professores" />
   <meta property="og:image" content="https://ebdfiel.github.io/escala-ebd/preview-whatsapp.jpg" />
   <meta property="og:image:secure_url" content="https://ebdfiel.github.io/escala-ebd/preview-whatsapp.jpg" />
   <meta property="og:image:type" content="image/jpeg" />
@@ -33,7 +33,7 @@
 
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Escala de Professores — EBD" />
-  <meta name="twitter:description" content="Escola Bíblica Dominical — 3º Trimestre 2026" />
+  <meta name="twitter:description" content="Escola Bíblica Dominical — Escala de Professores" />
   <meta name="twitter:image" content="https://ebdfiel.github.io/escala-ebd/preview-whatsapp.jpg" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -6025,7 +6025,7 @@
 
       <p class="header-subtitle" aria-label="Escola Bíblica Dominical"><span aria-hidden="true">E</span><span aria-hidden="true">S</span><span aria-hidden="true">C</span><span aria-hidden="true">O</span><span aria-hidden="true">L</span><span aria-hidden="true">A</span><span aria-hidden="true">&nbsp;</span><span aria-hidden="true">B</span><span aria-hidden="true">Í</span><span aria-hidden="true">B</span><span aria-hidden="true">L</span><span aria-hidden="true">I</span><span aria-hidden="true">C</span><span aria-hidden="true">A</span><span aria-hidden="true">&nbsp;</span><span aria-hidden="true">D</span><span aria-hidden="true">O</span><span aria-hidden="true">M</span><span aria-hidden="true">I</span><span aria-hidden="true">N</span><span aria-hidden="true">I</span><span aria-hidden="true">C</span><span aria-hidden="true">A</span><span aria-hidden="true">L</span></p>
       <h1 class="header-title"><span>Escala de Professores</span></h1>
-      <p class="header-note">📅 3º Trimestre 2026</p>
+      <p id="periodoAtualEBD" class="header-note">📅 Trimestre atual</p>
 
       <div class="header-verse">
         <span class="verse-icon">📖</span>
@@ -6510,7 +6510,7 @@
     </div>
 
     <p>
-      Escala EBD — Escola Bíblica Dominical | 3º Trimestre 2026 📚
+      <span id="periodoRodapeEBD">Escala EBD — Escola Bíblica Dominical | Trimestre atual 📚</span>
     </p>
 
     <div class="logout-footer-wrap">
@@ -7776,6 +7776,7 @@
 
     function atualizarEscalaLocal(linhas) {
       linhasEscala = linhas.map(normalizarLinha);
+      atualizarPeriodoInterfaceEBD(linhasEscala);
 
       classesEscala.forEach((classe) => {
         escala[classe] = linhasEscala.map((linha) => ({
@@ -7991,6 +7992,49 @@
       }
 
       return new Date(ano, mes, dia);
+    }
+
+    function obterPeriodoAtualSaoPauloEBD() {
+      try {
+        const partes = new Intl.DateTimeFormat("en-CA", {
+          timeZone: "America/Sao_Paulo",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit"
+        }).formatToParts(new Date());
+        const mapa = {};
+        partes.forEach((parte) => { mapa[parte.type] = parte.value; });
+        const ano = Number(mapa.year);
+        const mes = Number(mapa.month);
+        return { ano, trimestre: Math.floor((mes - 1) / 3) + 1 };
+      } catch (erro) {
+        const agora = new Date();
+        return { ano: agora.getFullYear(), trimestre: Math.floor(agora.getMonth() / 3) + 1 };
+      }
+    }
+
+    function obterPeriodoEscalaPublicaEBD(linhas) {
+      const datas = (Array.isArray(linhas) ? linhas : [])
+        .map((linha) => converterDataEscala((linha && (linha.Data || linha.data)) || ""))
+        .filter(Boolean)
+        .sort((a, b) => a - b);
+
+      if (!datas.length) return obterPeriodoAtualSaoPauloEBD();
+      const referencia = datas[0];
+      return {
+        ano: referencia.getFullYear(),
+        trimestre: Math.floor(referencia.getMonth() / 3) + 1
+      };
+    }
+
+    function atualizarPeriodoInterfaceEBD(linhas) {
+      const periodo = obterPeriodoEscalaPublicaEBD(linhas);
+      const rotulo = `${periodo.trimestre}º Trimestre ${periodo.ano}`;
+      const cabecalho = document.getElementById("periodoAtualEBD");
+      const rodape = document.getElementById("periodoRodapeEBD");
+
+      if (cabecalho) cabecalho.textContent = `📅 ${rotulo}`;
+      if (rodape) rodape.textContent = `Escala EBD — Escola Bíblica Dominical | ${rotulo} 📚`;
     }
 
     function obterLinhasDaSemanaAtual(linhas) {

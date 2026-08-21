@@ -2178,9 +2178,9 @@
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
             <div>
               <h2>📚 Encerramento trimestral e escalas salvas</h2>
-              <p>O sistema arquiva automaticamente o trimestre encerrado e prepara o próximo somente após confirmação administrativa.</p>
+              <p>O sistema arquiva o trimestre encerrado e prepara automaticamente o próximo, mantendo a sequência dos professores em todos os trimestres e anos seguintes.</p>
             </div>
-            <span class="chip">Automação segura com histórico</span>
+            <span class="chip">Virada automática permanente</span>
           </div>
 
           <div class="subcard">
@@ -2198,14 +2198,14 @@
             <div class="actions">
               <button class="secondary" onclick="carregarStatusTrimestralAdmin()">🔄 Atualizar status</button>
               <button class="purple" onclick="instalarAutomacaoTrimestralAdmin()">⏰ Instalar / reparar automação</button>
-              <button class="gray" onclick="verificarEncerramentoTrimestralAdmin()">📦 Verificar e arquivar agora</button>
-              <button id="btnPrepararProximoTrimestre" onclick="prepararProximoTrimestreAdmin()" disabled>🗓️ Preparar próximo trimestre</button>
+              <button class="gray" onclick="verificarEncerramentoTrimestralAdmin()">🔄 Executar verificação agora</button>
+              <button id="btnPrepararProximoTrimestre" onclick="prepararProximoTrimestreAdmin()" disabled>🛠️ Virada manual de emergência</button>
             </div>
           </div>
 
           <div class="subcard">
             <div class="subcard-header"><h3>🔁 Como funciona a sequência</h3><span class="chip">continuidade automática</span></div>
-            <p class="help">A ordem é lida de cima para baixo na aba <strong>Professores</strong>. Para cada classe, o primeiro domingo do novo trimestre recebe o professor ativo seguinte ao último escalado no trimestre anterior. Professores inativos são ignorados. Se houver apenas um professor ativo, ele permanece em todas as datas.</p>
+            <p class="help">A ordem é lida de cima para baixo na aba <strong>Professores</strong>. Ao terminar cada trimestre, o sistema arquiva a escala, cria um backup e gera automaticamente todos os domingos do trimestre seguinte. Para cada classe, a sequência continua a partir do professor ativo seguinte ao último escalado. Professores inativos são ignorados. A mesma regra continua funcionando na troca de ano, por exemplo do 4º trimestre para o 1º trimestre do ano seguinte.</p>
           </div>
 
           <div class="subcard">
@@ -2220,7 +2220,7 @@
           <div class="subcard">
             <div class="subcard-header"><h3>🔎 Consultar escalas salvas</h3></div>
             <div class="form-grid">
-              <div><label>Ano</label><input id="histFiltroAno" type="number" value="2026" min="2020" max="2100" /></div>
+              <div><label>Ano</label><input id="histFiltroAno" type="number" value="" min="2020" max="2200" /></div>
               <div><label>Trimestre</label><select id="histFiltroTrimestre"><option value="">Todos</option><option>1º Trimestre</option><option>2º Trimestre</option><option>3º Trimestre</option><option>4º Trimestre</option></select></div>
               <div><label>Classe</label><select id="histFiltroClasse"><option value="">Todas</option></select></div>
               <div><label>Professor</label><select id="histFiltroProfessor"><option value="">Todos</option></select></div>
@@ -2712,14 +2712,15 @@
             <div class="manual-section">
               <h3>📦 21. Encerramento e mudança de trimestre</h3>
               <ol>
-                <li>Abra <strong>Escalas salvas</strong> e confira se a automação está ativa.</li>
-                <li>Depois da última data, o sistema verifica e arquiva a escala.</li>
-                <li>Quando o arquivo estiver completo, <strong>Preparar próximo trimestre</strong> será liberado.</li>
-                <li>Confirme digitando <strong>PREPARAR</strong>.</li>
-                <li>O sistema cria os domingos, preserva as classes e continua a sequência dos professores.</li>
-                <li>Antes da substituição, é criado um backup oculto da escala anterior.</li>
+                <li>Abra <strong>Escalas salvas</strong> e confira uma única vez se a automação trimestral está ativa.</li>
+                <li>Depois da última data do trimestre, o sistema arquiva automaticamente a escala encerrada.</li>
+                <li>Antes de qualquer substituição, é criado um backup oculto de segurança.</li>
+                <li>Em seguida, o sistema gera automaticamente todos os domingos do trimestre seguinte e continua a sequência dos professores.</li>
+                <li>A regra é permanente e também funciona na troca do <strong>4º trimestre para o 1º trimestre do ano seguinte</strong>.</li>
+                <li>Em condições normais, não é necessário usar nenhum botão para preparar a nova escala.</li>
+                <li>O botão <strong>Virada manual de emergência</strong> existe apenas como contingência caso uma execução automática falhe.</li>
               </ol>
-              <p><strong>Importante:</strong> a preparação do novo trimestre exige confirmação administrativa.</p>
+              <p><strong>Rotina normal:</strong> na virada do trimestre, o administrador precisa apenas atualizar/programar as <strong>lições</strong> e os <strong>quizzes</strong>.</p>
             </div>
 
             <div class="manual-section">
@@ -5249,6 +5250,7 @@
     const campoArquivo = document.getElementById("triArquivoStatus");
     const campoProximo = document.getElementById("triProximoPeriodo");
     const mensagem = document.getElementById("triMensagemStatus");
+    const filtroAno = document.getElementById("histFiltroAno");
 
     if (campoPeriodo) campoPeriodo.value = periodo ? `${periodo.rotulo} de ${periodo.ano}` : "—";
     if (campoDatas) campoDatas.value = status ? `${status.primeiraData} a ${status.ultimaData} • ${status.totalDomingos} domingos` : "—";
@@ -5256,22 +5258,29 @@
     if (campoProximo) campoProximo.value = proximo ? `${proximo.rotulo} de ${proximo.ano}` : "—";
     if (btnPreparar) btnPreparar.disabled = !status?.podePreparar;
 
+    if (filtroAno && periodo && !filtroAno.dataset.periodoInicializado) {
+      filtroAno.value = String(periodo.ano);
+      filtroAno.dataset.periodoInicializado = "1";
+    }
+
     if (chip) {
-      if (!status?.automacaoInstalada) chip.textContent = "Automação não instalada";
-      else if (status?.podePreparar) chip.textContent = "Pronto para novo trimestre";
-      else if (status?.encerrado) chip.textContent = "Encerrado — arquivando";
+      if (status?.ultimaFalhaVirada) chip.textContent = "Atenção na virada";
+      else if (!status?.automacaoInstalada) chip.textContent = "Automação não instalada";
+      else if (status?.encerrado) chip.textContent = "Aguardando virada automática";
       else chip.textContent = "Automação ativa";
     }
 
     if (mensagem) {
-      if (!status?.automacaoInstalada) {
-        mensagem.textContent = "Clique em Instalar / reparar automação. O gatilho fará uma verificação diária por volta de " + (status?.horaAutomacao || "04:15") + ".";
+      if (status?.ultimaFalhaVirada) {
+        mensagem.textContent = "A última virada automática registrou uma falha: " + (status.ultimaFalhaVirada.mensagem || "erro não identificado") + ". A escala anterior é preservada por backup e a automação tentará novamente. Use a virada manual somente se precisar intervir imediatamente.";
+      } else if (!status?.automacaoInstalada) {
+        mensagem.textContent = "Clique em Instalar / reparar automação uma única vez. Depois disso, a virada de todos os próximos trimestres será automática, com verificação diária por volta de " + (status?.horaAutomacao || "04:15") + ".";
       } else if (status?.podePreparar) {
-        mensagem.textContent = "O trimestre terminou e o arquivo está completo. O botão Preparar próximo trimestre está liberado.";
+        mensagem.textContent = "O trimestre terminou e o histórico está completo. A próxima execução automática fará a virada. O botão manual abaixo fica disponível apenas para emergência.";
       } else if (status?.encerrado && !status?.arquivamentoCompleto) {
-        mensagem.textContent = "O trimestre terminou, mas o histórico ainda não está completo. Use Verificar e arquivar agora.";
+        mensagem.textContent = "O trimestre terminou e a automação está concluindo o arquivamento. A nova escala só será criada depois que o histórico estiver completo.";
       } else {
-        mensagem.textContent = "O trimestre está em andamento. O arquivamento acontecerá automaticamente depois da última data.";
+        mensagem.textContent = "Automação ativa. Depois da última data deste trimestre, o sistema arquivará a escala, criará backup e gerará o próximo trimestre automaticamente, mantendo a sequência dos professores.";
       }
     }
   }
@@ -5296,7 +5305,7 @@
 
   async function instalarAutomacaoTrimestralAdmin() {
     try {
-      if (!confirm("Instalar ou reparar o gatilho diário de arquivamento trimestral?")) return;
+      if (!confirm("Instalar ou reparar o gatilho diário de virada trimestral automática?\n\nDepois de instalado, ele continuará funcionando nos próximos trimestres e anos.")) return;
       mostrarStatus("info", "Instalando automação trimestral...");
       const r = await chamarAppsScript({
         acao: "instalarAutomacaoTrimestral",
@@ -5313,14 +5322,18 @@
 
   async function verificarEncerramentoTrimestralAdmin() {
     try {
-      mostrarStatus("info", "Verificando encerramento e histórico...");
+      mostrarStatus("info", "Verificando encerramento, arquivamento e virada automática...");
       const r = await chamarAppsScript({
         acao: "verificarEncerramentoTrimestral",
         senha: obterSenhaObrigatoria(),
         _nocache: Date.now()
       }, { timeoutMs: 90000, tentativas: 1 });
       if (!r || !r.sucesso) throw new Error((r && r.mensagem) || "Não foi possível verificar o trimestre.");
-      mostrarStatus("success", r.encerrado ? `Verificação concluída: ${r.inseridos || 0} registro(s) criado(s) e ${r.duplicados || 0} duplicado(s) ignorado(s).` : r.mensagem);
+      if (r.preparado && r.preparacao) {
+        mostrarStatus("success", `${r.preparacao.rotulo} de ${r.preparacao.ano} preparado automaticamente com ${r.preparacao.domingos} domingo(s).`);
+      } else {
+        mostrarStatus("success", r.mensagem || "Verificação trimestral concluída.");
+      }
       await carregarStatusTrimestralAdmin(true);
       await consultarHistoricoEscalasAdmin(true);
     } catch (erro) {
@@ -5331,25 +5344,27 @@
   async function prepararProximoTrimestreAdmin() {
     try {
       const status = statusTrimestralCache || await carregarStatusTrimestralAdmin(true);
-      if (!status?.podePreparar) return mostrarStatus("error", "O próximo trimestre ainda não está liberado. Verifique o arquivamento primeiro.");
+      if (!status?.podePreparar) return mostrarStatus("error", "A virada manual não está disponível. O trimestre precisa ter terminado e o arquivamento deve estar completo.");
       const proximo = status.proximoPeriodo;
-      const confirmar = confirm(`Preparar ${proximo.rotulo} de ${proximo.ano}?\n\nO sistema criará todos os domingos, continuará a sequência de cada classe e fará um backup oculto da escala atual.`);
+      const confirmar = confirm(`Executar manualmente a virada para ${proximo.rotulo} de ${proximo.ano}?
+
+Use esta opção apenas como emergência. A rotina normal é automática.`);
       if (!confirmar) return;
-      const confirmarFinal = prompt('Para confirmar, digite PREPARAR:');
-      if (String(confirmarFinal || "").trim().toUpperCase() !== "PREPARAR") return mostrarStatus("info", "Preparação cancelada.");
-      mostrarStatus("info", "Preparando o próximo trimestre... Não feche a página.");
+      const confirmarFinal = prompt('Para confirmar a virada manual de emergência, digite PREPARAR:');
+      if (String(confirmarFinal || "").trim().toUpperCase() !== "PREPARAR") return mostrarStatus("info", "Virada manual cancelada.");
+      mostrarStatus("info", "Executando virada trimestral manual... Não feche a página.");
       const r = await chamarAppsScript({
         acao: "prepararProximoTrimestre",
         senha: obterSenhaObrigatoria(),
         confirmacao: "PREPARAR",
         _nocache: Date.now()
       }, { timeoutMs: 120000, tentativas: 1 });
-      if (!r || !r.sucesso) throw new Error((r && r.mensagem) || "Não foi possível preparar o próximo trimestre.");
+      if (!r || !r.sucesso) throw new Error((r && r.mensagem) || "Não foi possível executar a virada trimestral.");
       mostrarStatus("success", `${r.rotulo} de ${r.ano} preparado com ${r.domingos} domingo(s). Backup: ${r.backup}.`);
       await carregarEscala();
       await carregarStatusTrimestralAdmin(true);
     } catch (erro) {
-      mostrarStatus("error", erro.message || "Erro ao preparar o próximo trimestre.");
+      mostrarStatus("error", erro.message || "Erro na virada trimestral manual.");
     }
   }
 

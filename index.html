@@ -12,7 +12,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_IDENTIFICACAO_USUARIO_2026_08_21_1102" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_COMPARTILHAR_ESCALA_2026_08_21_1132" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -577,6 +577,77 @@
       background: linear-gradient(135deg, #e11d1d, #991b1b) !important;
       box-shadow: 0 10px 24px rgba(225, 29, 29, 0.35) !important;
       animation: pulseRed 2.4s ease-in-out infinite;
+    }
+
+    .btn-share-scale {
+      grid-column: 1 / -1;
+      width: 100%;
+      max-width: 452px;
+      justify-self: center;
+      background: linear-gradient(135deg, #16a34a, #166534) !important;
+      box-shadow: 0 10px 24px rgba(22, 163, 74, 0.26) !important;
+      animation: none !important;
+    }
+
+    .share-scale-intro {
+      margin: 0 0 16px;
+      color: #475569;
+      line-height: 1.55;
+      font-weight: 650;
+    }
+
+    .share-scale-options {
+      display: grid;
+      gap: 12px;
+    }
+
+    .share-scale-option {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 46px minmax(0, 1fr);
+      align-items: center;
+      gap: 12px;
+      padding: 15px 16px;
+      border: 1px solid rgba(31, 78, 121, 0.16);
+      border-radius: 18px;
+      background: linear-gradient(135deg, #ffffff, #f8fbff);
+      color: var(--texto);
+      text-align: left;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .share-scale-option:hover {
+      transform: translateY(-1px);
+      border-color: rgba(31, 78, 121, 0.28);
+      box-shadow: 0 12px 26px rgba(15, 23, 42, 0.10);
+    }
+
+    .share-scale-option-icon {
+      width: 46px;
+      height: 46px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 15px;
+      background: #e9f6ea;
+      font-size: 1.35rem;
+    }
+
+    .share-scale-option strong {
+      display: block;
+      color: var(--azul-profundo);
+      font-size: 1rem;
+      margin-bottom: 3px;
+    }
+
+    .share-scale-option span {
+      display: block;
+      color: #64748b;
+      font-size: 0.88rem;
+      line-height: 1.4;
+      font-weight: 650;
     }
 
     .btn {
@@ -5351,6 +5422,11 @@
           <button class="btn btn-secondary-scale btn-mobile-visible" id="btnAlternarEscala" type="button" onclick="alternarEscalaCompleta()">
             Escala do trimestre
           </button>
+
+
+          <button class="btn btn-share-scale btn-mobile-visible" type="button" onclick="abrirCompartilharEscala()">
+            📲 Compartilhar escala
+          </button>
         </div>
       </div>
     </section>
@@ -5848,6 +5924,35 @@
       <div class="modal-body">
         <p class="history-modal-intro">Conferência das datas do trimestre.</p>
         <div id="conteudoHistoricoTrimestre" class="history-trimester-list"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal-overlay" id="modalCompartilharEscala" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="tituloCompartilharEscala">
+      <div class="modal-header">
+        <h2 id="tituloCompartilharEscala">Compartilhar escala 📲</h2>
+        <button class="close-btn" type="button" onclick="fecharCompartilharEscala()" aria-label="Fechar">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="share-scale-intro">Escolha o que deseja enviar ao grupo dos professores.</p>
+        <div class="share-scale-options">
+          <button class="share-scale-option" type="button" onclick="compartilharEscalaDaSemana()">
+            <span class="share-scale-option-icon" aria-hidden="true">📅</span>
+            <span>
+              <strong>Compartilhar escala da semana</strong>
+              <span>Envia a próxima aula com os professores escalados e o link do app.</span>
+            </span>
+          </button>
+          <button class="share-scale-option" type="button" onclick="compartilharLinkDoApp()">
+            <span class="share-scale-option-icon" aria-hidden="true">🔗</span>
+            <span>
+              <strong>Compartilhar link do app</strong>
+              <span>Envia somente o endereço para consultar a escala sempre atualizada.</span>
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -6894,6 +6999,133 @@
           block: "start"
         });
       }
+    }
+
+    const URL_APP_ESCALA_EBD = "https://escala.ebdfiel.com.br/";
+
+    function abrirCompartilharEscala() {
+      const modalCompartilhar = document.getElementById("modalCompartilharEscala");
+      if (!modalCompartilhar) return;
+
+      if (!Array.isArray(linhasEscala) || linhasEscala.length === 0) {
+        alert("Aguarde a escala terminar de carregar antes de compartilhar.");
+        return;
+      }
+
+      modalCompartilhar.classList.add("active");
+      modalCompartilhar.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function fecharCompartilharEscala() {
+      const modalCompartilhar = document.getElementById("modalCompartilharEscala");
+      if (modalCompartilhar) {
+        modalCompartilhar.classList.remove("active");
+        modalCompartilhar.setAttribute("aria-hidden", "true");
+      }
+      document.body.style.overflow = "";
+    }
+
+    function montarTextoEscalaDaSemana() {
+      const linhasSemana = obterLinhasDaSemanaAtual(Array.isArray(linhasEscala) ? linhasEscala : []);
+      if (!linhasSemana.length) return "";
+
+      const linha = normalizarLinha(linhasSemana[0]);
+      const classesCompartilhamento = [
+        ["Cordeirinhos de Cristo", "🐑"],
+        ["Soldadinhos de Cristo", "🛡️"],
+        ["Heróis e Amigos", "🤝"],
+        ["Mensageiros de Cristo", "📣"],
+        ["Vencedores por Cristo", "🏆"],
+        ["Vivendo em Cristo", "📖"],
+        ["Testemunhas de Cristo", "🔥"],
+        ["Sara", "🌸"],
+        ["Heróis da Fé", "📘"]
+      ];
+
+      const texto = [
+        "📅 *Escala EBD — Professores*",
+        "",
+        `🗓️ *${linha.Data || "Próxima aula"}*`
+      ];
+
+      classesCompartilhamento.forEach(([classe, icone]) => {
+        texto.push(`${icone} ${classe}: ${formatarNomeProfessor(linha[classe] || "—")}`);
+      });
+
+      const suporte = String(linha.Suporte || "").trim();
+      if (suporte) texto.push(`🛠️ Suporte: ${formatarNomeSuporte(suporte)}`);
+
+      texto.push(
+        "",
+        "🔗 Consulte sempre a escala atualizada:",
+        URL_APP_ESCALA_EBD
+      );
+
+      return texto.join("\n");
+    }
+
+    async function copiarTextoCompartilhamento(texto, mensagem) {
+      try {
+        await navigator.clipboard.writeText(texto);
+      } catch (erro) {
+        const campo = document.createElement("textarea");
+        campo.value = texto;
+        campo.style.position = "fixed";
+        campo.style.opacity = "0";
+        document.body.appendChild(campo);
+        campo.focus();
+        campo.select();
+        document.execCommand("copy");
+        campo.remove();
+      }
+      alert(mensagem || "Conteúdo copiado. Agora é só colar no grupo dos professores.");
+    }
+
+    async function compartilharConteudoEscala(texto, titulo, mensagemCopia) {
+      if (!texto) {
+        alert("Não foi possível montar o conteúdo para compartilhamento.");
+        return;
+      }
+
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: titulo || "Escala EBD",
+            text: texto
+          });
+          fecharCompartilharEscala();
+          return;
+        } catch (erro) {
+          if (erro && erro.name === "AbortError") return;
+          console.warn("Compartilhamento nativo indisponível:", erro);
+        }
+      }
+
+      await copiarTextoCompartilhamento(texto, mensagemCopia);
+      fecharCompartilharEscala();
+    }
+
+    function compartilharEscalaDaSemana() {
+      compartilharConteudoEscala(
+        montarTextoEscalaDaSemana(),
+        "Escala EBD — Professores",
+        "Escala copiada. Agora é só colar no grupo dos professores."
+      );
+    }
+
+    function compartilharLinkDoApp() {
+      const texto = [
+        "📅 *Escala EBD — Professores*",
+        "Consulte a escala sempre atualizada pelo app:",
+        URL_APP_ESCALA_EBD
+      ].join("\n");
+
+      compartilharConteudoEscala(
+        texto,
+        "Escala EBD",
+        "Link do app copiado. Agora é só colar no grupo dos professores."
+      );
     }
 
     function renderizarEscala(linhas) {
@@ -8686,11 +8918,12 @@
     }
 
 
-    ["modalConfirmacaoTroca", "modalComprovanteTroca"].forEach((id) => {
+    ["modalCompartilharEscala", "modalConfirmacaoTroca", "modalComprovanteTroca"].forEach((id) => {
       const elemento = document.getElementById(id);
       if (elemento) {
         elemento.addEventListener("click", function (event) {
           if (event.target !== elemento) return;
+          if (id === "modalCompartilharEscala") fecharCompartilharEscala();
           if (id === "modalConfirmacaoTroca") fecharConfirmacaoTroca();
           if (id === "modalComprovanteTroca") fecharComprovanteTroca();
         });
@@ -8722,6 +8955,7 @@
         fecharModal();
         fecharLicao();
         fecharHistoricoTrimestre();
+        fecharCompartilharEscala();
       }
     });
 

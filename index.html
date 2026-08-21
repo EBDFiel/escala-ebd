@@ -5954,9 +5954,9 @@
     </div>
 
     <section id="proximaAulaUsuarioEBD" class="my-next-class-card" hidden aria-live="polite">
-      <div class="my-next-class-icon" aria-hidden="true">📌</div>
+      <div id="iconeProximaAulaUsuarioEBD" class="my-next-class-icon" aria-hidden="true">📌</div>
       <div class="my-next-class-content">
-        <span class="my-next-class-eyebrow">Sua próxima aula</span>
+        <span id="rotuloProximaAulaUsuarioEBD" class="my-next-class-eyebrow">Sua próxima aula</span>
         <h2 id="tituloProximaAulaUsuarioEBD">Próxima escala</h2>
         <p id="textoProximaAulaUsuarioEBD">Aguarde a escala carregar.</p>
         <div id="atribuicoesProximaAulaUsuarioEBD" class="my-next-class-tags"></div>
@@ -8718,6 +8718,8 @@
       const texto = document.getElementById("textoProximaAulaUsuarioEBD");
       const tags = document.getElementById("atribuicoesProximaAulaUsuarioEBD");
       const botaoAlterar = document.getElementById("btnAlterarProximaAulaUsuarioEBD");
+      const rotulo = document.getElementById("rotuloProximaAulaUsuarioEBD");
+      const icone = document.getElementById("iconeProximaAulaUsuarioEBD");
       if (!card || !titulo || !texto || !tags) return;
 
       if (!usuarioIdentificadoEBD || ehPerfilConsultaPublico(usuarioIdentificadoEBD)) {
@@ -8745,15 +8747,19 @@
       tags.innerHTML = "";
 
       if (atribuicoes.length) {
+        if (rotulo) rotulo.textContent = "Sua próxima aula";
+        if (icone) icone.textContent = "📌";
         titulo.textContent = `Domingo • ${linha.Data || "Próxima aula"}`;
         texto.innerHTML = `<strong>${nome}</strong>, você está escalado nesta semana.`;
         tags.innerHTML = atribuicoes.map((item) => `<span>${escaparHtmlPublico(item)}</span>`).join("");
         if (botaoAlterar) botaoAlterar.hidden = false;
         card.classList.add("has-assignment");
       } else {
-        titulo.textContent = `Domingo • ${linha.Data || "Próxima aula"}`;
+        if (rotulo) rotulo.textContent = "Próxima EBD";
+        if (icone) icone.textContent = "📅";
+        titulo.textContent = `Domingo • ${linha.Data || "Próxima EBD"}`;
         texto.innerHTML = `<strong>${nome}</strong>, você não está escalado para este domingo.`;
-        tags.innerHTML = `<span class="neutral">Escala disponível para consulta</span>`;
+        tags.innerHTML = "";
         if (botaoAlterar) botaoAlterar.hidden = true;
         card.classList.remove("has-assignment");
       }

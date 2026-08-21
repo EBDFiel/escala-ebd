@@ -1686,6 +1686,101 @@
 
   
 
+
+
+    /* ACESSOS AO APP */
+    .access-app-intro {
+      margin: 0 0 1rem;
+      padding: 0.95rem 1rem;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #eef7ff, #ffffff);
+      border: 1px solid var(--gray-300);
+      color: var(--gray-700);
+      line-height: 1.5;
+    }
+
+    .access-app-filters {
+      margin: 1rem 0;
+      padding: 1rem;
+      border-radius: 20px;
+      background: #f8fafc;
+      border: 1px solid var(--gray-300);
+    }
+
+    .access-app-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--gray-300);
+      border-radius: 18px;
+      background: #ffffff;
+    }
+
+    .access-app-table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+    }
+
+    .access-app-table th,
+    .access-app-table td {
+      padding: 0.78rem 0.85rem;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      vertical-align: middle;
+      font-size: 0.86rem;
+    }
+
+    .access-app-table th {
+      background: #f1f5f9;
+      color: var(--primary-deep);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.035em;
+      white-space: nowrap;
+    }
+
+    .access-app-table tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .access-profile-badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 0.28rem 0.58rem;
+      background: #eef2ff;
+      color: #3730a3;
+      font-size: 0.75rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .access-never-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .access-never-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.45rem 0.7rem;
+      border-radius: 999px;
+      background: #fff7ed;
+      color: #9a3412;
+      border: 1px solid #fed7aa;
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .access-app-summary-line {
+      margin: 0.75rem 0;
+      color: var(--gray-600);
+      font-weight: 700;
+    }
+
+
     /* HISTÓRICO DE TROCAS REALIZADAS PELOS PROFESSORES */
     .teacher-history-intro {
       margin: 0 0 1rem;
@@ -1881,6 +1976,7 @@
         <button id="abaMapaBtn" class="nav-btn" onclick="abrirPainel('mapa')">🗺️ Mapa do Site</button>
         <button id="abaManualBtn" class="nav-btn" onclick="abrirPainel('manual')">📘 Manual do painel</button>
         <button id="abaHistoricoEscalasBtn" class="nav-btn" onclick="abrirPainel('historicoEscalas')">📚 Escalas salvas</button>
+        <button id="abaAcessosAppBtn" class="nav-btn" onclick="abrirPainel('acessosApp')">📊 Acessos ao app</button>
         <button id="abaHistoricoBtn" class="nav-btn" onclick="abrirPainel('historico')">📜 Trocas dos professores</button>
       </aside>
 
@@ -2585,7 +2681,20 @@
             </div>
 
             <div class="manual-section">
-              <h3>📦 19. Encerramento e mudança de trimestre</h3>
+              <h3>📊 19. Como consultar os acessos ao app</h3>
+              <ol>
+                <li>Clique em <strong>Acessos ao app</strong>.</li>
+                <li>Confira quantos acessos ocorreram hoje, quantas identificações apareceram nos últimos 7 dias e qual foi o último acesso.</li>
+                <li>Use os filtros por <strong>nome</strong>, <strong>perfil</strong> e <strong>período</strong>.</li>
+                <li>A tabela mostra o último acesso, quantidade de acessos, dias ativos e se a entrada ocorreu pelo app instalado ou navegador.</li>
+                <li>A área <strong>Professores que ainda não acessaram</strong> considera os professores ativos cadastrados no painel.</li>
+                <li>Use <strong>Exportar CSV</strong> para baixar os registros do período selecionado.</li>
+              </ol>
+              <p><strong>Importante:</strong> o registro usa a identificação escolhida na entrada. Os perfis Aluno e Diretoria são genéricos e não identificam a pessoa individualmente.</p>
+            </div>
+
+            <div class="manual-section">
+              <h3>📦 20. Encerramento e mudança de trimestre</h3>
               <ol>
                 <li>Abra <strong>Escalas salvas</strong> e confira se a automação está ativa.</li>
                 <li>Depois da última data, o sistema verifica e arquiva a escala.</li>
@@ -2598,7 +2707,7 @@
             </div>
 
             <div class="manual-section">
-              <h3>🚀 20. Quando publicar no GitHub, Hostinger ou Apps Script</h3>
+              <h3>🚀 21. Quando publicar no GitHub, Hostinger ou Apps Script</h3>
               <h4>GitHub Pages</h4>
               <p>Substitua arquivos no GitHub quando houver atualização de <strong>index.html</strong>, <strong>admin.html</strong>, imagens, manifestos ou scripts visuais.</p>
               <h4>Hostinger</h4>
@@ -2609,7 +2718,7 @@
             </div>
 
             <div class="manual-section">
-              <h3>🧯 21. Problemas comuns</h3>
+              <h3>🧯 22. Problemas comuns</h3>
               <h4>“Senha administrativa incorreta” ao salvar lições</h4>
               <ol>
                 <li>Abra <strong>public_html/escala-ebd-api/config.php</strong> na Hostinger.</li>
@@ -2696,6 +2805,92 @@
           </div>
         </div>
 
+
+        <div id="painelAcessosApp" class="admin-panel card">
+          <div style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:center;">
+            <div>
+              <h2 style="margin:0;">📊 Acessos ao app</h2>
+              <p style="margin:.35rem 0 0;">Acompanhe quais identificações entraram na Escala EBD e quando ocorreu o último acesso.</p>
+            </div>
+            <button class="secondary compact-btn" type="button" onclick="carregarAcessosApp()">🔄 Atualizar</button>
+          </div>
+
+          <div class="access-app-intro">
+            O registro usa a identificação escolhida na entrada do app. Para professores, Elias e Ronan, aparece o nome selecionado.
+            <strong>Aluno</strong> e <strong>Diretoria</strong> são perfis genéricos, portanto o painel não identifica a pessoa individualmente nesses dois casos.
+          </div>
+
+          <div class="dashboard-grid">
+            <div class="metric-card"><span>Acessos hoje</span><strong id="acessosHojeMetrica">0</strong></div>
+            <div class="metric-card"><span>Identificações em 7 dias</span><strong id="acessosSeteDiasMetrica">0</strong></div>
+            <div class="metric-card"><span>Professores sem acesso</span><strong id="professoresSemAcessoMetrica">0</strong></div>
+            <div class="metric-card"><span>Último acesso</span><strong id="ultimoAcessoMetrica" style="font-size:1rem;">—</strong></div>
+          </div>
+
+          <div class="access-app-filters">
+            <div class="form-grid">
+              <div>
+                <label for="acessoFiltroUsuario">Nome / identificação</label>
+                <select id="acessoFiltroUsuario" onchange="aplicarFiltrosAcessosApp()"><option value="">Todos</option></select>
+              </div>
+              <div>
+                <label for="acessoFiltroPerfil">Perfil</label>
+                <select id="acessoFiltroPerfil" onchange="aplicarFiltrosAcessosApp()">
+                  <option value="">Todos</option>
+                  <option value="Professor">Professor</option>
+                  <option value="Superintendente">Superintendente</option>
+                  <option value="Diretoria">Diretoria</option>
+                  <option value="Aluno">Aluno</option>
+                </select>
+              </div>
+              <div>
+                <label for="acessoFiltroInicio">Desde</label>
+                <input id="acessoFiltroInicio" type="date" onchange="aplicarFiltrosAcessosApp()" />
+              </div>
+              <div>
+                <label for="acessoFiltroFim">Até</label>
+                <input id="acessoFiltroFim" type="date" onchange="aplicarFiltrosAcessosApp()" />
+              </div>
+            </div>
+            <div class="actions">
+              <button type="button" onclick="aplicarFiltrosAcessosApp()">🔍 Aplicar filtros</button>
+              <button type="button" class="gray" onclick="limparFiltrosAcessosApp()">Limpar</button>
+              <button type="button" class="secondary" onclick="exportarAcessosAppCSV()">⬇️ Exportar CSV</button>
+            </div>
+          </div>
+
+          <div id="resumoAcessosApp" class="access-app-summary-line">Abra esta área para consultar os acessos registrados.</div>
+
+          <div class="access-app-table-wrap">
+            <table class="access-app-table">
+              <thead>
+                <tr>
+                  <th>Nome / identificação</th>
+                  <th>Perfil</th>
+                  <th>Último acesso</th>
+                  <th>Acessos</th>
+                  <th>Dias ativos</th>
+                  <th>Forma de acesso</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaAcessosApp">
+                <tr><td colspan="6">Nenhum dado carregado.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="subcard" style="margin-top:1rem;">
+            <div class="subcard-header">
+              <h3>👥 Professores que ainda não acessaram</h3>
+              <span class="chip" id="professoresNuncaAcessaramChip">0</span>
+            </div>
+            <p class="help">Considera os professores ativos cadastrados no painel. O nome sai desta lista assim que houver pelo menos um acesso identificado.</p>
+            <div id="listaProfessoresNuncaAcessaram" class="access-never-list">
+              <span class="help">Carregando...</span>
+            </div>
+          </div>
+        </div>
+
         <div id="painelHistorico" class="admin-panel card">
           <div style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:center;">
             <h2 style="margin:0;">📜 Histórico de alterações dos professores</h2>
@@ -2756,6 +2951,8 @@
   let escalaCache = [], classesCache = [], professoresCache = [];
   let historicoEscalasCache = [];
   let historicoTrocasProfessoresCache = [];
+  let acessosAppCache = [];
+  let professoresNuncaAcessaramCache = [];
   const ordemClassesEBD = [
     "Cordeirinhos de Cristo",
     "Soldadinhos de Cristo",
@@ -5114,6 +5311,229 @@
     }
   }
 
+
+  function normalizarAcessoApp(item) {
+    const bruto = item && typeof item === "object" ? item : {};
+    return {
+      data: String(bruto.data || bruto.Data || "").trim(),
+      primeiroAcesso: String(bruto.primeiroAcesso || bruto.PrimeiroAcesso || "").trim(),
+      ultimoAcesso: String(bruto.ultimoAcesso || bruto.UltimoAcesso || "").trim(),
+      usuario: String(bruto.usuario || bruto.Usuario || "").trim(),
+      perfil: String(bruto.perfil || bruto.Perfil || "").trim(),
+      origem: String(bruto.origem || bruto.Origem || "").trim(),
+      acessosNoDia: Number(bruto.acessosNoDia || bruto.AcessosNoDia || 0) || 0
+    };
+  }
+
+  function dataBRParaDateAcesso(valor, fimDoDia = false) {
+    const texto = String(valor || "").trim();
+    const br = texto.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (!br) return null;
+    const data = new Date(Number(br[3]), Number(br[2]) - 1, Number(br[1]), fimDoDia ? 23 : 0, fimDoDia ? 59 : 0, fimDoDia ? 59 : 0);
+    return Number.isNaN(data.getTime()) ? null : data;
+  }
+
+  function preencherFiltrosAcessosApp() {
+    const select = document.getElementById("acessoFiltroUsuario");
+    if (!select) return;
+    const atual = select.value;
+    const nomes = ordenarTextoUnicoHistorico(acessosAppCache.map((item) => item.usuario));
+    select.innerHTML = '<option value="">Todos</option>' + nomes.map((nome) => `<option value="${escapeHtmlAdmin(nome)}">${escapeHtmlAdmin(nome)}</option>`).join("");
+    if (nomes.includes(atual)) select.value = atual;
+  }
+
+  function obterAcessosAppFiltrados() {
+    const usuario = String(document.getElementById("acessoFiltroUsuario")?.value || "").trim();
+    const perfil = String(document.getElementById("acessoFiltroPerfil")?.value || "").trim();
+    const inicio = String(document.getElementById("acessoFiltroInicio")?.value || "").trim();
+    const fim = String(document.getElementById("acessoFiltroFim")?.value || "").trim();
+    const inicioDate = inicio ? new Date(inicio + "T00:00:00") : null;
+    const fimDate = fim ? new Date(fim + "T23:59:59") : null;
+
+    return (acessosAppCache || []).filter((item) => {
+      if (usuario && item.usuario !== usuario) return false;
+      if (perfil && item.perfil !== perfil) return false;
+      const data = dataHoraHistoricoParaDate(item.ultimoAcesso) || dataBRParaDateAcesso(item.data);
+      if (inicioDate && (!data || data < inicioDate)) return false;
+      if (fimDate && (!data || data > fimDate)) return false;
+      return true;
+    });
+  }
+
+  function agruparAcessosAppPorUsuario(lista) {
+    const mapa = new Map();
+
+    (lista || []).forEach((item) => {
+      const chave = normalizarNomeComparacaoHistorico(item.usuario) || item.usuario.toLowerCase();
+      if (!chave) return;
+      const primeiroDate = dataHoraHistoricoParaDate(item.primeiroAcesso);
+      const ultimoDate = dataHoraHistoricoParaDate(item.ultimoAcesso);
+      if (!mapa.has(chave)) {
+        mapa.set(chave, {
+          usuario: item.usuario,
+          perfil: item.perfil || "Professor",
+          primeiroAcesso: item.primeiroAcesso,
+          ultimoAcesso: item.ultimoAcesso,
+          primeiroDate: primeiroDate,
+          ultimoDate: ultimoDate,
+          acessos: 0,
+          dias: new Set(),
+          origens: new Set()
+        });
+      }
+
+      const grupo = mapa.get(chave);
+      grupo.acessos += Number(item.acessosNoDia || 0);
+      if (item.data) grupo.dias.add(item.data);
+      if (item.origem) grupo.origens.add(item.origem);
+
+      if (primeiroDate && (!grupo.primeiroDate || primeiroDate < grupo.primeiroDate)) {
+        grupo.primeiroDate = primeiroDate;
+        grupo.primeiroAcesso = item.primeiroAcesso;
+      }
+      if (ultimoDate && (!grupo.ultimoDate || ultimoDate > grupo.ultimoDate)) {
+        grupo.ultimoDate = ultimoDate;
+        grupo.ultimoAcesso = item.ultimoAcesso;
+        grupo.usuario = item.usuario;
+        grupo.perfil = item.perfil || grupo.perfil;
+      }
+    });
+
+    return Array.from(mapa.values()).sort((a, b) => (b.ultimoDate?.getTime() || 0) - (a.ultimoDate?.getTime() || 0));
+  }
+
+  function formatarDataHojeBRAcesso() {
+    const agora = new Date();
+    return String(agora.getDate()).padStart(2, "0") + "/" + String(agora.getMonth() + 1).padStart(2, "0") + "/" + agora.getFullYear();
+  }
+
+  function renderizarProfessoresNuncaAcessaram() {
+    const lista = document.getElementById("listaProfessoresNuncaAcessaram");
+    const chip = document.getElementById("professoresNuncaAcessaramChip");
+    const metrica = document.getElementById("professoresSemAcessoMetrica");
+    const nomes = professoresNuncaAcessaramCache || [];
+    if (chip) chip.textContent = String(nomes.length);
+    if (metrica) metrica.textContent = String(nomes.length);
+    if (!lista) return;
+
+    if (!nomes.length) {
+      lista.innerHTML = '<span class="help">Todos os professores ativos já possuem pelo menos um acesso identificado. ✅</span>';
+      return;
+    }
+
+    lista.innerHTML = nomes.map((nome) => `<span class="access-never-chip">${escapeHtmlAdmin(nome)}</span>`).join("");
+  }
+
+  function renderizarAcessosApp() {
+    const filtrados = obterAcessosAppFiltrados();
+    const agrupados = agruparAcessosAppPorUsuario(filtrados);
+    const tbody = document.getElementById("tabelaAcessosApp");
+    const resumo = document.getElementById("resumoAcessosApp");
+
+    const hojeBR = formatarDataHojeBRAcesso();
+    const seteDiasAtras = new Date();
+    seteDiasAtras.setHours(0, 0, 0, 0);
+    seteDiasAtras.setDate(seteDiasAtras.getDate() - 6);
+
+    const acessosHoje = filtrados
+      .filter((item) => item.data === hojeBR)
+      .reduce((total, item) => total + Number(item.acessosNoDia || 0), 0);
+
+    const identificacoesSeteDias = new Set(
+      filtrados.filter((item) => {
+        const data = dataHoraHistoricoParaDate(item.ultimoAcesso) || dataBRParaDateAcesso(item.data);
+        return data && data >= seteDiasAtras;
+      }).map((item) => normalizarNomeComparacaoHistorico(item.usuario) || item.usuario)
+    );
+
+    const ultimo = agrupados[0] || null;
+    const hojeEl = document.getElementById("acessosHojeMetrica");
+    const seteEl = document.getElementById("acessosSeteDiasMetrica");
+    const ultimoEl = document.getElementById("ultimoAcessoMetrica");
+    if (hojeEl) hojeEl.textContent = String(acessosHoje);
+    if (seteEl) seteEl.textContent = String(identificacoesSeteDias.size);
+    if (ultimoEl) ultimoEl.textContent = ultimo ? `${ultimo.usuario} · ${ultimo.ultimoAcesso}` : "—";
+    if (resumo) resumo.textContent = `${agrupados.length} identificação(ões) exibida(s) · ${filtrados.reduce((t, i) => t + Number(i.acessosNoDia || 0), 0)} acesso(s) no período.`;
+
+    renderizarProfessoresNuncaAcessaram();
+
+    if (!tbody) return;
+    if (!agrupados.length) {
+      tbody.innerHTML = '<tr><td colspan="6">Nenhum acesso encontrado com os filtros selecionados.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = agrupados.map((item) => `
+      <tr>
+        <td><strong>${escapeHtmlAdmin(item.usuario || "—")}</strong></td>
+        <td><span class="access-profile-badge">${escapeHtmlAdmin(item.perfil || "Professor")}</span></td>
+        <td>${escapeHtmlAdmin(item.ultimoAcesso || "—")}</td>
+        <td>${Number(item.acessos || 0)}</td>
+        <td>${item.dias.size}</td>
+        <td>${escapeHtmlAdmin(Array.from(item.origens).join(" / ") || "—")}</td>
+      </tr>
+    `).join("");
+  }
+
+  function aplicarFiltrosAcessosApp() {
+    renderizarAcessosApp();
+  }
+
+  function limparFiltrosAcessosApp() {
+    ["acessoFiltroUsuario", "acessoFiltroPerfil", "acessoFiltroInicio", "acessoFiltroFim"].forEach((id) => {
+      const campo = document.getElementById(id);
+      if (campo) campo.value = "";
+    });
+    renderizarAcessosApp();
+  }
+
+  function exportarAcessosAppCSV() {
+    const registros = obterAcessosAppFiltrados();
+    if (!registros.length) {
+      mostrarStatus("info", "Não há acessos para exportar com os filtros atuais.");
+      return;
+    }
+
+    const linhas = [["Data", "Primeiro acesso", "Último acesso", "Nome / identificação", "Perfil", "Forma de acesso", "Acessos no dia"]];
+    registros.forEach((item) => {
+      linhas.push([item.data, item.primeiroAcesso, item.ultimoAcesso, item.usuario, item.perfil, item.origem, item.acessosNoDia]);
+    });
+    const csv = linhas.map((linha) => linha.map(valorCsvHistorico).join(";")).join("\r\n");
+    baixarTextoComoArquivo("acessos_app_ebd.csv", csv);
+    mostrarStatus("success", "Relatório de acessos exportado em CSV.");
+  }
+
+  async function carregarAcessosApp(modoSilencioso = false) {
+    const resumo = document.getElementById("resumoAcessosApp");
+    const tbody = document.getElementById("tabelaAcessosApp");
+    if (!modoSilencioso && resumo) resumo.textContent = "Consultando os acessos no Google Sheets...";
+    if (!modoSilencioso && tbody) tbody.innerHTML = '<tr><td colspan="6">Carregando acessos...</td></tr>';
+
+    try {
+      const token = obterSenhaObrigatoria();
+      const resposta = await chamarAppsScript({
+        acao: "consultarAcessosApp",
+        tokenAdmin: token,
+        limite: "5000",
+        _nocache: Date.now()
+      });
+
+      if (!resposta || !resposta.sucesso) {
+        throw new Error((resposta && resposta.mensagem) || "Não foi possível consultar os acessos.");
+      }
+
+      acessosAppCache = (Array.isArray(resposta.acessos) ? resposta.acessos : []).map(normalizarAcessoApp).filter((item) => item.usuario);
+      professoresNuncaAcessaramCache = Array.isArray(resposta.professoresNuncaAcessaram) ? resposta.professoresNuncaAcessaram : [];
+      preencherFiltrosAcessosApp();
+      renderizarAcessosApp();
+      if (!modoSilencioso) mostrarStatus("success", "Acessos ao app atualizados.");
+    } catch (erro) {
+      if (resumo) resumo.textContent = "Não foi possível carregar os acessos agora.";
+      if (tbody) tbody.innerHTML = `<tr><td colspan="6">${escapeHtmlAdmin(erro.message || "Erro ao consultar os acessos.")}</td></tr>`;
+      if (!modoSilencioso) mostrarStatus("error", erro.message || "Erro ao consultar os acessos.");
+    }
+  }
+
   function normalizarHistoricoTrocaProfessor(item) {
     const bruto = item && typeof item === "object" ? item : {};
     return {
@@ -5867,7 +6287,7 @@
   }
 
   function abrirPainel(nome) {
-    ["licoes", "escala", "compartilharEscala", "avisos", "historicoEscalas", "professores", "quizzes", "mapa", "manual", "historico"].forEach((p) => {
+    ["licoes", "escala", "compartilharEscala", "avisos", "historicoEscalas", "professores", "quizzes", "mapa", "manual", "acessosApp", "historico"].forEach((p) => {
       const painel = document.getElementById(`painel${p.charAt(0).toUpperCase() + p.slice(1)}`);
       const botao = document.getElementById(`aba${p.charAt(0).toUpperCase() + p.slice(1)}Btn`);
 
@@ -5897,6 +6317,7 @@
     if (nome === "professores") carregarProfessores();
     if (nome === "quizzes") carregarQuizzesAdmin();
     if (nome === "mapa") carregarAtualizacoesMapa();
+    if (nome === "acessosApp") carregarAcessosApp();
     if (nome === "historico") carregarHistorico();
   }
   function abrirAbaLicao(aba) { let adulto=aba==="adultos"; document.getElementById("tabAdultos").classList.toggle("active", adulto); document.getElementById("tabJovens").classList.toggle("active", !adulto); document.getElementById("painelAdultos").classList.toggle("active", adulto); document.getElementById("painelJovens").classList.toggle("active", !adulto); }

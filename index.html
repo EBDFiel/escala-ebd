@@ -6110,6 +6110,7 @@
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec";
     const LICOES_API_URL = "https://ebdfiel.com.br/escala-ebd-api/licoes.php";
     const CHAVE_USUARIO_IDENTIFICADO_EBD = "ebdUsuarioIdentificadoV1";
+    const CHAVE_DISPOSITIVO_ACESSO_EBD = "ebdDispositivoAcessoV1";
     const SUPERINTENDENTES_EBD = ["Elias", "Ronan"];
     const PERFIS_CONSULTA_EBD = ["Diretoria", "Aluno"];
     let usuarioIdentificadoEBD = "";
@@ -6555,6 +6556,54 @@
       return lista;
     }
 
+
+    function obterIdDispositivoAcessoEBD() {
+      try {
+        let id = String(localStorage.getItem(CHAVE_DISPOSITIVO_ACESSO_EBD) || "").trim();
+        if (!id) {
+          if (window.crypto && typeof window.crypto.randomUUID === "function") {
+            id = window.crypto.randomUUID();
+          } else {
+            id = "ebd-" + Date.now() + "-" + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+          }
+          localStorage.setItem(CHAVE_DISPOSITIVO_ACESSO_EBD, id);
+        }
+        return id;
+      } catch (erro) {
+        return "sessao-" + Date.now() + "-" + Math.random().toString(36).slice(2);
+      }
+    }
+
+    function perfilUsuarioAcessoEBD(nome) {
+      if (ehSuperintendentePublico(nome)) return "Superintendente";
+      const chave = chaveNomeUsuarioEBD(nome);
+      if (chave === chaveNomeUsuarioEBD("Diretoria")) return "Diretoria";
+      if (chave === chaveNomeUsuarioEBD("Aluno")) return "Aluno";
+      return "Professor";
+    }
+
+    function origemAcessoAppEBD() {
+      const instalado = window.matchMedia?.("(display-mode: standalone)")?.matches || window.navigator.standalone === true;
+      return instalado ? "App instalado" : "Navegador";
+    }
+
+    async function registrarAcessoIdentificadoEBD(nome) {
+      const usuario = String(nome || "").trim();
+      if (!usuario || !SITE_PUBLICADO) return;
+      try {
+        await chamarAppsScript({
+          acao: "registrarAcessoApp",
+          usuarioIdentificado: usuario,
+          perfil: perfilUsuarioAcessoEBD(usuario),
+          dispositivoId: obterIdDispositivoAcessoEBD(),
+          origem: origemAcessoAppEBD(),
+          _nocache: Date.now()
+        });
+      } catch (erro) {
+        console.warn("Não foi possível registrar o acesso ao app:", erro);
+      }
+    }
+
     function obterUsuarioIdentificadoSalvo() {
       try {
         return String(localStorage.getItem(CHAVE_USUARIO_IDENTIFICADO_EBD) || "").trim();
@@ -6662,6 +6711,7 @@
       }
 
       salvarUsuarioIdentificado(nome);
+      registrarAcessoIdentificadoEBD(nome);
 
       const modalIdentificacao = document.getElementById("modalIdentificacaoUsuario");
       if (modalIdentificacao) {
@@ -6691,6 +6741,7 @@
       if (correspondente) {
         usuarioIdentificadoEBD = correspondente;
         atualizarBarraUsuarioIdentificado();
+        registrarAcessoIdentificadoEBD(correspondente);
         setTimeout(verificarLembreteProfessorSemana, 180);
         return;
       }

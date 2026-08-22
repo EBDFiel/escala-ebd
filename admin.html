@@ -1890,6 +1890,52 @@
       line-height: 1.45;
     }
 
+
+    .prep-grid {
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+      margin:12px 0;
+    }
+    .prep-card {
+      border:1px solid #dbe5ef;
+      border-radius:16px;
+      padding:14px;
+      background:#f8fbff;
+    }
+    .prep-card strong { display:block; font-size:1.35rem; color:#123b5d; margin-top:5px; }
+    .prep-card small { color:#64748b; line-height:1.35; }
+    .prep-ok { background:#ecfdf5; border-color:#a7f3d0; }
+    .prep-warn { background:#fff7ed; border-color:#fed7aa; }
+    .prep-error { background:#fef2f2; border-color:#fecaca; }
+    .prep-detail {
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:14px;
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      font-size:.92rem;
+      line-height:1.55;
+    }
+    .quiz-programacao-lista { display:grid; gap:10px; margin-top:12px; }
+    .quiz-programacao-row {
+      display:grid;
+      grid-template-columns:86px 150px minmax(220px,1fr) minmax(220px,1fr);
+      gap:10px;
+      align-items:end;
+      padding:12px;
+      border:1px solid #dbe5ef;
+      border-radius:14px;
+      background:#f8fbff;
+    }
+    .quiz-programacao-row .numero { font-weight:800; color:#123b5d; align-self:center; }
+    @media (max-width: 900px) {
+      .prep-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .quiz-programacao-row { grid-template-columns:1fr; }
+    }
+    @media (max-width: 560px) {
+      .prep-grid { grid-template-columns:1fr; }
+    }
   </style>
 </head>
 <body>
@@ -2204,6 +2250,34 @@
           </div>
 
           <div class="subcard">
+            <div class="subcard-header">
+              <h3>✅ Conferência automática da virada</h3>
+              <span id="triConferenciaChip" class="chip">Aguardando primeira virada</span>
+            </div>
+            <p id="triConferenciaMensagem" class="help">Depois de gerar um novo trimestre, o sistema confere datas, domingos, classes e continuidade da sequência antes de considerar a virada concluída.</p>
+          </div>
+
+          <div class="subcard">
+            <div class="subcard-header">
+              <h3>📚 Preparação do próximo trimestre</h3>
+              <span id="prepPeriodoChip" class="chip">Carregando...</span>
+            </div>
+            <p class="help">A escala é preparada automaticamente. Aqui você acompanha somente o que precisa atualizar: lições e quizzes.</p>
+            <div class="prep-grid">
+              <div id="prepLicoesAdultosCard" class="prep-card"><small>Lições · Jovens e Adultos</small><strong id="prepLicoesAdultos">—</strong></div>
+              <div id="prepLicoesJovensCard" class="prep-card"><small>Lições · Adolescentes</small><strong id="prepLicoesJovens">—</strong></div>
+              <div id="prepQuizAdultosCard" class="prep-card"><small>Quizzes · Jovens e Adultos</small><strong id="prepQuizAdultos">—</strong></div>
+              <div id="prepQuizJovensCard" class="prep-card"><small>Quizzes · Adolescentes</small><strong id="prepQuizJovens">—</strong></div>
+            </div>
+            <div id="prepDetalhes" class="prep-detail">Consultando a programação...</div>
+            <div class="actions" style="margin-top:1rem;">
+              <button class="secondary" onclick="carregarPainelPreparacaoTrimestreAdmin()">🔄 Atualizar preparação</button>
+              <button class="purple" onclick="abrirPainel('licoes')">📖 Atualizar lições</button>
+              <button onclick="abrirPainel('quizzes')">🧠 Atualizar quizzes</button>
+            </div>
+          </div>
+
+          <div class="subcard">
             <div class="subcard-header"><h3>🔁 Como funciona a sequência</h3><span class="chip">continuidade automática</span></div>
             <p class="help">A ordem é lida de cima para baixo na aba <strong>Professores</strong>. Ao terminar cada trimestre, o sistema arquiva a escala, cria um backup e gera automaticamente todos os domingos do trimestre seguinte. Para cada classe, a sequência continua a partir do professor ativo seguinte ao último escalado. Professores inativos são ignorados. A mesma regra continua funcionando na troca de ano, por exemplo do 4º trimestre para o 1º trimestre do ano seguinte.</p>
           </div>
@@ -2333,6 +2407,21 @@
             <input id="quizJovensLink" type="url" placeholder="https://..." />
 
             <p class="help">Exemplo: https://ebdfiel.github.io/Quizzes-ConectarJovens-/trimestre-02/licao-07/index.html</p>
+          </div>
+
+          <div class="subcard">
+            <div class="subcard-header">
+              <h3>📅 Programação trimestral dos quizzes</h3>
+              <span id="quizProgramacaoPeriodo" class="chip">Próximo trimestre</span>
+            </div>
+            <p class="help">Cadastre antecipadamente os links de cada domingo. Na semana correspondente, o app usa automaticamente o quiz programado. Os links manuais acima continuam disponíveis como reserva.</p>
+            <div class="actions" style="margin-top:1rem;">
+              <button class="secondary" type="button" onclick="gerarDatasProgramacaoQuizzesAdmin()">📅 Preencher datas do próximo trimestre</button>
+              <button class="gray" type="button" onclick="carregarProgramacaoQuizzesAdmin()">🔄 Carregar programação</button>
+              <button class="purple" type="button" onclick="salvarProgramacaoQuizzesAdmin()">💾 Salvar programação trimestral</button>
+            </div>
+            <div id="quizProgramacaoResumo" class="prep-detail">Carregue a programação para começar.</div>
+            <div id="quizProgramacaoLista" class="quiz-programacao-lista"></div>
           </div>
 
           <div class="actions">
@@ -2644,11 +2733,12 @@
               <h3>🧠 16. Como atualizar os quizzes</h3>
               <ol>
                 <li>Clique em <strong>Quizzes</strong>.</li>
-                <li>Cole o link do quiz de <strong>Jovens e Adultos</strong>.</li>
-                <li>Cole o link do quiz dos <strong>Adolescentes</strong>.</li>
-                <li>Clique em <strong>Salvar links dos quizzes</strong>.</li>
-                <li>Use <strong>Testar links</strong>.</li>
-                <li>Confira os botões na página pública.</li>
+                <li>Para preparar o trimestre inteiro, abra <strong>Programação trimestral dos quizzes</strong>.</li>
+                <li>Clique em <strong>Preencher datas do próximo trimestre</strong>.</li>
+                <li>Cole, em cada domingo, o link de <strong>Jovens e Adultos</strong> e o link dos <strong>Adolescentes</strong>.</li>
+                <li>Clique em <strong>Salvar programação trimestral</strong>. Você pode preencher aos poucos e salvar novamente.</li>
+                <li>Na semana correspondente, o app seleciona automaticamente os links programados.</li>
+                <li>Os dois campos de links manuais continuam disponíveis como reserva para uma substituição rápida.</li>
               </ol>
             </div>
 
@@ -2668,7 +2758,7 @@
               <ol>
                 <li>Clique em <strong>Trocas dos professores</strong>.</li>
                 <li>O app público não solicita mais senha de alteração. Cada pessoa escolhe o próprio nome e essa identificação é registrada junto com a mudança.</li>
-                <li>O nome fica memorizado naquele aparelho. Em celular compartilhado ou se a pessoa selecionar errado, use <strong>Trocar usuário</strong> na página principal.</li>
+                <li>O nome fica memorizado naquele aparelho. Em celular compartilhado ou se a pessoa selecionar errado, use <strong>Sair</strong> no final da página e faça uma nova identificação.</li>
                 <li>Confira <strong>quem fez a alteração</strong>, o professor da escala, a classe, data original, nova data, professor envolvido e data/hora.</li>
                 <li>Use os filtros por <strong>quem fez</strong>, professor da escala, classe e período.</li>
                 <li><strong>Elias e Ronan</strong> são reconhecidos como superintendentes e podem realizar alterações em nome de qualquer professor pelo app público.</li>
@@ -2713,14 +2803,17 @@
               <h3>📦 21. Encerramento e mudança de trimestre</h3>
               <ol>
                 <li>Abra <strong>Escalas salvas</strong> e confira uma única vez se a automação trimestral está ativa.</li>
-                <li>Depois da última data do trimestre, o sistema arquiva automaticamente a escala encerrada.</li>
-                <li>Antes de qualquer substituição, é criado um backup oculto de segurança.</li>
-                <li>Em seguida, o sistema gera automaticamente todos os domingos do trimestre seguinte e continua a sequência dos professores.</li>
+                <li>O quadro <strong>Preparação do próximo trimestre</strong> mostra quantas lições e quizzes já estão programados para cada classe.</li>
+                <li>Se houver pendências, Elias e Ronan com notificações ativas recebem alertas de preparação a <strong>15, 7 e 2 dias</strong> do primeiro domingo do novo trimestre.</li>
+                <li>Depois da última data do trimestre, o sistema arquiva automaticamente a escala encerrada e cria um backup oculto de segurança.</li>
+                <li>Em seguida, gera automaticamente todos os domingos do trimestre seguinte e continua a sequência dos professores.</li>
+                <li>Antes de concluir, a nova escala passa por uma <strong>conferência automática</strong> de datas, duplicidades, classes e continuidade do rodízio.</li>
+                <li>Se a conferência falhar, a escala anterior é preservada/restaurada e os superintendentes recebem um alerta no celular.</li>
                 <li>A regra é permanente e também funciona na troca do <strong>4º trimestre para o 1º trimestre do ano seguinte</strong>.</li>
                 <li>Em condições normais, não é necessário usar nenhum botão para preparar a nova escala.</li>
-                <li>O botão <strong>Virada manual de emergência</strong> existe apenas como contingência caso uma execução automática falhe.</li>
+                <li>O botão <strong>Virada manual de emergência</strong> existe apenas como contingência.</li>
               </ol>
-              <p><strong>Rotina normal:</strong> na virada do trimestre, o administrador precisa apenas atualizar/programar as <strong>lições</strong> e os <strong>quizzes</strong>.</p>
+              <p><strong>Rotina normal:</strong> o administrador precisa apenas programar as <strong>lições</strong> e os <strong>quizzes</strong>; a escala e a conferência ficam automáticas.</p>
             </div>
 
             <div class="manual-section">
@@ -3355,7 +3448,8 @@
       () => carregarProfessores(),
       () => carregarQuizzesAdmin(),
       () => carregarHistorico(true),
-      () => carregarStatusTrimestralAdmin(true)
+      () => carregarStatusTrimestralAdmin(true),
+      () => carregarPainelPreparacaoTrimestreAdmin(true)
     ];
 
     for (const tarefa of tarefas) {
@@ -4049,6 +4143,7 @@
       preencherLicaoAdmin("adultos", resposta.licoes.adultos);
       preencherLicaoAdmin("jovens", resposta.licoes.jovens);
       mostrarStatus("success", resposta.mensagem || "Lições salvas com sucesso na Hostinger.");
+      carregarPainelPreparacaoTrimestreAdmin(true);
     } catch (erro) {
       mostrarStatus("error", "Não foi possível salvar as lições na Hostinger: " + erro.message);
     } finally {
@@ -5238,6 +5333,8 @@
   }
 
   let statusTrimestralCache = null;
+  let painelPreparacaoTrimestreCache = null;
+  let quizProgramacaoPeriodoCache = null;
 
   function preencherStatusTrimestralAdmin(status) {
     statusTrimestralCache = status || null;
@@ -5281,6 +5378,24 @@
         mensagem.textContent = "O trimestre terminou e a automação está concluindo o arquivamento. A nova escala só será criada depois que o histórico estiver completo.";
       } else {
         mensagem.textContent = "Automação ativa. Depois da última data deste trimestre, o sistema arquivará a escala, criará backup e gerará o próximo trimestre automaticamente, mantendo a sequência dos professores.";
+      }
+    }
+
+    const conferenciaChip = document.getElementById("triConferenciaChip");
+    const conferenciaMensagem = document.getElementById("triConferenciaMensagem");
+    const conferencia = status?.ultimaConferenciaVirada;
+    if (conferenciaChip) {
+      if (status?.ultimaFalhaVirada) conferenciaChip.textContent = "⚠️ Falha registrada";
+      else if (conferencia?.ok) conferenciaChip.textContent = "✅ Última virada conferida";
+      else conferenciaChip.textContent = "Aguardando primeira virada";
+    }
+    if (conferenciaMensagem) {
+      if (status?.ultimaFalhaVirada) {
+        conferenciaMensagem.textContent = "A última tentativa registrou falha. A escala anterior permanece protegida e os superintendentes com notificações ativas recebem um alerta no celular.";
+      } else if (conferencia?.ok) {
+        conferenciaMensagem.textContent = `${conferencia.periodo?.rotulo || "Trimestre"} de ${conferencia.periodo?.ano || ""} foi conferido em ${conferencia.verificadoEm || "—"}: ${conferencia.totalDomingos || 0} domingos, datas sem duplicidade, classes presentes e sequência dos professores validada.`;
+      } else {
+        conferenciaMensagem.textContent = "Depois de gerar um novo trimestre, o sistema confere datas, domingos, classes e continuidade da sequência antes de considerar a virada concluída.";
       }
     }
   }
@@ -5386,6 +5501,191 @@ Use esta opção apenas como emergência. A rotina normal é automática.`);
     } catch (erro) {
       console.warn("Erro ao arquivar escala:", erro);
       mostrarStatus("error", erro.message || "Erro ao arquivar escala atual.");
+    }
+  }
+
+
+  function classeCardPreparacao(id, ok, erro) {
+    const card = document.getElementById(id);
+    if (!card) return;
+    card.classList.remove("prep-ok", "prep-warn", "prep-error");
+    card.classList.add(erro ? "prep-error" : (ok ? "prep-ok" : "prep-warn"));
+  }
+
+  function formatarDataIsoBRAdmin(valor) {
+    const m = String(valor || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    return m ? `${m[3]}/${m[2]}/${m[1]}` : String(valor || "");
+  }
+
+  function renderizarPainelPreparacaoTrimestreAdmin(r) {
+    painelPreparacaoTrimestreCache = r || null;
+    if (!r) return;
+    const total = Number(r.totalConteudos || r.totalDomingos || 0);
+    const periodo = r.periodo || {};
+    const chip = document.getElementById("prepPeriodoChip");
+    if (chip) chip.textContent = `${periodo.rotulo || "Próximo trimestre"} de ${periodo.ano || ""}`;
+
+    const la = Number(r.licoes?.adultos?.total || 0), lj = Number(r.licoes?.jovens?.total || 0);
+    const qa = Number(r.quizzes?.adultos?.total || 0), qj = Number(r.quizzes?.jovens?.total || 0);
+    const campos = [["prepLicoesAdultos",la],["prepLicoesJovens",lj],["prepQuizAdultos",qa],["prepQuizJovens",qj]];
+    campos.forEach(([id,valor]) => { const el=document.getElementById(id); if (el) el.textContent=`${valor}/${total}`; });
+    classeCardPreparacao("prepLicoesAdultosCard", la===total, !r.licoes?.sucesso);
+    classeCardPreparacao("prepLicoesJovensCard", lj===total, !r.licoes?.sucesso);
+    classeCardPreparacao("prepQuizAdultosCard", qa===total, false);
+    classeCardPreparacao("prepQuizJovensCard", qj===total, false);
+
+    const detalhes = document.getElementById("prepDetalhes");
+    if (detalhes) {
+      const partes = [];
+      if (r.completo) partes.push("✅ Tudo pronto para o próximo trimestre.");
+      else partes.push("⚠️ Ainda existem itens pendentes para o próximo trimestre.");
+      if (r.diasAtePrimeira != null) partes.push(`Primeiro domingo: ${r.primeiraData || "—"} (${r.diasAtePrimeira} dia(s)).`);
+      if (!r.licoes?.sucesso) partes.push("Lições: não foi possível consultar a Hostinger agora: " + (r.licoes?.erro || "erro não identificado") + ".");
+      const faltas = [];
+      const adicionarFaltas = (rotulo, lista) => {
+        const arr = Array.isArray(lista) ? lista : [];
+        if (arr.length) faltas.push(`${rotulo}: ${arr.slice(0,4).map(formatarDataIsoBRAdmin).join(", ")}${arr.length>4 ? ` +${arr.length-4}` : ""}`);
+      };
+      adicionarFaltas("Lições J+A", r.licoes?.adultos?.faltantes);
+      adicionarFaltas("Lições Adolescentes", r.licoes?.jovens?.faltantes);
+      adicionarFaltas("Quizzes J+A", r.quizzes?.adultos?.faltantes);
+      adicionarFaltas("Quizzes Adolescentes", r.quizzes?.jovens?.faltantes);
+      if (faltas.length) partes.push("Pendências por data — " + faltas.join(" | ") + ".");
+      if (r.diasAtePrimeira != null && [15,7,2].includes(Number(r.diasAtePrimeira)) && !r.completo) partes.push("🔔 Se ainda houver pendências, os superintendentes com notificações ativas recebem alertas de preparação a 15, 7 e 2 dias do primeiro domingo.");
+      detalhes.textContent = partes.join(" ");
+    }
+  }
+
+  async function carregarPainelPreparacaoTrimestreAdmin(modoSilencioso = false) {
+    try {
+      const status = statusTrimestralCache || await carregarStatusTrimestralAdmin(true);
+      const proximo = status?.proximoPeriodo;
+      if (!proximo) return null;
+      const r = await chamarAppsScript({
+        acao:"obterPainelPreparacaoTrimestre",
+        senha:obterSenhaObrigatoria(),
+        ano:proximo.ano,
+        trimestre:proximo.trimestre,
+        _nocache:Date.now()
+      }, {timeoutMs:60000,tentativas:1});
+      if (!r || !r.sucesso) throw new Error((r && r.mensagem) || "Não foi possível conferir a preparação do próximo trimestre.");
+      renderizarPainelPreparacaoTrimestreAdmin(r);
+      if (!modoSilencioso) mostrarStatus("success", "Preparação do próximo trimestre atualizada.");
+      return r;
+    } catch (erro) {
+      console.warn("Erro ao carregar preparação trimestral:", erro);
+      if (!modoSilencioso) mostrarStatus("error", erro.message || "Erro ao conferir lições e quizzes.");
+      return null;
+    }
+  }
+
+  function periodoProgramacaoQuizzesAdmin() {
+    const proximo = statusTrimestralCache?.proximoPeriodo;
+    if (!proximo) throw new Error("Atualize primeiro o status trimestral.");
+    return {ano:Number(proximo.ano),trimestre:Number(proximo.trimestre),rotulo:proximo.rotulo};
+  }
+
+  function domingosPeriodoAdmin(ano, trimestre) {
+    const inicioMes = (Number(trimestre)-1)*3;
+    const inicio = new Date(Number(ano), inicioMes, 1, 12, 0, 0);
+    const fim = new Date(Number(ano), inicioMes+3, 1, 12, 0, 0);
+    const datas=[];
+    const d=new Date(inicio);
+    while (d.getDay()!==0) d.setDate(d.getDate()+1);
+    while (d<fim) {
+      datas.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`);
+      d.setDate(d.getDate()+7);
+    }
+    return datas.slice(0, 13);
+  }
+
+  function renderizarProgramacaoQuizzesAdmin(itens = []) {
+    const periodo = periodoProgramacaoQuizzesAdmin();
+    quizProgramacaoPeriodoCache = periodo;
+    const datas = domingosPeriodoAdmin(periodo.ano, periodo.trimestre);
+    const porNumero = new Map((Array.isArray(itens)?itens:[]).map(item => [Number(item.numero), item]));
+    const lista = document.getElementById("quizProgramacaoLista");
+    const chip = document.getElementById("quizProgramacaoPeriodo");
+    if (chip) chip.textContent = `${periodo.rotulo} de ${periodo.ano}`;
+    if (!lista) return;
+    lista.innerHTML = datas.map((data, indice) => {
+      const numero=indice+1, item=porNumero.get(numero)||{};
+      const valorData=String(item.data||data);
+      const adultos=String(item.adultos||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+      const jovens=String(item.jovens||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+      return `<div class="quiz-programacao-row">
+        <div class="numero">Lição ${numero}</div>
+        <div><label>Data</label><input id="quizProgData${numero}" type="date" value="${valorData}" /></div>
+        <div><label>Jovens e Adultos</label><input id="quizProgAdultos${numero}" type="url" placeholder="https://..." value="${adultos}" oninput="atualizarResumoProgramacaoQuizzesAdmin()" /></div>
+        <div><label>Adolescentes</label><input id="quizProgJovens${numero}" type="url" placeholder="https://..." value="${jovens}" oninput="atualizarResumoProgramacaoQuizzesAdmin()" /></div>
+      </div>`;
+    }).join("");
+    atualizarResumoProgramacaoQuizzesAdmin();
+  }
+
+  function coletarProgramacaoQuizzesAdmin() {
+    const periodo = quizProgramacaoPeriodoCache || periodoProgramacaoQuizzesAdmin();
+    const datas=domingosPeriodoAdmin(periodo.ano,periodo.trimestre);
+    return datas.map((_,indice) => {
+      const n=indice+1;
+      return {
+        numero:n,
+        data:document.getElementById(`quizProgData${n}`)?.value || "",
+        adultos:document.getElementById(`quizProgAdultos${n}`)?.value.trim() || "",
+        jovens:document.getElementById(`quizProgJovens${n}`)?.value.trim() || ""
+      };
+    });
+  }
+
+  function atualizarResumoProgramacaoQuizzesAdmin() {
+    const resumo=document.getElementById("quizProgramacaoResumo");
+    if (!resumo || !document.getElementById("quizProgramacaoLista")?.children.length) return;
+    const itens=coletarProgramacaoQuizzesAdmin();
+    const a=itens.filter(i => /^https:\/\//i.test(i.adultos)).length;
+    const j=itens.filter(i => /^https:\/\//i.test(i.jovens)).length;
+    resumo.textContent=`Jovens e Adultos: ${a}/${itens.length} · Adolescentes: ${j}/${itens.length}. Os links podem ser preenchidos aos poucos e salvos novamente.`;
+  }
+
+  async function carregarProgramacaoQuizzesAdmin(modoSilencioso = false) {
+    try {
+      if (!statusTrimestralCache) await carregarStatusTrimestralAdmin(true);
+      const periodo=periodoProgramacaoQuizzesAdmin();
+      const r=await chamarAppsScript({acao:"listarProgramacaoQuizzes",senha:obterSenhaObrigatoria(),ano:periodo.ano,trimestre:periodo.trimestre,_nocache:Date.now()},{timeoutMs:60000,tentativas:1});
+      if (!r || !r.sucesso) throw new Error((r&&r.mensagem)||"Não foi possível carregar a programação dos quizzes.");
+      renderizarProgramacaoQuizzesAdmin(r.itens||[]);
+      if (!modoSilencioso) mostrarStatus("success","Programação trimestral dos quizzes carregada.");
+      return r;
+    } catch (erro) {
+      if (!modoSilencioso) mostrarStatus("error",erro.message||"Erro ao carregar programação dos quizzes.");
+      return null;
+    }
+  }
+
+  async function gerarDatasProgramacaoQuizzesAdmin() {
+    if (!statusTrimestralCache) await carregarStatusTrimestralAdmin(true);
+    renderizarProgramacaoQuizzesAdmin([]);
+    mostrarStatus("success","Datas do próximo trimestre preenchidas. Agora cole os links dos quizzes.");
+  }
+
+  async function salvarProgramacaoQuizzesAdmin() {
+    try {
+      if (!document.getElementById("quizProgramacaoLista")?.children.length) renderizarProgramacaoQuizzesAdmin([]);
+      const periodo=quizProgramacaoPeriodoCache || periodoProgramacaoQuizzesAdmin();
+      const itens=coletarProgramacaoQuizzesAdmin();
+      const r=await chamarAppsScript({
+        acao:"salvarProgramacaoQuizzes",
+        senha:obterSenhaObrigatoria(),
+        ano:periodo.ano,
+        trimestre:periodo.trimestre,
+        itens:JSON.stringify(itens),
+        _nocache:Date.now()
+      },{timeoutMs:90000,tentativas:1});
+      if (!r || !r.sucesso) throw new Error((r&&r.mensagem)||"Não foi possível salvar a programação trimestral dos quizzes.");
+      renderizarProgramacaoQuizzesAdmin(r.itens||itens);
+      mostrarStatus("success",r.mensagem||"Programação dos quizzes salva.");
+      await carregarPainelPreparacaoTrimestreAdmin(true);
+    } catch (erro) {
+      mostrarStatus("error",erro.message||"Erro ao salvar programação trimestral dos quizzes.");
     }
   }
 
@@ -6688,7 +6988,7 @@ Nos aparelhos afetados, a senha será solicitada novamente no próximo acesso on
     }
     if (nome === "historicoEscalas") { preencherFiltrosHistoricoEscalas(); consultarHistoricoEscalasAdmin(true); carregarStatusTrimestralAdmin(true); }
     if (nome === "professores") carregarProfessores();
-    if (nome === "quizzes") carregarQuizzesAdmin();
+    if (nome === "quizzes") { carregarQuizzesAdmin(); carregarProgramacaoQuizzesAdmin(true); }
     if (nome === "mapa") carregarAtualizacoesMapa();
     if (nome === "acessosApp") carregarAcessosApp();
     if (nome === "notificacoes") carregarNotificacoesApp();

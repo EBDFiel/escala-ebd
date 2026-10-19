@@ -2084,6 +2084,39 @@
                       <button type="button" class="red compact-btn" onclick="limparProgramacao('adultos')">🗑️ Limpar programação</button>
                     </div>
                   </div>
+                  <div class="lesson-mode-note" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:18px; padding:1rem; margin:1rem 0;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.8rem; flex-wrap:wrap; margin-bottom:0.8rem;">
+                      <div>
+                        <strong style="display:block; color:#0b2b3f;">📁 PDFs privados da Hostinger</strong>
+                        <span style="font-size:0.78rem; color:#64748b;">Confere automaticamente os 13 arquivos A4 da pasta privada de Adultos antes de preencher a programação.</span>
+                      </div>
+                      <span class="chip">Adultos</span>
+                    </div>
+                    <div class="programacao-config-grid">
+                      <div>
+                        <label for="pdfAnoAdultos">Ano dos PDFs</label>
+                        <input id="pdfAnoAdultos" type="number" min="2020" max="2200" value="2026" onchange="invalidarConferenciaPdfsPrivadosAdultos()" />
+                      </div>
+                      <div>
+                        <label for="pdfTrimestreAdultos">Trimestre</label>
+                        <select id="pdfTrimestreAdultos" onchange="invalidarConferenciaPdfsPrivadosAdultos()">
+                          <option value="1">1º Trimestre</option>
+                          <option value="2">2º Trimestre</option>
+                          <option value="3">3º Trimestre</option>
+                          <option value="4" selected>4º Trimestre</option>
+                        </select>
+                      </div>
+                      <div class="programacao-actions">
+                        <button type="button" class="secondary compact-btn" onclick="conferirPdfsPrivadosAdultos()">🔎 Conferir PDFs</button>
+                      </div>
+                    </div>
+                    <div id="pdfPrivadosAdultosResumo" class="programacao-resumo" style="margin-top:0.8rem; background:#f8fafc; border-color:#cbd5e1; color:#475569;">Ainda não conferido.</div>
+                    <div id="pdfPrivadosAdultosLista" style="display:grid; gap:0.35rem; margin-top:0.7rem;"></div>
+                    <div class="programacao-bulk-actions" style="margin-top:0.8rem;">
+                      <button id="btnImportarPdfsPrivadosAdultos" type="button" class="purple compact-btn" onclick="importarPdfsPrivadosAdultos()" disabled>📥 Preencher programação com os PDFs</button>
+                    </div>
+                    <div style="font-size:0.75rem; color:#64748b; margin-top:0.6rem;">A conferência não salva nada. Depois de preencher, revise as 13 linhas e clique em <strong>Salvar lições na Hostinger</strong>.</div>
+                  </div>
                   <div id="resumoProgramacaoAdultos" class="programacao-resumo">0 de 13 lições programadas.</div>
                   <div id="programacaoListaAdultos" class="programacao-lista"></div>
                 </div>
@@ -3142,6 +3175,7 @@
 <script>
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnUgkd04pGGUbIWDxG1E_wkR3KRCyecNnEz8YOmljALCE2ZurCWvk-gPNi3xuSAT51/exec";
   const LICOES_API_URL = "https://ebdfiel.com.br/escala-ebd-api/licoes.php";
+  const MATERIAIS_API_URL = "https://ebdfiel.com.br/escala-ebd-api/materiais.php";
   const modeloPadrao = `<div style="font-family:system-ui; background:#fef9e6; border-radius:2rem; padding:1.4rem;"><div style="background:#0b2b3f; color:white; padding:1rem; border-radius:1.5rem;"><h3>Conteúdo da lição</h3></div><div style="padding:1rem;"><p>Adicione aqui o conteúdo da aula...</p></div></div>`;
   let escalaCache = [], classesCache = [], professoresCache = [];
   let historicoEscalasCache = [];
@@ -3192,6 +3226,7 @@
   let salvandoLicoesEBD = false;
   let timerSalvarLicoesEBD = null;
   let requisicaoLicoesAtivaEBD = "";
+  let pdfsPrivadosAdultosCache = null;
 
   function mostrarStatus(tipo, msg) {
     const icone = tipo === "success" ? "✅" : tipo === "error" ? "⚠️" : "ℹ️";
@@ -3801,6 +3836,174 @@
     mostrarStatus("success", Math.min(linhas.length, TOTAL_LICOES_PROGRAMADAS) + " link(s) distribuído(s) em " + nomeClasseLicaoAdmin(campo) + ".");
   }
 
+  async function chamarApiMateriaisHostinger(corpo, timeoutMs = 20000) {
+    const controlador = new AbortController();
+    const timer = setTimeout(() => controlador.abort(), timeoutMs);
+    try {
+      const resposta = await fetch(MATERIAIS_API_URL, {
+        method: "POST",
+        cache: "no-store",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(corpo || {}),
+        signal: controlador.signal
+      });
+      let dados;
+      try { dados = await resposta.json(); }
+      catch (erroJson) { throw new Error("A API dos materiais privados não retornou JSON válido."); }
+      if (!resposta.ok || !dados || !dados.sucesso) {
+        throw new Error((dados && dados.mensagem) || "Erro HTTP " + resposta.status + " ao conferir os PDFs privados.");
+      }
+      return dados;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  function periodoPdfsPrivadosAdultos() {
+    const ano = Number(document.getElementById("pdfAnoAdultos")?.value || 0);
+    const trimestre = Number(document.getElementById("pdfTrimestreAdultos")?.value || 0);
+    if (!Number.isInteger(ano) || ano < 2020 || ano > 2200) throw new Error("Informe um ano válido para os PDFs de Adultos.");
+    if (![1,2,3,4].includes(trimestre)) throw new Error("Selecione um trimestre válido para os PDFs de Adultos.");
+    return { ano, trimestre };
+  }
+
+  function invalidarConferenciaPdfsPrivadosAdultos() {
+    pdfsPrivadosAdultosCache = null;
+    const resumo = document.getElementById("pdfPrivadosAdultosResumo");
+    const lista = document.getElementById("pdfPrivadosAdultosLista");
+    const botao = document.getElementById("btnImportarPdfsPrivadosAdultos");
+    if (resumo) {
+      resumo.textContent = "Período alterado. Clique em Conferir PDFs.";
+      resumo.style.background = "#f8fafc";
+      resumo.style.borderColor = "#cbd5e1";
+      resumo.style.color = "#475569";
+    }
+    if (lista) lista.innerHTML = "";
+    if (botao) botao.disabled = true;
+  }
+
+  function renderizarConferenciaPdfsPrivadosAdultos(dados) {
+    const resumo = document.getElementById("pdfPrivadosAdultosResumo");
+    const lista = document.getElementById("pdfPrivadosAdultosLista");
+    const botao = document.getElementById("btnImportarPdfsPrivadosAdultos");
+    const arquivos = Array.isArray(dados?.arquivos) ? dados.arquivos : [];
+    const total = Number(dados?.totalEsperado || 13);
+    const encontrados = Number(dados?.totalEncontrados || 0);
+    const completo = encontrados === total && total === 13;
+
+    if (resumo) {
+      resumo.textContent = completo
+        ? `✅ ${encontrados} de ${total} arquivos encontrados. A programação pode ser preenchida.`
+        : `⚠️ ${encontrados} de ${total} arquivos encontrados. Corrija os arquivos ausentes antes de importar.`;
+      resumo.style.background = completo ? "#ecfdf5" : "#fff7ed";
+      resumo.style.borderColor = completo ? "#a7f3d0" : "#fed7aa";
+      resumo.style.color = completo ? "#166534" : "#9a3412";
+    }
+
+    if (lista) {
+      lista.innerHTML = arquivos.map(function (item) {
+        const ok = !!item.encontrado;
+        const nome = escapeHtmlAdmin(item.nome || ("Lição " + item.numero));
+        const numero = String(Number(item.numero || 0)).padStart(2, "0");
+        return `<div style="display:flex; align-items:center; gap:0.55rem; padding:0.45rem 0.6rem; border:1px solid ${ok ? "#bbf7d0" : "#fed7aa"}; background:${ok ? "#f0fdf4" : "#fff7ed"}; border-radius:12px; font-size:0.78rem; color:${ok ? "#166534" : "#9a3412"};"><strong style="min-width:60px;">Lição ${numero}</strong><span>${ok ? "✅" : "❌"}</span><span style="word-break:break-word;">${nome}</span></div>`;
+      }).join("");
+    }
+
+    if (botao) botao.disabled = !completo;
+  }
+
+  async function conferirPdfsPrivadosAdultos(modoSilencioso = false) {
+    const senhaHostinger = obterSenhaHostingerSessao();
+    if (!senhaHostinger) {
+      mostrarStatus("error", "Para conferir os PDFs privados, saia do painel e entre novamente com a senha administrativa.");
+      return null;
+    }
+
+    let periodo;
+    try { periodo = periodoPdfsPrivadosAdultos(); }
+    catch (erro) { mostrarStatus("error", erro.message); return null; }
+
+    const resumo = document.getElementById("pdfPrivadosAdultosResumo");
+    const botao = document.getElementById("btnImportarPdfsPrivadosAdultos");
+    if (resumo) {
+      resumo.textContent = "⏳ Conferindo os 13 PDFs na pasta privada da Hostinger...";
+      resumo.style.background = "#eff6ff";
+      resumo.style.borderColor = "#bfdbfe";
+      resumo.style.color = "#1d4ed8";
+    }
+    if (botao) botao.disabled = true;
+
+    try {
+      const dados = await chamarApiMateriaisHostinger({
+        acao: "conferir",
+        senha: senhaHostinger,
+        classe: "adultos",
+        ano: periodo.ano,
+        trimestre: periodo.trimestre
+      });
+      pdfsPrivadosAdultosCache = dados;
+      renderizarConferenciaPdfsPrivadosAdultos(dados);
+      if (!modoSilencioso) {
+        if (Number(dados.totalEncontrados || 0) === 13) mostrarStatus("success", "Os 13 PDFs de Adultos foram encontrados na pasta privada.");
+        else mostrarStatus("error", `Foram encontrados ${Number(dados.totalEncontrados || 0)} de 13 PDFs. Confira os nomes dos arquivos antes de importar.`);
+      }
+      return dados;
+    } catch (erro) {
+      pdfsPrivadosAdultosCache = null;
+      if (resumo) {
+        resumo.textContent = "⚠️ Não foi possível conferir os PDFs: " + erro.message;
+        resumo.style.background = "#fef2f2";
+        resumo.style.borderColor = "#fecaca";
+        resumo.style.color = "#991b1b";
+      }
+      if (!modoSilencioso) mostrarStatus("error", "Não foi possível conferir os PDFs privados: " + erro.message);
+      return null;
+    }
+  }
+
+  async function importarPdfsPrivadosAdultos() {
+    let dados = pdfsPrivadosAdultosCache;
+    if (!dados || Number(dados.totalEncontrados || 0) !== 13) {
+      dados = await conferirPdfsPrivadosAdultos(true);
+    }
+    if (!dados || Number(dados.totalEncontrados || 0) !== 13) {
+      return mostrarStatus("error", "A importação só é liberada quando os 13 PDFs forem encontrados.");
+    }
+
+    let periodo;
+    try { periodo = periodoPdfsPrivadosAdultos(); }
+    catch (erro) { return mostrarStatus("error", erro.message); }
+
+    const existentes = coletarProgramacaoAdmin("adultos").filter(function (item) { return item.data || item.titulo || item.url; });
+    if (existentes.length && !confirm("A programação de Jovens e Adultos já possui dados. Deseja substituí-la pelos PDFs privados selecionados?")) return;
+
+    const datas = domingosPeriodoAdmin(periodo.ano, periodo.trimestre);
+    if (datas.length < 13) {
+      return mostrarStatus("error", "Não foi possível gerar as 13 datas de domingo para o período selecionado.");
+    }
+
+    document.getElementById("tipoAdultos").value = "programacao";
+    atualizarModoLicao("adultos", false);
+    garantirProgramacaoRenderizada("adultos");
+    document.getElementById("inicioProgramacaoAdultos").value = datas[0];
+    document.getElementById("licaoManualAdultos").value = "0";
+
+    const porNumero = new Map((dados.arquivos || []).map(function (item) { return [Number(item.numero), item]; }));
+    for (let numero = 1; numero <= TOTAL_LICOES_PROGRAMADAS; numero += 1) {
+      const item = porNumero.get(numero);
+      if (!item || !item.encontrado || !urlExternaValidaAdmin(item.url || "")) {
+        return mostrarStatus("error", "A Lição " + numero + " não possui um link seguro válido. Faça uma nova conferência.");
+      }
+      document.getElementById("programacaoAdultosData" + numero).value = datas[numero - 1];
+      document.getElementById("programacaoAdultosTitulo" + numero).value = "Lição " + String(numero).padStart(2, "0");
+      document.getElementById("programacaoAdultosUrl" + numero).value = item.url;
+    }
+
+    atualizarResumoProgramacao("adultos");
+    mostrarStatus("success", `Programação de Adultos preenchida com os 13 PDFs do ${periodo.trimestre}º trimestre de ${periodo.ano}. Revise e clique em Salvar lições na Hostinger.`);
+    try { document.getElementById("resumoProgramacaoAdultos")?.scrollIntoView({behavior:"smooth", block:"center"}); } catch (e) {}
+  }
+
   function testarLinkProgramacao(campo, numero) {
     const sufixo = sufixoLicaoAdmin(campo);
     const url = document.getElementById("programacao" + sufixo + "Url" + numero).value.trim();
@@ -3823,6 +4026,7 @@
     document.getElementById("inicioProgramacao" + sufixo).value = "";
     document.getElementById("linksEmMassa" + sufixo).value = "";
     document.getElementById("licaoManual" + sufixo).value = "0";
+    if (campo === "adultos") invalidarConferenciaPdfsPrivadosAdultos();
     atualizarResumoProgramacao(campo);
     mostrarStatus("info", "Programação de " + nomeClasseLicaoAdmin(campo) + " limpa.");
   }

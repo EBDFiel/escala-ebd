@@ -2460,7 +2460,7 @@
             <label for="quizAdultosLink">URL do quiz de Jovens e Adultos</label>
             <input id="quizAdultosLink" type="url" placeholder="https://..." />
 
-            <p class="help">Exemplo: https://ebdfiel.github.io/Quizzes-ClaseAdultos-2026/trimestre-02/licao-07/</p>
+            <p class="help">Fonte usada pela Escala EBD: https://ebdfiel.com.br/2026/quizzes/adultos/</p>
           </div>
 
           <div class="subcard">
@@ -2472,21 +2472,39 @@
             <label for="quizJovensLink">URL do quiz dos Adolescentes</label>
             <input id="quizJovensLink" type="url" placeholder="https://..." />
 
-            <p class="help">Exemplo: https://ebdfiel.github.io/Quizzes-ConectarJovens-/trimestre-02/licao-07/index.html</p>
+            <p class="help">Fonte usada pela Escala EBD: https://ebdfiel.com.br/Quizzes-ConectarJovens-/ (Classe Jovens)</p>
           </div>
 
           <div class="subcard">
             <div class="subcard-header">
               <h3>📅 Programação trimestral dos quizzes</h3>
-              <span id="quizProgramacaoPeriodo" class="chip">Próximo trimestre</span>
+              <span id="quizProgramacaoPeriodo" class="chip">Selecione o período</span>
             </div>
-            <p class="help">Cadastre antecipadamente os links de cada domingo. Na semana correspondente, o app usa automaticamente o quiz programado. Os links manuais acima continuam disponíveis como reserva.</p>
+            <p class="help">Selecione o ano e o trimestre que deseja atualizar. Para a Escala EBD, <strong>Jovens e Adultos</strong> usa os quizzes da <strong>Classe Adultos</strong> da EBD Fiel e <strong>Adolescentes</strong> usa os quizzes da <strong>Classe Jovens</strong> da EBD Fiel.</p>
+
+            <div class="form-grid" style="margin-top:1rem;">
+              <div>
+                <label for="quizProgAno">Ano</label>
+                <input id="quizProgAno" type="number" min="2026" max="2100" inputmode="numeric" onchange="alterarPeriodoProgramacaoQuizzesAdmin()" />
+              </div>
+              <div>
+                <label for="quizProgTrimestre">Trimestre</label>
+                <select id="quizProgTrimestre" onchange="alterarPeriodoProgramacaoQuizzesAdmin()">
+                  <option value="1">1º Trimestre</option>
+                  <option value="2">2º Trimestre</option>
+                  <option value="3">3º Trimestre</option>
+                  <option value="4">4º Trimestre</option>
+                </select>
+              </div>
+            </div>
+
             <div class="actions" style="margin-top:1rem;">
-              <button class="secondary" type="button" onclick="gerarDatasProgramacaoQuizzesAdmin()">📅 Preencher datas do próximo trimestre</button>
+              <button class="secondary" type="button" onclick="gerarDatasProgramacaoQuizzesAdmin()">📅 Preencher datas do período</button>
+              <button type="button" onclick="preencherLinksEbdFielQuizzesAdmin()">🔗 Preencher links da EBD Fiel</button>
               <button class="gray" type="button" onclick="carregarProgramacaoQuizzesAdmin()">🔄 Carregar programação</button>
               <button class="purple" type="button" onclick="salvarProgramacaoQuizzesAdmin()">💾 Salvar programação trimestral</button>
             </div>
-            <div id="quizProgramacaoResumo" class="prep-detail">Carregue a programação para começar.</div>
+            <div id="quizProgramacaoResumo" class="prep-detail">Selecione o período e carregue ou preencha a programação.</div>
             <div id="quizProgramacaoLista" class="quiz-programacao-lista"></div>
           </div>
 
@@ -2800,9 +2818,9 @@
               <ol>
                 <li>Clique em <strong>Quizzes</strong>.</li>
                 <li>Para preparar o trimestre inteiro, abra <strong>Programação trimestral dos quizzes</strong>.</li>
-                <li>Clique em <strong>Preencher datas do próximo trimestre</strong>.</li>
-                <li>Cole, em cada domingo, o link de <strong>Jovens e Adultos</strong> e o link dos <strong>Adolescentes</strong>.</li>
-                <li>Clique em <strong>Salvar programação trimestral</strong>. Você pode preencher aos poucos e salvar novamente.</li>
+                <li>Selecione o <strong>ano</strong> e o <strong>trimestre</strong> e clique em <strong>Preencher datas do período</strong>.</li>
+                <li>Para 2026, clique em <strong>Preencher links da EBD Fiel</strong>. O painel usa automaticamente <strong>Quiz Adultos → Jovens e Adultos</strong> e <strong>Quiz Jovens → Adolescentes</strong>.</li>
+                <li>Revise os links e clique em <strong>Salvar programação trimestral</strong>. Você pode ajustar algum endereço manualmente antes de salvar, se necessário.</li>
                 <li>Na semana correspondente, o app seleciona automaticamente os links programados.</li>
                 <li>Os dois campos de links manuais continuam disponíveis como reserva para uma substituição rápida.</li>
               </ol>
@@ -5963,10 +5981,50 @@ Use esta opção apenas como emergência. A rotina normal é automática.`);
     }
   }
 
+  function rotuloTrimestreQuizzesAdmin(trimestre) {
+    const n = Number(trimestre);
+    return `${n}º Trimestre`;
+  }
+
+  function periodoCalendarioAtualQuizzesAdmin() {
+    const agora = new Date();
+    return {
+      ano: agora.getFullYear(),
+      trimestre: Math.floor(agora.getMonth() / 3) + 1
+    };
+  }
+
+  function inicializarPeriodoProgramacaoQuizzesAdmin() {
+    const anoEl = document.getElementById("quizProgAno");
+    const triEl = document.getElementById("quizProgTrimestre");
+    if (!anoEl || !triEl) return;
+    const atual = periodoCalendarioAtualQuizzesAdmin();
+    if (!String(anoEl.value || "").trim()) anoEl.value = String(atual.ano);
+    if (!String(triEl.value || "").trim()) triEl.value = String(atual.trimestre);
+  }
+
   function periodoProgramacaoQuizzesAdmin() {
-    const proximo = statusTrimestralCache?.proximoPeriodo;
-    if (!proximo) throw new Error("Atualize primeiro o status trimestral.");
-    return {ano:Number(proximo.ano),trimestre:Number(proximo.trimestre),rotulo:proximo.rotulo};
+    inicializarPeriodoProgramacaoQuizzesAdmin();
+    const ano = Number(document.getElementById("quizProgAno")?.value || 0);
+    const trimestre = Number(document.getElementById("quizProgTrimestre")?.value || 0);
+    if (!Number.isInteger(ano) || ano < 2026 || ano > 2100) throw new Error("Informe um ano válido para a programação dos quizzes.");
+    if (![1,2,3,4].includes(trimestre)) throw new Error("Selecione um trimestre válido para a programação dos quizzes.");
+    return {ano,trimestre,rotulo:rotuloTrimestreQuizzesAdmin(trimestre)};
+  }
+
+  function alterarPeriodoProgramacaoQuizzesAdmin() {
+    quizProgramacaoPeriodoCache = null;
+    const lista = document.getElementById("quizProgramacaoLista");
+    const resumo = document.getElementById("quizProgramacaoResumo");
+    const chip = document.getElementById("quizProgramacaoPeriodo");
+    try {
+      const periodo = periodoProgramacaoQuizzesAdmin();
+      if (chip) chip.textContent = `${periodo.rotulo} de ${periodo.ano}`;
+      if (lista) lista.innerHTML = "";
+      if (resumo) resumo.textContent = "Período alterado. Clique em Carregar programação ou em Preencher links da EBD Fiel.";
+    } catch (e) {
+      if (chip) chip.textContent = "Selecione o período";
+    }
   }
 
   function domingosPeriodoAdmin(ano, trimestre) {
@@ -6027,7 +6085,7 @@ Use esta opção apenas como emergência. A rotina normal é automática.`);
     const itens=coletarProgramacaoQuizzesAdmin();
     const a=itens.filter(i => /^https:\/\//i.test(i.adultos)).length;
     const j=itens.filter(i => /^https:\/\//i.test(i.jovens)).length;
-    resumo.textContent=`Jovens e Adultos: ${a}/${itens.length} · Adolescentes: ${j}/${itens.length}. Os links podem ser preenchidos aos poucos e salvos novamente.`;
+    resumo.textContent=`Jovens e Adultos (Quiz Adultos): ${a}/${itens.length} · Adolescentes (Quiz Jovens): ${j}/${itens.length}. Os links podem ser preenchidos automaticamente, revisados e salvos novamente.`;
   }
 
   async function carregarProgramacaoQuizzesAdmin(modoSilencioso = false) {
@@ -6046,9 +6104,48 @@ Use esta opção apenas como emergência. A rotina normal é automática.`);
   }
 
   async function gerarDatasProgramacaoQuizzesAdmin() {
-    if (!statusTrimestralCache) await carregarStatusTrimestralAdmin(true);
     renderizarProgramacaoQuizzesAdmin([]);
-    mostrarStatus("success","Datas do próximo trimestre preenchidas. Agora cole os links dos quizzes.");
+    const periodo = periodoProgramacaoQuizzesAdmin();
+    mostrarStatus("success",`Datas de ${periodo.rotulo} de ${periodo.ano} preenchidas. Agora você pode usar o botão Preencher links da EBD Fiel.`);
+  }
+
+  function montarLinkQuizEbdFielAdmin(tipo, ano, trimestre, licao) {
+    const tri = String(Number(trimestre)).padStart(2,"0");
+    const num = String(Number(licao)).padStart(2,"0");
+    if (Number(ano) !== 2026) {
+      throw new Error("O preenchimento automático está configurado para os quizzes de 2026. Para outro ano, confira primeiro a estrutura publicada na EBD Fiel.");
+    }
+    if (tipo === "adultos") {
+      return `https://ebdfiel.com.br/2026/quizzes/adultos/trimestre-${tri}/licao-${num}/index.html`;
+    }
+    if (tipo === "jovens") {
+      return `https://ebdfiel.com.br/Quizzes-ConectarJovens-/trimestre-${tri}/licao-${num}/index.html`;
+    }
+    throw new Error("Tipo de quiz não reconhecido.");
+  }
+
+  async function preencherLinksEbdFielQuizzesAdmin() {
+    try {
+      const periodo = periodoProgramacaoQuizzesAdmin();
+      if (!document.getElementById("quizProgramacaoLista")?.children.length) {
+        renderizarProgramacaoQuizzesAdmin([]);
+      }
+      const datas = domingosPeriodoAdmin(periodo.ano, periodo.trimestre);
+      if (!datas.length) throw new Error("Não foi possível gerar os domingos do período selecionado.");
+      const confirmar = confirm(`Preencher os ${datas.length} links de ${periodo.rotulo} de ${periodo.ano}?\n\nJovens e Adultos → Quiz Adultos da EBD Fiel\nAdolescentes → Quiz Jovens da EBD Fiel`);
+      if (!confirmar) return;
+      datas.forEach((_, indice) => {
+        const n = indice + 1;
+        const adultos = document.getElementById(`quizProgAdultos${n}`);
+        const jovens = document.getElementById(`quizProgJovens${n}`);
+        if (adultos) adultos.value = montarLinkQuizEbdFielAdmin("adultos", periodo.ano, periodo.trimestre, n);
+        if (jovens) jovens.value = montarLinkQuizEbdFielAdmin("jovens", periodo.ano, periodo.trimestre, n);
+      });
+      atualizarResumoProgramacaoQuizzesAdmin();
+      mostrarStatus("success",`${datas.length} links de Jovens e Adultos e ${datas.length} links de Adolescentes foram preenchidos. Revise e clique em Salvar programação trimestral.`);
+    } catch (erro) {
+      mostrarStatus("error", erro.message || "Erro ao preencher os links da EBD Fiel.");
+    }
   }
 
   async function salvarProgramacaoQuizzesAdmin() {
@@ -7372,7 +7469,7 @@ Nos aparelhos afetados, a senha será solicitada novamente no próximo acesso on
     }
     if (nome === "historicoEscalas") { preencherFiltrosHistoricoEscalas(); consultarHistoricoEscalasAdmin(true); carregarStatusTrimestralAdmin(true); }
     if (nome === "professores") carregarProfessores();
-    if (nome === "quizzes") { carregarQuizzesAdmin(); carregarProgramacaoQuizzesAdmin(true); }
+    if (nome === "quizzes") { inicializarPeriodoProgramacaoQuizzesAdmin(); carregarQuizzesAdmin(); carregarProgramacaoQuizzesAdmin(true); }
     if (nome === "mapa") carregarAtualizacoesMapa();
     if (nome === "acessosApp") carregarAcessosApp();
     if (nome === "notificacoes") carregarNotificacoesApp();

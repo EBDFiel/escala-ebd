@@ -12,7 +12,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_CONTEUDO_SEMANAL_AUTOMATICO_2026_10_19" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_CONTEUDO_SEMANAL_RESILIENTE_2026_10_19_R1" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -9624,7 +9624,77 @@
       }
     }
 
+    const CHAVE_CACHE_QUIZZES_EBD = "ebdQuizzesSemanaV1";
+
+    function normalizarLinkQuizEbdFielPublico(link, tipo, contexto = {}) {
+      const original = String(link || "").trim();
+      if (!original) return "";
+
+      let url;
+      try { url = new URL(original); } catch (erro) { return original; }
+      const host = String(url.hostname || "").toLowerCase();
+      if (host !== "ebdfiel.com.br" && host !== "www.ebdfiel.com.br") return original;
+
+      let ano = Number(contexto.ano || (contexto.periodo && contexto.periodo.ano) || 0);
+      let trimestre = Number(contexto.trimestre || (contexto.periodo && contexto.periodo.trimestre) || 0);
+      let numero = Number(contexto.numero || contexto.numeroProgramado || 0);
+      const dataRef = String(contexto.dataProgramada || contexto.dataReferencia || "");
+
+      if ((!ano || !trimestre) && /^\d{4}-\d{2}-\d{2}$/.test(dataRef)) {
+        const p = dataRef.split("-").map(Number);
+        ano = p[0];
+        trimestre = Math.floor((p[1] - 1) / 3) + 1;
+      }
+
+      if (!ano || !trimestre || !numero) return original;
+      const tri = String(trimestre).padStart(2, "0");
+      const num = String(numero).padStart(2, "0");
+      const caminho = String(url.pathname || "");
+
+      if (tipo === "adultos" && (/\/quizzes\/adultos\//i.test(caminho) || /Quizzes-ClaseAdultos-/i.test(caminho))) {
+        return `https://ebdfiel.com.br/${ano}/quizzes/adultos/trimestre-${tri}/licao-${num}.html`;
+      }
+      if (tipo === "jovens" && (/\/quizzes\/jovens\//i.test(caminho) || /Quizzes-ConectarJovens-/i.test(caminho))) {
+        return `https://ebdfiel.com.br/${ano}/quizzes/jovens/trimestre-${tri}/licao-${num}/index.html`;
+      }
+      return original;
+    }
+
+    function salvarCacheQuizzesEBD() {
+      try {
+        if (!quizLinks.adultos && !quizLinks.jovens) return;
+        localStorage.setItem(CHAVE_CACHE_QUIZZES_EBD, JSON.stringify({
+          adultos: quizLinks.adultos || "",
+          jovens: quizLinks.jovens || "",
+          meta: quizzesSemanaMeta || {},
+          salvoEm: Date.now()
+        }));
+      } catch (erro) {
+        console.warn("Não foi possível salvar o cache dos quizzes:", erro);
+      }
+    }
+
+    function carregarCacheQuizzesEBD() {
+      try {
+        const bruto = localStorage.getItem(CHAVE_CACHE_QUIZZES_EBD);
+        if (!bruto) return false;
+        const cache = JSON.parse(bruto);
+        if (!cache || (!cache.adultos && !cache.jovens)) return false;
+        quizzesSemanaMeta = cache.meta && typeof cache.meta === "object" ? cache.meta : {};
+        quizLinks.adultos = normalizarLinkQuizEbdFielPublico(cache.adultos, "adultos", quizzesSemanaMeta);
+        quizLinks.jovens = normalizarLinkQuizEbdFielPublico(cache.jovens, "jovens", quizzesSemanaMeta);
+        atualizarBotoesQuiz();
+        return Boolean(quizLinks.adultos || quizLinks.jovens);
+      } catch (erro) {
+        console.warn("Não foi possível ler o cache dos quizzes:", erro);
+        return false;
+      }
+    }
+
     async function carregarQuizzesDaPlanilha(modoSilencioso = false) {
+      const haviaLinksValidos = Boolean(quizLinks.adultos || quizLinks.jovens);
+      if (!haviaLinksValidos) carregarCacheQuizzesEBD();
+
       try {
         const dados = await chamarAppsScript({
           acao: "quizzes",
@@ -9636,10 +9706,10 @@
           if (!modoSilencioso) {
             console.warn("Quizzes não retornaram no formato esperado:", dados);
           }
-          quizLinks.adultos = "";
-          quizLinks.jovens = "";
-          quizzesSemanaMeta = { faltandoPreparacao: true };
-          atualizarBotoesQuiz();
+          if (!quizLinks.adultos && !quizLinks.jovens) {
+            quizzesSemanaMeta = { faltandoPreparacao: true };
+            atualizarBotoesQuiz();
+          }
           return false;
         }
 
@@ -9664,24 +9734,31 @@
           quizzesRecebidos["Quiz dos Adolescentes"] ||
           "";
 
-        quizLinks.adultos = String(adultosRecebido || "").trim();
-        quizLinks.jovens = String(jovensRecebido || "").trim();
         quizzesSemanaMeta = {
           programado: Boolean(dados.programado),
           faltandoPreparacao: Boolean(dados.faltandoPreparacao),
           dataProgramada: String(dados.dataProgramada || dados.dataReferencia || ""),
+          dataReferencia: String(dados.dataReferencia || ""),
           numeroProgramado: Number(dados.numeroProgramado || 0),
-          origem: String(dados.origem || "")
+          origem: String(dados.origem || ""),
+          periodo: dados.periodo && typeof dados.periodo === "object" ? dados.periodo : {}
         };
 
+        const adultoNovo = normalizarLinkQuizEbdFielPublico(adultosRecebido, "adultos", quizzesSemanaMeta);
+        const jovemNovo = normalizarLinkQuizEbdFielPublico(jovensRecebido, "jovens", quizzesSemanaMeta);
+        if (adultoNovo) quizLinks.adultos = adultoNovo;
+        if (jovemNovo) quizLinks.jovens = jovemNovo;
+
+        if (quizLinks.adultos || quizLinks.jovens) salvarCacheQuizzesEBD();
         atualizarBotoesQuiz();
-        return true;
+        return Boolean(quizLinks.adultos || quizLinks.jovens);
       } catch (erro) {
-        console.error("Erro ao carregar quizzes:", erro);
-        quizLinks.adultos = "";
-        quizLinks.jovens = "";
-        quizzesSemanaMeta = { faltandoPreparacao: true };
-        atualizarBotoesQuiz();
+        if (!modoSilencioso) console.error("Erro ao carregar quizzes:", erro);
+        if (!quizLinks.adultos && !quizLinks.jovens) carregarCacheQuizzesEBD();
+        if (!quizLinks.adultos && !quizLinks.jovens) {
+          quizzesSemanaMeta = { faltandoPreparacao: true };
+          atualizarBotoesQuiz();
+        }
         return false;
       }
     }
@@ -9795,19 +9872,28 @@
       const hoje = hojeSaoPauloPublico();
       const domingoReferencia = domingoReferenciaSaoPauloPublico();
       const ordenada = programacao.slice().sort(function (a, b) {
-        return a.data.localeCompare(b.data) || a.numero - b.numero;
+        return a.dataLiberacao.localeCompare(b.dataLiberacao) || a.data.localeCompare(b.data) || a.numero - b.numero;
       });
+
+      // Regra resiliente: prioriza a lição do próximo domingo quando ela já foi liberada.
       const daSemana = ordenada.find(function (entrada) {
         return entrada.data === domingoReferencia;
       }) || null;
-
       if (daSemana && daSemana.dataLiberacao <= hoje) {
         return { atual: daSemana, proxima: null, manual: false };
       }
 
+      // Se a data exata não estiver cadastrada, mantém a última lição já liberada.
+      // Isso evita bloquear a página por pequenas diferenças de cadastro ou virada de trimestre.
+      const vigentes = ordenada.filter(function (entrada) {
+        return entrada.dataLiberacao && entrada.dataLiberacao <= hoje;
+      });
+      const atual = vigentes.length ? vigentes[vigentes.length - 1] : null;
+      if (atual) return { atual: atual, proxima: null, manual: false };
+
       return {
         atual: null,
-        proxima: daSemana || ordenada.find(function (entrada) { return entrada.data > domingoReferencia; }) || null,
+        proxima: daSemana || ordenada.find(function (entrada) { return entrada.dataLiberacao > hoje; }) || null,
         manual: false
       };
     }
@@ -9961,15 +10047,18 @@
     }
 
     function carregarLicoesDoCacheHostinger() {
-      try {
-        const bruto = localStorage.getItem("ebdLicoesHostingerV2");
-        if (!bruto) return false;
-        const cache = JSON.parse(bruto);
-        return aplicarDadosLicoesHostinger(cache, false);
-      } catch (erro) {
-        console.warn("Não foi possível ler o cache das lições:", erro);
-        return false;
+      const chaves = ["ebdLicoesHostingerV2", "ebdLicoesHostingerV1"];
+      for (const chave of chaves) {
+        try {
+          const bruto = localStorage.getItem(chave);
+          if (!bruto) continue;
+          const cache = JSON.parse(bruto);
+          if (aplicarDadosLicoesHostinger(cache, false)) return true;
+        } catch (erro) {
+          console.warn("Não foi possível ler o cache das lições (" + chave + "):", erro);
+        }
       }
+      return false;
     }
 
     async function carregarLicoesLegadoDrive(modoSilencioso = false) {
@@ -9999,10 +10088,11 @@
     }
 
     async function carregarLicoesAtuais(modoSilencioso = false, forcarAtualizacao = false) {
-      let possuiCache = false;
-      if (!forcarAtualizacao && navigator.onLine === false) {
-        possuiCache = carregarLicoesDoCacheHostinger();
-      }
+      // Mantém sempre a última leitura válida disponível enquanto tenta atualizar.
+      // Assim uma falha momentânea da API nunca desativa os botões da lição.
+      let possuiCache = carregarLicoesDoCacheHostinger();
+
+      if (navigator.onLine === false) return possuiCache;
 
       const controlador = new AbortController();
       const timer = setTimeout(() => controlador.abort(), 10000);
@@ -10039,8 +10129,11 @@
         if (!modoSilencioso) console.error("Erro ao carregar as lições na Hostinger:", erro);
         window.ultimoErroLicoesEBD = erro;
 
+        // Recuperação em camadas: cache Hostinger -> Google Drive legado.
         if (!possuiCache) possuiCache = carregarLicoesDoCacheHostinger();
-        return possuiCache;
+        if (possuiCache) return true;
+        const legado = await carregarLicoesLegadoDrive(true);
+        return Boolean(legado);
       } finally {
         clearTimeout(timer);
       }

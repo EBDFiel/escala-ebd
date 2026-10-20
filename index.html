@@ -12,7 +12,7 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#082f49" />
-  <meta name="ebd-index-versao" content="INDEX_EBD_VIRADA_TRIMESTRAL_AUTOMATICA_PERMANENTE_2026_08_21" />
+  <meta name="ebd-index-versao" content="INDEX_EBD_CONTEUDO_SEMANAL_AUTOMATICO_2026_10_19" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="logoebd.png?v=10" />
   <link rel="icon" type="image/png" sizes="192x192" href="logoebd.png?v=10" />
@@ -20,7 +20,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="logoebd.png?v=10" />
 
   <meta property="og:title" content="Escala de Professores — EBD" />
-  <meta property="og:description" content="Escola Bíblica Dominical — Escala de Professores" />
+  <meta property="og:description" content="Escola Bíblica Dominical — escala de professores, lições e quizzes da semana." />
   <meta property="og:image" content="https://ebdfiel.github.io/escala-ebd/preview-whatsapp.jpg" />
   <meta property="og:image:secure_url" content="https://ebdfiel.github.io/escala-ebd/preview-whatsapp.jpg" />
   <meta property="og:image:type" content="image/jpeg" />
@@ -33,7 +33,7 @@
 
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Escala de Professores — EBD" />
-  <meta name="twitter:description" content="Escola Bíblica Dominical — Escala de Professores" />
+  <meta name="twitter:description" content="Escola Bíblica Dominical — escala de professores, lições e quizzes da semana." />
   <meta name="twitter:image" content="https://ebdfiel.github.io/escala-ebd/preview-whatsapp.jpg" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -6025,7 +6025,7 @@
 
       <p class="header-subtitle" aria-label="Escola Bíblica Dominical"><span aria-hidden="true">E</span><span aria-hidden="true">S</span><span aria-hidden="true">C</span><span aria-hidden="true">O</span><span aria-hidden="true">L</span><span aria-hidden="true">A</span><span aria-hidden="true">&nbsp;</span><span aria-hidden="true">B</span><span aria-hidden="true">Í</span><span aria-hidden="true">B</span><span aria-hidden="true">L</span><span aria-hidden="true">I</span><span aria-hidden="true">C</span><span aria-hidden="true">A</span><span aria-hidden="true">&nbsp;</span><span aria-hidden="true">D</span><span aria-hidden="true">O</span><span aria-hidden="true">M</span><span aria-hidden="true">I</span><span aria-hidden="true">N</span><span aria-hidden="true">I</span><span aria-hidden="true">C</span><span aria-hidden="true">A</span><span aria-hidden="true">L</span></p>
       <h1 class="header-title"><span>Escala de Professores</span></h1>
-      <p id="periodoAtualEBD" class="header-note">📅 Trimestre atual</p>
+      <p id="periodoAtualEBD" class="header-note">📅 Período atual</p>
 
       <div class="header-verse">
         <span class="verse-icon">📖</span>
@@ -6335,13 +6335,14 @@
         </div>
 
         <p>Ao clicar no quiz, você será encaminhado para uma página externa.</p>
+        <p id="quizStatusSemana" style="font-weight:700; color:#52657d;" aria-live="polite">Carregando os quizzes da semana...</p>
 
         <div class="quiz-buttons">
-          <a id="quizAdultos" class="quiz-btn adultos" href="https://ebdfiel.github.io/Quizzes-ClaseAdultos-2026/trimestre-02/licao-07/" target="_blank" rel="noopener">
+          <a id="quizAdultos" class="quiz-btn adultos disabled" href="javascript:void(0)" target="_blank" rel="noopener" aria-disabled="true">
             <span>🧩 Acessar Quiz Jovens e Adultos</span>
           </a>
 
-          <a id="quizJovens" class="quiz-btn jovens" href="https://ebdfiel.github.io/Quizzes-ConectarJovens-/trimestre-02/licao-07/index.html" target="_blank" rel="noopener">
+          <a id="quizJovens" class="quiz-btn jovens disabled" href="javascript:void(0)" target="_blank" rel="noopener" aria-disabled="true">
             <span>🧩 Acessar Quiz Adolescentes</span>
           </a>
         </div>
@@ -6510,7 +6511,7 @@
     </div>
 
     <p>
-      <span id="periodoRodapeEBD">Escala EBD — Escola Bíblica Dominical | Trimestre atual 📚</span>
+      Escala EBD — Escola Bíblica Dominical 📚
     </p>
 
     <div class="logout-footer-wrap">
@@ -7176,9 +7177,10 @@
     };
 
     let quizLinks = {
-      adultos: "https://ebdfiel.github.io/Quizzes-ClaseAdultos-2026/trimestre-02/licao-07/",
-      jovens: "https://ebdfiel.github.io/Quizzes-ConectarJovens-/trimestre-02/licao-07/index.html"
+      adultos: "",
+      jovens: ""
     };
+    let quizzesSemanaMeta = {};
 
     let linhasEscala = [];
     let ultimaVersaoEscala = "";
@@ -7776,7 +7778,6 @@
 
     function atualizarEscalaLocal(linhas) {
       linhasEscala = linhas.map(normalizarLinha);
-      atualizarPeriodoInterfaceEBD(linhasEscala);
 
       classesEscala.forEach((classe) => {
         escala[classe] = linhasEscala.map((linha) => ({
@@ -7992,49 +7993,6 @@
       }
 
       return new Date(ano, mes, dia);
-    }
-
-    function obterPeriodoAtualSaoPauloEBD() {
-      try {
-        const partes = new Intl.DateTimeFormat("en-CA", {
-          timeZone: "America/Sao_Paulo",
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit"
-        }).formatToParts(new Date());
-        const mapa = {};
-        partes.forEach((parte) => { mapa[parte.type] = parte.value; });
-        const ano = Number(mapa.year);
-        const mes = Number(mapa.month);
-        return { ano, trimestre: Math.floor((mes - 1) / 3) + 1 };
-      } catch (erro) {
-        const agora = new Date();
-        return { ano: agora.getFullYear(), trimestre: Math.floor(agora.getMonth() / 3) + 1 };
-      }
-    }
-
-    function obterPeriodoEscalaPublicaEBD(linhas) {
-      const datas = (Array.isArray(linhas) ? linhas : [])
-        .map((linha) => converterDataEscala((linha && (linha.Data || linha.data)) || ""))
-        .filter(Boolean)
-        .sort((a, b) => a - b);
-
-      if (!datas.length) return obterPeriodoAtualSaoPauloEBD();
-      const referencia = datas[0];
-      return {
-        ano: referencia.getFullYear(),
-        trimestre: Math.floor(referencia.getMonth() / 3) + 1
-      };
-    }
-
-    function atualizarPeriodoInterfaceEBD(linhas) {
-      const periodo = obterPeriodoEscalaPublicaEBD(linhas);
-      const rotulo = `${periodo.trimestre}º Trimestre ${periodo.ano}`;
-      const cabecalho = document.getElementById("periodoAtualEBD");
-      const rodape = document.getElementById("periodoRodapeEBD");
-
-      if (cabecalho) cabecalho.textContent = `📅 ${rotulo}`;
-      if (rodape) rodape.textContent = `Escala EBD — Escola Bíblica Dominical | ${rotulo} 📚`;
     }
 
     function obterLinhasDaSemanaAtual(linhas) {
@@ -9605,6 +9563,7 @@
       const quizJovens = document.getElementById("quizJovens");
       const shareQuizAdultos = document.getElementById("shareQuizAdultos");
       const shareQuizJovens = document.getElementById("shareQuizJovens");
+      const quizStatusSemana = document.getElementById("quizStatusSemana");
 
       if (quizAdultos) {
         if (quizLinks.adultos) {
@@ -9645,6 +9604,24 @@
           ? "Compartilhar quiz dos Adolescentes no WhatsApp"
           : "Quiz de Adolescentes ainda não cadastrado";
       }
+
+      if (quizAdultos) quizAdultos.setAttribute("aria-disabled", quizLinks.adultos ? "false" : "true");
+      if (quizJovens) quizJovens.setAttribute("aria-disabled", quizLinks.jovens ? "false" : "true");
+
+      if (quizStatusSemana) {
+        if (quizzesSemanaMeta.programado && quizzesSemanaMeta.dataProgramada) {
+          const numero = Number(quizzesSemanaMeta.numeroProgramado || 0);
+          quizStatusSemana.textContent =
+            (numero ? "Quiz da Lição " + numero : "Quiz da semana") +
+            " · aula em " + formatarDataProgramacaoPublica(quizzesSemanaMeta.dataProgramada);
+        } else if (quizzesSemanaMeta.faltandoPreparacao) {
+          quizStatusSemana.textContent = "Os quizzes desta semana ainda estão em preparação.";
+        } else if (quizLinks.adultos || quizLinks.jovens) {
+          quizStatusSemana.textContent = "Quizzes disponíveis para a semana atual.";
+        } else {
+          quizStatusSemana.textContent = "Os quizzes desta semana ainda não foram disponibilizados.";
+        }
+      }
     }
 
     async function carregarQuizzesDaPlanilha(modoSilencioso = false) {
@@ -9659,6 +9636,9 @@
           if (!modoSilencioso) {
             console.warn("Quizzes não retornaram no formato esperado:", dados);
           }
+          quizLinks.adultos = "";
+          quizLinks.jovens = "";
+          quizzesSemanaMeta = { faltandoPreparacao: true };
           atualizarBotoesQuiz();
           return false;
         }
@@ -9686,11 +9666,21 @@
 
         quizLinks.adultos = String(adultosRecebido || "").trim();
         quizLinks.jovens = String(jovensRecebido || "").trim();
+        quizzesSemanaMeta = {
+          programado: Boolean(dados.programado),
+          faltandoPreparacao: Boolean(dados.faltandoPreparacao),
+          dataProgramada: String(dados.dataProgramada || dados.dataReferencia || ""),
+          numeroProgramado: Number(dados.numeroProgramado || 0),
+          origem: String(dados.origem || "")
+        };
 
         atualizarBotoesQuiz();
         return true;
       } catch (erro) {
         console.error("Erro ao carregar quizzes:", erro);
+        quizLinks.adultos = "";
+        quizLinks.jovens = "";
+        quizzesSemanaMeta = { faltandoPreparacao: true };
         atualizarBotoesQuiz();
         return false;
       }
@@ -9756,6 +9746,23 @@
       }
     }
 
+    function domingoReferenciaSaoPauloPublico() {
+      const hoje = hojeSaoPauloPublico();
+      const partes = hoje.split("-").map(Number);
+      const data = new Date(Date.UTC(partes[0], partes[1] - 1, partes[2]));
+      const diasAteDomingo = (7 - data.getUTCDay()) % 7;
+      data.setUTCDate(data.getUTCDate() + diasAteDomingo);
+      return data.toISOString().slice(0, 10);
+    }
+
+    function atualizarRotuloPeriodoPublico() {
+      const alvo = document.getElementById("periodoAtualEBD");
+      if (!alvo) return;
+      const hoje = hojeSaoPauloPublico().split("-").map(Number);
+      const trimestre = Math.floor((hoje[1] - 1) / 3) + 1;
+      alvo.textContent = "📅 " + trimestre + "º Trimestre " + hoje[0];
+    }
+
     function formatarDataProgramacaoPublica(data) {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(String(data || ""))) return "";
       const partes = String(data).split("-");
@@ -9786,13 +9793,21 @@
       }
 
       const hoje = hojeSaoPauloPublico();
+      const domingoReferencia = domingoReferenciaSaoPauloPublico();
       const ordenada = programacao.slice().sort(function (a, b) {
-        return a.dataLiberacao.localeCompare(b.dataLiberacao) || a.numero - b.numero;
+        return a.data.localeCompare(b.data) || a.numero - b.numero;
       });
-      const vigentes = ordenada.filter(function (entrada) { return entrada.dataLiberacao <= hoje; });
+      const daSemana = ordenada.find(function (entrada) {
+        return entrada.data === domingoReferencia;
+      }) || null;
+
+      if (daSemana && daSemana.dataLiberacao <= hoje) {
+        return { atual: daSemana, proxima: null, manual: false };
+      }
+
       return {
-        atual: vigentes.length ? vigentes[vigentes.length - 1] : null,
-        proxima: ordenada.find(function (entrada) { return entrada.dataLiberacao > hoje; }) || null,
+        atual: null,
+        proxima: daSemana || ordenada.find(function (entrada) { return entrada.data > domingoReferencia; }) || null,
         manual: false
       };
     }
@@ -9930,7 +9945,7 @@
 
       if (salvarCache) {
         try {
-          localStorage.setItem("ebdLicoesHostingerV1", JSON.stringify({
+          localStorage.setItem("ebdLicoesHostingerV2", JSON.stringify({
             configurado: true,
             armazenamento: window.armazenamentoLicoesEBD,
             licoes: configuracaoLicoesSemana,
@@ -9947,7 +9962,7 @@
 
     function carregarLicoesDoCacheHostinger() {
       try {
-        const bruto = localStorage.getItem("ebdLicoesHostingerV1");
+        const bruto = localStorage.getItem("ebdLicoesHostingerV2");
         if (!bruto) return false;
         const cache = JSON.parse(bruto);
         return aplicarDadosLicoesHostinger(cache, false);
@@ -9984,7 +9999,11 @@
     }
 
     async function carregarLicoesAtuais(modoSilencioso = false, forcarAtualizacao = false) {
-      const possuiCache = forcarAtualizacao ? false : carregarLicoesDoCacheHostinger();
+      let possuiCache = false;
+      if (!forcarAtualizacao && navigator.onLine === false) {
+        possuiCache = carregarLicoesDoCacheHostinger();
+      }
+
       const controlador = new AbortController();
       const timer = setTimeout(() => controlador.abort(), 10000);
 
@@ -9993,7 +10012,7 @@
         const resposta = await fetch(LICOES_API_URL + separador + "t=" + Date.now(), {
           method: "GET",
           cache: "no-store",
-          headers: { "Accept": "application/json" },
+          headers: { "Accept": "application/json", "Cache-Control": "no-cache" },
           signal: controlador.signal
         });
 
@@ -10017,11 +10036,10 @@
 
         return true;
       } catch (erro) {
-        console.error("Erro ao carregar as lições na Hostinger:", erro);
+        if (!modoSilencioso) console.error("Erro ao carregar as lições na Hostinger:", erro);
         window.ultimoErroLicoesEBD = erro;
 
-        const legado = await carregarLicoesLegadoDrive(true);
-        if (legado) return true;
+        if (!possuiCache) possuiCache = carregarLicoesDoCacheHostinger();
         return possuiCache;
       } finally {
         clearTimeout(timer);
@@ -11073,8 +11091,25 @@
       }
     }
 
+    let atualizacaoConteudoSemanalEmAndamentoEBD = false;
+
+    async function atualizarConteudoSemanalEBD() {
+      if (!SITE_PUBLICADO || atualizacaoConteudoSemanalEmAndamentoEBD) return;
+      atualizacaoConteudoSemanalEmAndamentoEBD = true;
+      try {
+        atualizarRotuloPeriodoPublico();
+        await Promise.all([
+          carregarLicoesAtuais(true, true),
+          carregarQuizzesDaPlanilha(true)
+        ]);
+      } finally {
+        atualizacaoConteudoSemanalEmAndamentoEBD = false;
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", async function () {
       ajustarSubtituloAoTitulo();
+      atualizarRotuloPeriodoPublico();
       atualizarBotaoInstalarAppEBD();
 
       if (document.fonts && document.fonts.ready) {
@@ -11104,6 +11139,10 @@
         setInterval(function () {
           verificarNovaVersaoInterface();
         }, 300000);
+
+        setInterval(function () {
+          atualizarConteudoSemanalEBD().catch(function () {});
+        }, 300000);
       }
 
       atualizarIndicadorConexao(navigator.onLine !== false);
@@ -11132,6 +11171,7 @@
     document.addEventListener("visibilitychange", async function () {
       if (!document.hidden && SITE_PUBLICADO) {
         await carregarEscalaDaPlanilha(true);
+        await atualizarConteudoSemanalEBD();
         ultimaVersaoEscala = await obterVersaoAtual();
       }
     });
@@ -11139,6 +11179,7 @@
     window.addEventListener("pageshow", async function (evento) {
       if (SITE_PUBLICADO && evento.persisted) {
         await carregarEscalaDaPlanilha(true);
+        await atualizarConteudoSemanalEBD();
         ultimaVersaoEscala = await obterVersaoAtual();
       }
     });
